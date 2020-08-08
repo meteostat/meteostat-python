@@ -1,6 +1,6 @@
 from meteostat import core
-import json
-from math import cos, sqrt
+import pandas as pd
+from math import cos, sqrt, radians
 
 """
 A Python library for accessing open weather and climate data
@@ -19,48 +19,56 @@ class Stations(core.Core):
 
   def __init__(self):
 
-      raw = self._get_file('stations/stations.json.gz')
-      self.stations = json.loads(raw)
+      file_path = self._load_file('stations/stations.json.gz')
+      self.stations = pd.read_json(file_path, orient = 'records', compression = 'gzip')
 
-  def _distance(self, a, b):
+  def _distance(self, station, point):
       # Earth radius in m
       R = 6371000
 
-      x = (b[1] - a[1]) * cos(0.5 * (b[0] + a[0]))
-      y = (b[0] - a[0])
+      x = (radians(point[1]) - radians(station['longitude'])) * cos(0.5 * (radians(point[0]) + radians(station['latitude'])))
+      y = (radians(point[0]) - radians(station['latitude']))
 
       return R * sqrt(x * x + y * y)
 
-  def nearby(self, lat = False, lon = False):
+  def sort_distance(self, lat = False, lon = False):
 
       # Sort weather stations by distance
-      self.stations = sorted(self.stations, key = lambda d: self._distance([d["latitude"], d["longitude"]], [lat, lon]))
+      # self.stations = sorted(self.stations, key = lambda d: self._distance([d["latitude"], d["longitude"]], [lat, lon]))
+
+      # Get distance for each stationsd
+      # self.stations = self.stations.assign(distance = lambda x: self._distance([x['latitude'], x['longitude']], [lat, lon]))
+      self.stations['distance'] = self.stations.apply(lambda station: self._distance(station, [lat, lon]), axis=1)
+
+      # Sort stations by distance
+      self.stations.columns.str.strip()
+      self.stations = self.stations.sort_values('distance')
 
       # Return self
       return self
 
-  def country(self, country = False):
+  def filter_country(self, country = False):
 
       # Check if country is set
       if country != False:
-          self.stations = list(filter(lambda d: d["country"] == country, self.stations))
+          self.stations = self.stations[self.stations['country'] == country]
 
       # Return self
       return self
 
-  def region(self, region = False):
+  def filter_region(self, region = False):
 
       # Check if country is set
       if region != False:
-          self.stations = list(filter(lambda d: d["region"] == region, self.stations))
+          self.stations = self.stations[self.stations['region'] == region]
 
       # Return self
       return self
 
-  def area(self, top_lat = False, top_lon = False, bottom_lat = False, bottom_lon = False):
+  def filter_area(self, top_lat = False, top_lon = False, bottom_lat = False, bottom_lon = False):
 
       # Return stations in boundaries
-      self.stations = list(filter(lambda d: d["latitude"] <= top_lat and d["latitude"] >= bottom_lat and d["longitude"] <= bottom_lon and d["longitude"] >= top_lon, self.stations))
+      self.stations = self.stations[(self.stations["latitude"] <= top_lat) & (self.stations["latitude"] >= bottom_lat) & (self.stations["longitude"] <= bottom_lon) & (self.stations["longitude"] >= top_lon)]
 
       # Return self
       return self
@@ -68,9 +76,9 @@ class Stations(core.Core):
   def count(self):
 
       # Return number of weather stations in current selection
-      return len(self.stations)
+      return len(self.stations.index)
 
   def fetch(self, limit = 1):
 
       # Apply limit and return weather stations
-      return self.stations[:limit]
+      return self.stations.head(limit).to_dict('records')
