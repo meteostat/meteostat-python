@@ -1,5 +1,6 @@
 import os
 import urllib.request
+from urllib.error import HTTPError
 import hashlib
 
 """
@@ -33,6 +34,10 @@ class Core:
 
   def _file_in_cache(self, file_path = False):
 
+      # Make sure the cache directory exists
+      if not os.path.exists(self.cache_dir):
+          os.mkdir(self.cache_dir)
+
       if file_path:
           # Return the file path if it exists
           if os.path.isfile(file_path):
@@ -42,21 +47,31 @@ class Core:
       else:
           return False
 
-  def _load_file(self, path = False):
+  def _load(self, paths = None):
 
-      if path:
-          # Make sure the cache directory exists
-          if not os.path.exists(self.cache_dir):
-              os.mkdir(self.cache_dir)
+      if paths:
 
-          # Get file path
-          file_path = self._get_file_path(path)
+          # The list of local file file paths
+          file_paths = []
 
-          # Check if file in cache
-          if self._file_in_cache(file_path):
-              return file_path
-          else:
-              # Download file and save locally
-              urllib.request.urlretrieve(self.endpoint + path, file_path)
-              # Return file file
-              return file_path
+          # Go thorugh paths
+          for path in paths:
+
+              # Get file path
+              file_path = self._get_file_path(path)
+
+              # Check if file in cache
+              if not self._file_in_cache(file_path):
+                  # Download file and save locally
+                  try:
+                      urllib.request.urlretrieve(self.endpoint + path, file_path)
+                  except HTTPError:
+                      continue
+
+              # Add file path to list
+              file_paths.append({
+                'path': file_path,
+                'origin': path
+              })
+
+          return file_paths

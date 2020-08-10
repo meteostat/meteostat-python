@@ -19,8 +19,8 @@ class Stations(core.Core):
 
   def __init__(self):
 
-      file_path = self._load_file('stations/stations.json.gz')
-      self.stations = pd.read_json(file_path, orient = 'records', compression = 'gzip')
+      file = self._load(['stations/stations.json.gz'])[0]
+      self.stations = pd.read_json(file['path'], orient = 'records', compression = 'gzip')
 
   def _distance(self, station, point):
       # Earth radius in m
@@ -38,7 +38,7 @@ class Stations(core.Core):
 
       # Get distance for each stationsd
       # self.stations = self.stations.assign(distance = lambda x: self._distance([x['latitude'], x['longitude']], [lat, lon]))
-      self.stations['distance'] = self.stations.apply(lambda station: self._distance(station, [lat, lon]), axis=1)
+      self.stations['distance'] = self.stations.apply(lambda station: self._distance(station, [lat, lon]), axis = 1)
 
       # Sort stations by distance
       self.stations.columns.str.strip()
@@ -77,6 +77,13 @@ class Stations(core.Core):
 
       # Return number of weather stations in current selection
       return len(self.stations.index)
+
+  def limit(self, limit = 1):
+
+      # Apply limit and return weather stations
+      self.stations = self.stations.head(limit)
+
+      return self
 
   def fetch(self, limit = 1):
 
