@@ -1,9 +1,7 @@
-from meteostat import core
-import pandas as pd
-from math import cos, sqrt, radians
-
 """
-A Python library for accessing open weather and climate data
+Stations Class
+
+Select weather stations from the full list of stations
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -12,7 +10,11 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-class Stations(core.Core):
+from meteostat.core import Core
+import pandas as pd
+from math import cos, sqrt, radians
+
+class Stations(Core):
 
   # The list of selected weather Stations
   stations = None

@@ -8,7 +8,7 @@ setuptools.setup(
      description="A Python library for working with weather and climate data.",
      url="https://dev.meteostat.net",
      packages=setuptools.find_packages(),
-     install_requires=["pandas"],
+     install_requires=["requests", "pandas"],
      classifiers=[
          "Programming Language :: Python :: 3",
          "License :: OSI Approved :: MIT License",

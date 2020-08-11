@@ -1,10 +1,7 @@
-import os
-import urllib.request
-from urllib.error import HTTPError
-import hashlib
-
 """
-A Python library for accessing open weather and climate data
+Core Class
+
+Base class that provides methods which are used across the package
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -12,6 +9,11 @@ under the terms of the Creative Commons Attribution-NonCommercial
 
 The code is licensed under the MIT license.
 """
+
+import os
+import requests
+from multiprocessing.pool import ThreadPool
+import hashlib
 
 class Core:
 
@@ -47,31 +49,42 @@ class Core:
       else:
           return False
 
+  def _download_file(self, path = None):
+
+      if path:
+          # Get local file path
+          local_path = self._get_file_path(path)
+
+          # Check if file in cache
+          if not self._file_in_cache(local_path):
+
+              resource = requests.get(self.endpoint + path, stream = True)
+
+              if resource.status_code == requests.codes.ok:
+
+                  with open(local_path, 'wb') as file:
+                      for data in resource:
+                          file.write(data)
+
+              else:
+                  
+                  # Create empty file
+                  open(local_path, 'a').close()
+
+          return {
+              'path': local_path,
+              'origin': path
+          }
+
   def _load(self, paths = None):
 
       if paths:
 
-          # The list of local file file paths
-          file_paths = []
+          pool = ThreadPool(5).imap_unordered(self._download_file, paths)
 
-          # Go thorugh paths
-          for path in paths:
+          files = []
 
-              # Get file path
-              file_path = self._get_file_path(path)
+          for file in pool:
+            files.append(file)
 
-              # Check if file in cache
-              if not self._file_in_cache(file_path):
-                  # Download file and save locally
-                  try:
-                      urllib.request.urlretrieve(self.endpoint + path, file_path)
-                  except HTTPError:
-                      continue
-
-              # Add file path to list
-              file_paths.append({
-                'path': file_path,
-                'origin': path
-              })
-
-          return file_paths
+          return files
