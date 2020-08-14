@@ -62,7 +62,11 @@ class Hourly(Core):
 
           self._get_data(stations.stations)
 
-  def fetch(self):
+  def fetch(self, format = 'dict'):
 
-      # Return data as dictionary
-      return self.data.to_dict('records')
+      if format == 'df':
+          # Return data frame
+          return self.data
+      else:
+          # Return data as dictionary
+          return self.data.to_dict('records')
