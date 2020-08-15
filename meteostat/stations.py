@@ -22,7 +22,7 @@ class Stations(Core):
   def __init__(self):
 
       file = self._load(['stations/stations.json.gz'])[0]
-      self.stations = pd.read_json(file['path'], orient = 'records', compression = 'gzip')
+      self.stations = pd.read_feather(file['path'])
 
   def _distance(self, station, point):
       # Earth radius in m
@@ -35,11 +35,7 @@ class Stations(Core):
 
   def sort_distance(self, lat = False, lon = False):
 
-      # Sort weather stations by distance
-      # self.stations = sorted(self.stations, key = lambda d: self._distance([d["latitude"], d["longitude"]], [lat, lon]))
-
       # Get distance for each stationsd
-      # self.stations = self.stations.assign(distance = lambda x: self._distance([x['latitude'], x['longitude']], [lat, lon]))
       self.stations['distance'] = self.stations.apply(lambda station: self._distance(station, [lat, lon]), axis = 1)
 
       # Sort stations by distance
@@ -89,5 +85,5 @@ class Stations(Core):
 
   def fetch(self, limit = 1):
 
-      # Apply limit and return weather stations
-      return self.stations.head(limit).to_dict('records')
+      # Return data frame with limit
+      return self.stations.head(limit)

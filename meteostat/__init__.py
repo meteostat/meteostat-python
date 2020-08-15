@@ -14,3 +14,4 @@ __version__ = "0.1"
 from .core import Core
 from .stations import Stations
 from .hourly import Hourly
+from .daily import Daily

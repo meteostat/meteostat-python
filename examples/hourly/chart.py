@@ -9,7 +9,7 @@ stations.sort_distance(50, 8)
 station = stations.limit(1)
 
 data = Hourly(station, start = datetime(2010, 1, 1), end = datetime(2020, 1, 1, 23, 59))
-data = data.fetch(format = 'df')
+data = data.fetch()
 
 data.plot(x = 'time', y = ['temp'], kind = 'line')
 plt.show()

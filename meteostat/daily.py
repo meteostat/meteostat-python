@@ -1,7 +1,7 @@
 """
-Hourly Class
+Daily Class
 
-Retrieve hourly weather observations for one or multiple weather stations
+Retrieve daily weather observations for one or multiple weather stations
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -15,7 +15,7 @@ import os
 import pandas as pd
 import datetime
 
-class Hourly(Core):
+class Daily(Core):
 
   # The list of weather Stations
   stations = None
@@ -30,7 +30,7 @@ class Hourly(Core):
   data = pd.DataFrame()
 
   # Columns
-  columns = ['date', 'hour', 'temp', 'dwpt', 'rhum', 'prcp', 'snow', 'wdir', 'wspd', 'wpgt', 'pres', 'tsun', 'coco']
+  columns = ['date', 'tavg', 'tmin', 'tmax', 'prcp', 'snow', 'wdir', 'wspd', 'wpgt', 'pres', 'tsun']
 
   def _get_data(self, stations = None):
 
@@ -39,7 +39,7 @@ class Hourly(Core):
           paths = []
 
           for index, row in stations.iterrows():
-              paths.append('hourly/' + row['id'] + '.csv.gz')
+              paths.append('daily/' + row['id'] + '.csv.gz')
 
           files = self._load(paths)
 
@@ -66,5 +66,5 @@ class Hourly(Core):
 
   def fetch(self, format = 'dict'):
 
-      # Return data frame
-      return self.data
+          # Return data frame
+          return self.data

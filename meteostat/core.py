@@ -11,7 +11,7 @@ The code is licensed under the MIT license.
 """
 
 import os
-import requests
+import pandas as pd
 from multiprocessing.pool import ThreadPool
 import hashlib
 
@@ -58,18 +58,28 @@ class Core:
           # Check if file in cache
           if not self._file_in_cache(local_path):
 
-              resource = requests.get(self.endpoint + path, stream = True)
+              if path[-6:-3] == 'csv':
 
-              if resource.status_code == requests.codes.ok:
+                  # The columns which are used for parsing date and time
+                  time_cols = [0, 1]
 
-                  with open(local_path, 'wb') as file:
-                      for data in resource:
-                          file.write(data)
+                  # Update time columns for daily data
+                  if self.__class__.__name__ == 'Daily':
+                      time_cols = [0]
+
+                  # Read CSV file from Meteostat endpoint
+                  df = pd.read_csv(self.endpoint + path, compression = 'gzip', names = self.columns, parse_dates = { 'time': time_cols })
+
+                  # Set weather station ID
+                  df['station'] = path[-12:-7]
 
               else:
-                  
-                  # Create empty file
-                  open(local_path, 'a').close()
+
+                  # Read JSON file
+                  df = pd.read_json(self.endpoint + path, orient = 'records', compression = 'gzip')
+
+              # Save as Feather
+              df.to_feather(local_path)
 
           return {
               'path': local_path,
