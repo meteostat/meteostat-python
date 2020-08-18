@@ -64,6 +64,16 @@ class Daily(Core):
 
           self._get_data(self.stations)
 
+  def coverage(self, parameter = None):
+
+      expect = (self.end - self.start).days + 1
+
+      if parameter == None:
+          return len(self.data.index) / expect
+      else:
+          return self.data[parameter].count() / expect
+
+
   def fetch(self, format = 'dict'):
 
           # Return data frame

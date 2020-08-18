@@ -11,6 +11,7 @@ The code is licensed under the MIT license.
 """
 
 import os
+import time
 import pandas as pd
 from multiprocessing.pool import ThreadPool
 import hashlib
@@ -20,8 +21,14 @@ class Core:
   # Base URL of the Meteostat bulk data interface
   endpoint = 'https://bulk.meteostat.net/'
 
+  # Location of the Meteostat directory
+  ms_dir = os.path.expanduser('~') + os.sep + '.meteostat'
+
   # Location of the cache directory
-  cache_dir = os.path.expanduser("~") + os.sep + ".meteostat"
+  cache_dir = ms_dir + os.sep + 'cache'
+
+  # Maximum age of a cached file in seconds
+  cache_max_age = 24 * 60 * 60
 
   def _get_file_path(self, path = False):
 
@@ -42,7 +49,7 @@ class Core:
 
       if file_path:
           # Return the file path if it exists
-          if os.path.isfile(file_path):
+          if os.path.isfile(file_path) and os.path.getmtime(file_path) - time.time() <= self.cache_max_age:
               return True
           else:
               return False

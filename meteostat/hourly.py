@@ -11,6 +11,7 @@ The code is licensed under the MIT license.
 """
 
 from meteostat.core import Core
+from math import floor
 import os
 import pandas as pd
 import datetime
@@ -63,6 +64,15 @@ class Hourly(Core):
           self.end = end
 
           self._get_data(self.stations)
+
+  def coverage(self, parameter = None):
+
+      expect = floor((self.end - self.start).total_seconds() / 3600) + 1
+
+      if parameter == None:
+          return len(self.data.index) / expect
+      else:
+          return self.data[parameter].count() / expect
 
   def fetch(self, format = 'dict'):
 
