@@ -71,6 +71,14 @@ class Stations(Core):
       # Return self
       return self
 
+  def sample(self, limit = 1):
+
+      # Randomize the order of weather stations
+      self.stations = self.stations.sample(limit)
+
+      # Return self
+      return self
+
   def count(self):
 
       # Return number of weather stations in current selection
@@ -83,7 +91,11 @@ class Stations(Core):
 
       return self
 
-  def fetch(self, limit = 1):
+  def fetch(self, limit = False):
 
-      # Return data frame with limit
-      return self.stations.head(limit)
+      if limit:
+          # Return data frame with limit
+          return self.stations.head(limit)
+      else:
+          # Return all entries
+          return self.stations
