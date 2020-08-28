@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Hourly
 stations = Stations()
-stations.sort_distance(50, 8)
+stations.distance(50, 8)
 station = stations.fetch(1)
 # station = ['10637']
 
