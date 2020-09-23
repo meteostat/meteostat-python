@@ -19,10 +19,22 @@ class Stations(Core):
   # The list of selected weather Stations
   stations = None
 
-  def __init__(self):
+  def __init__(self, lat = None, lon = None, radius = None, country = None, region = None, bounds = None):
 
       file = self._load(['stations/stations.json.gz'])[0]
       self.stations = pd.read_feather(file['path'])
+
+      # Filter by country or region
+      if country != None or region != None:
+          self._regional(country, region)
+
+      # Filter by boundaries
+      if bounds != None:
+          self._area(bounds)
+
+      # Filter by distance
+      if lat != None and lon != None:
+          self._nearby(lat, lon, radius)
 
   def _distance(self, station, point):
       # Earth radius in m
@@ -33,10 +45,14 @@ class Stations(Core):
 
       return R * sqrt(x * x + y * y)
 
-  def sort_distance(self, lat = False, lon = False):
+  def _nearby(self, lat = False, lon = False, radius = None):
 
       # Get distance for each stationsd
       self.stations['distance'] = self.stations.apply(lambda station: self._distance(station, [lat, lon]), axis = 1)
+
+      # Filter by radius
+      if radius != None:
+          self.stations = self.stations[self.stations['distance'] <= radius]
 
       # Sort stations by distance
       self.stations.columns.str.strip()
@@ -45,30 +61,38 @@ class Stations(Core):
       # Return self
       return self
 
-  def filter_country(self, country = False):
+  def _regional(self, country = None, region = None):
 
       # Check if country is set
-      if country != False:
+      if country != None:
           self.stations = self.stations[self.stations['country'] == country]
 
-      # Return self
-      return self
-
-  def filter_region(self, region = False):
-
-      # Check if country is set
-      if region != False:
+      # Check if region is set
+      if region != None:
           self.stations = self.stations[self.stations['region'] == region]
 
       # Return self
       return self
 
-  def filter_area(self, top_lat = False, top_lon = False, bottom_lat = False, bottom_lon = False):
+  def _area(self, bounds = None):
 
       # Return stations in boundaries
-      self.stations = self.stations[(self.stations["latitude"] <= top_lat) & (self.stations["latitude"] >= bottom_lat) & (self.stations["longitude"] <= bottom_lon) & (self.stations["longitude"] >= top_lon)]
+      if bounds != None:
+          self.stations = self.stations[(self.stations['latitude'] <= bounds[0]) & (self.stations['latitude'] >= bounds[2]) & (self.stations['longitude'] <= bounds[3]) & (self.stations['longitude'] >= bounds[1])]
 
       # Return self
+      return self
+
+  def inventory(self, daily = None, hourly = None):
+
+      # Check if daily is set
+      if daily != None:
+          self.stations = self.stations[(self.stations['daily.start'] != None) & (self.stations['daily.start'] <= daily) & (self.stations['daily.end'] >= daily)]
+
+      # Check if hourly is set
+      if hourly != None:
+          self.stations = self.stations[(self.stations['hourly.start'] != None) & (self.stations['hourly.start'] <= hourly) & (self.stations['hourly.end'] >= hourly)]
+
       return self
 
   def sample(self, limit = 1):
@@ -83,13 +107,6 @@ class Stations(Core):
 
       # Return number of weather stations in current selection
       return len(self.stations.index)
-
-  def limit(self, limit = 1):
-
-      # Apply limit and return weather stations
-      self.stations = self.stations.head(limit)
-
-      return self
 
   def fetch(self, limit = False):
 

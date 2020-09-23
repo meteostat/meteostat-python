@@ -4,8 +4,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 # Hourly
-stations = Stations()
-stations.distance(50, 8)
+stations = Stations(lat = 50, lon = 8)
 station = stations.fetch(1)
 # station = ['10637']
 

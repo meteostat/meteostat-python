@@ -30,6 +30,9 @@ class Core:
   # Maximum age of a cached file in seconds
   cache_max_age = 24 * 60 * 60
 
+  # Number of threads used for downloading files
+  thread_count = 5
+
   def _get_file_path(self, path = False):
 
       if path:
@@ -75,7 +78,10 @@ class Core:
                       time_cols = [0]
 
                   # Read CSV file from Meteostat endpoint
-                  df = pd.read_csv(self.endpoint + path, compression = 'gzip', names = self.columns, parse_dates = { 'time': time_cols })
+                  try:
+                      df = pd.read_csv(self.endpoint + path, compression = 'gzip', names = self.columns, parse_dates = { 'time': time_cols })
+                  except:
+                      return False
 
                   # Set weather station ID
                   df['station'] = path[-12:-7]
@@ -84,6 +90,17 @@ class Core:
 
                   # Read JSON file
                   df = pd.read_json(self.endpoint + path, orient = 'records', compression = 'gzip')
+
+                  # Normalize inventory
+                  df_base = df.drop('inventory', axis = 1)
+                  df_inventory = pd.json_normalize(df['inventory'])
+                  df = df_base.merge(df_inventory, left_index = True, right_index = True)
+
+                  # Convert inventory to datetime
+                  df['hourly.start'] = pd.to_datetime(df['hourly.start'])
+                  df['hourly.end'] = pd.to_datetime(df['hourly.end'])
+                  df['daily.start'] = pd.to_datetime(df['daily.start'])
+                  df['daily.end'] = pd.to_datetime(df['daily.end'])
 
               # Save as Feather
               df.to_feather(local_path)
@@ -97,11 +114,12 @@ class Core:
 
       if paths:
 
-          pool = ThreadPool(5).imap_unordered(self._download_file, paths)
+          pool = ThreadPool(self.thread_count).imap_unordered(self._download_file, paths)
 
           files = []
 
           for file in pool:
-            files.append(file)
+            if file != False:
+                files.append(file)
 
           return files
