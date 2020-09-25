@@ -1,5 +1,4 @@
-from meteostat import Stations
-from meteostat import Daily
+from meteostat import Stations, daily
 from datetime import datetime
 import matplotlib.pyplot as plt
 

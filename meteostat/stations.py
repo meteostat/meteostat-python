@@ -9,20 +9,34 @@ under the terms of the Creative Commons Attribution-NonCommercial
 
 The code is licensed under the MIT license.
 """
-
-from meteostat.core import Core
 import pandas as pd
 from math import cos, sqrt, radians
+from meteostat.core import Core
 
 class Stations(Core):
 
   # The list of selected weather Stations
   stations = None
 
-  def __init__(self, lat = None, lon = None, radius = None, country = None, region = None, bounds = None):
+  def __init__(
+      self,
+      lat = None,
+      lon = None,
+      radius = None,
+      country = None,
+      region = None,
+      bounds = None,
+      id = None,
+      wmo = None,
+      icao = None
+  ):
 
       file = self._load(['stations/stations.json.gz'])[0]
       self.stations = pd.read_feather(file['path'])
+
+      # Filter by identifier
+      if id != None or wmo != None or icao != None:
+          self._identifier(id, wmo, icao)
 
       # Filter by country or region
       if country != None or region != None:
@@ -36,7 +50,23 @@ class Stations(Core):
       if lat != None and lon != None:
           self._nearby(lat, lon, radius)
 
+  def _identifier(self, id = None, wmo = None, icao = None):
+
+      # Get station by Meteostat ID
+      if id != None:
+          self.stations = self.stations[self.stations['id'] == id]
+      # Get station by WMO ID
+      elif wmo != None:
+          self.stations = self.stations[self.stations['wmo'] == wmo]
+      # Get stations by ICAO ID
+      elif icao != None:
+          self.stations = self.stations[self.stations['icao'] == icao]
+
+      # Return self
+      return self
+
   def _distance(self, station, point):
+
       # Earth radius in m
       R = 6371000
 

@@ -1,12 +1,10 @@
-from meteostat import Stations
-from meteostat import Daily
+from meteostat import Stations, Daily
 from datetime import datetime
 import matplotlib.pyplot as plt
 
 # Hourly
-stations = Stations(lat = 50, lon = 8)
+stations = Stations(lat = 49.2497, lon = -123.1193)
 station = stations.fetch(1)
-# station = ['10637']
 
 data = Daily(station, start = datetime(2018, 1, 1), end = datetime(2018, 12, 31))
 data = data.fetch()
