@@ -7,12 +7,13 @@ The Meteostat Python package is available through PyPI:
 pip install
 ```
 
-## Synopsis
+## Documentation
 The Meteostat Python library is divided into multiple classes which provide access to the actual data:
-* Stations: Query weather stations
-* Daily: Access daily aggregated weather data
-* Hourly: Access hourly observations
+* Weather Stations
+* Daily Data
+* Hourly Data
 
+## Example
 Let's pretend you want to plot temperature data for Vancouver, BC from 2018:
 ```python
 # Import Meteostat library and dependencies
