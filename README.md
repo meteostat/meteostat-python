@@ -36,7 +36,8 @@ plt.show()
 Take a look at the expected output:
 ![2018 temperature data for Vancouver, BC](examples/daily/chart.png)
 
-## License
+## Data License
 Meteorological data is provided under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International Public License](https://creativecommons.org/licenses/by-nc/4.0/legalcode). Also, please be aware that Meteostat uses data which is shared under [WMO resolution 40](https://www.wmo.int/pages/prog/www/ois/Operational_Information/Publications/Congress/Cg_XII/res40_en.html).
 
+## Code License
 The code of this library is available under the [MIT license](https://opensource.org/licenses/MIT).
