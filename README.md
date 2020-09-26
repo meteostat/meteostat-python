@@ -9,10 +9,11 @@ pip install
 ```
 
 ## Documentation
-The Meteostat Python library is divided into multiple classes which provide access to the actual data:
-* Weather Stations
-* Daily Data
-* Hourly Data
+The Meteostat Python library is divided into multiple classes which provide access to the actual data.
+* [Weather Stations](https://github.com/meteostat/meteostat-python/wiki/Weather-Stations)
+* [Daily Data](https://github.com/meteostat/meteostat-python/wiki/Daily-Data)
+* [Hourly Data](https://github.com/meteostat/meteostat-python/wiki/Hourly-Data)
+* [Contributing](https://github.com/meteostat/meteostat-python/wiki/Contributing)
 
 ## Example
 Let's pretend you want to plot temperature data for Vancouver, BC from 2018:
