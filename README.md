@@ -38,10 +38,12 @@ Take a look at the expected output:
 ![2018 temperature data for Vancouver, BC](examples/daily/chart.png)
 
 ## Contributing
-Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://github.com/meteostat/meteostat-python/wiki/Contributing).
+Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://github.com/meteostat/meteostat-python/wiki/Contributing). More information about the Meteostat bulk data interface can be found [here](https://dev.meteostat.net/bulk).
 
 ## Data License
 Meteorological data is provided under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International Public License](https://creativecommons.org/licenses/by-nc/4.0/legalcode). Please be aware that Meteostat uses data which is shared under [WMO resolution 40](https://www.wmo.int/pages/prog/www/ois/Operational_Information/Publications/Congress/Cg_XII/res40_en.html).
+
+All meteorological data sources used by the Meteostat project are listed [here](https://meteostat.net/en/sources).
 
 ## Code License
 The code of this library is available under the [MIT license](https://opensource.org/licenses/MIT).
