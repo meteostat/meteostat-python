@@ -28,9 +28,12 @@ class Stations(Core):
       bounds = None,
       id = None,
       wmo = None,
-      icao = None
+      icao = None,
+      daily = None,
+      hourly = None
   ):
 
+      # Get all weather stations
       file = self._load(['stations/stations.json.gz'])[0]
       self.stations = pd.read_feather(file['path'])
 
@@ -49,6 +52,14 @@ class Stations(Core):
       # Filter by distance
       if lat != None and lon != None:
           self._nearby(lat, lon, radius)
+
+      # Filter by daily inventory
+      if daily != None:
+          self._inventory(daily, None)
+
+      # Filter by hourly inventory
+      if hourly != None:
+          self._inventory(None, hourly)
 
   def _identifier(self, id = None, wmo = None, icao = None):
 
@@ -113,7 +124,7 @@ class Stations(Core):
       # Return self
       return self
 
-  def inventory(self, daily = None, hourly = None):
+  def _inventory(self, daily = None, hourly = None):
 
       # Check if daily is set
       if daily != None:
