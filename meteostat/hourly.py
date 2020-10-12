@@ -31,7 +31,24 @@ class Hourly(Core):
   data = pd.DataFrame(index = ['station', 'time'])
 
   # Columns
-  columns = ['date', 'hour', 'temp', 'dwpt', 'rhum', 'prcp', 'snow', 'wdir', 'wspd', 'wpgt', 'pres', 'tsun', 'coco']
+  columns = [
+    'date',
+    'hour',
+    'temp',
+    'dwpt',
+    'rhum',
+    'prcp',
+    'snow',
+    'wdir',
+    'wspd',
+    'wpgt',
+    'pres',
+    'tsun',
+    'coco'
+  ]
+
+  # Columns for date parsing
+  parse_dates = { 'time': [0, 1] }
 
   def _get_data(self, stations = None):
 
@@ -53,16 +70,36 @@ class Hourly(Core):
 
                       self.data = self.data.append(df[(df['time'] >= self.start) & (df['time'] <= self.end)])
 
-  def __init__(self, stations = None, start = None, end = None):
+  def __init__(
+    self,
+    stations = None,
+    start = None,
+    end = None,
+    cache_dir = None,
+    max_age = None
+  ):
 
+      # Configuration - Cache directory
+      if cache_dir != None:
+        self.cache_dir = cache_dir
+
+      # Configuration - Maximum file age
+      if max_age != None:
+        self.max_age = max_age
+
+      # Set list of weather stations
       if isinstance(stations, pd.DataFrame):
           self.stations = stations
       else:
           self.stations = pd.DataFrame(stations, columns = ['id'])
 
+      # Set start date
       self.start = start
+
+      # Set end date
       self.end = end
 
+      # Get data
       self._get_data(self.stations)
 
   def normalize(self):

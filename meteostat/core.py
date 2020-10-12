@@ -21,16 +21,13 @@ class Core:
   # Base URL of the Meteostat bulk data interface
   endpoint = 'https://bulk.meteostat.net/'
 
-  # Location of the Meteostat directory
-  ms_dir = os.path.expanduser('~') + os.sep + '.meteostat'
-
   # Location of the cache directory
-  cache_dir = ms_dir + os.sep + 'cache'
+  cache_dir = os.path.expanduser('~') + os.sep + '.meteostat' + os.sep + 'cache'
 
   # Maximum age of a cached file in seconds
-  cache_max_age = 24 * 60 * 60
+  max_age = 24 * 60 * 60
 
-  # Number of threads used for downloading files
+  # Maximum number of threads used for downloading files
   thread_count = 5
 
   def _get_file_path(self, path = False):
@@ -52,7 +49,7 @@ class Core:
 
       if file_path:
           # Return the file path if it exists
-          if os.path.isfile(file_path) and os.path.getmtime(file_path) - time.time() <= self.cache_max_age:
+          if os.path.isfile(file_path) and time.time() - os.path.getmtime(file_path) <= self.max_age:
               return True
           else:
               return False
@@ -70,37 +67,15 @@ class Core:
 
               if path[-6:-3] == 'csv':
 
-                  # The columns which are used for parsing date and time
-                  time_cols = [0, 1]
-
-                  # Update time columns for daily data
-                  if self.__class__.__name__ == 'Daily':
-                      time_cols = [0]
-
                   # Read CSV file from Meteostat endpoint
                   try:
-                      df = pd.read_csv(self.endpoint + path, compression = 'gzip', names = self.columns, parse_dates = { 'time': time_cols })
+                      df = pd.read_csv(self.endpoint + path, compression = 'gzip', names = self.columns, parse_dates = self.parse_dates)
                   except:
                       return False
 
                   # Set weather station ID
-                  df['station'] = path[-12:-7]
-
-              else:
-
-                  # Read JSON file
-                  df = pd.read_json(self.endpoint + path, orient = 'records', compression = 'gzip')
-
-                  # Normalize inventory
-                  df_base = df.drop('inventory', axis = 1)
-                  df_inventory = pd.json_normalize(df['inventory'])
-                  df = df_base.merge(df_inventory, left_index = True, right_index = True)
-
-                  # Convert inventory to datetime
-                  df['hourly.start'] = pd.to_datetime(df['hourly.start'])
-                  df['hourly.end'] = pd.to_datetime(df['hourly.end'])
-                  df['daily.start'] = pd.to_datetime(df['daily.start'])
-                  df['daily.end'] = pd.to_datetime(df['daily.end'])
+                  if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
+                      df['station'] = path[-12:-7]
 
               # Save as Feather
               df.to_feather(local_path)

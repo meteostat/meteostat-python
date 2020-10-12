@@ -5,4 +5,4 @@ stations = Stations(id = '10637', icao = 'EDDF')
 station = stations.fetch(1).to_dict('records')[0]
 
 # Print name
-print(station["name"]["en"])
+print(station["name"])

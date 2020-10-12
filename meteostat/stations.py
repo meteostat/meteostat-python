@@ -18,23 +18,55 @@ class Stations(Core):
   # The list of selected weather Stations
   stations = None
 
+  # Columns
+  columns = [
+    'id',
+    'name',
+    'country',
+    'region',
+    'national',
+    'wmo',
+    'icao',
+    'latitude',
+    'longitude',
+    'altitude',
+    'timezone',
+    'hourly_start',
+    'hourly_end',
+    'daily_start',
+    'daily_end'
+  ]
+
+  # Columns for date parsing
+  parse_dates = [11, 12, 13, 14]
+
   def __init__(
-      self,
-      lat = None,
-      lon = None,
-      radius = None,
-      country = None,
-      region = None,
-      bounds = None,
-      id = None,
-      wmo = None,
-      icao = None,
-      daily = None,
-      hourly = None
+    self,
+    lat = None,
+    lon = None,
+    radius = None,
+    country = None,
+    region = None,
+    bounds = None,
+    id = None,
+    wmo = None,
+    icao = None,
+    daily = None,
+    hourly = None,
+    cache_dir = None,
+    max_age = None
   ):
 
+      # Configuration - Cache directory
+      if cache_dir != None:
+        self.cache_dir = cache_dir
+
+      # Configuration - Maximum file age
+      if max_age != None:
+        self.max_age = max_age
+
       # Get all weather stations
-      file = self._load(['stations/stations.json.gz'])[0]
+      file = self._load(['stations/lib.csv.gz'])[0]
       self.stations = pd.read_feather(file['path'])
 
       # Filter by identifier
@@ -128,11 +160,11 @@ class Stations(Core):
 
       # Check if daily is set
       if daily != None:
-          self.stations = self.stations[(self.stations['daily.start'] != None) & (self.stations['daily.start'] <= daily) & (self.stations['daily.end'] >= daily)]
+          self.stations = self.stations[(self.stations['daily_start'] != None) & (self.stations['daily_start'] <= daily) & (self.stations['daily_end'] >= daily)]
 
       # Check if hourly is set
       if hourly != None:
-          self.stations = self.stations[(self.stations['hourly.start'] != None) & (self.stations['hourly.start'] <= hourly) & (self.stations['hourly.end'] >= hourly)]
+          self.stations = self.stations[(self.stations['hourly_start'] != None) & (self.stations['hourly_start'] <= hourly) & (self.stations['hourly_end'] >= hourly)]
 
       return self
 

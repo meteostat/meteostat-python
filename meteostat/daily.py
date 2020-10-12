@@ -31,10 +31,25 @@ class Daily(Core):
   data = pd.DataFrame()
 
   # Columns
-  columns = ['date', 'tavg', 'tmin', 'tmax', 'prcp', 'snow', 'wdir', 'wspd', 'wpgt', 'pres', 'tsun']
+  columns = [
+    'date',
+    'tavg',
+    'tmin',
+    'tmax',
+    'prcp',
+    'snow',
+    'wdir',
+    'wspd',
+    'wpgt',
+    'pres',
+    'tsun'
+  ]
+
+  # Columns for date parsing
+  parse_dates = { 'time': [0] }
 
   # Default aggregations
-  aggs = {
+  aggregations = {
     'time': 'first',
     'tavg': 'mean',
     'tmin': 'min',
@@ -68,17 +83,37 @@ class Daily(Core):
 
                       self.data = self.data.append(df[(df['time'] >= self.start) & (df['time'] <= self.end)])
 
-  def __init__(self, stations = None, start = None, end = None):
+  def __init__(
+    self,
+    stations = None,
+    start = None,
+    end = None,
+    cache_dir = None,
+    max_age = None
+  ):
 
-          if isinstance(stations, pd.DataFrame):
-              self.stations = stations
-          else:
-              self.stations = pd.DataFrame(stations, columns = ['id'])
+      # Configuration - Cache directory
+      if cache_dir != None:
+          self.cache_dir = cache_dir
 
-          self.start = start
-          self.end = end
+      # Configuration - Maximum file age
+      if max_age != None:
+          self.max_age = max_age
 
-          self._get_data(self.stations)
+      # Set list of weather stations
+      if isinstance(stations, pd.DataFrame):
+          self.stations = stations
+      else:
+          self.stations = pd.DataFrame(stations, columns = ['id'])
+
+      # Set start date
+      self.start = start
+
+      # Set end date
+      self.end = end
+
+      # Get data
+      self._get_data(self.stations)
 
   def normalize(self):
 
@@ -121,17 +156,17 @@ class Daily(Core):
       # Return self
       return self
 
-  def aggregate(self, freq = None, aggs = None, overall = False):
+  def aggregate(self, freq = None, functions = None, spatial = False):
 
       # Update default aggregations
-      if aggs is not None:
-          self.aggs.update(aggs)
+      if functions is not None:
+          self.aggregations.update(functions)
 
       # Time aggregation
-      self.data = self.data.groupby(['station', pd.Grouper(key = 'time', freq = freq)]).agg(self.aggs)
+      self.data = self.data.groupby(['station', pd.Grouper(key = 'time', freq = freq)]).agg(self.aggregations)
 
-      # Room aggregation
-      if overall:
+      # Spatial aggregation
+      if spatial:
           self.data = self.data.groupby([pd.Grouper(key = 'time', freq = freq)]).mean()
 
       # Return self
