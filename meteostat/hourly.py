@@ -10,28 +10,29 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+import os
+import datetime
+import pandas as pd
 from meteostat.core import Core
 from math import floor, nan
-import os
-import pandas as pd
-import datetime
+from copy import copy
 
 class Hourly(Core):
 
   # The list of weather Stations
-  stations = None
+  _stations = None
 
   # The start date
-  start = None
+  _start = None
 
   # The end date
-  end = None
+  _end = None
 
   # The data frame
-  data = pd.DataFrame(index = ['station', 'time'])
+  _data = pd.DataFrame(index = ['station', 'time'])
 
   # Columns
-  columns = [
+  _columns = [
     'date',
     'hour',
     'temp',
@@ -48,7 +49,7 @@ class Hourly(Core):
   ]
 
   # Columns for date parsing
-  parse_dates = { 'time': [0, 1] }
+  _parse_dates = { 'time': [0, 1] }
 
   def _get_data(self, stations = None):
 
@@ -68,7 +69,7 @@ class Hourly(Core):
                   if os.path.isfile(file['path']) and os.path.getsize(file['path']) > 0:
                       df = pd.read_feather(file['path'])
 
-                      self.data = self.data.append(df[(df['time'] >= self.start) & (df['time'] <= self.end)])
+                      self._data = self._data.append(df[(df['time'] >= self._start) & (df['time'] <= self._end)])
 
   def __init__(
     self,
@@ -76,49 +77,54 @@ class Hourly(Core):
     start = None,
     end = None,
     cache_dir = None,
-    max_age = None
+    max_age = None,
+    max_threads = None
   ):
 
       # Configuration - Cache directory
       if cache_dir != None:
-        self.cache_dir = cache_dir
+        self._cache_dir = cache_dir
 
       # Configuration - Maximum file age
       if max_age != None:
-        self.max_age = max_age
+        self._max_age = max_age
+
+      # Configuration - Maximum number of threads
+      if max_threads != None:
+          self._max_threads = max_threads
 
       # Set list of weather stations
       if isinstance(stations, pd.DataFrame):
-          self.stations = stations
+          self._stations = stations
       else:
-          self.stations = pd.DataFrame(stations, columns = ['id'])
+          self._stations = pd.DataFrame(stations, columns = ['id'])
 
       # Set start date
-      self.start = start
+      self._start = start
 
       # Set end date
-      self.end = end
+      self._end = end
 
       # Get data
-      self._get_data(self.stations)
+      self._get_data(self._stations)
 
   def normalize(self):
 
       # List of columns
       columns = ['station', 'time']
       # Dynamically append columns
-      for column in self.columns[2:]:
+      for column in self._columns[2:]:
           columns.append(column)
 
       # Create result DataFrame
       result = pd.DataFrame(columns = columns)
 
       # Go through list of weather stations
-      for station in self.stations['id'].tolist():
+      for station in self._stations['id'].tolist():
           # Create data frame
           df = pd.DataFrame(columns = columns)
           # Add time series
-          df['time'] = pd.date_range(self.start, self.end, freq='1H')
+          df['time'] = pd.date_range(self._start, self._end, freq='1H')
           # Add station ID
           df['station'] = station
           # Add columns
@@ -129,7 +135,7 @@ class Hourly(Core):
           result = pd.concat([result, df], axis = 0)
 
       # Merge data
-      self.data = pd.concat([self.data, result], axis = 0).groupby(['station', 'time'], as_index = False).first()
+      self._data = pd.concat([self._data, result], axis = 0).groupby(['station', 'time'], as_index = False).first()
 
       # Return self
       return self
@@ -137,21 +143,21 @@ class Hourly(Core):
   def interpolate(self, limit = 3):
 
       # Apply interpolation
-      self.data = self.data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
+      self._data = self._data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
 
       # Return self
       return self
 
   def coverage(self, parameter = None):
 
-      expect = floor((self.end - self.start).total_seconds() / 3600) + 1
+      expect = floor((self._end - self._start).total_seconds() / 3600) + 1
 
       if parameter == None:
-          return len(self.data.index) / expect
+          return len(self._data.index) / expect
       else:
-          return self.data[parameter].count() / expect
+          return self._data[parameter].count() / expect
 
-  def fetch(self, format = 'dict'):
+  def fetch(self):
 
       # Return data frame
-      return self.data
+      return copy(self.data)

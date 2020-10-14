@@ -12,23 +12,24 @@ The code is licensed under the MIT license.
 
 import os
 import time
-import pandas as pd
-from multiprocessing.pool import ThreadPool
 import hashlib
+import pandas as pd
+from copy import copy
+from multiprocessing.pool import ThreadPool
 
 class Core:
 
   # Base URL of the Meteostat bulk data interface
-  endpoint = 'https://bulk.meteostat.net/'
+  _endpoint = 'https://bulk.meteostat.net/'
 
   # Location of the cache directory
-  cache_dir = os.path.expanduser('~') + os.sep + '.meteostat' + os.sep + 'cache'
+  _cache_dir = os.path.expanduser('~') + os.sep + '.meteostat' + os.sep + 'cache'
 
   # Maximum age of a cached file in seconds
-  max_age = 24 * 60 * 60
+  _max_age = 24 * 60 * 60
 
   # Maximum number of threads used for downloading files
-  thread_count = 5
+  _max_threads = 5
 
   def _get_file_path(self, path = False):
 
@@ -36,7 +37,7 @@ class Core:
           # Get file ID
           file_id = hashlib.md5(path.encode('utf-8')).hexdigest()
           # Return path
-          return self.cache_dir + os.sep + file_id
+          return self._cache_dir + os.sep + file_id
       else:
           # Return false
           return False
@@ -44,12 +45,12 @@ class Core:
   def _file_in_cache(self, file_path = False):
 
       # Make sure the cache directory exists
-      if not os.path.exists(self.cache_dir):
-          os.mkdir(self.cache_dir)
+      if not os.path.exists(self._cache_dir):
+          os.mkdir(self._cache_dir)
 
       if file_path:
           # Return the file path if it exists
-          if os.path.isfile(file_path) and time.time() - os.path.getmtime(file_path) <= self.max_age:
+          if os.path.isfile(file_path) and time.time() - os.path.getmtime(file_path) <= self._max_age:
               return True
           else:
               return False
@@ -69,7 +70,7 @@ class Core:
 
                   # Read CSV file from Meteostat endpoint
                   try:
-                      df = pd.read_csv(self.endpoint + path, compression = 'gzip', names = self.columns, parse_dates = self.parse_dates)
+                      df = pd.read_csv(self._endpoint + path, compression = 'gzip', names = self._columns, parse_dates = self._parse_dates)
                   except:
                       return False
 
@@ -89,7 +90,7 @@ class Core:
 
       if paths:
 
-          pool = ThreadPool(self.thread_count).imap_unordered(self._download_file, paths)
+          pool = ThreadPool(self._max_threads).imap_unordered(self._download_file, paths)
 
           files = []
 
@@ -98,3 +99,29 @@ class Core:
                 files.append(file)
 
           return files
+
+  def clear_cache(self, max_age = None):
+
+      # Set max_age
+      if max_age is None:
+          max_age = self._max_age
+
+      # Get current time
+      now = time.time()
+
+      # Go through all files
+      for file in os.listdir(self._cache_dir):
+
+          # Get full path
+          path = os.path.join(self._cache_dir, file)
+
+          # Check if file is older than max_age
+          if now - os.path.getmtime(path) > max_age and os.path.isfile(path):
+
+              # Delete file
+              os.remove(path)
+
+  def copy(self):
+
+      # Return copy of class instance
+      return copy(self)

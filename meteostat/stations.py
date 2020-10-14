@@ -9,17 +9,19 @@ under the terms of the Creative Commons Attribution-NonCommercial
 
 The code is licensed under the MIT license.
 """
+
 import pandas as pd
-from math import cos, sqrt, radians
 from meteostat.core import Core
+from math import cos, sqrt, radians
+from copy import copy
 
 class Stations(Core):
 
   # The list of selected weather Stations
-  stations = None
+  _stations = None
 
   # Columns
-  columns = [
+  _columns = [
     'id',
     'name',
     'country',
@@ -38,7 +40,7 @@ class Stations(Core):
   ]
 
   # Columns for date parsing
-  parse_dates = [11, 12, 13, 14]
+  _parse_dates = [11, 12, 13, 14]
 
   def __init__(
     self,
@@ -54,20 +56,25 @@ class Stations(Core):
     daily = None,
     hourly = None,
     cache_dir = None,
-    max_age = None
+    max_age = None,
+    max_threads = None
   ):
 
       # Configuration - Cache directory
       if cache_dir != None:
-        self.cache_dir = cache_dir
+        self._cache_dir = cache_dir
 
       # Configuration - Maximum file age
       if max_age != None:
-        self.max_age = max_age
+        self._max_age = max_age
+
+      # Configuration - Maximum number of threads
+      if max_threads != None:
+          self._max_threads = max_threads
 
       # Get all weather stations
       file = self._load(['stations/lib.csv.gz'])[0]
-      self.stations = pd.read_feather(file['path'])
+      self._stations = pd.read_feather(file['path'])
 
       # Filter by identifier
       if id != None or wmo != None or icao != None:
@@ -97,13 +104,24 @@ class Stations(Core):
 
       # Get station by Meteostat ID
       if id != None:
-          self.stations = self.stations[self.stations['id'] == id]
+          if isinstance(id, list):
+              self._stations = self._stations[self._stations['id'].isin(id)]
+          else:
+              self._stations = self._stations[self._stations['id'] == id]
+
       # Get station by WMO ID
       elif wmo != None:
-          self.stations = self.stations[self.stations['wmo'] == wmo]
+          if isinstance(wmo, list):
+              self._stations = self._stations[self._stations['wmo'].isin(wmo)]
+          else:
+              self._stations = self._stations[self._stations['wmo'] == wmo]
+
       # Get stations by ICAO ID
       elif icao != None:
-          self.stations = self.stations[self.stations['icao'] == icao]
+          if isinstance(icao, list):
+              self._stations = self._stations[self._stations['icao'].isin(icao)]
+          else:
+              self._stations = self._stations[self._stations['icao'] == icao]
 
       # Return self
       return self
@@ -121,15 +139,15 @@ class Stations(Core):
   def _nearby(self, lat = False, lon = False, radius = None):
 
       # Get distance for each stationsd
-      self.stations['distance'] = self.stations.apply(lambda station: self._distance(station, [lat, lon]), axis = 1)
+      self._stations['distance'] = self._stations.apply(lambda station: self._distance(station, [lat, lon]), axis = 1)
 
       # Filter by radius
       if radius != None:
-          self.stations = self.stations[self.stations['distance'] <= radius]
+          self._stations = self._stations[self._stations['distance'] <= radius]
 
       # Sort stations by distance
-      self.stations.columns.str.strip()
-      self.stations = self.stations.sort_values('distance')
+      self._stations.columns.str.strip()
+      self._stations = self._stations.sort_values('distance')
 
       # Return self
       return self
@@ -138,11 +156,11 @@ class Stations(Core):
 
       # Check if country is set
       if country != None:
-          self.stations = self.stations[self.stations['country'] == country]
+          self._stations = self._stations[self._stations['country'] == country]
 
       # Check if region is set
       if region != None:
-          self.stations = self.stations[self.stations['region'] == region]
+          self._stations = self._stations[self._stations['region'] == region]
 
       # Return self
       return self
@@ -151,7 +169,7 @@ class Stations(Core):
 
       # Return stations in boundaries
       if bounds != None:
-          self.stations = self.stations[(self.stations['latitude'] <= bounds[0]) & (self.stations['latitude'] >= bounds[2]) & (self.stations['longitude'] <= bounds[3]) & (self.stations['longitude'] >= bounds[1])]
+          self._stations = self._stations[(self._stations['latitude'] <= bounds[0]) & (self._stations['latitude'] >= bounds[2]) & (self._stations['longitude'] <= bounds[3]) & (self._stations['longitude'] >= bounds[1])]
 
       # Return self
       return self
@@ -160,18 +178,18 @@ class Stations(Core):
 
       # Check if daily is set
       if daily != None:
-          self.stations = self.stations[(self.stations['daily_start'] != None) & (self.stations['daily_start'] <= daily) & (self.stations['daily_end'] >= daily)]
+          self._stations = self._stations[(self._stations['daily_start'] != None) & (self._stations['daily_start'] <= daily) & (self._stations['daily_end'] >= daily)]
 
       # Check if hourly is set
       if hourly != None:
-          self.stations = self.stations[(self.stations['hourly_start'] != None) & (self.stations['hourly_start'] <= hourly) & (self.stations['hourly_end'] >= hourly)]
+          self._stations = self._stations[(self._stations['hourly_start'] != None) & (self._stations['hourly_start'] <= hourly) & (self._stations['hourly_end'] >= hourly)]
 
       return self
 
   def sample(self, limit = 1):
 
       # Randomize the order of weather stations
-      self.stations = self.stations.sample(limit)
+      self._stations = self._stations.sample(limit)
 
       # Return self
       return self
@@ -179,13 +197,13 @@ class Stations(Core):
   def count(self):
 
       # Return number of weather stations in current selection
-      return len(self.stations.index)
+      return len(self._stations.index)
 
   def fetch(self, limit = False):
 
       if limit:
           # Return data frame with limit
-          return self.stations.head(limit)
+          return copy(self._stations.head(limit))
       else:
           # Return all entries
-          return self.stations
+          return copy(self._stations)
