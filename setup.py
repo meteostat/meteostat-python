@@ -1,17 +1,28 @@
-import setuptools
+from os import path
+from setuptools import setup, find_packages
 
-setuptools.setup(
-     name='meteostat',
-     version='0.1',
-     author="Meteostat",
-     author_email="info@meteostat.net",
-     description="A Python library for working with weather and climate data.",
-     url="https://dev.meteostat.net",
-     packages=setuptools.find_packages(),
-     install_requires=["pandas", "pyarrow"],
-     classifiers=[
-         "Programming Language :: Python :: 3",
-         "License :: OSI Approved :: MIT License",
-         "Operating System :: OS Independent",
+# Content of the README file
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.md')) as f:
+    long_description = f.read()
+
+# Setup
+setup(
+     name = 'meteostat',
+     version = '0.1.0',
+     author = 'Meteostat',
+     author_email = 'info@meteostat.net',
+     description = 'Access and analyze historical weather and climate data with Python.',
+     long_description = long_description,
+     long_description_content_type = 'text/markdown',
+     url = 'https://github.com/meteostat/meteostat-python',
+     packages = find_packages(),
+     include_package_data = True,
+     install_requires = ['pandas', 'pyarrow'],
+     license = 'MIT',
+     classifiers = [
+         'Programming Language :: Python :: 3',
+         'License :: OSI Approved :: MIT License',
+         'Operating System :: OS Independent',
      ],
  )

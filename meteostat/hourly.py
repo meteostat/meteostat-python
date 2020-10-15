@@ -51,6 +51,22 @@ class Hourly(Core):
   # Columns for date parsing
   _parse_dates = { 'time': [0, 1] }
 
+  # Default aggregation functions
+  _aggregations = {
+    'time': 'first',
+    'temp': 'mean',
+    'dwpt': 'mean',
+    'rhum': 'mean',
+    'prcp': 'sum',
+    'snow': 'mean',
+    'wdir': 'mean',
+    'wspd': 'mean',
+    'wpgt': 'max',
+    'pres': 'mean',
+    'tsun': 'sum',
+    'coco': 'max'
+  }
+
   def _get_data(self, stations = None):
 
       if len(stations.index) > 0:
@@ -148,6 +164,22 @@ class Hourly(Core):
       # Return self
       return self
 
+  def aggregate(self, freq = None, functions = None, spatial = False):
+
+      # Update default aggregations
+      if functions is not None:
+          self._aggregations.update(functions)
+
+      # Time aggregation
+      self._data = self._data.groupby(['station', pd.Grouper(key = 'time', freq = freq)]).agg(self._aggregations)
+
+      # Spatial aggregation
+      if spatial:
+          self._data = self._data.groupby([pd.Grouper(key = 'time', freq = freq)]).mean()
+
+      # Return self
+      return self
+
   def coverage(self, parameter = None):
 
       expect = floor((self._end - self._start).total_seconds() / 3600) + 1
@@ -160,4 +192,4 @@ class Hourly(Core):
   def fetch(self):
 
       # Return data frame
-      return copy(self.data)
+      return copy(self._data)

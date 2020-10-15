@@ -121,7 +121,7 @@ class Core:
               # Delete file
               os.remove(path)
 
-  def copy(self):
+  def clone(self):
 
       # Return copy of class instance
       return copy(self)

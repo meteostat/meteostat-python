@@ -26,12 +26,11 @@ class Stations(Core):
     'name',
     'country',
     'region',
-    'national',
     'wmo',
     'icao',
     'latitude',
     'longitude',
-    'altitude',
+    'elevation',
     'timezone',
     'hourly_start',
     'hourly_end',
@@ -40,7 +39,7 @@ class Stations(Core):
   ]
 
   # Columns for date parsing
-  _parse_dates = [11, 12, 13, 14]
+  _parse_dates = [10, 11, 12, 13]
 
   def __init__(
     self,
@@ -104,24 +103,27 @@ class Stations(Core):
 
       # Get station by Meteostat ID
       if id != None:
-          if isinstance(id, list):
-              self._stations = self._stations[self._stations['id'].isin(id)]
-          else:
-              self._stations = self._stations[self._stations['id'] == id]
+
+          if not isinstance(id, list):
+              id = [id]
+
+          self._stations = self._stations[self._stations['id'].isin(id)]
 
       # Get station by WMO ID
       elif wmo != None:
-          if isinstance(wmo, list):
-              self._stations = self._stations[self._stations['wmo'].isin(wmo)]
-          else:
-              self._stations = self._stations[self._stations['wmo'] == wmo]
+
+          if not isinstance(wmo, list):
+              wmo = [wmo]
+
+          self._stations = self._stations[self._stations['wmo'].isin(wmo)]
 
       # Get stations by ICAO ID
       elif icao != None:
+
           if isinstance(icao, list):
-              self._stations = self._stations[self._stations['icao'].isin(icao)]
-          else:
-              self._stations = self._stations[self._stations['icao'] == icao]
+              icao = [icao]
+
+          self._stations = self._stations[self._stations['icao'] == icao]
 
       # Return self
       return self

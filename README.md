@@ -4,7 +4,7 @@ The Meteostat Python library provides a simple API for accessing open weather an
 ## Installation
 The Meteostat Python package is available through PyPI:
 ```
-pip install
+pip install meteostat
 ```
 
 ## Documentation
@@ -35,7 +35,7 @@ data.plot(x = 'time', y = ['tavg', 'tmin', 'tmax'], kind = 'line')
 plt.show()
 ```
 Take a look at the expected output:
-![2018 temperature data for Vancouver, BC](examples/daily/chart.png)
+![2018 temperature data for Vancouver, BC](https://raw.githubusercontent.com/meteostat/meteostat-python/master/examples/daily/chart.png)
 
 ## Contributing
 Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://github.com/meteostat/meteostat-python/wiki/Contributing). More information about the Meteostat bulk data interface can be found [here](https://dev.meteostat.net/bulk).

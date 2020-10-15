@@ -49,7 +49,7 @@ class Daily(Core):
   # Columns for date parsing
   _parse_dates = { 'time': [0] }
 
-  # Default aggregations
+  # Default aggregation functions
   _aggregations = {
     'time': 'first',
     'tavg': 'mean',
