@@ -46,7 +46,7 @@ class Core:
 
       # Make sure the cache directory exists
       if not os.path.exists(self._cache_dir):
-          os.mkdir(self._cache_dir)
+          os.makedirs(self._cache_dir)
 
       if file_path:
           # Return the file path if it exists
