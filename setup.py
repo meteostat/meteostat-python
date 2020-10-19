@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md')) as f:
 # Setup
 setup(
      name = 'meteostat',
-     version = '0.1.0',
+     version = '0.1.1',
      author = 'Meteostat',
      author_email = 'info@meteostat.net',
      description = 'Access and analyze historical weather and climate data with Python.',

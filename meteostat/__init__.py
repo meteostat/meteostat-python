@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = "meteostat"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from .core import Core
 from .stations import Stations
