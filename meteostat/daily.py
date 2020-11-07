@@ -119,26 +119,32 @@ class Daily(Core):
       self._end = end
 
       # Get data
-      self._get_data(self._stations)
+      try:
+          self._get_data(self._stations)
+      except:
+          raise Exception('Cannot read daily data')
 
   def normalize(self):
+
+      # Create temporal instance
+      self._temp = copy(self)
 
       # List of columns
       columns = ['station', 'time']
 
       # Dynamically append columns
-      for column in self._columns[1:]:
+      for column in self._temp._columns[1:]:
           columns.append(column)
 
       # Create result DataFrame
       result = pd.DataFrame(columns = columns)
 
       # Go through list of weather stations
-      for station in self._stations['id'].tolist():
+      for station in self._temp._stations['id'].tolist():
           # Create data frame
           df = pd.DataFrame(columns = columns)
           # Add time series
-          df['time'] = pd.date_range(self._start, self._end, freq = '1D')
+          df['time'] = pd.date_range(self._temp._start, self._temp._end, freq = '1D')
           # Add station ID
           df['station'] = station
           # Add columns
@@ -149,34 +155,49 @@ class Daily(Core):
           result = pd.concat([result, df], axis = 0)
 
       # Merge data
-      self._data = pd.concat([self._data, result], axis = 0).groupby(['station', 'time'], as_index = False).first()
+      self._temp._data = pd.concat([self._temp._data, result], axis = 0).groupby(['station', 'time'], as_index = False).first()
 
-      # Return self
-      return self
+      # Return class instance
+      try:
+          return self._temp
+      finally:
+          self._temp = None
 
   def interpolate(self, limit = 3):
 
-      # Apply interpolation
-      self._data = self._data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
+      # Create temporal instance
+      self._temp = copy(self)
 
-      # Return self
-      return self
+      # Apply interpolation
+      self._temp._data = self._temp._data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
+
+      # Return class instance
+      try:
+          return self._temp
+      finally:
+          self._temp = None
 
   def aggregate(self, freq = None, functions = None, spatial = False):
 
+      # Create temporal instance
+      self._temp = copy(self)
+
       # Update default aggregations
       if functions is not None:
-          self._aggregations.update(functions)
+          self._temp._aggregations.update(functions)
 
       # Time aggregation
-      self._data = self._data.groupby(['station', pd.Grouper(key = 'time', freq = freq)]).agg(self._aggregations)
+      self._temp._data = self._temp._data.groupby(['station', pd.Grouper(key = 'time', freq = freq)]).agg(self._aggregations)
 
       # Spatial aggregation
       if spatial:
-          self._data = self._data.groupby([pd.Grouper(key = 'time', freq = freq)]).mean()
+          self._temp._data = self._temp._data.groupby([pd.Grouper(key = 'time', freq = freq)]).mean()
 
-      # Return self
-      return self
+      # Return class instance
+      try:
+          return self._temp
+      finally:
+          self._temp = None
 
   def coverage(self, parameter = None):
 

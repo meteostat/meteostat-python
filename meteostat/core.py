@@ -19,6 +19,9 @@ from multiprocessing.pool import ThreadPool
 
 class Core:
 
+  # Temporary class storage
+  _temp = None
+
   # Base URL of the Meteostat bulk data interface
   _endpoint = 'https://bulk.meteostat.net/'
 
@@ -29,7 +32,7 @@ class Core:
   _max_age = 24 * 60 * 60
 
   # Maximum number of threads used for downloading files
-  _max_threads = 5
+  _max_threads = 1
 
   def _get_file_path(self, path = False):
 
@@ -46,7 +49,10 @@ class Core:
 
       # Make sure the cache directory exists
       if not os.path.exists(self._cache_dir):
-          os.makedirs(self._cache_dir)
+          try:
+              os.makedirs(self._cache_dir)
+          except:
+              raise Exception('Cannot create cache directory')
 
       if file_path:
           # Return the file path if it exists
@@ -90,38 +96,51 @@ class Core:
 
       if paths:
 
-          pool = ThreadPool(self._max_threads).imap_unordered(self._download_file, paths)
-
+          # Create array of local file paths
           files = []
 
-          for file in pool:
-            if file != False:
-                files.append(file)
+          # Single-thread processing
+          if self._max_threads < 2:
 
+              for path in paths:
+                  files.append(self._download_file(path))
+
+          # Multi-thread processing
+          else:
+
+              try:
+                  pool = ThreadPool(self._max_threads).imap_unordered(self._download_file, paths)
+              except:
+                  raise Exception('Cannot create ThreadPool')
+
+              for file in pool:
+                if file != False:
+                    files.append(file)
+
+          # Return list of local file paths
           return files
 
   def clear_cache(self, max_age = None):
 
-      # Set max_age
-      if max_age is None:
-          max_age = self._max_age
+      try:
+          # Set max_age
+          if max_age is None:
+              max_age = self._max_age
 
-      # Get current time
-      now = time.time()
+          # Get current time
+          now = time.time()
 
-      # Go through all files
-      for file in os.listdir(self._cache_dir):
+          # Go through all files
+          for file in os.listdir(self._cache_dir):
 
-          # Get full path
-          path = os.path.join(self._cache_dir, file)
+              # Get full path
+              path = os.path.join(self._cache_dir, file)
 
-          # Check if file is older than max_age
-          if now - os.path.getmtime(path) > max_age and os.path.isfile(path):
+              # Check if file is older than max_age
+              if now - os.path.getmtime(path) > max_age and os.path.isfile(path):
 
-              # Delete file
-              os.remove(path)
+                  # Delete file
+                  os.remove(path)
 
-  def clone(self):
-
-      # Return copy of class instance
-      return copy(self)
+      except:
+          raise Exception('Cannot clear cache')

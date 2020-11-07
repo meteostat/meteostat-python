@@ -72,8 +72,11 @@ class Stations(Core):
           self._max_threads = max_threads
 
       # Get all weather stations
-      file = self._load(['stations/lib.csv.gz'])[0]
-      self._stations = pd.read_feather(file['path'])
+      try:
+          file = self._load(['stations/lib.csv.gz'])[0]
+          self._stations = pd.read_feather(file['path'])
+      except:
+           raise Exception('Cannot read weather station directory')
 
       # Filter by identifier
       if id != None or wmo != None or icao != None:
@@ -190,11 +193,17 @@ class Stations(Core):
 
   def sample(self, limit = 1):
 
-      # Randomize the order of weather stations
-      self._stations = self._stations.sample(limit)
+      # Create temporal instance
+      self._temp = copy(self)
 
-      # Return self
-      return self
+      # Randomize the order of weather stations
+      self._temp._stations = self._temp._stations.sample(limit)
+
+      # Return class instance
+      try:
+          return self._temp
+      finally:
+          self._temp = None
 
   def count(self):
 
