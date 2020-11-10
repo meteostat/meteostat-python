@@ -8,7 +8,7 @@ import unittest
 from meteostat import Hourly
 from datetime import datetime
 
-class TestStations(unittest.TestCase):
+class TestHourly(unittest.TestCase):
 
     def test_normalize(self):
 

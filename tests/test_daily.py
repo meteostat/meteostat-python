@@ -8,7 +8,7 @@ import unittest
 from meteostat import Daily
 from datetime import datetime
 
-class TestStations(unittest.TestCase):
+class TestDaily(unittest.TestCase):
 
     def test_normalize(self):
 
