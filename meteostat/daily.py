@@ -208,6 +208,10 @@ class Daily(Core):
       else:
           return self._data[parameter].count() / expect
 
+  def count(self):
+
+      # Return number of rows in DataFrame
+      return len(self._data.index)
 
   def fetch(self):
 
