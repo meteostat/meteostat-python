@@ -14,7 +14,7 @@ data = data.aggregate(freq = '1Y').fetch()
 
 # Plot data
 fig, ax = plt.subplots(figsize = (8, 6))
-data.groupby(['station']).plot(x = 'time', y = 'tmax', kind = 'line', legend = True, ax = ax, style='.-', ylabel = 'Max. Annual Temperature (°C)', title = 'Max. Temperature Report')
+data.unstack('station')['tmax'].plot(kind = 'line', legend = True, ax = ax, style='.-', ylabel = 'Max. Annual Temperature (°C)', title = 'Max. Temperature Report')
 plt.legend(names)
 
 # Show plot

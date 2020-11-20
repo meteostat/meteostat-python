@@ -9,13 +9,13 @@ with open(path.join(here, 'README.md')) as f:
 # Setup
 setup(
      name = 'meteostat',
-     version = '0.2.0',
+     version = '0.3.0',
      author = 'Meteostat',
      author_email = 'info@meteostat.net',
      description = 'Access and analyze historical weather and climate data with Python.',
      long_description = long_description,
      long_description_content_type = 'text/markdown',
-     url = 'https://github.com/meteostat/meteostat-python',
+     url = 'https://dev.meteostat.net/python/',
      packages = find_packages(),
      include_package_data = True,
      install_requires = ['pandas', 'pyarrow'],

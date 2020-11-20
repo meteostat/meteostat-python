@@ -14,10 +14,14 @@ import os
 import datetime
 import pandas as pd
 from meteostat.core import Core
+from meteostat import units
 from math import nan
 from copy import copy
 
 class Daily(Core):
+
+  # The cache subdirectory
+  _cache_subdir = 'daily'
 
   # The list of weather Stations
   _stations = None
@@ -29,7 +33,7 @@ class Daily(Core):
   _end = None
 
   # The data frame
-  _data = pd.DataFrame(index = ['station', 'time'])
+  _data = pd.DataFrame()
 
   # Columns
   _columns = [
@@ -46,12 +50,25 @@ class Daily(Core):
     'tsun'
   ]
 
+  # Data tapes
+  _types = {
+    'tavg': 'float64',
+    'tmin': 'float64',
+    'tmax': 'float64',
+    'prcp': 'float64',
+    'snow': 'float64',
+    'wdir': 'float64',
+    'wspd': 'float64',
+    'wpgt': 'float64',
+    'pres': 'float64',
+    'tsun': 'float64'
+  }
+
   # Columns for date parsing
   _parse_dates = { 'time': [0] }
 
   # Default aggregation functions
   _aggregations = {
-    'time': 'first',
     'tavg': 'mean',
     'tmin': 'min',
     'tmax': 'max',
@@ -80,9 +97,11 @@ class Daily(Core):
               for file in files:
 
                   if os.path.isfile(file['path']) and os.path.getsize(file['path']) > 0:
-                      df = pd.read_feather(file['path'])
 
-                      self._data = self._data.append(df[(df['time'] >= self._start) & (df['time'] <= self._end)])
+                      df = pd.read_parquet(file['path'])
+
+                      time = df.index.get_level_values('time')
+                      self._data = self._data.append(df.loc[(time >= self._start) & (time <= self._end)])
 
   def __init__(
     self,
@@ -110,6 +129,9 @@ class Daily(Core):
       if isinstance(stations, pd.DataFrame):
           self._stations = stations
       else:
+          if not isinstance(stations, list):
+              stations = [stations]
+
           self._stations = pd.DataFrame(stations, columns = ['id'])
 
       # Set start date
@@ -124,80 +146,83 @@ class Daily(Core):
       except:
           raise Exception('Cannot read daily data')
 
+      # Clear cache
+      self.clear_cache()
+
   def normalize(self):
 
       # Create temporal instance
-      self._temp = copy(self)
-
-      # List of columns
-      columns = ['station', 'time']
-
-      # Dynamically append columns
-      for column in self._temp._columns[1:]:
-          columns.append(column)
+      temp = copy(self)
 
       # Create result DataFrame
-      result = pd.DataFrame(columns = columns)
+      result = pd.DataFrame(columns = temp._columns[1:])
 
       # Go through list of weather stations
-      for station in self._temp._stations['id'].tolist():
+      for station in temp._stations['id'].tolist():
           # Create data frame
-          df = pd.DataFrame(columns = columns)
+          df = pd.DataFrame(columns = temp._columns[1:])
           # Add time series
-          df['time'] = pd.date_range(self._temp._start, self._temp._end, freq = '1D')
+          df['time'] = pd.date_range(temp._start, temp._end, freq = '1D')
           # Add station ID
           df['station'] = station
           # Add columns
-          for column in columns[2:]:
+          for column in temp._columns[1:]:
               # Add column to DataFrame
               df[column] = nan
 
           result = pd.concat([result, df], axis = 0)
 
+      # Set index
+      result = result.set_index(['station', 'time'])
+
       # Merge data
-      self._temp._data = pd.concat([self._temp._data, result], axis = 0).groupby(['station', 'time'], as_index = False).first()
+      temp._data = pd.concat([temp._data, result], axis = 0).groupby(['station', 'time'], as_index = True).first()
 
       # Return class instance
-      try:
-          return self._temp
-      finally:
-          self._temp = None
+      return temp
 
   def interpolate(self, limit = 3):
 
       # Create temporal instance
-      self._temp = copy(self)
+      temp = copy(self)
 
       # Apply interpolation
-      self._temp._data = self._temp._data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
+      temp._data = temp._data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
 
       # Return class instance
-      try:
-          return self._temp
-      finally:
-          self._temp = None
+      return temp
 
   def aggregate(self, freq = None, functions = None, spatial = False):
 
       # Create temporal instance
-      self._temp = copy(self)
+      temp = copy(self)
 
       # Update default aggregations
       if functions is not None:
-          self._temp._aggregations.update(functions)
+          temp._aggregations.update(functions)
 
       # Time aggregation
-      self._temp._data = self._temp._data.groupby(['station', pd.Grouper(key = 'time', freq = freq)]).agg(self._aggregations)
+      temp._data = temp._data.groupby(['station', pd.Grouper(level = 'time', freq = freq)]).agg(temp._aggregations)
 
       # Spatial aggregation
       if spatial:
-          self._temp._data = self._temp._data.groupby([pd.Grouper(key = 'time', freq = freq)]).mean()
+          temp._data = temp._data.groupby([pd.Grouper(level = 'time', freq = freq)]).mean()
 
       # Return class instance
-      try:
-          return self._temp
-      finally:
-          self._temp = None
+      return temp
+
+  def convert(self, units):
+
+      # Create temporal instance
+      temp = copy(self)
+
+      # Change data units
+      for parameter, unit in units.items():
+
+          temp._data[parameter] = temp._data[parameter].apply(unit)
+
+      # Return class instance
+      return temp
 
   def coverage(self, parameter = None):
 
@@ -215,5 +240,12 @@ class Daily(Core):
 
   def fetch(self):
 
-          # Return data frame
-          return copy(self._data)
+      # Copy DataFrame
+      temp = copy(self._data)
+
+      # Remove station index if it's a single station
+      if len(self._stations.index) == 1 and 'station' in temp.index.names:
+          temp = temp.reset_index(level = 'station', drop = True)
+
+      # Return data frame
+      return temp

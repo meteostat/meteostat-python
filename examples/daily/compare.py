@@ -13,7 +13,7 @@ data = Daily(stations, start = datetime(2019, 1, 1), end = datetime(2019, 12, 31
 data = data.fetch()
 
 # Plot data
-ax = data.set_index('time').groupby(['station'])['tavg'].plot(kind = 'line', legend = True, ylabel = 'Avg. Daily Temperature °C', title = 'Average Temperature Report for 2019')
+data.unstack('station')['tavg'].plot(kind = 'line', legend = True, ylabel = 'Avg. Daily Temperature °C', title = 'Average Temperature Report for 2019')
 plt.legend(names)
 
 # Show plot

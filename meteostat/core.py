@@ -1,4 +1,7 @@
 """
+█▀▄▀█ █▀▀ ▀█▀ █▀▀ █▀█ █▀ ▀█▀ ▄▀█ ▀█▀
+█░▀░█ ██▄ ░█░ ██▄ █▄█ ▄█ ░█░ █▀█ ░█░
+
 Core Class
 
 Base class that provides methods which are used across the package
@@ -11,6 +14,7 @@ The code is licensed under the MIT license.
 """
 
 import os
+import errno
 import time
 import hashlib
 import pandas as pd
@@ -18,9 +22,6 @@ from copy import copy
 from multiprocessing.pool import ThreadPool
 
 class Core:
-
-  # Temporary class storage
-  _temp = None
 
   # Base URL of the Meteostat bulk data interface
   _endpoint = 'https://bulk.meteostat.net/'
@@ -40,7 +41,7 @@ class Core:
           # Get file ID
           file_id = hashlib.md5(path.encode('utf-8')).hexdigest()
           # Return path
-          return self._cache_dir + os.sep + file_id
+          return self._cache_dir + os.sep + self._cache_subdir + os.sep + file_id
       else:
           # Return false
           return False
@@ -48,11 +49,14 @@ class Core:
   def _file_in_cache(self, file_path = False):
 
       # Make sure the cache directory exists
-      if not os.path.exists(self._cache_dir):
+      if not os.path.exists(self._cache_dir + os.sep + self._cache_subdir):
           try:
-              os.makedirs(self._cache_dir)
-          except:
-              raise Exception('Cannot create cache directory')
+              os.makedirs(self._cache_dir + os.sep + self._cache_subdir)
+          except OSError as e:
+              if e.errno == errno.EEXIST:
+                  pass
+              else:
+                  raise Exception('Cannot create cache directory')
 
       if file_path:
           # Return the file path if it exists
@@ -75,17 +79,15 @@ class Core:
               if path[-6:-3] == 'csv':
 
                   # Read CSV file from Meteostat endpoint
-                  try:
-                      df = pd.read_csv(self._endpoint + path, compression = 'gzip', names = self._columns, parse_dates = self._parse_dates)
-                  except:
-                      return False
+                  df = pd.read_csv(self._endpoint + path, compression = 'gzip', names = self._columns, dtype = self._types, parse_dates = self._parse_dates)
 
                   # Set weather station ID
                   if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
                       df['station'] = path[-12:-7]
+                      df = df.set_index(['station', 'time'])
 
-              # Save as Feather
-              df.to_feather(local_path)
+              # Save as Parquet
+              df.to_parquet(local_path)
 
           return {
               'path': local_path,
@@ -131,10 +133,10 @@ class Core:
           now = time.time()
 
           # Go through all files
-          for file in os.listdir(self._cache_dir):
+          for file in os.listdir(self._cache_dir + os.sep + self._cache_subdir):
 
               # Get full path
-              path = os.path.join(self._cache_dir, file)
+              path = os.path.join(self._cache_dir + os.sep + self._cache_subdir, file)
 
               # Check if file is older than max_age
               if now - os.path.getmtime(path) > max_age and os.path.isfile(path):

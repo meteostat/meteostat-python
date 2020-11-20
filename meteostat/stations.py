@@ -17,6 +17,9 @@ from copy import copy
 
 class Stations(Core):
 
+  # The cache subdirectory
+  _cache_subdir = 'stations'
+
   # The list of selected weather Stations
   _stations = None
 
@@ -37,6 +40,19 @@ class Stations(Core):
     'daily_start',
     'daily_end'
   ]
+
+  _types = {
+    'id': 'string',
+    'name': 'object',
+    'country': 'string',
+    'region': 'string',
+    'wmo': 'string',
+    'icao': 'string',
+    'latitude': 'float64',
+    'longitude': 'float64',
+    'elevation': 'float64',
+    'timezone': 'string'
+  }
 
   # Columns for date parsing
   _parse_dates = [10, 11, 12, 13]
@@ -74,7 +90,7 @@ class Stations(Core):
       # Get all weather stations
       try:
           file = self._load(['stations/lib.csv.gz'])[0]
-          self._stations = pd.read_feather(file['path'])
+          self._stations = pd.read_parquet(file['path'])
       except:
            raise Exception('Cannot read weather station directory')
 
@@ -101,6 +117,9 @@ class Stations(Core):
       # Filter by hourly inventory
       if hourly != None:
           self._inventory(None, hourly)
+
+      # Clear cache
+      self.clear_cache()
 
   def _identifier(self, id = None, wmo = None, icao = None):
 
@@ -191,30 +210,35 @@ class Stations(Core):
 
       return self
 
-  def sample(self, limit = 1):
+  def convert(self, units):
 
       # Create temporal instance
-      self._temp = copy(self)
+      temp = copy(self)
 
-      # Randomize the order of weather stations
-      self._temp._stations = self._temp._stations.sample(limit)
+      # Change data units
+      for parameter, unit in units.items():
+
+          temp._stations[parameter] = temp._stations[parameter].apply(unit)
 
       # Return class instance
-      try:
-          return self._temp
-      finally:
-          self._temp = None
+      return temp
 
   def count(self):
 
       # Return number of weather stations in current selection
       return len(self._stations.index)
 
-  def fetch(self, limit = False):
+  def fetch(self, limit = False, sample = False):
 
-      if limit:
-          # Return data frame with limit
-          return copy(self._stations.head(limit))
+      # Copy DataFrame
+      temp = copy(self._stations)
+
+      if sample and limit:
+          # Return limited number of sampled entries
+          return temp.sample(limit)
+      elif limit:
+          # Return limited number of entries
+          return temp.head(limit)
       else:
           # Return all entries
-          return copy(self._stations)
+          return temp

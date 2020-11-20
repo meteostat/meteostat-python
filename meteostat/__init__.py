@@ -1,4 +1,7 @@
 """
+█▀▄▀█ █▀▀ ▀█▀ █▀▀ █▀█ █▀ ▀█▀ ▄▀█ ▀█▀
+█░▀░█ ██▄ ░█░ ██▄ █▄█ ▄█ ░█░ █▀█ ░█░
+
 A Python library for accessing open weather and climate data
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
@@ -9,7 +12,7 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = "meteostat"
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 from .core import Core
 from .stations import Stations
