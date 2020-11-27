@@ -14,6 +14,7 @@ import pandas as pd
 from meteostat.core import Core
 from math import cos, sqrt, radians
 from copy import copy
+from datetime import timedelta
 
 class Stations(Core):
 
@@ -68,8 +69,8 @@ class Stations(Core):
     id = None,
     wmo = None,
     icao = None,
-    daily = None,
-    hourly = None,
+    having_daily = None,
+    having_hourly = None,
     cache_dir = None,
     max_age = None,
     max_threads = None
@@ -111,12 +112,12 @@ class Stations(Core):
           self._nearby(lat, lon, radius)
 
       # Filter by daily inventory
-      if daily != None:
-          self._inventory(daily, None)
+      if having_daily != None:
+          self._inventory(having_daily, 'daily')
 
       # Filter by hourly inventory
-      if hourly != None:
-          self._inventory(None, hourly)
+      if having_hourly != None:
+          self._inventory(having_hourly, 'hourly')
 
       # Clear cache
       self.clear_cache()
@@ -198,15 +199,23 @@ class Stations(Core):
       # Return self
       return self
 
-  def _inventory(self, daily = None, hourly = None):
+  def _inventory(self, value = None, type = None):
 
-      # Check if daily is set
-      if daily != None:
-          self._stations = self._stations[(self._stations['daily_start'] != None) & (self._stations['daily_start'] <= daily) & (self._stations['daily_end'] >= daily)]
-
-      # Check if hourly is set
-      if hourly != None:
-          self._stations = self._stations[(self._stations['hourly_start'] != None) & (self._stations['hourly_start'] <= hourly) & (self._stations['hourly_end'] >= hourly)]
+      # Inventory filter
+      if value == True:
+          self._stations = self._stations[
+            (pd.isna(self._stations[type + '_start']) == False)
+          ]
+      elif value != None:
+          self._stations = self._stations[
+            (pd.isna(self._stations[type + '_start']) == False) &
+            (self._stations[type + '_start'] <= value) &
+            (
+                self._stations[type + '_end'] +
+                timedelta(seconds = self._max_age)
+                >= value
+            )
+          ]
 
       return self
 
@@ -217,8 +226,8 @@ class Stations(Core):
 
       # Change data units
       for parameter, unit in units.items():
-
-          temp._stations[parameter] = temp._stations[parameter].apply(unit)
+          if parameter in temp._columns:
+              temp._stations[parameter] = temp._stations[parameter].apply(unit)
 
       # Return class instance
       return temp

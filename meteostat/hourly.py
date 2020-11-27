@@ -12,6 +12,7 @@ The code is licensed under the MIT license.
 
 import os
 import datetime
+import pytz
 import pandas as pd
 from meteostat.core import Core
 from meteostat import units
@@ -23,6 +24,9 @@ class Hourly(Core):
   # The cache subdirectory
   _cache_subdir = 'hourly'
 
+  # Specify if the library should use chunks or full dumps
+  _chunks = True
+
   # The list of weather Stations
   _stations = None
 
@@ -32,8 +36,11 @@ class Hourly(Core):
   # The end date
   _end = None
 
+  # The time zone
+  _tz = None
+
   # The data frame
-  _data = pd.DataFrame(index = ['station', 'time'])
+  _data = pd.DataFrame()
 
   # Columns
   _columns = [
@@ -91,7 +98,11 @@ class Hourly(Core):
           paths = []
 
           for index, row in stations.iterrows():
-              paths.append('hourly/' + row['id'] + '.csv.gz')
+              if self._chunks:
+                  for year in range(self._start.year, self._end.year + 1):
+                      paths.append('hourly/' + str(year) + '/' + row['id'] + '.csv.gz')
+              else:
+                  paths.append('hourly/' + row['id'] + '.csv.gz')
 
           files = self._load(paths)
 
@@ -103,17 +114,22 @@ class Hourly(Core):
 
                       df = pd.read_parquet(file['path'])
 
+                      if self._tz != None and len(self._data.index) > 0:
+                          df = df.tz_localize('UTC', level = 'time').tz_convert(self._tz, level = 'time')
+
                       time = df.index.get_level_values('time')
-                      self._data = df.loc[(time >= self._start) & (time <= self._end)]
+                      self._data = self._data.append(df.loc[(time >= self._start) & (time <= self._end)])
 
   def __init__(
     self,
     stations = None,
     start = None,
     end = None,
+    timezone = None,
     cache_dir = None,
     max_age = None,
-    max_threads = None
+    max_threads = None,
+    chunks = None
   ):
 
       # Configuration - Cache directory
@@ -128,6 +144,10 @@ class Hourly(Core):
       if max_threads != None:
           self._max_threads = max_threads
 
+      # Configuration - Data chunks
+      if chunks != None:
+          self._chunks = chunks
+
       # Set list of weather stations
       if isinstance(stations, pd.DataFrame):
           self._stations = stations
@@ -137,11 +157,20 @@ class Hourly(Core):
 
           self._stations = pd.DataFrame(stations, columns = ['id'])
 
-      # Set start date
-      self._start = start
-
-      # Set end date
-      self._end = end
+      if timezone != None:
+          # Set time zone
+          self._tz = timezone
+          # Initialize time zone
+          tz = pytz.timezone(self._tz)
+          # Set start date
+          self._start = tz.localize(start, is_dst = None).astimezone(pytz.utc)
+          # Set end date
+          self._end = tz.localize(end, is_dst = None).astimezone(pytz.utc)
+      else:
+          # Set start date
+          self._start = start
+          # Set end date
+          self._end = end
 
       # Get data
       try:
@@ -221,8 +250,8 @@ class Hourly(Core):
 
       # Change data units
       for parameter, unit in units.items():
-
-          temp._data[parameter] = temp._data[parameter].apply(unit)
+          if parameter in temp._columns:
+              temp._data[parameter] = temp._data[parameter].apply(unit)
 
       # Return class instance
       return temp

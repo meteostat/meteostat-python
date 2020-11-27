@@ -218,8 +218,8 @@ class Daily(Core):
 
       # Change data units
       for parameter, unit in units.items():
-
-          temp._data[parameter] = temp._data[parameter].apply(unit)
+          if parameter in temp._columns:
+              temp._data[parameter] = temp._data[parameter].apply(unit)
 
       # Return class instance
       return temp

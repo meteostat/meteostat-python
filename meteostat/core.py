@@ -1,7 +1,4 @@
 """
-█▀▄▀█ █▀▀ ▀█▀ █▀▀ █▀█ █▀ ▀█▀ ▄▀█ ▀█▀
-█░▀░█ ██▄ ░█░ ██▄ █▄█ ▄█ ░█░ █▀█ ░█░
-
 Core Class
 
 Base class that provides methods which are used across the package
@@ -70,6 +67,7 @@ class Core:
   def _download_file(self, path = None):
 
       if path:
+
           # Get local file path
           local_path = self._get_file_path(path)
 
@@ -79,7 +77,22 @@ class Core:
               if path[-6:-3] == 'csv':
 
                   # Read CSV file from Meteostat endpoint
-                  df = pd.read_csv(self._endpoint + path, compression = 'gzip', names = self._columns, dtype = self._types, parse_dates = self._parse_dates)
+                  try:
+                      df = pd.read_csv(self._endpoint + path, compression = 'gzip', names = self._columns, dtype = self._types, parse_dates = self._parse_dates)
+                  except:
+                      # Get column names
+                      columns = copy(self._columns)
+                      # Replace date/hour columns with time column
+                      if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
+                          for col in reversed(self._parse_dates['time']):
+                              del columns[col]
+                          columns.append('time')
+                          columns.append('station')
+                      # Create empty DataFrane
+                      df = pd.DataFrame(columns = columns)
+                      # Set dtype of time column
+                      if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
+                          df = df.astype({ 'time': 'datetime64' })
 
                   # Set weather station ID
                   if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':

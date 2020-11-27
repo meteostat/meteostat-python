@@ -11,8 +11,8 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-__appname__ = "meteostat"
-__version__ = "0.3.0"
+__appname__ = 'meteostat'
+__version__ = '1.0.0'
 
 from .core import Core
 from .stations import Stations

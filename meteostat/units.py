@@ -96,3 +96,29 @@ def condition(value):
             'Heavy Thunderstorm',
             'Storm',
         ][int(value) - 1]
+
+
+# Imperial units
+imperial = {
+    'temp': fahrenheit,
+    'tavg': fahrenheit,
+    'tmin': fahrenheit,
+    'tmax': fahrenheit,
+    'dwpt': fahrenheit,
+    'prcp': inches,
+    'snow': inches,
+    'wspd': mph,
+    'wpgt': mph,
+    'distance': feet
+}
+
+# Scientific units
+scientific = {
+    'temp': kelvin,
+    'tavg': kelvin,
+    'tmin': kelvin,
+    'tmax': kelvin,
+    'dwpt': kelvin,
+    'wspd': ms,
+    'wpgt': ms
+}
