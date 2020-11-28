@@ -1,8 +1,6 @@
 """
 Core Class
 
-Base class that provides methods which are used across the package
-
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
 4.0 International Public License.
@@ -14,148 +12,175 @@ import os
 import errno
 import time
 import hashlib
-import pandas as pd
 from copy import copy
 from multiprocessing.pool import ThreadPool
+from urllib.error import HTTPError
+import pandas as pd
 
 class Core:
 
-  # Base URL of the Meteostat bulk data interface
-  _endpoint = 'https://bulk.meteostat.net/'
+    """
+    Base class that provides methods which are used across the package
+    """
 
-  # Location of the cache directory
-  _cache_dir = os.path.expanduser('~') + os.sep + '.meteostat' + os.sep + 'cache'
+    # Base URL of the Meteostat bulk data interface
+    _endpoint = 'https://bulk.meteostat.net/'
 
-  # Maximum age of a cached file in seconds
-  _max_age = 24 * 60 * 60
+    # Location of the cache directory
+    _cache_dir = os.path.expanduser(
+        '~') + os.sep + '.meteostat' + os.sep + 'cache'
 
-  # Maximum number of threads used for downloading files
-  _max_threads = 1
+    # Maximum age of a cached file in seconds
+    _max_age = 24 * 60 * 60
 
-  def _get_file_path(self, path = False):
+    # Maximum number of threads used for downloading files
+    _max_threads = 1
 
-      if path:
-          # Get file ID
-          file_id = hashlib.md5(path.encode('utf-8')).hexdigest()
-          # Return path
-          return self._cache_dir + os.sep + self._cache_subdir + os.sep + file_id
-      else:
-          # Return false
-          return False
+    def _get_file_path(self, path=False):
 
-  def _file_in_cache(self, file_path = False):
+        if path:
+            # Get file ID
+            file_id = hashlib.md5(path.encode('utf-8')).hexdigest()
+            # Return path
+            return self._cache_dir + os.sep + self._cache_subdir + os.sep + file_id
 
-      # Make sure the cache directory exists
-      if not os.path.exists(self._cache_dir + os.sep + self._cache_subdir):
-          try:
-              os.makedirs(self._cache_dir + os.sep + self._cache_subdir)
-          except OSError as e:
-              if e.errno == errno.EEXIST:
-                  pass
-              else:
-                  raise Exception('Cannot create cache directory')
+        return False
 
-      if file_path:
-          # Return the file path if it exists
-          if os.path.isfile(file_path) and time.time() - os.path.getmtime(file_path) <= self._max_age:
-              return True
-          else:
-              return False
-      else:
-          return False
+    def _file_in_cache(self, file_path=False):
 
-  def _download_file(self, path = None):
+        # Make sure the cache directory exists
+        if not os.path.exists(self._cache_dir + os.sep + self._cache_subdir):
+            try:
+                os.makedirs(self._cache_dir + os.sep + self._cache_subdir)
+            except OSError as creation_error:
+                if creation_error.errno == errno.EEXIST:
+                    pass
+                else:
+                    raise Exception('Cannot create cache directory') from creation_error
 
-      if path:
+        if file_path:
+            # Return the file path if it exists
+            if os.path.isfile(file_path) and time.time() - \
+                    os.path.getmtime(file_path) <= self._max_age:
+                return True
 
-          # Get local file path
-          local_path = self._get_file_path(path)
+            return False
 
-          # Check if file in cache
-          if not self._file_in_cache(local_path):
+        return False
 
-              if path[-6:-3] == 'csv':
+    def _download_file(self, path=None):
 
-                  # Read CSV file from Meteostat endpoint
-                  try:
-                      df = pd.read_csv(self._endpoint + path, compression = 'gzip', names = self._columns, dtype = self._types, parse_dates = self._parse_dates)
-                  except:
-                      # Get column names
-                      columns = copy(self._columns)
-                      # Replace date/hour columns with time column
-                      if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
-                          for col in reversed(self._parse_dates['time']):
-                              del columns[col]
-                          columns.append('time')
-                          columns.append('station')
-                      # Create empty DataFrane
-                      df = pd.DataFrame(columns = columns)
-                      # Set dtype of time column
-                      if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
-                          df = df.astype({ 'time': 'datetime64' })
+        if path:
 
-                  # Set weather station ID
-                  if self.__class__.__name__ == 'Hourly' or self.__class__.__name__ == 'Daily':
-                      df['station'] = path[-12:-7]
-                      df = df.set_index(['station', 'time'])
+            # Get local file path
+            local_path = self._get_file_path(path)
 
-              # Save as Parquet
-              df.to_parquet(local_path)
+            # Check if file in cache
+            if not self._file_in_cache(local_path):
 
-          return {
-              'path': local_path,
-              'origin': path
-          }
+                if path[-6:-3] == 'csv':
 
-  def _load(self, paths = None):
+                    # Get class name
+                    class_name = self.__class__.__name__
 
-      if paths:
+                    # Read CSV file from Meteostat endpoint
+                    try:
+                        df = pd.read_csv(
+                            self._endpoint + path,
+                            compression='gzip',
+                            names=self._columns,
+                            dtype=self._types,
+                            parse_dates=self._parse_dates)
+                    except HTTPError:
+                        # Get column names
+                        columns = copy(self._columns)
+                        # Replace date/hour columns with time column
+                        if class_name in ('Hourly', 'Daily'):
+                            for col in reversed(self._parse_dates['time']):
+                                del columns[col]
+                            columns.append('time')
+                            columns.append('station')
+                        # Create empty DataFrane
+                        df = pd.DataFrame(columns=columns)
+                        # Set dtype of time column
+                        if class_name in ('Hourly', 'Daily'):
+                            df = df.astype({'time': 'datetime64'})
 
-          # Create array of local file paths
-          files = []
+                    # Set weather station ID
+                    if class_name in ('Hourly', 'Daily'):
+                        df['station'] = path[-12:-7]
+                        df = df.set_index(['station', 'time'])
 
-          # Single-thread processing
-          if self._max_threads < 2:
+                # Save as Parquet
+                df.to_parquet(local_path)
 
-              for path in paths:
-                  files.append(self._download_file(path))
+            return {
+                'path': local_path,
+                'origin': path
+            }
 
-          # Multi-thread processing
-          else:
+        return False
 
-              try:
-                  pool = ThreadPool(self._max_threads).imap_unordered(self._download_file, paths)
-              except:
-                  raise Exception('Cannot create ThreadPool')
+    def _load(self, paths=None):
 
-              for file in pool:
-                if file != False:
-                    files.append(file)
+        if paths:
 
-          # Return list of local file paths
-          return files
+            # Create array of local file paths
+            files = []
 
-  def clear_cache(self, max_age = None):
+            # Single-thread processing
+            if self._max_threads < 2:
 
-      try:
-          # Set max_age
-          if max_age is None:
-              max_age = self._max_age
+                for path in paths:
+                    files.append(self._download_file(path))
 
-          # Get current time
-          now = time.time()
+            # Multi-thread processing
+            else:
 
-          # Go through all files
-          for file in os.listdir(self._cache_dir + os.sep + self._cache_subdir):
+                try:
+                    pool = ThreadPool(
+                        self._max_threads).imap_unordered(
+                        self._download_file, paths)
+                except BaseException as pool_error:
+                    raise Exception('Cannot create ThreadPool') from pool_error
 
-              # Get full path
-              path = os.path.join(self._cache_dir + os.sep + self._cache_subdir, file)
+                for file in pool:
+                    if file:
+                        files.append(file)
 
-              # Check if file is older than max_age
-              if now - os.path.getmtime(path) > max_age and os.path.isfile(path):
+            # Return list of local file paths
+            return files
 
-                  # Delete file
-                  os.remove(path)
+        return False
 
-      except:
-          raise Exception('Cannot clear cache')
+    def clear_cache(self, max_age=None):
+
+        """
+        Clear the cache
+        """
+
+        try:
+            # Set max_age
+            if max_age is None:
+                max_age = self._max_age
+
+            # Get current time
+            now = time.time()
+
+            # Go through all files
+            for file in os.listdir(
+                    self._cache_dir + os.sep + self._cache_subdir):
+
+                # Get full path
+                path = os.path.join(
+                    self._cache_dir + os.sep + self._cache_subdir, file)
+
+                # Check if file is older than max_age
+                if now - \
+                        os.path.getmtime(path) > max_age and os.path.isfile(path):
+
+                    # Delete file
+                    os.remove(path)
+
+        except BaseException as clear_error:
+            raise Exception('Cannot clear cache') from clear_error

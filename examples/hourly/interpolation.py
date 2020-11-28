@@ -1,11 +1,27 @@
-from meteostat import Stations, Hourly
+"""
+Example: Interpolation
+
+Meteorological data provided by Meteostat (https://dev.meteostat.net)
+under the terms of the Creative Commons Attribution-NonCommercial
+4.0 International Public License.
+
+The code is licensed under the MIT license.
+"""
+
 from datetime import datetime
 import matplotlib.pyplot as plt
+from meteostat import Hourly
 
-# Hourly
+# Time period
+start = datetime(2020, 8, 1)
+end = datetime(2020, 8, 4, 23, 59)
 
-data = Hourly('10730', start = datetime(2020, 8, 1), end = datetime(2020, 8, 4, 23, 59))
+# Get hourly data
+data = Hourly('10730', start=start, end=end)
 data = data.normalize()
-data = data.interpolate(limit = 6).fetch()
-data.plot(y = 'temp', kind = 'line')
+data = data.interpolate(limit=6)
+data = data.fetch()
+
+# Plot chart
+data.plot(y='temp', kind='line')
 plt.show()

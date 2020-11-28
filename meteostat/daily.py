@@ -1,8 +1,6 @@
 """
 Daily Class
 
-Retrieve daily weather observations for one or multiple weather stations
-
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
 4.0 International Public License.
@@ -11,241 +9,279 @@ The code is licensed under the MIT license.
 """
 
 import os
-import datetime
-import pandas as pd
-from meteostat.core import Core
-from meteostat import units
 from math import nan
 from copy import copy
+import pandas as pd
+from meteostat.core import Core
+
 
 class Daily(Core):
 
-  # The cache subdirectory
-  _cache_subdir = 'daily'
+    """
+    Retrieve daily weather observations for one or multiple weather stations
+    """
 
-  # The list of weather Stations
-  _stations = None
+    # The cache subdirectory
+    _cache_subdir = 'daily'
 
-  # The start date
-  _start = None
+    # The list of weather Stations
+    _stations = None
 
-  # The end date
-  _end = None
+    # The start date
+    _start = None
 
-  # The data frame
-  _data = pd.DataFrame()
+    # The end date
+    _end = None
 
-  # Columns
-  _columns = [
-    'date',
-    'tavg',
-    'tmin',
-    'tmax',
-    'prcp',
-    'snow',
-    'wdir',
-    'wspd',
-    'wpgt',
-    'pres',
-    'tsun'
-  ]
+    # The data frame
+    _data = pd.DataFrame()
 
-  # Data tapes
-  _types = {
-    'tavg': 'float64',
-    'tmin': 'float64',
-    'tmax': 'float64',
-    'prcp': 'float64',
-    'snow': 'float64',
-    'wdir': 'float64',
-    'wspd': 'float64',
-    'wpgt': 'float64',
-    'pres': 'float64',
-    'tsun': 'float64'
-  }
+    # Columns
+    _columns = [
+        'date',
+        'tavg',
+        'tmin',
+        'tmax',
+        'prcp',
+        'snow',
+        'wdir',
+        'wspd',
+        'wpgt',
+        'pres',
+        'tsun'
+    ]
 
-  # Columns for date parsing
-  _parse_dates = { 'time': [0] }
+    # Data tapes
+    _types = {
+        'tavg': 'float64',
+        'tmin': 'float64',
+        'tmax': 'float64',
+        'prcp': 'float64',
+        'snow': 'float64',
+        'wdir': 'float64',
+        'wspd': 'float64',
+        'wpgt': 'float64',
+        'pres': 'float64',
+        'tsun': 'float64'
+    }
 
-  # Default aggregation functions
-  _aggregations = {
-    'tavg': 'mean',
-    'tmin': 'min',
-    'tmax': 'max',
-    'prcp': 'sum',
-    'snow': 'mean',
-    'wdir': 'mean',
-    'wspd': 'mean',
-    'wpgt': 'max',
-    'pres': 'mean',
-    'tsun': 'sum'
-  }
+    # Columns for date parsing
+    _parse_dates = {'time': [0]}
 
-  def _get_data(self, stations = None):
+    # Default aggregation functions
+    _aggregations = {
+        'tavg': 'mean',
+        'tmin': 'min',
+        'tmax': 'max',
+        'prcp': 'sum',
+        'snow': 'mean',
+        'wdir': 'mean',
+        'wspd': 'mean',
+        'wpgt': 'max',
+        'pres': 'mean',
+        'tsun': 'sum'
+    }
 
-      if len(stations.index) > 0:
+    def _get_data(self, stations=None):
 
-          paths = []
+        if len(stations.index) > 0:
 
-          for index, row in stations.iterrows():
-              paths.append('daily/' + row['id'] + '.csv.gz')
+            paths = []
 
-          files = self._load(paths)
+            for index, row in stations.iterrows():
+                paths.append('daily/' + row['id'] + '.csv.gz')
 
-          if len(files) > 0:
+            files = self._load(paths)
 
-              for file in files:
+            if len(files) > 0:
 
-                  if os.path.isfile(file['path']) and os.path.getsize(file['path']) > 0:
+                for file in files:
 
-                      df = pd.read_parquet(file['path'])
+                    if os.path.isfile(
+                            file['path']) and os.path.getsize(
+                            file['path']) > 0:
 
-                      time = df.index.get_level_values('time')
-                      self._data = self._data.append(df.loc[(time >= self._start) & (time <= self._end)])
+                        df = pd.read_parquet(file['path'])
 
-  def __init__(
-    self,
-    stations = None,
-    start = None,
-    end = None,
-    cache_dir = None,
-    max_age = None,
-    max_threads = None
-  ):
+                        time = df.index.get_level_values('time')
+                        self._data = self._data.append(
+                            df.loc[(time >= self._start) & (time <= self._end)])
 
-      # Configuration - Cache directory
-      if cache_dir != None:
-          self._cache_dir = cache_dir
+    def __init__(
+        self,
+        stations=None,
+        start=None,
+        end=None,
+        cache_dir=None,
+        max_age=None,
+        max_threads=None
+    ):
 
-      # Configuration - Maximum file age
-      if max_age != None:
-          self._max_age = max_age
+        # Configuration - Cache directory
+        if cache_dir is not None:
+            self._cache_dir = cache_dir
 
-      # Configuration - Maximum number of threads
-      if max_threads != None:
-          self._max_threads = max_threads
+        # Configuration - Maximum file age
+        if max_age is not None:
+            self._max_age = max_age
 
-      # Set list of weather stations
-      if isinstance(stations, pd.DataFrame):
-          self._stations = stations
-      else:
-          if not isinstance(stations, list):
-              stations = [stations]
+        # Configuration - Maximum number of threads
+        if max_threads is not None:
+            self._max_threads = max_threads
 
-          self._stations = pd.DataFrame(stations, columns = ['id'])
+        # Set list of weather stations
+        if isinstance(stations, pd.DataFrame):
+            self._stations = stations
+        else:
+            if not isinstance(stations, list):
+                stations = [stations]
 
-      # Set start date
-      self._start = start
+            self._stations = pd.DataFrame(stations, columns=['id'])
 
-      # Set end date
-      self._end = end
+        # Set start date
+        self._start = start
 
-      # Get data
-      try:
-          self._get_data(self._stations)
-      except:
-          raise Exception('Cannot read daily data')
+        # Set end date
+        self._end = end
 
-      # Clear cache
-      self.clear_cache()
+        # Get data
+        try:
+            self._get_data(self._stations)
+        except BaseException as read_error:
+            raise Exception('Cannot read daily data') from read_error
 
-  def normalize(self):
+        # Clear cache
+        self.clear_cache()
 
-      # Create temporal instance
-      temp = copy(self)
+    def normalize(self):
 
-      # Create result DataFrame
-      result = pd.DataFrame(columns = temp._columns[1:])
+        """
+        Normalize the DataFrame
+        """
 
-      # Go through list of weather stations
-      for station in temp._stations['id'].tolist():
-          # Create data frame
-          df = pd.DataFrame(columns = temp._columns[1:])
-          # Add time series
-          df['time'] = pd.date_range(temp._start, temp._end, freq = '1D')
-          # Add station ID
-          df['station'] = station
-          # Add columns
-          for column in temp._columns[1:]:
-              # Add column to DataFrame
-              df[column] = nan
+        # Create temporal instance
+        temp = copy(self)
 
-          result = pd.concat([result, df], axis = 0)
+        # Create result DataFrame
+        result = pd.DataFrame(columns=temp._columns[1:])
 
-      # Set index
-      result = result.set_index(['station', 'time'])
+        # Go through list of weather stations
+        for station in temp._stations['id'].tolist():
+            # Create data frame
+            df = pd.DataFrame(columns=temp._columns[1:])
+            # Add time series
+            df['time'] = pd.date_range(temp._start, temp._end, freq='1D')
+            # Add station ID
+            df['station'] = station
+            # Add columns
+            for column in temp._columns[1:]:
+                # Add column to DataFrame
+                df[column] = nan
 
-      # Merge data
-      temp._data = pd.concat([temp._data, result], axis = 0).groupby(['station', 'time'], as_index = True).first()
+            result = pd.concat([result, df], axis=0)
 
-      # Return class instance
-      return temp
+        # Set index
+        result = result.set_index(['station', 'time'])
 
-  def interpolate(self, limit = 3):
+        # Merge data
+        temp._data = pd.concat([temp._data, result], axis=0).groupby(
+            ['station', 'time'], as_index=True).first()
 
-      # Create temporal instance
-      temp = copy(self)
+        # Return class instance
+        return temp
 
-      # Apply interpolation
-      temp._data = temp._data.groupby('station').apply(lambda group: group.interpolate(method = 'linear', limit = limit, limit_direction = 'both', axis = 0))
+    def interpolate(self, limit=3):
 
-      # Return class instance
-      return temp
+        """
+        Interpolate NULL values
+        """
 
-  def aggregate(self, freq = None, functions = None, spatial = False):
+        # Create temporal instance
+        temp = copy(self)
 
-      # Create temporal instance
-      temp = copy(self)
+        # Apply interpolation
+        temp._data = temp._data.groupby('station').apply(
+            lambda group: group.interpolate(
+                method='linear', limit=limit, limit_direction='both', axis=0))
 
-      # Update default aggregations
-      if functions is not None:
-          temp._aggregations.update(functions)
+        # Return class instance
+        return temp
 
-      # Time aggregation
-      temp._data = temp._data.groupby(['station', pd.Grouper(level = 'time', freq = freq)]).agg(temp._aggregations)
+    def aggregate(self, freq=None, functions=None, spatial=False):
 
-      # Spatial aggregation
-      if spatial:
-          temp._data = temp._data.groupby([pd.Grouper(level = 'time', freq = freq)]).mean()
+        """
+        Aggregate observations
+        """
 
-      # Return class instance
-      return temp
+        # Create temporal instance
+        temp = copy(self)
 
-  def convert(self, units):
+        # Update default aggregations
+        if functions is not None:
+            temp._aggregations.update(functions)
 
-      # Create temporal instance
-      temp = copy(self)
+        # Time aggregation
+        temp._data = temp._data.groupby(['station', pd.Grouper(
+            level='time', freq=freq)]).agg(temp._aggregations)
 
-      # Change data units
-      for parameter, unit in units.items():
-          if parameter in temp._columns:
-              temp._data[parameter] = temp._data[parameter].apply(unit)
+        # Spatial aggregation
+        if spatial:
+            temp._data = temp._data.groupby(
+                [pd.Grouper(level='time', freq=freq)]).mean()
 
-      # Return class instance
-      return temp
+        # Return class instance
+        return temp
 
-  def coverage(self, parameter = None):
+    def convert(self, units):
 
-      expect = (self._end - self._start).days + 1
+        """
+        Convert columns to a different unit
+        """
 
-      if parameter == None:
-          return len(self._data.index) / expect
-      else:
-          return self._data[parameter].count() / expect
+        # Create temporal instance
+        temp = copy(self)
 
-  def count(self):
+        # Change data units
+        for parameter, unit in units.items():
+            if parameter in temp._columns:
+                temp._data[parameter] = temp._data[parameter].apply(unit)
 
-      # Return number of rows in DataFrame
-      return len(self._data.index)
+        # Return class instance
+        return temp
 
-  def fetch(self):
+    def coverage(self, parameter=None):
 
-      # Copy DataFrame
-      temp = copy(self._data)
+        """
+        Calculate data coverage (overall or by parameter)
+        """
 
-      # Remove station index if it's a single station
-      if len(self._stations.index) == 1 and 'station' in temp.index.names:
-          temp = temp.reset_index(level = 'station', drop = True)
+        expect = (self._end - self._start).days + 1
 
-      # Return data frame
-      return temp
+        if parameter is None:
+            return len(self._data.index) / expect
+
+        return self._data[parameter].count() / expect
+
+    def count(self):
+
+        """
+        Return number of rows in DataFrame
+        """
+
+        return len(self._data.index)
+
+    def fetch(self):
+
+        """
+        Fetch DataFrame
+        """
+
+        # Copy DataFrame
+        temp = copy(self._data)
+
+        # Remove station index if it's a single station
+        if len(self._stations.index) == 1 and 'station' in temp.index.names:
+            temp = temp.reset_index(level='station', drop=True)
+
+        # Return data frame
+        return temp

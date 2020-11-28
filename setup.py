@@ -1,3 +1,9 @@
+"""
+Setup file
+
+The code is licensed under the MIT license.
+"""
+
 from os import path
 from setuptools import setup, find_packages
 
@@ -8,26 +14,26 @@ with open(path.join(here, 'README.md')) as f:
 
 # Setup
 setup(
-     name = 'meteostat',
-     version = '1.0.0',
-     author = 'Meteostat',
-     author_email = 'info@meteostat.net',
-     description = 'Access and analyze historical weather and climate data with Python.',
-     long_description = long_description,
-     long_description_content_type = 'text/markdown',
-     url = 'https://github.com/meteostat/meteostat-python',
-     keywords = ['weather', 'climate', 'data', 'timeseries', 'meteorology'],
-     packages = find_packages(),
-     include_package_data = True,
-     install_requires = ['pandas', 'pyarrow', 'pytz'],
-     license = 'MIT',
-     classifiers = [
-         'Programming Language :: Python :: 3',
+    name='meteostat',
+    version='1.0.0',
+    author='Meteostat',
+    author_email='info@meteostat.net',
+    description='Access and analyze historical weather and climate data with Python.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/meteostat/meteostat-python',
+    keywords=['weather', 'climate', 'data', 'timeseries', 'meteorology'],
+    packages=find_packages(),
+    include_package_data=True,
+    install_requires=['pandas', 'pyarrow', 'pytz'],
+    license='MIT',
+    classifiers=[
+        'Programming Language :: Python :: 3',
          'License :: OSI Approved :: MIT License',
          'Operating System :: OS Independent',
          'Topic :: Database',
          'Topic :: Scientific/Engineering :: Atmospheric Science',
          'Topic :: Scientific/Engineering :: Information Analysis',
          'Topic :: Scientific/Engineering :: Visualization'
-     ],
- )
+    ],
+)

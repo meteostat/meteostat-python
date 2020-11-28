@@ -1,0 +1,39 @@
+[MESSAGES CONTROL]
+
+disable=print-statement,
+        singleton-comparison,
+        unused-variable,
+        no-member,
+        too-few-public-methods
+
+[BASIC]
+
+good-names=i,
+           j,
+           k,
+           ex,
+           Run,
+           _,
+           ms,
+           df,
+           x,
+           y
+
+[DESIGN]
+
+max-args=15
+max-locals=20
+max-attributes=12
+
+[CLASSES]
+
+exclude-protected=_asdict,
+                  _fields,
+                  _replace,
+                  _sour,
+                  _columns,
+                  _stations,
+                  _start,
+                  _end,
+                  _data,
+                  _aggregations

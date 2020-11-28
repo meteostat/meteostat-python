@@ -1,7 +1,18 @@
+"""
+Example: Select weather stations by country & state
+
+Meteorological data provided by Meteostat (https://dev.meteostat.net)
+under the terms of the Creative Commons Attribution-NonCommercial
+4.0 International Public License.
+
+The code is licensed under the MIT license.
+"""
+
 from meteostat import Stations
 
-# Get number of Stations in Ontario
-stations = Stations(country = 'CA', region = 'ON')
+# Get stations in Ontario
+stations = Stations(country='CA', region='ON')
 
+# Print count to console
 print('Stations in Ontario:')
 print(stations.count())
