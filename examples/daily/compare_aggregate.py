@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
 # Get weather stations by WMO ID
-stations = Stations(uid=['D1424', '10729', '10803', '10513']).fetch()
+stations = Stations(['D1424', '10729', '10803', '10513']).fetch()
 
 # Get names of weather stations
 names = stations['name'].to_list()

@@ -2,7 +2,6 @@
 
 disable=print-statement,
         singleton-comparison,
-        unused-variable,
         no-member,
         too-few-public-methods
 

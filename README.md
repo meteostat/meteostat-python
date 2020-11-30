@@ -26,20 +26,24 @@ Let's pretend you want to plot temperature data for Vancouver, BC from 2018:
 
 ```python
 # Import Meteostat library and dependencies
-from meteostat import Stations, Daily
 from datetime import datetime
 import matplotlib.pyplot as plt
+from meteostat import Stations, Daily
 
 # Get closest weather station to Vancouver, BC
-stations = Stations(lat = 49.2497, lon = -123.1193)
+stations = Stations(lat=49.2497, lon=-123.1193)
 station = stations.fetch(1)
 
+# Set time period
+start = datetime(2018, 1, 1)
+end = datetime(2018, 12, 31)
+
 # Get daily data for 2018 at the selected weather station
-data = Daily(station, start = datetime(2018, 1, 1), end = datetime(2018, 12, 31))
+data = Daily(station, start=start, end=end)
 data = data.fetch()
 
 # Plot line chart including average, minimum and maximum temperature
-data.plot(y = ['tavg', 'tmin', 'tmax'], kind = 'line')
+data.plot(y=['tavg', 'tmin', 'tmax'], kind='line')
 plt.show()
 ```
 

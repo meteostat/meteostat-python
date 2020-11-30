@@ -84,12 +84,12 @@ class Daily(Core):
 
     def _get_data(self, stations=None):
 
-        if len(stations.index) > 0:
+        if len(stations) > 0:
 
             paths = []
 
-            for index, row in stations.iterrows():
-                paths.append('daily/' + row['id'] + '.csv.gz')
+            for index in stations:
+                paths.append('daily/' + str(index) + '.csv.gz')
 
             files = self._load(paths)
 
@@ -103,13 +103,16 @@ class Daily(Core):
 
                         df = pd.read_parquet(file['path'])
 
-                        time = df.index.get_level_values('time')
-                        self._data = self._data.append(
-                            df.loc[(time >= self._start) & (time <= self._end)])
+                        if self._start is not None and self._end is not None:
+                            time = df.index.get_level_values('time')
+                            self._data = self._data.append(
+                                df.loc[(time >= self._start) & (time <= self._end)])
+                        else:
+                            self._data = self._data.append(df)
 
     def __init__(
         self,
-        stations=None,
+        stations,
         start=None,
         end=None,
         cache_dir=None,
@@ -131,12 +134,12 @@ class Daily(Core):
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
-            self._stations = stations
+            self._stations = stations.index
         else:
             if not isinstance(stations, list):
                 stations = [stations]
 
-            self._stations = pd.DataFrame(stations, columns=['id'])
+            self._stations = pd.Index(stations)
 
         # Set start date
         self._start = start
@@ -166,7 +169,7 @@ class Daily(Core):
         result = pd.DataFrame(columns=temp._columns[1:])
 
         # Go through list of weather stations
-        for station in temp._stations['id'].tolist():
+        for station in temp._stations:
             # Create data frame
             df = pd.DataFrame(columns=temp._columns[1:])
             # Add time series
@@ -280,7 +283,7 @@ class Daily(Core):
         temp = copy(self._data)
 
         # Remove station index if it's a single station
-        if len(self._stations.index) == 1 and 'station' in temp.index.names:
+        if len(self._stations) == 1 and 'station' in temp.index.names:
             temp = temp.reset_index(level='station', drop=True)
 
         # Return data frame

@@ -93,17 +93,17 @@ class Hourly(Core):
 
     def _get_data(self, stations=None):
 
-        if len(stations.index) > 0:
+        if len(stations) > 0:
 
             paths = []
 
-            for index, row in stations.iterrows():
-                if self._chunks:
+            for station in stations:
+                if self._chunks and self._start is not None and self._end is not None:
                     for year in range(self._start.year, self._end.year + 1):
                         paths.append(
-                            'hourly/' + str(year) + '/' + row['id'] + '.csv.gz')
+                            'hourly/' + str(year) + '/' + str(station) + '.csv.gz')
                 else:
-                    paths.append('hourly/' + row['id'] + '.csv.gz')
+                    paths.append('hourly/' + str(station) + '.csv.gz')
 
             files = self._load(paths)
 
@@ -122,13 +122,16 @@ class Hourly(Core):
                                 'UTC', level='time').tz_convert(
                                 self._timezone, level='time')
 
-                        time = df.index.get_level_values('time')
-                        self._data = self._data.append(
-                            df.loc[(time >= self._start) & (time <= self._end)])
+                        if self._start is not None and self._end is not None:
+                            time = df.index.get_level_values('time')
+                            self._data = self._data.append(
+                                df.loc[(time >= self._start) & (time <= self._end)])
+                        else:
+                            self._data = self._data.append(df)
 
     def __init__(
         self,
-        stations=None,
+        stations,
         start=None,
         end=None,
         timezone=None,
@@ -156,22 +159,24 @@ class Hourly(Core):
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
-            self._stations = stations
+            self._stations = stations.index
         else:
             if not isinstance(stations, list):
                 stations = [stations]
 
-            self._stations = pd.DataFrame(stations, columns=['id'])
+            self._stations = pd.Index(stations)
 
+        # Set time zone and adapt period
         if timezone is not None:
-            # Set time zone
             self._timezone = timezone
-            # Initialize time zone
-            timezone = pytz.timezone(self._timezone)
-            # Set start date
-            self._start = timezone.localize(start, is_dst=None).astimezone(pytz.utc)
-            # Set end date
-            self._end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
+
+            if start is not None and end is not None:
+                # Initialize time zone
+                timezone = pytz.timezone(self._timezone)
+                # Set start date
+                self._start = timezone.localize(start, is_dst=None).astimezone(pytz.utc)
+                # Set end date
+                self._end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
         else:
             # Set start date
             self._start = start
@@ -200,7 +205,7 @@ class Hourly(Core):
         result = pd.DataFrame(columns=temp._columns[2:])
 
         # Go through list of weather stations
-        for station in temp._stations['id'].tolist():
+        for station in temp._stations:
             # Create data frame
             df = pd.DataFrame(columns=temp._columns[2:])
             # Add time series
@@ -318,7 +323,7 @@ class Hourly(Core):
         temp = copy(self._data)
 
         # Remove station index if it's a single station
-        if len(self._stations.index) == 1 and 'station' in temp.index.names:
+        if len(self._stations) == 1 and 'station' in temp.index.names:
             temp = temp.reset_index(level='station', drop=True)
 
         # Return data frame

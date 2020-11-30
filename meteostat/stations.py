@@ -62,15 +62,15 @@ class Stations(Core):
 
     def __init__(
         self,
+        uid=None,
+        wmo=None,
+        icao=None,
         lat=None,
         lon=None,
         radius=None,
         country=None,
         region=None,
         bounds=None,
-        uid=None,
-        wmo=None,
-        icao=None,
         having_daily=None,
         having_hourly=None,
         cache_dir=None,
@@ -132,7 +132,7 @@ class Stations(Core):
             if not isinstance(uid, list):
                 uid = [uid]
 
-            self._stations = self._stations[self._stations['id'].isin(uid)]
+            self._stations = self._stations[self._stations.index.isin(uid)]
 
         # Get station by WMO ID
         elif wmo is not None:

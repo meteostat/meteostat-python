@@ -106,10 +106,12 @@ class Core:
                         if class_name in ('Hourly', 'Daily'):
                             df = df.astype({'time': 'datetime64'})
 
-                    # Set weather station ID
+                    # Add index and weather station ID
                     if class_name in ('Hourly', 'Daily'):
                         df['station'] = path[-12:-7]
                         df = df.set_index(['station', 'time'])
+                    elif class_name == 'Stations':
+                        df = df.set_index('id')
 
                 # Save as Parquet
                 df.to_parquet(local_path)
