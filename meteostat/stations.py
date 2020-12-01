@@ -71,24 +71,24 @@ class Stations(Core):
         country=None,
         region=None,
         bounds=None,
-        having_daily=None,
-        having_hourly=None,
+        inventory=None,
+        config={},
         cache_dir=None,
         max_age=None,
         max_threads=None
     ):
 
         # Configuration - Cache directory
-        if cache_dir is not None:
-            self._cache_dir = cache_dir
+        if 'cache_dir' in config:
+            self._cache_dir = config['cache_dir']
 
         # Configuration - Maximum file age
-        if max_age is not None:
-            self._max_age = max_age
+        if 'max_age' in config:
+            self._max_age = config['max_age']
 
         # Configuration - Maximum number of threads
-        if max_threads is not None:
-            self._max_threads = max_threads
+        if 'max_threads' in config:
+            self._max_threads = config['max_threads']
 
         # Get all weather stations
         try:
@@ -113,18 +113,18 @@ class Stations(Core):
         if lat is not None and lon is not None:
             self._nearby(lat, lon, radius)
 
-        # Filter by daily inventory
-        if having_daily is not None:
-            self._inventory(having_daily, 'daily')
-
-        # Filter by hourly inventory
-        if having_hourly is not None:
-            self._inventory(having_hourly, 'hourly')
+        # Filter by inventory
+        if inventory is not None:
+            self._inventory(inventory)
 
         # Clear cache
         self.clear_cache()
 
     def _identifier(self, uid=None, wmo=None, icao=None):
+
+        """
+        Get weather station by identifier
+        """
 
         # Get station by Meteostat ID
         if uid is not None:
@@ -155,6 +155,10 @@ class Stations(Core):
 
     def _nearby(self, lat=False, lon=False, radius=None):
 
+        """
+        Sort/filter weather stations by physical distance
+        """
+
         # Calculate distance between weather station and geo point
         def distance(station, point):
 
@@ -184,6 +188,10 @@ class Stations(Core):
 
     def _regional(self, country=None, region=None):
 
+        """
+        Filter weather stations by country/region code
+        """
+
         # Check if country is set
         if country is not None:
             self._stations = self._stations[self._stations['country'] == country]
@@ -197,6 +205,10 @@ class Stations(Core):
 
     def _area(self, bounds=None):
 
+        """
+        Filter weather stations by geographical bounds
+        """
+
         # Return stations in boundaries
         if bounds is not None:
             self._stations = self._stations[
@@ -209,23 +221,40 @@ class Stations(Core):
         # Return self
         return self
 
-    def _inventory(self, value=None, resolution=None):
+    def _inventory(self, filter):
 
-        # Inventory filter
-        if value:
-            self._stations = self._stations[
-                (pd.isna(self._stations[resolution + '_start']) == False)
-            ]
-        elif value is not None:
-            self._stations = self._stations[
-                (pd.isna(self._stations[resolution + '_start']) == False) &
-                (self._stations[resolution + '_start'] <= value) &
-                (
-                    self._stations[resolution + '_end'] +
-                    timedelta(seconds=self._max_age)
-                    >= value
-                )
-            ]
+        """
+        Filter weather stations by inventory data
+        """
+
+        for resolution, value in filter.items():
+            if value is True:
+                # Make sure data exists at all
+                self._stations = self._stations[
+                    (pd.isna(self._stations[resolution + '_start']) == False)
+                ]
+            elif isinstance(value, list):
+                # Make sure data exists across period
+                self._stations = self._stations[
+                    (pd.isna(self._stations[resolution + '_start']) == False) &
+                    (self._stations[resolution + '_start'] <= value[0]) &
+                    (
+                        self._stations[resolution + '_end'] +
+                        timedelta(seconds=self._max_age)
+                        >= value[1]
+                    )
+                ]
+            else:
+                # Make sure data exists on a certain day
+                self._stations = self._stations[
+                    (pd.isna(self._stations[resolution + '_start']) == False) &
+                    (self._stations[resolution + '_start'] <= value) &
+                    (
+                        self._stations[resolution + '_end'] +
+                        timedelta(seconds=self._max_age)
+                        >= value
+                    )
+                ]
 
         return self
 

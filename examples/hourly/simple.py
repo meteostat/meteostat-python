@@ -21,7 +21,7 @@ start = datetime(2020, 1, 1)
 end = datetime(2020, 1, 1, 23, 59)
 
 # Get hourly data
-data = Hourly(station, start=start, end=end, timezone='UTC', chunks=False)
+data = Hourly(station, start=start, end=end, timezone='Europe/Berlin')
 
 # Convert data units
 data = data.convert({'temp': fahrenheit, 'wdir': direction, 'coco': condition})

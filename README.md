@@ -30,20 +30,23 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
-# Get closest weather station to Vancouver, BC
-stations = Stations(lat=49.2497, lon=-123.1193)
-station = stations.fetch(1)
-
 # Set time period
 start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
+
+# Inventory filter
+inventory = { 'daily': [start, end] }
+
+# Get closest weather station to Vancouver, BC
+stations = Stations(lat=49.2497, lon=-123.1193, inventory=inventory)
+station = stations.fetch(1)
 
 # Get daily data for 2018 at the selected weather station
 data = Daily(station, start=start, end=end)
 data = data.fetch()
 
 # Plot line chart including average, minimum and maximum temperature
-data.plot(y=['tavg', 'tmin', 'tmax'], kind='line')
+data.plot(y=['tavg', 'tmin', 'tmax'])
 plt.show()
 ```
 
@@ -54,6 +57,8 @@ Take a look at the expected output:
 ## Contributing
 
 Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://dev.meteostat.net/python/contributing.html). More information about the Meteostat bulk data interface is available [here](https://dev.meteostat.net/bulk/).
+
+If you want to support the project financially, you can make a donation via [PayPal](https://paypal.me/meteostat) or become a [Patron](https://www.patreon.com/meteostat).
 
 ## Data License
 

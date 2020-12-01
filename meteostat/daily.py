@@ -115,22 +115,20 @@ class Daily(Core):
         stations,
         start=None,
         end=None,
-        cache_dir=None,
-        max_age=None,
-        max_threads=None
+        config={}
     ):
 
         # Configuration - Cache directory
-        if cache_dir is not None:
-            self._cache_dir = cache_dir
+        if 'cache_dir' in config:
+            self._cache_dir = config['cache_dir']
 
         # Configuration - Maximum file age
-        if max_age is not None:
-            self._max_age = max_age
+        if 'max_age' in config:
+            self._max_age = config['max_age']
 
         # Configuration - Maximum number of threads
-        if max_threads is not None:
-            self._max_threads = max_threads
+        if 'max_threads' in config:
+            self._max_threads = config['max_threads']
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
