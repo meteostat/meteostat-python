@@ -11,7 +11,7 @@ The code is licensed under the MIT license.
 from meteostat import Stations
 
 # Get weather station
-stations = Stations(lat=50, lon=8, inventory={ 'hourly': True })
+stations = Stations(lat=50, lon=8, hourly=True)
 station = stations.fetch(1).to_dict('records')[0]
 
 # Print name

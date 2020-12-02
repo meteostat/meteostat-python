@@ -71,24 +71,24 @@ class Stations(Core):
         country=None,
         region=None,
         bounds=None,
-        inventory=None,
-        config={},
+        daily=None,
+        hourly=None,
         cache_dir=None,
         max_age=None,
         max_threads=None
     ):
 
         # Configuration - Cache directory
-        if 'cache_dir' in config:
-            self._cache_dir = config['cache_dir']
+        if cache_dir:
+            self._cache_dir = cache_dir
 
         # Configuration - Maximum file age
-        if 'max_age' in config:
-            self._max_age = config['max_age']
+        if max_age:
+            self._max_age = max_age
 
         # Configuration - Maximum number of threads
-        if 'max_threads' in config:
-            self._max_threads = config['max_threads']
+        if max_threads:
+            self._max_threads = max_threads
 
         # Get all weather stations
         try:
@@ -98,24 +98,28 @@ class Stations(Core):
             raise Exception('Cannot read weather station directory') from read_error
 
         # Filter by identifier
-        if uid is not None or wmo is not None or icao is not None:
+        if uid or wmo or icao:
             self._identifier(uid, wmo, icao)
 
         # Filter by country or region
-        if country is not None or region is not None:
+        if country or region:
             self._regional(country, region)
 
         # Filter by boundaries
-        if bounds is not None:
+        if bounds:
             self._area(bounds)
 
         # Filter by distance
-        if lat is not None and lon is not None:
+        if lat and lon:
             self._nearby(lat, lon, radius)
 
-        # Filter by inventory
-        if inventory is not None:
-            self._inventory(inventory)
+        # Filter by daily inventory
+        if daily:
+            self._inventory({ 'daily': daily })
+
+        # Filter by hourly inventory
+        if hourly:
+            self._inventory({ 'hourly': hourly })
 
         # Clear cache
         self.clear_cache()
@@ -233,7 +237,7 @@ class Stations(Core):
                 self._stations = self._stations[
                     (pd.isna(self._stations[resolution + '_start']) == False)
                 ]
-            elif isinstance(value, list):
+            elif isinstance(value, tuple):
                 # Make sure data exists across period
                 self._stations = self._stations[
                     (pd.isna(self._stations[resolution + '_start']) == False) &

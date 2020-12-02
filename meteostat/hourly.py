@@ -98,7 +98,7 @@ class Hourly(Core):
             paths = []
 
             for station in stations:
-                if self._chunked and self._start is not None and self._end is not None:
+                if self._chunked and self._start and self._end:
                     for year in range(self._start.year, self._end.year + 1):
                         paths.append(
                             'hourly/' + str(year) + '/' + str(station) + '.csv.gz')
@@ -122,7 +122,7 @@ class Hourly(Core):
                                 'UTC', level='time').tz_convert(
                                 self._timezone, level='time')
 
-                        if self._start is not None and self._end is not None:
+                        if self._start and self._end:
                             time = df.index.get_level_values('time')
                             self._data = self._data.append(
                                 df.loc[(time >= self._start) & (time <= self._end)])
@@ -135,24 +135,27 @@ class Hourly(Core):
         start=None,
         end=None,
         timezone=None,
-        config={}
+        cache_dir=None,
+        max_age=None,
+        max_threads=None,
+        chunked=None
     ):
 
         # Configuration - Cache directory
-        if 'cache_dir' in config:
-            self._cache_dir = config['cache_dir']
+        if cache_dir:
+            self._cache_dir = cache_dir
 
         # Configuration - Maximum file age
-        if 'max_age' in config:
-            self._max_age = config['max_age']
+        if max_age:
+            self._max_age = max_age
 
         # Configuration - Maximum number of threads
-        if 'max_threads' in config:
-            self._max_threads = config['max_threads']
+        if max_threads:
+            self._max_threads = max_threads
 
         # Configuration - Data chunks
-        if 'chunked' in config:
-            self._chunked = config['chunked']
+        if chunked:
+            self._chunked = chunked
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
@@ -164,10 +167,10 @@ class Hourly(Core):
             self._stations = pd.Index(stations)
 
         # Set time zone and adapt period
-        if timezone is not None:
+        if timezone:
             self._timezone = timezone
 
-            if start is not None and end is not None:
+            if start and end:
                 # Initialize time zone
                 timezone = pytz.timezone(self._timezone)
                 # Set start date
