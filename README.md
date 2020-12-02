@@ -60,9 +60,8 @@ Instructions on building and testing the Meteostat Python package can be found i
 
 If you want to support the project financially, you can make a donation via:
 
-* [PayPal](https://paypal.me/meteostat)
-* [Open Collective](https://opencollective.com/meteostat)
 * [Patreon](https://www.patreon.com/meteostat)
+* [PayPal](https://paypal.me/meteostat)
 
 ## Data License
 
