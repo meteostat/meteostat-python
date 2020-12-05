@@ -30,16 +30,20 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
-# Set time period
+# Set coordinates of Vancouver & time period
+lat = 49.2497
+lon = -123.1193
 start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
 
 # Get closest weather station to Vancouver, BC
-stations = Stations(lat=49.2497, lon=-123.1193, daily=(start, end))
+stations = Stations()
+stations = stations.nearby(lat, lon)
+stations = stations.inventory('daily', (start, end))
 station = stations.fetch(1)
 
 # Get daily data for 2018 at the selected weather station
-data = Daily(station, start=start, end=end)
+data = Daily(station, start, end)
 data = data.fetch()
 
 # Plot line chart including average, minimum and maximum temperature

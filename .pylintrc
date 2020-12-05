@@ -13,16 +13,14 @@ good-names=i,
            ex,
            Run,
            _,
-           ms,
+           id,
            df,
            x,
            y
 
 [DESIGN]
 
-max-args=15
-max-locals=20
-max-attributes=12
+max-args=10
 
 [CLASSES]
 

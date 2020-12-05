@@ -10,14 +10,13 @@ The code is licensed under the MIT license.
 
 from meteostat import Stations
 
-# Get number of stations in northern hemisphere
-stations = Stations(bounds=[90, -180, 0, 180])
+# Get all stations
+stations = Stations()
 
-print('Stations in northern hemisphere:')
-print(stations.count())
+# Get number of stations in northern hemisphere
+northern = stations.bounds((90, -180), (0, 180))
+print('Stations in northern hemisphere:', northern.count())
 
 # Get number of stations in southern hemisphere
-stations = Stations(bounds=[0, -180, -90, 180])
-
-print('Stations in southern hemisphere:')
-print(stations.count())
+southern = stations.bounds((0, -180), (-90, 180))
+print('Stations in southern hemisphere:', southern.count())

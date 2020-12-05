@@ -13,7 +13,9 @@ import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
 # Get weather stations by WMO ID
-stations = Stations(wmo=['71624', '72295', '68816', '94767']).fetch()
+stations = Stations()
+stations = stations.identifier('wmo', ('71624', '72295', '68816', '94767'))
+stations = stations.fetch()
 
 # Get names of weather stations
 names = stations['name'].to_list()
@@ -23,12 +25,11 @@ start = datetime(2019, 1, 1)
 end = datetime(2019, 12, 31)
 
 # Get daily data
-data = Daily(stations, start=start, end=end)
+data = Daily(stations, start, end)
 data = data.fetch()
 
 # Plot chart
 data.unstack('station')['tavg'].plot(
-    kind='line',
     legend=True,
     ylabel='Avg. Daily Temperature °C',
     title='Average Temperature Report for 2019')

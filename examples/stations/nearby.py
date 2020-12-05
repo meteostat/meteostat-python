@@ -11,9 +11,10 @@ The code is licensed under the MIT license.
 from meteostat import Stations
 
 # Get weather station
-stations = Stations(lat=50, lon=8, hourly=True)
+stations = Stations()
+stations = stations.nearby(50, 8)
+stations = stations.inventory('hourly', True)
 station = stations.fetch(1).to_dict('records')[0]
 
 # Print name
-print('Closest weather station at coordinates 50, 8:')
-print(station["name"])
+print('Closest weather station at coordinates 50, 8:', station["name"])

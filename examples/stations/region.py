@@ -11,8 +11,8 @@ The code is licensed under the MIT license.
 from meteostat import Stations
 
 # Get stations in Ontario
-stations = Stations(country='CA', region='ON')
+stations = Stations()
+stations = stations.region('CA', 'ON')
 
 # Print count to console
-print('Stations in Ontario:')
-print(stations.count())
+print('Stations in Ontario:', stations.count())

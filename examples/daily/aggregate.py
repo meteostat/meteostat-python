@@ -1,5 +1,5 @@
 """
-Example: Interpolation
+Example: Aggregation
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -10,18 +10,16 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 import matplotlib.pyplot as plt
-from meteostat import Hourly
+from meteostat import Daily
 
 # Time period
-start = datetime(2020, 8, 1)
-end = datetime(2020, 8, 4, 23, 59)
+start = datetime(2018, 1, 1)
+end = datetime(2018, 12, 31)
 
-# Get hourly data
-data = Hourly('10730', start=start, end=end)
-data = data.normalize()
-data = data.interpolate(limit=6)
-data = data.fetch()
+# Get daily data
+data = Daily('10637', start, end)
+data = data.normalize().aggregate(freq='1W').fetch()
 
 # Plot chart
-data.plot(y='temp', kind='line')
+data.plot(y=['tavg', 'tmin', 'tmax'])
 plt.show()

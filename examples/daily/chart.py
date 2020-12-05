@@ -17,11 +17,13 @@ start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
 
 # Get a weather station
-stations = Stations(lat=49.2497, lon=-123.1193, daily=(start, end))
+stations = Stations()
+stations = stations.nearby(49.2497, -123.1193)
+stations = stations.inventory('daily', (start, end))
 station = stations.fetch(1)
 
 # Get daily data
-data = Daily(station, start=start, end=end)
+data = Daily(station, start, end)
 data = data.fetch()
 
 # Plot chart

@@ -13,17 +13,18 @@ import matplotlib.pyplot as plt
 from meteostat import Stations, Hourly
 
 # Get a weather station
-stations = Stations(lat=50, lon=8)
+stations = Stations()
+stations = stations.nearby(50, 8)
 station = stations.fetch(1)
 
 # Time period
-start = datetime(2010, 1, 1)
+start = datetime(2020, 1, 1)
 end = datetime(2020, 1, 1, 23, 59)
 
 # Get hourly data
-data = Hourly(station, start=start, end=end)
+data = Hourly(station, start, end)
 data = data.fetch()
 
 # Plot chart
-data.plot(y='temp', kind='line')
+data.plot(y='temp')
 plt.show()

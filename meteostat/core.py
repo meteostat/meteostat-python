@@ -27,14 +27,14 @@ class Core:
     _endpoint = 'https://bulk.meteostat.net/'
 
     # Location of the cache directory
-    _cache_dir = os.path.expanduser(
+    cache_dir = os.path.expanduser(
         '~') + os.sep + '.meteostat' + os.sep + 'cache'
 
     # Maximum age of a cached file in seconds
-    _max_age = 24 * 60 * 60
+    max_age = 24 * 60 * 60
 
     # Maximum number of threads used for downloading files
-    _max_threads = 1
+    max_threads = 1
 
     def _get_file_path(self, path=False):
 
@@ -42,16 +42,16 @@ class Core:
             # Get file ID
             file_id = hashlib.md5(path.encode('utf-8')).hexdigest()
             # Return path
-            return self._cache_dir + os.sep + self._cache_subdir + os.sep + file_id
+            return self.cache_dir + os.sep + self.cache_subdir + os.sep + file_id
 
         return False
 
     def _file_in_cache(self, file_path=False):
 
         # Make sure the cache directory exists
-        if not os.path.exists(self._cache_dir + os.sep + self._cache_subdir):
+        if not os.path.exists(self.cache_dir + os.sep + self.cache_subdir):
             try:
-                os.makedirs(self._cache_dir + os.sep + self._cache_subdir)
+                os.makedirs(self.cache_dir + os.sep + self.cache_subdir)
             except OSError as creation_error:
                 if creation_error.errno == errno.EEXIST:
                     pass
@@ -61,7 +61,7 @@ class Core:
         if file_path:
             # Return the file path if it exists
             if os.path.isfile(file_path) and time.time() - \
-                    os.path.getmtime(file_path) <= self._max_age:
+                    os.path.getmtime(file_path) <= self.max_age:
                 return True
 
             return False
@@ -131,7 +131,7 @@ class Core:
             files = []
 
             # Single-thread processing
-            if self._max_threads < 2:
+            if self.max_threads < 2:
 
                 for path in paths:
                     files.append(self._download_file(path))
@@ -141,7 +141,7 @@ class Core:
 
                 try:
                     pool = ThreadPool(
-                        self._max_threads).imap_unordered(
+                        self.max_threads).imap_unordered(
                         self._download_file, paths)
                 except BaseException as pool_error:
                     raise Exception('Cannot create ThreadPool') from pool_error
@@ -164,18 +164,18 @@ class Core:
         try:
             # Set max_age
             if max_age is None:
-                max_age = self._max_age
+                max_age = self.max_age
 
             # Get current time
             now = time.time()
 
             # Go through all files
             for file in os.listdir(
-                    self._cache_dir + os.sep + self._cache_subdir):
+                    self.cache_dir + os.sep + self.cache_subdir):
 
                 # Get full path
                 path = os.path.join(
-                    self._cache_dir + os.sep + self._cache_subdir, file)
+                    self.cache_dir + os.sep + self.cache_subdir, file)
 
                 # Check if file is older than max_age
                 if now - \

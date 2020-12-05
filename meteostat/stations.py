@@ -21,7 +21,7 @@ class Stations(Core):
     """
 
     # The cache subdirectory
-    _cache_subdir = 'stations'
+    cache_subdir = 'stations'
 
     # The list of selected weather Stations
     _stations = None
@@ -61,34 +61,8 @@ class Stations(Core):
     _parse_dates = [10, 11, 12, 13]
 
     def __init__(
-        self,
-        uid=None,
-        wmo=None,
-        icao=None,
-        lat=None,
-        lon=None,
-        radius=None,
-        country=None,
-        region=None,
-        bounds=None,
-        daily=None,
-        hourly=None,
-        cache_dir=None,
-        max_age=None,
-        max_threads=None
+        self
     ):
-
-        # Configuration - Cache directory
-        if cache_dir:
-            self._cache_dir = cache_dir
-
-        # Configuration - Maximum file age
-        if max_age:
-            self._max_age = max_age
-
-        # Configuration - Maximum number of threads
-        if max_threads:
-            self._max_threads = max_threads
 
         # Get all weather stations
         try:
@@ -97,71 +71,37 @@ class Stations(Core):
         except BaseException as read_error:
             raise Exception('Cannot read weather station directory') from read_error
 
-        # Filter by identifier
-        if uid or wmo or icao:
-            self._identifier(uid, wmo, icao)
-
-        # Filter by country or region
-        if country or region:
-            self._regional(country, region)
-
-        # Filter by boundaries
-        if bounds:
-            self._area(bounds)
-
-        # Filter by distance
-        if lat and lon:
-            self._nearby(lat, lon, radius)
-
-        # Filter by daily inventory
-        if daily:
-            self._inventory({ 'daily': daily })
-
-        # Filter by hourly inventory
-        if hourly:
-            self._inventory({ 'hourly': hourly })
-
         # Clear cache
         self.clear_cache()
 
-    def _identifier(self, uid=None, wmo=None, icao=None):
+    def identifier(self, organization, code):
 
         """
         Get weather station by identifier
         """
 
-        # Get station by Meteostat ID
-        if uid is not None:
+        # Create temporal instance
+        temp = copy(self)
 
-            if not isinstance(uid, list):
-                uid = [uid]
+        if isinstance(code, str):
+            code = [code]
 
-            self._stations = self._stations[self._stations.index.isin(uid)]
-
-        # Get station by WMO ID
-        elif wmo is not None:
-
-            if not isinstance(wmo, list):
-                wmo = [wmo]
-
-            self._stations = self._stations[self._stations['wmo'].isin(wmo)]
-
-        # Get stations by ICAO ID
-        elif icao is not None:
-
-            if isinstance(icao, list):
-                icao = [icao]
-
-            self._stations = self._stations[self._stations['icao'] == icao]
+        if organization == 'meteostat':
+            temp._stations = temp._stations[temp._stations.index.isin(code)]
+        else:
+            temp._stations = temp._stations[temp._stations[organization].isin(code)]
 
         # Return self
-        return self
+        return temp
 
-    def _nearby(self, lat=False, lon=False, radius=None):
+    def nearby(self, lat, lon, radius=None):
 
         """
         Sort/filter weather stations by physical distance
         """
+
+        # Create temporal instance
+        temp = copy(self)
 
         # Calculate distance between weather station and geo point
         def distance(station, point):
@@ -176,91 +116,97 @@ class Stations(Core):
             return radius * sqrt(x * x + y * y)
 
         # Get distance for each stationsd
-        self._stations['distance'] = self._stations.apply(
+        temp._stations['distance'] = temp._stations.apply(
             lambda station: distance(station, [lat, lon]), axis=1)
 
         # Filter by radius
         if radius is not None:
-            self._stations = self._stations[self._stations['distance'] <= radius]
+            temp._stations = temp._stations[temp._stations['distance'] <= radius]
 
         # Sort stations by distance
-        self._stations.columns.str.strip()
-        self._stations = self._stations.sort_values('distance')
+        temp._stations.columns.str.strip()
+        temp._stations = temp._stations.sort_values('distance')
 
         # Return self
-        return self
+        return temp
 
-    def _regional(self, country=None, region=None):
+    def region(self, country, state=None):
 
         """
         Filter weather stations by country/region code
         """
 
-        # Check if country is set
-        if country is not None:
-            self._stations = self._stations[self._stations['country'] == country]
+        # Create temporal instance
+        temp = copy(self)
 
-        # Check if region is set
-        if region is not None:
-            self._stations = self._stations[self._stations['region'] == region]
+        # Country code
+        temp._stations = temp._stations[temp._stations['country'] == country]
+
+        # State code
+        if state is not None:
+            temp._stations = temp._stations[temp._stations['region'] == state]
 
         # Return self
-        return self
+        return temp
 
-    def _area(self, bounds=None):
+    def bounds(self, top_left, bottom_right):
 
         """
         Filter weather stations by geographical bounds
         """
 
+        # Create temporal instance
+        temp = copy(self)
+
         # Return stations in boundaries
-        if bounds is not None:
-            self._stations = self._stations[
-                (self._stations['latitude'] <= bounds[0]) &
-                (self._stations['latitude'] >= bounds[2]) &
-                (self._stations['longitude'] <= bounds[3]) &
-                (self._stations['longitude'] >= bounds[1])
-            ]
+        temp._stations = temp._stations[
+            (temp._stations['latitude'] <= top_left[0]) &
+            (temp._stations['latitude'] >= bottom_right[0]) &
+            (temp._stations['longitude'] <= bottom_right[1]) &
+            (temp._stations['longitude'] >= top_left[1])
+        ]
 
         # Return self
-        return self
+        return temp
 
-    def _inventory(self, filter):
+    def inventory(self, granularity, required):
 
         """
         Filter weather stations by inventory data
         """
 
-        for resolution, value in filter.items():
-            if value is True:
-                # Make sure data exists at all
-                self._stations = self._stations[
-                    (pd.isna(self._stations[resolution + '_start']) == False)
-                ]
-            elif isinstance(value, tuple):
-                # Make sure data exists across period
-                self._stations = self._stations[
-                    (pd.isna(self._stations[resolution + '_start']) == False) &
-                    (self._stations[resolution + '_start'] <= value[0]) &
-                    (
-                        self._stations[resolution + '_end'] +
-                        timedelta(seconds=self._max_age)
-                        >= value[1]
-                    )
-                ]
-            else:
-                # Make sure data exists on a certain day
-                self._stations = self._stations[
-                    (pd.isna(self._stations[resolution + '_start']) == False) &
-                    (self._stations[resolution + '_start'] <= value) &
-                    (
-                        self._stations[resolution + '_end'] +
-                        timedelta(seconds=self._max_age)
-                        >= value
-                    )
-                ]
+        # Create temporal instance
+        temp = copy(self)
 
-        return self
+        if required is True:
+            # Make sure data exists at all
+            temp._stations = temp._stations[
+                (pd.isna(temp._stations[granularity + '_start']) == False)
+            ]
+        elif isinstance(required, tuple):
+            # Make sure data exists across period
+            temp._stations = temp._stations[
+                (pd.isna(temp._stations[granularity + '_start']) == False) &
+                (temp._stations[granularity + '_start'] <= required[0]) &
+                (
+                    temp._stations[granularity + '_end'] +
+                    timedelta(seconds=temp.max_age)
+                    >= required[1]
+                )
+            ]
+        else:
+            # Make sure data exists on a certain day
+            temp._stations = temp._stations[
+                (pd.isna(temp._stations[granularity + '_start']) == False) &
+                (temp._stations[granularity + '_start'] <= required) &
+                (
+                    temp._stations[granularity + '_end'] +
+                    timedelta(seconds=temp.max_age)
+                    >= required
+                )
+            ]
+
+        return temp
 
     def convert(self, units):
 
@@ -288,7 +234,7 @@ class Stations(Core):
 
         return len(self._stations.index)
 
-    def fetch(self, limit=False, sample=False):
+    def fetch(self, limit=None, sample=False):
 
         """
         Fetch all weather stations or a (sampled) subset

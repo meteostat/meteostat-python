@@ -22,10 +22,10 @@ class Hourly(Core):
     """
 
     # The cache subdirectory
-    _cache_subdir = 'hourly'
+    cache_subdir = 'hourly'
 
     # Specify if the library should use chunks or full dumps
-    _chunked = True
+    chunked = True
 
     # The list of weather Stations
     _stations = None
@@ -98,7 +98,7 @@ class Hourly(Core):
             paths = []
 
             for station in stations:
-                if self._chunked and self._start and self._end:
+                if self.chunked and self._start and self._end:
                     for year in range(self._start.year, self._end.year + 1):
                         paths.append(
                             'hourly/' + str(year) + '/' + str(station) + '.csv.gz')
@@ -134,28 +134,8 @@ class Hourly(Core):
         stations,
         start=None,
         end=None,
-        timezone=None,
-        cache_dir=None,
-        max_age=None,
-        max_threads=None,
-        chunked=None
+        timezone=None
     ):
-
-        # Configuration - Cache directory
-        if cache_dir:
-            self._cache_dir = cache_dir
-
-        # Configuration - Maximum file age
-        if max_age:
-            self._max_age = max_age
-
-        # Configuration - Maximum number of threads
-        if max_threads:
-            self._max_threads = max_threads
-
-        # Configuration - Data chunks
-        if chunked:
-            self._chunked = chunked
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
@@ -250,7 +230,7 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def aggregate(self, freq=None, functions=None, spatial=False):
+    def aggregate(self, freq='1H', spatial=False):
 
         """
         Aggregate observations
@@ -258,10 +238,6 @@ class Hourly(Core):
 
         # Create temporal instance
         temp = copy(self)
-
-        # Update default aggregations
-        if functions is not None:
-            temp._aggregations.update(functions)
 
         # Time aggregation
         temp._data = temp._data.groupby(['station', pd.Grouper(
@@ -313,7 +289,7 @@ class Hourly(Core):
 
         return len(self._data.index)
 
-    def fetch(self):
+    def fetch(self, limit=None, sample=False):
 
         """
         Fetch DataFrame

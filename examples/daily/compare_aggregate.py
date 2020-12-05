@@ -13,7 +13,9 @@ import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
 # Get weather stations by WMO ID
-stations = Stations(['D1424', '10729', '10803', '10513']).fetch()
+stations = Stations()
+stations = stations.identifier('meteostat', ('D1424', '10729', '10803', '10513'))
+stations = stations.fetch()
 
 # Get names of weather stations
 names = stations['name'].to_list()
@@ -23,13 +25,12 @@ start = datetime(2000, 1, 1)
 end = datetime(2019, 12, 31)
 
 # Get daily data
-data = Daily(stations, start=start, end=end)
+data = Daily(stations, start, end)
 data = data.aggregate(freq='1Y').fetch()
 
 # Plot chart
 fig, ax = plt.subplots(figsize=(8, 6))
 data.unstack('station')['tmax'].plot(
-    kind='line',
     legend=True,
     ax=ax,
     style='.-',

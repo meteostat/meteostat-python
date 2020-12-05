@@ -11,8 +11,8 @@ The code is licensed under the MIT license.
 from meteostat import Stations
 
 # Get weather station with ICAO ID EDDF
-stations = Stations(icao='EDDF')
-station = stations.fetch(1).to_dict('records')[0]
+stations = Stations()
+station = stations.identifier('icao', 'EDDF').fetch()
 
-# Print name
-print(station["name"])
+# Print station
+print(station)

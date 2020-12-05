@@ -12,19 +12,24 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
+# Configuration
+Daily.max_threads = 5
+
 # Time period
 start = datetime(1980, 1, 1)
 end = datetime(2019, 12, 31)
 
 # Get random weather stations in the US
-stations = Stations(country='US', daily=datetime(2005, 1, 1))
-stations = stations.fetch(limit=5, sample=True)
+stations = Stations()
+stations = stations.region('US')
+stations = stations.inventory('daily', datetime(2005, 1, 1))
+stations = stations.fetch(limit=20, sample=True)
 
 # Get daily data
-data = Daily(stations, start=start, end=end, max_threads=5)
+data = Daily(stations, start, end)
 
 # Normalize & aggregate
-data = data.normalize().aggregate(freq='1Y', spatial=True).fetch()
+data = data.normalize().aggregate('1Y', spatial=True).fetch()
 
 # Chart title
 TITLE = 'Average US Annual Temperature from 1980 to 2019'

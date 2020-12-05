@@ -12,16 +12,17 @@ from datetime import datetime
 from meteostat import Stations, Hourly
 
 # Hourly
-stations = Stations(wmo='10637')
-station = stations.fetch(1)
+stations = Stations()
+stations = stations.identifier('wmo', '10637')
+station = stations.fetch()
 
 # Time period
 start = datetime(2020, 1, 1)
 end = datetime(2020, 1, 1, 23, 59)
 
 # Get hourly data & aggregate
-data = Hourly(station, start=start, end=end)
-data = data.aggregate(freq='1D')
+data = Hourly(station, start, end)
+data = data.aggregate('1D')
 data = data.fetch()
 
 # Print
