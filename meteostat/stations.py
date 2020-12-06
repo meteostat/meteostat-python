@@ -74,7 +74,7 @@ class Stations(Core):
         # Clear cache
         self.clear_cache()
 
-    def identifier(self, organization, code):
+    def id(self, organization, code):
 
         """
         Get weather station by identifier
@@ -219,7 +219,7 @@ class Stations(Core):
 
         # Change data units
         for parameter, unit in units.items():
-            if parameter in temp._columns:
+            if parameter in temp._stations.columns.values:
                 temp._stations[parameter] = temp._stations[parameter].apply(
                     unit)
 

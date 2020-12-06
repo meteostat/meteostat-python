@@ -30,7 +30,7 @@ def inches(value):
     Convert millimeters to inches
     """
 
-    return round(value / 25.4, 1)
+    return round(value / 25.4, 3)
 
 def feet(value):
 

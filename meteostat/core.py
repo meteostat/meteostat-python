@@ -155,7 +155,8 @@ class Core:
 
         return False
 
-    def clear_cache(self, max_age=None):
+    @classmethod
+    def clear_cache(cls, max_age=None):
 
         """
         Clear the cache
@@ -164,18 +165,18 @@ class Core:
         try:
             # Set max_age
             if max_age is None:
-                max_age = self.max_age
+                max_age = cls.max_age
 
             # Get current time
             now = time.time()
 
             # Go through all files
             for file in os.listdir(
-                    self.cache_dir + os.sep + self.cache_subdir):
+                    cls.cache_dir + os.sep + cls.cache_subdir):
 
                 # Get full path
                 path = os.path.join(
-                    self.cache_dir + os.sep + self.cache_subdir, file)
+                    cls.cache_dir + os.sep + cls.cache_subdir, file)
 
                 # Check if file is older than max_age
                 if now - \

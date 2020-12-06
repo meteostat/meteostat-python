@@ -14,7 +14,7 @@ from meteostat import Stations, Daily
 
 # Get weather stations by WMO ID
 stations = Stations()
-stations = stations.identifier('meteostat', ('D1424', '10729', '10803', '10513'))
+stations = stations.id('meteostat', ('D1424', '10729', '10803', '10513'))
 stations = stations.fetch()
 
 # Get names of weather stations

@@ -13,7 +13,7 @@ from meteostat import Stations, Hourly
 
 # Hourly
 stations = Stations()
-stations = stations.identifier('wmo', '10637')
+stations = stations.id('wmo', '10637')
 station = stations.fetch()
 
 # Time period

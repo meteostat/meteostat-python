@@ -14,7 +14,6 @@ pip install meteostat
 
 The Meteostat Python library is divided into multiple classes which provide access to the actual data. The [documentation](https://dev.meteostat.net/python/) covers all aspects of the library:
 
-* [Configuration](https://dev.meteostat.net/python/configuration.html)
 * [Weather Stations](https://dev.meteostat.net/python/stations.html)
 * [Hourly Data](https://dev.meteostat.net/python/hourly.html)
 * [Daily Data](https://dev.meteostat.net/python/daily.html)

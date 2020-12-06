@@ -12,7 +12,7 @@ from meteostat import Stations
 
 # Get weather station with ICAO ID EDDF
 stations = Stations()
-station = stations.identifier('icao', 'EDDF').fetch()
+station = stations.id('icao', 'EDDF').fetch()
 
 # Print station
 print(station)
