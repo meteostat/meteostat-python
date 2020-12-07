@@ -25,7 +25,7 @@ setup(
     keywords=['weather', 'climate', 'data', 'timeseries', 'meteorology'],
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['pandas', 'pyarrow', 'pytz'],
+    install_requires=['pandas>=1.1', 'pyarrow>=1', 'pytz'],
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3',
