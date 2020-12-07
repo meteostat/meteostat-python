@@ -15,13 +15,12 @@ class TestStations(unittest.TestCase):
     """
 
     def test_nearby(self):
-
         """
         Test: Nearby stations
         """
 
         # Selecting closest weather station to Frankfurt Airport
-        station = Stations(lat=50.05, lon=8.6).fetch(1).to_dict('records')[0]
+        station = Stations().nearby(50.05, 8.6).fetch(1).to_dict('records')[0]
 
         # Check if country code matches Germany
         self.assertEqual(
@@ -32,13 +31,12 @@ class TestStations(unittest.TestCase):
             ', should be DE')
 
     def test_identifier(self):
-
         """
         Test: Stations by identifier
         """
 
         # Select weather station 'Toronto Pearson Airport'
-        station = Stations(uid='71624').fetch(1).to_dict('records')[0]
+        station = Stations().id('wmo', '71624').fetch(1).to_dict('records')[0]
 
         # Check if ICAO ID matches CYYZ
         self.assertEqual(
@@ -49,13 +47,12 @@ class TestStations(unittest.TestCase):
             ', should be CYYZ')
 
     def test_regional(self):
-
         """
         Test: Stations by country/region code
         """
 
         # Select a weather station in Ontario, Canada
-        station = Stations(country='CA', region='ON').fetch(
+        station = Stations().region('CA', 'ON').fetch(
             1).to_dict('records')[0]
 
         # Check if country code matches Canada
@@ -75,14 +72,13 @@ class TestStations(unittest.TestCase):
             ', should be ON')
 
     def test_area(self):
-
         """
         Test: Stations by geographical area
         """
 
         # Select weather stations in southern hemisphere
-        station = Stations(bounds=[0, -180, -90, 180]
-                           ).fetch(1).to_dict('records')[0]
+        station = Stations().bounds(
+            (0, -180), (-90, 180)).fetch(1).to_dict('records')[0]
 
         # Check if -90 <= latitude <= 0
         self.assertTrue(

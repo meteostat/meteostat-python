@@ -47,7 +47,7 @@ class TestHourly(unittest.TestCase):
             ['10637'], start=datetime(
                 2018, 1, 1), end=datetime(
                 2018, 1, 3, 23, 59))
-        count = data.normalize().aggregate(freq='1D').count()
+        count = data.normalize().aggregate('1D').count()
 
         # Check if count matches 3
         self.assertEqual(

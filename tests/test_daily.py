@@ -46,7 +46,7 @@ class TestDaily(unittest.TestCase):
             ['10637'], start=datetime(
                 2018, 1, 1), end=datetime(
                 2018, 12, 31))
-        count = data.normalize().aggregate(freq='1W').count()
+        count = data.normalize().aggregate('1W').count()
 
         # Check if count matches 53
         self.assertEqual(

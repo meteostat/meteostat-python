@@ -289,7 +289,7 @@ class Hourly(Core):
 
         return len(self._data.index)
 
-    def fetch(self, limit=None, sample=False):
+    def fetch(self):
 
         """
         Fetch DataFrame
