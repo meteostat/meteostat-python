@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from meteostat import Hourly
 
 # Time period
-start = datetime(2020, 8, 1)
-end = datetime(2020, 8, 4, 23, 59)
+start = datetime(2018, 8, 1)
+end = datetime(2018, 8, 4, 23, 59)
 
 # Get hourly data
 data = Hourly('10730', start, end)

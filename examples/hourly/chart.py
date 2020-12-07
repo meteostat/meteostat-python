@@ -18,8 +18,8 @@ stations = stations.nearby(50, 8)
 station = stations.fetch(1)
 
 # Time period
-start = datetime(2020, 1, 1)
-end = datetime(2020, 1, 1, 23, 59)
+start = datetime(2017, 1, 1)
+end = datetime(2017, 1, 1, 23, 59)
 
 # Get hourly data
 data = Hourly(station, start, end)

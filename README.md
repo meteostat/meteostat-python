@@ -29,9 +29,11 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
-# Set coordinates of Vancouver & time period
+# Set coordinates of Vancouver
 lat = 49.2497
 lon = -123.1193
+
+# Set time period
 start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
 

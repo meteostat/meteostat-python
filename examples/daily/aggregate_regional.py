@@ -22,7 +22,7 @@ end = datetime(2019, 12, 31)
 # Get random weather stations in the US
 stations = Stations()
 stations = stations.region('US')
-stations = stations.inventory('daily', datetime(2005, 1, 1))
+stations = stations.inventory('daily', (start, end))
 stations = stations.fetch(limit=20, sample=True)
 
 # Get daily data

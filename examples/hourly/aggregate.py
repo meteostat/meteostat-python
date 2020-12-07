@@ -17,8 +17,8 @@ stations = stations.id('wmo', '10637')
 station = stations.fetch()
 
 # Time period
-start = datetime(2020, 1, 1)
-end = datetime(2020, 1, 1, 23, 59)
+start = datetime(2018, 1, 1)
+end = datetime(2018, 1, 1, 23, 59)
 
 # Get hourly data & aggregate
 data = Hourly(station, start, end)

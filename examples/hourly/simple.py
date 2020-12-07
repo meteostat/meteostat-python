@@ -13,8 +13,8 @@ from meteostat import Stations, Hourly
 from meteostat.units import fahrenheit, direction, condition
 
 # Time period
-start = datetime(2020, 1, 1)
-end = datetime(2020, 1, 1, 23, 59)
+start = datetime(2018, 1, 1)
+end = datetime(2018, 1, 1, 23, 59)
 
 # Get nearby weather station
 stations = Stations()
