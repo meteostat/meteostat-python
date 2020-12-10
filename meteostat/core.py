@@ -44,7 +44,7 @@ class Core:
             # Return path
             return self.cache_dir + os.sep + self.cache_subdir + os.sep + file_id
 
-        return False
+
 
     def _file_in_cache(self, file_path=False):
 
@@ -121,7 +121,7 @@ class Core:
                 'origin': path
             }
 
-        return False
+
 
     def _load(self, paths=None):
 
@@ -153,7 +153,7 @@ class Core:
             # Return list of local file paths
             return files
 
-        return False
+
 
     @classmethod
     def clear_cache(cls, max_age=None):
