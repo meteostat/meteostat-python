@@ -17,8 +17,8 @@ from multiprocessing.pool import ThreadPool
 from urllib.error import HTTPError
 import pandas as pd
 
-class Core:
 
+class Core:
     """
     Base class that provides methods which are used across the package
     """
@@ -36,7 +36,7 @@ class Core:
     # Maximum number of threads used for downloading files
     max_threads = 1
 
-    def _get_file_path(self, path=False):
+    def _get_file_path(self, path=False) -> str:
 
         if path:
             # Get file ID
@@ -46,7 +46,7 @@ class Core:
 
         return False
 
-    def _file_in_cache(self, file_path=False):
+    def _file_in_cache(self, file_path=False) -> bool:
 
         # Make sure the cache directory exists
         if not os.path.exists(self.cache_dir + os.sep + self.cache_subdir):
@@ -68,7 +68,7 @@ class Core:
 
         return False
 
-    def _download_file(self, path=None):
+    def _download_file(self, path=None) -> dict:
 
         if path:
 
@@ -121,9 +121,7 @@ class Core:
                 'origin': path
             }
 
-        return False
-
-    def _load(self, paths=None):
+    def _load(self, paths=None) -> list:
 
         if paths:
 
@@ -153,10 +151,8 @@ class Core:
             # Return list of local file paths
             return files
 
-        return False
-
     @classmethod
-    def clear_cache(cls, max_age=None):
+    def clear_cache(cls, max_age=None) -> None:
 
         """
         Clear the cache
@@ -181,7 +177,6 @@ class Core:
                 # Check if file is older than max_age
                 if now - \
                         os.path.getmtime(path) > max_age and os.path.isfile(path):
-
                     # Delete file
                     os.remove(path)
 

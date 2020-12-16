@@ -14,8 +14,8 @@ from datetime import timedelta
 import pandas as pd
 from meteostat.core import Core
 
-class Stations(Core):
 
+class Stations(Core):
     """
     Select weather stations from the full list of stations
     """
@@ -61,8 +61,8 @@ class Stations(Core):
     _parse_dates = [10, 11, 12, 13]
 
     def __init__(
-        self
-    ):
+            self
+    ) -> None:
 
         # Get all weather stations
         try:
@@ -104,8 +104,7 @@ class Stations(Core):
         temp = copy(self)
 
         # Calculate distance between weather station and geo point
-        def distance(station, point):
-
+        def distance(station, point) -> float:
             # Earth radius in m
             radius = 6371000
 
@@ -164,7 +163,7 @@ class Stations(Core):
             (temp._stations['latitude'] >= bottom_right[0]) &
             (temp._stations['longitude'] <= bottom_right[1]) &
             (temp._stations['longitude'] >= top_left[1])
-        ]
+            ]
 
         # Return self
         return temp
@@ -189,22 +188,22 @@ class Stations(Core):
                 (pd.isna(temp._stations[granularity + '_start']) == False) &
                 (temp._stations[granularity + '_start'] <= required[0]) &
                 (
-                    temp._stations[granularity + '_end'] +
-                    timedelta(seconds=temp.max_age)
-                    >= required[1]
+                        temp._stations[granularity + '_end'] +
+                        timedelta(seconds=temp.max_age)
+                        >= required[1]
                 )
-            ]
+                ]
         else:
             # Make sure data exists on a certain day
             temp._stations = temp._stations[
                 (pd.isna(temp._stations[granularity + '_start']) == False) &
                 (temp._stations[granularity + '_start'] <= required) &
                 (
-                    temp._stations[granularity + '_end'] +
-                    timedelta(seconds=temp.max_age)
-                    >= required
+                        temp._stations[granularity + '_end'] +
+                        timedelta(seconds=temp.max_age)
+                        >= required
                 )
-            ]
+                ]
 
         return temp
 
@@ -226,7 +225,7 @@ class Stations(Core):
         # Return class instance
         return temp
 
-    def count(self):
+    def count(self) -> int:
 
         """
         Return number of weather stations in current selection
