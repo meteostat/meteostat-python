@@ -13,10 +13,11 @@ from math import floor, nan
 from copy import copy
 import pytz
 import pandas as pd
+
 from meteostat.core import Core
 
-class Hourly(Core):
 
+class Hourly(Core):
     """
     Retrieve hourly weather observations for one or multiple weather stations
     """
@@ -113,7 +114,7 @@ class Hourly(Core):
 
                     if os.path.isfile(
                             file['path']) and os.path.getsize(
-                            file['path']) > 0:
+                        file['path']) > 0:
 
                         df = pd.read_parquet(file['path'])
 
@@ -130,12 +131,12 @@ class Hourly(Core):
                             self._data = self._data.append(df)
 
     def __init__(
-        self,
-        stations,
-        start=None,
-        end=None,
-        timezone=None
-    ):
+            self,
+            stations,
+            start=None,
+            end=None,
+            timezone=None
+    ) -> None:
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
@@ -281,7 +282,7 @@ class Hourly(Core):
 
         return self._data[parameter].count() / expect
 
-    def count(self):
+    def count(self) -> int:
 
         """
         Return number of rows in DataFrame
@@ -289,7 +290,7 @@ class Hourly(Core):
 
         return len(self._data.index)
 
-    def fetch(self):
+    def fetch(self) -> pd.DataFrame:
 
         """
         Fetch DataFrame

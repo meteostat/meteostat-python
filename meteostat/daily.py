@@ -16,7 +16,6 @@ from meteostat.core import Core
 
 
 class Daily(Core):
-
     """
     Retrieve daily weather observations for one or multiple weather stations
     """
@@ -99,7 +98,7 @@ class Daily(Core):
 
                     if os.path.isfile(
                             file['path']) and os.path.getsize(
-                            file['path']) > 0:
+                        file['path']) > 0:
 
                         df = pd.read_parquet(file['path'])
 
@@ -111,11 +110,11 @@ class Daily(Core):
                             self._data = self._data.append(df)
 
     def __init__(
-        self,
-        stations,
-        start=None,
-        end=None
-    ):
+            self,
+            stations,
+            start=None,
+            end=None
+    ) -> None:
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
