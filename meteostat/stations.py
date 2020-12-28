@@ -11,11 +11,13 @@ The code is licensed under the MIT license.
 from math import cos, sqrt, radians
 from copy import copy
 from datetime import timedelta
+from urllib.error import HTTPError
 import pandas as pd
 from meteostat.core import Core
 
 
 class Stations(Core):
+
     """
     Select weather stations from the full list of stations
     """
@@ -60,22 +62,62 @@ class Stations(Core):
     # Columns for date parsing
     _parse_dates = [10, 11, 12, 13]
 
+    def _load(self) -> None:
+        """
+        Load file from Meteostat
+        """
+
+        # File name
+        file = 'lib.csv.gz'
+
+        # Get local file path
+        path = self._get_file_path(self.cache_subdir, file)
+
+        # Check if file in cache
+        if self.max_age > 0 and self._file_in_cache(path):
+
+            # Read cached data
+            df = pd.read_parquet(path)
+
+        else:
+
+            try:
+
+                # Read CSV file from Meteostat endpoint
+                df = pd.read_csv(
+                    self._endpoint + 'stations/' + file,
+                    compression='gzip',
+                    names=self._columns,
+                    dtype=self._types,
+                    parse_dates=self._parse_dates)
+
+            except HTTPError:
+
+                # Create empty DataFrane
+                df = pd.DataFrame(columns=self._columns)
+
+            # Add index
+            df = df.set_index('id')
+
+            # Save as Parquet
+            if self.max_age > 0:
+                df.to_parquet(path)
+
+        # Set data
+        self._stations = df
+
     def __init__(
-            self
+        self
     ) -> None:
 
         # Get all weather stations
-        try:
-            file = self._load(['stations/lib.csv.gz'])[0]
-            self._stations = pd.read_parquet(file['path'])
-        except BaseException as read_error:
-            raise Exception('Cannot read weather station directory') from read_error
+        self._load()
 
         # Clear cache
-        self.clear_cache()
+        if self.max_age > 0:
+            self.clear_cache()
 
     def id(self, organization, code):
-
         """
         Get weather station by identifier
         """
@@ -89,13 +131,13 @@ class Stations(Core):
         if organization == 'meteostat':
             temp._stations = temp._stations[temp._stations.index.isin(code)]
         else:
-            temp._stations = temp._stations[temp._stations[organization].isin(code)]
+            temp._stations = temp._stations[temp._stations[organization].isin(
+                code)]
 
         # Return self
         return temp
 
     def nearby(self, lat, lon, radius=None):
-
         """
         Sort/filter weather stations by physical distance
         """
@@ -130,7 +172,6 @@ class Stations(Core):
         return temp
 
     def region(self, country, state=None):
-
         """
         Filter weather stations by country/region code
         """
@@ -149,7 +190,6 @@ class Stations(Core):
         return temp
 
     def bounds(self, top_left, bottom_right):
-
         """
         Filter weather stations by geographical bounds
         """
@@ -163,13 +203,12 @@ class Stations(Core):
             (temp._stations['latitude'] >= bottom_right[0]) &
             (temp._stations['longitude'] <= bottom_right[1]) &
             (temp._stations['longitude'] >= top_left[1])
-            ]
+        ]
 
         # Return self
         return temp
 
     def inventory(self, granularity, required):
-
         """
         Filter weather stations by inventory data
         """
@@ -188,27 +227,26 @@ class Stations(Core):
                 (pd.isna(temp._stations[granularity + '_start']) == False) &
                 (temp._stations[granularity + '_start'] <= required[0]) &
                 (
-                        temp._stations[granularity + '_end'] +
-                        timedelta(seconds=temp.max_age)
-                        >= required[1]
+                    temp._stations[granularity + '_end'] +
+                    timedelta(seconds=temp.max_age)
+                    >= required[1]
                 )
-                ]
+            ]
         else:
             # Make sure data exists on a certain day
             temp._stations = temp._stations[
                 (pd.isna(temp._stations[granularity + '_start']) == False) &
                 (temp._stations[granularity + '_start'] <= required) &
                 (
-                        temp._stations[granularity + '_end'] +
-                        timedelta(seconds=temp.max_age)
-                        >= required
+                    temp._stations[granularity + '_end'] +
+                    timedelta(seconds=temp.max_age)
+                    >= required
                 )
-                ]
+            ]
 
         return temp
 
     def convert(self, units):
-
         """
         Convert columns to a different unit
         """
@@ -226,7 +264,6 @@ class Stations(Core):
         return temp
 
     def count(self) -> int:
-
         """
         Return number of weather stations in current selection
         """
@@ -234,7 +271,6 @@ class Stations(Core):
         return len(self._stations.index)
 
     def fetch(self, limit=None, sample=False):
-
         """
         Fetch all weather stations or a (sampled) subset
         """

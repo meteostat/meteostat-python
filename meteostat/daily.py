@@ -8,14 +8,16 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import os
+from multiprocessing.pool import ThreadPool
 from math import nan
 from copy import copy
+from urllib.error import HTTPError
 import pandas as pd
 from meteostat.core import Core
 
 
 class Daily(Core):
+
     """
     Retrieve daily weather observations for one or multiple weather stations
     """
@@ -81,39 +83,113 @@ class Daily(Core):
         'tsun': 'sum'
     }
 
-    def _get_data(self, stations=None):
+    def _load(self, dataset) -> None:
+        """
+        Load file from Meteostat
+        """
 
-        if len(stations) > 0:
+        # File name
+        file = dataset['station'] + '.csv.gz'
 
-            paths = []
+        # Get local file path
+        path = self._get_file_path(self.cache_subdir, file)
 
-            for index in stations:
-                paths.append('daily/' + str(index) + '.csv.gz')
+        # Check if file in cache
+        if self.max_age > 0 and self._file_in_cache(path):
 
-            files = self._load(paths)
+            # Read cached data
+            df = pd.read_parquet(path)
 
-            if len(files) > 0:
+        else:
 
-                for file in files:
+            try:
 
-                    if os.path.isfile(
-                            file['path']) and os.path.getsize(
-                        file['path']) > 0:
+                # Read CSV file from Meteostat endpoint
+                df = pd.read_csv(
+                    self._endpoint + 'daily/' + file,
+                    compression='gzip',
+                    names=self._columns,
+                    dtype=self._types,
+                    parse_dates=self._parse_dates)
 
-                        df = pd.read_parquet(file['path'])
+            except HTTPError:
 
-                        if self._start and self._end:
-                            time = df.index.get_level_values('time')
-                            self._data = self._data.append(
-                                df.loc[(time >= self._start) & (time <= self._end)])
-                        else:
-                            self._data = self._data.append(df)
+                # Get copy of column names
+                columns = copy(self._columns)
+
+                # Remove columns which are parsed as dates
+                for col in reversed(self._parse_dates['time']):
+                    del columns[col]
+
+                # Append columns
+                columns.append('time')
+                columns.append('station')
+
+                # Create empty DataFrane
+                df = pd.DataFrame(columns=columns)
+
+                # Set dtype of time column
+                df = df.astype({'time': 'datetime64'})
+
+            # Add index and weather station ID
+            df['station'] = dataset['station']
+            df = df.set_index(['station', 'time'])
+
+            # Save as Parquet
+            if self.max_age > 0:
+                df.to_parquet(path)
+
+        # Filter time period and append to DataFrame
+        if self._start and self._end:
+
+            # Get time index
+            time = df.index.get_level_values('time')
+
+            # Filter & append
+            self._data = self._data.append(
+                df.loc[(time >= self._start) & (time <= self._end)])
+
+        else:
+
+            # Append
+            self._data = self._data.append(df)
+
+    def _get_data(self) -> None:
+        """
+        Get all required data
+        """
+
+        if len(self._stations) > 0:
+
+            # List of datasets
+            datasets = []
+
+            for station in self._stations:
+                datasets.append({
+                    'station': str(station)
+                })
+
+            if self.max_threads < 2:
+
+                # Single-thread processing
+                for dataset in datasets:
+                    self._load(dataset)
+
+            else:
+
+                # Multi-thread processing
+                pool = ThreadPool(self.max_threads)
+                pool.imap_unordered(self._load, datasets)
+
+                # Wait for Pool to finish
+                pool.close()
+                pool.join()
 
     def __init__(
-            self,
-            stations,
-            start=None,
-            end=None
+        self,
+        stations,
+        start=None,
+        end=None
     ) -> None:
 
         # Set list of weather stations
@@ -131,17 +207,14 @@ class Daily(Core):
         # Set end date
         self._end = end
 
-        # Get data
-        try:
-            self._get_data(self._stations)
-        except BaseException as read_error:
-            raise Exception('Cannot read daily data') from read_error
+        # Get data for all weather stations
+        self._get_data()
 
         # Clear cache
-        self.clear_cache()
+        if self.max_age > 0:
+            self.clear_cache()
 
     def normalize(self):
-
         """
         Normalize the DataFrame
         """
@@ -178,7 +251,6 @@ class Daily(Core):
         return temp
 
     def interpolate(self, limit=3):
-
         """
         Interpolate NULL values
         """
@@ -195,7 +267,6 @@ class Daily(Core):
         return temp
 
     def aggregate(self, freq='1D', spatial=False):
-
         """
         Aggregate observations
         """
@@ -216,7 +287,6 @@ class Daily(Core):
         return temp
 
     def convert(self, units):
-
         """
         Convert columns to a different unit
         """
@@ -233,7 +303,6 @@ class Daily(Core):
         return temp
 
     def coverage(self, parameter=None):
-
         """
         Calculate data coverage (overall or by parameter)
         """
@@ -246,7 +315,6 @@ class Daily(Core):
         return self._data[parameter].count() / expect
 
     def count(self):
-
         """
         Return number of rows in DataFrame
         """
@@ -254,7 +322,6 @@ class Daily(Core):
         return len(self._data.index)
 
     def fetch(self):
-
         """
         Fetch DataFrame
         """
