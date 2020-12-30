@@ -8,10 +8,10 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from multiprocessing.pool import ThreadPool
 from math import floor, nan
 from copy import copy
-from urllib.error import HTTPError
+from datetime import datetime
+from typing import Union
 import pytz
 import pandas as pd
 from meteostat.core import Core
@@ -44,7 +44,7 @@ class Hourly(Core):
     # The data frame
     _data = pd.DataFrame()
 
-    # Columns
+    # Raw data columns
     _columns = [
         'date',
         'hour',
@@ -61,7 +61,7 @@ class Hourly(Core):
         'coco'
     ]
 
-    # Data tapes
+    # Processed data columns with types
     _types = {
         'temp': 'float64',
         'dwpt': 'float64',
@@ -71,12 +71,13 @@ class Hourly(Core):
         'wdir': 'float64',
         'wspd': 'float64',
         'wpgt': 'float64',
+        'pres': 'float64',
         'tsun': 'float64',
         'coco': 'float64'
     }
 
     # Columns for date parsing
-    _parse_dates = {'time': [0, 1]}
+    _parse_dates = { 'time': [0, 1] }
 
     # Default aggregation functions
     _aggregations = {
@@ -93,7 +94,12 @@ class Hourly(Core):
         'coco': 'max'
     }
 
-    def _set_time(self, start, end, timezone) -> None:
+    def _set_time(
+        self,
+        start: datetime = None,
+        end: datetime = None,
+        timezone: str = None
+    ) -> None:
         """
         Set & adapt the period's time zone
         """
@@ -126,16 +132,20 @@ class Hourly(Core):
             # Set end date
             self._end = end
 
-    def _load(self, dataset) -> None:
+    def _load(
+        self,
+        station: str,
+        year: str = None
+    ) -> None:
         """
         Load file from Meteostat
         """
 
         # File name
-        if dataset['year']:
-            file = dataset['year'] + '/' + dataset['station'] + '.csv.gz'
+        if year:
+            file = year + '/' + station + '.csv.gz'
         else:
-            file = dataset['station'] + '.csv.gz'
+            file = station + '.csv.gz'
 
         # Get local file path
         path = self._get_file_path(self.cache_subdir, file)
@@ -148,38 +158,15 @@ class Hourly(Core):
 
         else:
 
-            try:
+            # Get data from Meteostat
+            df = self._load_handler(
+                'hourly/' + file,
+                self._columns,
+                self._types,
+                self._parse_dates)
 
-                # Read CSV file from Meteostat endpoint
-                df = pd.read_csv(
-                    self._endpoint + 'hourly/' + file,
-                    compression='gzip',
-                    names=self._columns,
-                    dtype=self._types,
-                    parse_dates=self._parse_dates)
-
-            except HTTPError:
-
-                # Get copy of column names
-                columns = copy(self._columns)
-
-                # Remove columns which are parsed as dates
-                for col in reversed(self._parse_dates['time']):
-                    del columns[col]
-
-                # Append columns
-                columns.append('time')
-                columns.append('station')
-
-                # Create empty DataFrane
-                df = pd.DataFrame(columns=columns)
-
-                # Set dtype of time column
-                df = df.astype({'time': 'datetime64'})
-
-            # Add index and weather station ID
-            df['station'] = dataset['station']
-            df = df.set_index(['station', 'time'])
+            # Validate Series
+            df = self._validate_series(df, station)
 
             # Save as Parquet
             if self.max_age > 0:
@@ -221,40 +208,27 @@ class Hourly(Core):
                 if self.chunked and self._start and self._end:
 
                     for year in range(self._start.year, self._end.year + 1):
-                        datasets.append({
-                            'station': str(station),
-                            'year': str(year)
-                        })
+                        datasets.append((
+                            str(station),
+                            str(year)
+                        ))
 
                 else:
 
-                    datasets.append({
-                        'station': str(station),
-                        'year': None
-                    })
+                    datasets.append((
+                        str(station),
+                        None
+                    ))
 
-            if self.max_threads < 2:
-
-                # Single-thread processing
-                for dataset in datasets:
-                    self._load(dataset)
-
-            else:
-
-                # Multi-thread processing
-                pool = ThreadPool(self.max_threads)
-                pool.imap_unordered(self._load, datasets)
-
-                # Wait for Pool to finish
-                pool.close()
-                pool.join()
+            # Data Processing
+            self._processing_handler(datasets, self._load, self.max_threads)
 
     def __init__(
         self,
-        stations,
-        start=None,
-        end=None,
-        timezone=None
+        stations: Union[pd.DataFrame, list, str],
+        start: datetime = None,
+        end: datetime = None,
+        timezone: str = None
     ) -> None:
 
         # Set list of weather stations
@@ -276,7 +250,7 @@ class Hourly(Core):
         if self.max_age > 0:
             self.clear_cache()
 
-    def normalize(self):
+    def normalize(self) -> 'Hourly':
         """
         Normalize the DataFrame
         """
@@ -312,7 +286,10 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def interpolate(self, limit=3):
+    def interpolate(
+        self,
+        limit: int = 3
+    ) -> 'Hourly':
         """
         Interpolate NULL values
         """
@@ -332,7 +309,11 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def aggregate(self, freq='1H', spatial=False):
+    def aggregate(
+        self,
+        freq: str = '1H',
+        spatial: bool = False
+    ) -> 'Hourly':
         """
         Aggregate observations
         """
@@ -352,7 +333,10 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def convert(self, units):
+    def convert(
+        self,
+        units: dict
+    ) -> 'Hourly':
         """
         Convert columns to a different unit
         """
@@ -368,7 +352,10 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def coverage(self, parameter=None):
+    def coverage(
+        self,
+        parameter: str = None
+    ) -> float:
         """
         Calculate data coverage (overall or by parameter)
         """

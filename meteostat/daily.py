@@ -8,10 +8,10 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from multiprocessing.pool import ThreadPool
 from math import nan
 from copy import copy
-from urllib.error import HTTPError
+from datetime import datetime
+from typing import Union
 import pandas as pd
 from meteostat.core import Core
 
@@ -23,22 +23,22 @@ class Daily(Core):
     """
 
     # The cache subdirectory
-    cache_subdir = 'daily'
+    cache_subdir: str = 'daily'
 
     # The list of weather Stations
     _stations = None
 
     # The start date
-    _start = None
+    _start: datetime = None
 
     # The end date
-    _end = None
+    _end: datetime = None
 
     # The data frame
     _data = pd.DataFrame()
 
     # Columns
-    _columns = [
+    _columns: list = [
         'date',
         'tavg',
         'tmin',
@@ -53,7 +53,7 @@ class Daily(Core):
     ]
 
     # Data tapes
-    _types = {
+    _types: dict = {
         'tavg': 'float64',
         'tmin': 'float64',
         'tmax': 'float64',
@@ -67,10 +67,10 @@ class Daily(Core):
     }
 
     # Columns for date parsing
-    _parse_dates = {'time': [0]}
+    _parse_dates: dict = { 'time': [0] }
 
     # Default aggregation functions
-    _aggregations = {
+    _aggregations: dict = {
         'tavg': 'mean',
         'tmin': 'min',
         'tmax': 'max',
@@ -83,13 +83,16 @@ class Daily(Core):
         'tsun': 'sum'
     }
 
-    def _load(self, dataset) -> None:
+    def _load(
+        self,
+        station: str
+    ) -> None:
         """
         Load file from Meteostat
         """
 
         # File name
-        file = dataset['station'] + '.csv.gz'
+        file = station + '.csv.gz'
 
         # Get local file path
         path = self._get_file_path(self.cache_subdir, file)
@@ -102,38 +105,15 @@ class Daily(Core):
 
         else:
 
-            try:
+            # Get data from Meteostat
+            df = self._load_handler(
+                'daily/' + file,
+                self._columns,
+                self._types,
+                self._parse_dates)
 
-                # Read CSV file from Meteostat endpoint
-                df = pd.read_csv(
-                    self._endpoint + 'daily/' + file,
-                    compression='gzip',
-                    names=self._columns,
-                    dtype=self._types,
-                    parse_dates=self._parse_dates)
-
-            except HTTPError:
-
-                # Get copy of column names
-                columns = copy(self._columns)
-
-                # Remove columns which are parsed as dates
-                for col in reversed(self._parse_dates['time']):
-                    del columns[col]
-
-                # Append columns
-                columns.append('time')
-                columns.append('station')
-
-                # Create empty DataFrane
-                df = pd.DataFrame(columns=columns)
-
-                # Set dtype of time column
-                df = df.astype({'time': 'datetime64'})
-
-            # Add index and weather station ID
-            df['station'] = dataset['station']
-            df = df.set_index(['station', 'time'])
+            # Validate Series
+            df = self._validate_series(df, station)
 
             # Save as Parquet
             if self.max_age > 0:
@@ -165,31 +145,18 @@ class Daily(Core):
             datasets = []
 
             for station in self._stations:
-                datasets.append({
-                    'station': str(station)
-                })
+                datasets.append((
+                    str(station),
+                ))
 
-            if self.max_threads < 2:
-
-                # Single-thread processing
-                for dataset in datasets:
-                    self._load(dataset)
-
-            else:
-
-                # Multi-thread processing
-                pool = ThreadPool(self.max_threads)
-                pool.imap_unordered(self._load, datasets)
-
-                # Wait for Pool to finish
-                pool.close()
-                pool.join()
+            # Data Processing
+            self._processing_handler(datasets, self._load, self.max_threads)
 
     def __init__(
         self,
-        stations,
-        start=None,
-        end=None
+        stations: Union[pd.DataFrame, list, str],
+        start: datetime = None,
+        end: datetime = None
     ) -> None:
 
         # Set list of weather stations
@@ -214,7 +181,7 @@ class Daily(Core):
         if self.max_age > 0:
             self.clear_cache()
 
-    def normalize(self):
+    def normalize(self) -> 'Daily':
         """
         Normalize the DataFrame
         """
@@ -250,7 +217,10 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def interpolate(self, limit=3):
+    def interpolate(
+        self,
+        limit: int = 3
+    ) -> 'Daily':
         """
         Interpolate NULL values
         """
@@ -266,7 +236,11 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def aggregate(self, freq='1D', spatial=False):
+    def aggregate(
+        self,
+        freq: str = '1D',
+        spatial: bool = False
+    ) -> 'Daily':
         """
         Aggregate observations
         """
@@ -286,7 +260,10 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def convert(self, units):
+    def convert(
+        self,
+        units: dict
+    ) -> 'Daily':
         """
         Convert columns to a different unit
         """
@@ -302,7 +279,10 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def coverage(self, parameter=None):
+    def coverage(
+        self,
+        parameter: str = None
+    ) -> float:
         """
         Calculate data coverage (overall or by parameter)
         """
@@ -314,14 +294,14 @@ class Daily(Core):
 
         return self._data[parameter].count() / expect
 
-    def count(self):
+    def count(self) -> int:
         """
         Return number of rows in DataFrame
         """
 
         return len(self._data.index)
 
-    def fetch(self):
+    def fetch(self) -> pd.DataFrame:
         """
         Fetch DataFrame
         """
