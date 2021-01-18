@@ -23,6 +23,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/meteostat/meteostat-python',
     keywords=['weather', 'climate', 'data', 'timeseries', 'meteorology'],
+    python_requires='>=3.5.0',
     packages=find_packages(),
     include_package_data=True,
     install_requires=['pandas>=1.1', 'pyarrow>=1', 'pytz'],
