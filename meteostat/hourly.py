@@ -8,12 +8,14 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import os
 from math import floor, nan
 from copy import copy
+from datetime import datetime
+from typing import Union
 import pytz
 import pandas as pd
 from meteostat.core import Core
+
 
 class Hourly(Core):
 
@@ -42,7 +44,7 @@ class Hourly(Core):
     # The data frame
     _data = pd.DataFrame()
 
-    # Columns
+    # Raw data columns
     _columns = [
         'date',
         'hour',
@@ -59,7 +61,7 @@ class Hourly(Core):
         'coco'
     ]
 
-    # Data tapes
+    # Processed data columns with types
     _types = {
         'temp': 'float64',
         'dwpt': 'float64',
@@ -69,12 +71,15 @@ class Hourly(Core):
         'wdir': 'float64',
         'wspd': 'float64',
         'wpgt': 'float64',
+        'pres': 'float64',
         'tsun': 'float64',
         'coco': 'float64'
     }
 
     # Columns for date parsing
-    _parse_dates = {'time': [0, 1]}
+    _parse_dates = {
+        'time': [0, 1]
+    }
 
     # Default aggregation functions
     _aggregations = {
@@ -91,51 +96,142 @@ class Hourly(Core):
         'coco': 'max'
     }
 
-    def _get_data(self, stations=None):
+    def _set_time(
+        self,
+        start: datetime = None,
+        end: datetime = None,
+        timezone: str = None
+    ) -> None:
+        """
+        Set & adapt the period's time zone
+        """
 
-        if len(stations) > 0:
+        if timezone:
 
-            paths = []
+            # Save timezone
+            self._timezone = timezone
 
-            for station in stations:
+            if start and end:
+
+                # Initialize time zone
+                timezone = pytz.timezone(self._timezone)
+
+                # Set start date
+                self._start = timezone.localize(
+                    start, is_dst=None).astimezone(
+                    pytz.utc)
+
+                # Set end date
+                self._end = timezone.localize(
+                    end, is_dst=None).astimezone(
+                    pytz.utc)
+
+        else:
+
+            # Set start date
+            self._start = start
+
+            # Set end date
+            self._end = end
+
+    def _load(
+        self,
+        station: str,
+        year: str = None
+    ) -> None:
+        """
+        Load file from Meteostat
+        """
+
+        # File name
+        if year:
+            file = year + '/' + station + '.csv.gz'
+        else:
+            file = station + '.csv.gz'
+
+        # Get local file path
+        path = self._get_file_path(self.cache_subdir, file)
+
+        # Check if file in cache
+        if self.max_age > 0 and self._file_in_cache(path):
+
+            # Read cached data
+            df = pd.read_parquet(path)
+
+        else:
+
+            # Get data from Meteostat
+            df = self._load_handler(
+                'hourly/' + file,
+                self._columns,
+                self._types,
+                self._parse_dates)
+
+            # Validate Series
+            df = self._validate_series(df, station)
+
+            # Save as Parquet
+            if self.max_age > 0:
+                df.to_parquet(path)
+
+        # Localize time column
+        if self._timezone is not None:
+            df = df.tz_localize(
+                'UTC', level='time').tz_convert(
+                self._timezone, level='time')
+
+        # Filter time period and append to DataFrame
+        if self._start and self._end:
+
+            # Get time index
+            time = df.index.get_level_values('time')
+
+            # Filter & append
+            self._data = self._data.append(
+                df.loc[(time >= self._start) & (time <= self._end)])
+
+        else:
+
+            # Append
+            self._data = self._data.append(df)
+
+    def _get_data(self) -> None:
+        """
+        Get all required data
+        """
+
+        if len(self._stations) > 0:
+
+            # List of datasets
+            datasets = []
+
+            for station in self._stations:
+
                 if self.chunked and self._start and self._end:
+
                     for year in range(self._start.year, self._end.year + 1):
-                        paths.append(
-                            'hourly/' + str(year) + '/' + str(station) + '.csv.gz')
+                        datasets.append((
+                            str(station),
+                            str(year)
+                        ))
+
                 else:
-                    paths.append('hourly/' + str(station) + '.csv.gz')
 
-            files = self._load(paths)
+                    datasets.append((
+                        str(station),
+                        None
+                    ))
 
-            if len(files) > 0:
-
-                for file in files:
-
-                    if os.path.isfile(
-                            file['path']) and os.path.getsize(
-                            file['path']) > 0:
-
-                        df = pd.read_parquet(file['path'])
-
-                        if self._timezone is not None:
-                            df = df.tz_localize(
-                                'UTC', level='time').tz_convert(
-                                self._timezone, level='time')
-
-                        if self._start and self._end:
-                            time = df.index.get_level_values('time')
-                            self._data = self._data.append(
-                                df.loc[(time >= self._start) & (time <= self._end)])
-                        else:
-                            self._data = self._data.append(df)
+            # Data Processing
+            self._processing_handler(datasets, self._load, self.max_threads)
 
     def __init__(
         self,
-        stations,
-        start=None,
-        end=None,
-        timezone=None
-    ):
+        stations: Union[pd.DataFrame, list, str],
+        start: datetime = None,
+        end: datetime = None,
+        timezone: str = None
+    ) -> None:
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
@@ -147,33 +243,16 @@ class Hourly(Core):
             self._stations = pd.Index(stations)
 
         # Set time zone and adapt period
-        if timezone:
-            self._timezone = timezone
+        self._set_time(start, end, timezone)
 
-            if start and end:
-                # Initialize time zone
-                timezone = pytz.timezone(self._timezone)
-                # Set start date
-                self._start = timezone.localize(start, is_dst=None).astimezone(pytz.utc)
-                # Set end date
-                self._end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
-        else:
-            # Set start date
-            self._start = start
-            # Set end date
-            self._end = end
-
-        # Get data
-        try:
-            self._get_data(self._stations)
-        except BaseException as read_error:
-            raise Exception('Cannot read hourly data') from read_error
+        # Get data for all weather stations
+        self._get_data()
 
         # Clear cache
-        self.clear_cache()
+        if self.max_age > 0:
+            self.clear_cache()
 
-    def normalize(self):
-
+    def normalize(self) -> 'Hourly':
         """
         Normalize the DataFrame
         """
@@ -209,8 +288,10 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def interpolate(self, limit=3):
-
+    def interpolate(
+        self,
+        limit: int = 3
+    ) -> 'Hourly':
         """
         Interpolate NULL values
         """
@@ -230,8 +311,11 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def aggregate(self, freq='1H', spatial=False):
-
+    def aggregate(
+        self,
+        freq: str = '1H',
+        spatial: bool = False
+    ) -> 'Hourly':
         """
         Aggregate observations
         """
@@ -251,8 +335,10 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def convert(self, units):
-
+    def convert(
+        self,
+        units: dict
+    ) -> 'Hourly':
         """
         Convert columns to a different unit
         """
@@ -268,8 +354,10 @@ class Hourly(Core):
         # Return class instance
         return temp
 
-    def coverage(self, parameter=None):
-
+    def coverage(
+        self,
+        parameter: str = None
+    ) -> float:
         """
         Calculate data coverage (overall or by parameter)
         """
@@ -281,16 +369,14 @@ class Hourly(Core):
 
         return self._data[parameter].count() / expect
 
-    def count(self):
-
+    def count(self) -> int:
         """
         Return number of rows in DataFrame
         """
 
         return len(self._data.index)
 
-    def fetch(self):
-
+    def fetch(self) -> pd.DataFrame:
         """
         Fetch DataFrame
         """

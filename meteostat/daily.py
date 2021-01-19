@@ -8,9 +8,10 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import os
 from math import nan
 from copy import copy
+from datetime import datetime
+from typing import Union
 import pandas as pd
 from meteostat.core import Core
 
@@ -22,22 +23,22 @@ class Daily(Core):
     """
 
     # The cache subdirectory
-    cache_subdir = 'daily'
+    cache_subdir: str = 'daily'
 
     # The list of weather Stations
     _stations = None
 
     # The start date
-    _start = None
+    _start: datetime = None
 
     # The end date
-    _end = None
+    _end: datetime = None
 
     # The data frame
     _data = pd.DataFrame()
 
     # Columns
-    _columns = [
+    _columns: list = [
         'date',
         'tavg',
         'tmin',
@@ -52,7 +53,7 @@ class Daily(Core):
     ]
 
     # Data tapes
-    _types = {
+    _types: dict = {
         'tavg': 'float64',
         'tmin': 'float64',
         'tmax': 'float64',
@@ -66,10 +67,12 @@ class Daily(Core):
     }
 
     # Columns for date parsing
-    _parse_dates = {'time': [0]}
+    _parse_dates: dict = {
+        'time': [0]
+    }
 
     # Default aggregation functions
-    _aggregations = {
+    _aggregations: dict = {
         'tavg': 'mean',
         'tmin': 'min',
         'tmax': 'max',
@@ -82,40 +85,81 @@ class Daily(Core):
         'tsun': 'sum'
     }
 
-    def _get_data(self, stations=None):
+    def _load(
+        self,
+        station: str
+    ) -> None:
+        """
+        Load file from Meteostat
+        """
 
-        if len(stations) > 0:
+        # File name
+        file = station + '.csv.gz'
 
-            paths = []
+        # Get local file path
+        path = self._get_file_path(self.cache_subdir, file)
 
-            for index in stations:
-                paths.append('daily/' + str(index) + '.csv.gz')
+        # Check if file in cache
+        if self.max_age > 0 and self._file_in_cache(path):
 
-            files = self._load(paths)
+            # Read cached data
+            df = pd.read_parquet(path)
 
-            if len(files) > 0:
+        else:
 
-                for file in files:
+            # Get data from Meteostat
+            df = self._load_handler(
+                'daily/' + file,
+                self._columns,
+                self._types,
+                self._parse_dates)
 
-                    if os.path.isfile(
-                            file['path']) and os.path.getsize(
-                            file['path']) > 0:
+            # Validate Series
+            df = self._validate_series(df, station)
 
-                        df = pd.read_parquet(file['path'])
+            # Save as Parquet
+            if self.max_age > 0:
+                df.to_parquet(path)
 
-                        if self._start and self._end:
-                            time = df.index.get_level_values('time')
-                            self._data = self._data.append(
-                                df.loc[(time >= self._start) & (time <= self._end)])
-                        else:
-                            self._data = self._data.append(df)
+        # Filter time period and append to DataFrame
+        if self._start and self._end:
+
+            # Get time index
+            time = df.index.get_level_values('time')
+
+            # Filter & append
+            self._data = self._data.append(
+                df.loc[(time >= self._start) & (time <= self._end)])
+
+        else:
+
+            # Append
+            self._data = self._data.append(df)
+
+    def _get_data(self) -> None:
+        """
+        Get all required data
+        """
+
+        if len(self._stations) > 0:
+
+            # List of datasets
+            datasets = []
+
+            for station in self._stations:
+                datasets.append((
+                    str(station),
+                ))
+
+            # Data Processing
+            self._processing_handler(datasets, self._load, self.max_threads)
 
     def __init__(
         self,
-        stations,
-        start=None,
-        end=None
-    ):
+        stations: Union[pd.DataFrame, list, str],
+        start: datetime = None,
+        end: datetime = None
+    ) -> None:
 
         # Set list of weather stations
         if isinstance(stations, pd.DataFrame):
@@ -132,17 +176,14 @@ class Daily(Core):
         # Set end date
         self._end = end
 
-        # Get data
-        try:
-            self._get_data(self._stations)
-        except BaseException as read_error:
-            raise Exception('Cannot read daily data') from read_error
+        # Get data for all weather stations
+        self._get_data()
 
         # Clear cache
-        self.clear_cache()
+        if self.max_age > 0:
+            self.clear_cache()
 
-    def normalize(self):
-
+    def normalize(self) -> 'Daily':
         """
         Normalize the DataFrame
         """
@@ -178,8 +219,10 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def interpolate(self, limit=3):
-
+    def interpolate(
+        self,
+        limit: int = 3
+    ) -> 'Daily':
         """
         Interpolate NULL values
         """
@@ -195,8 +238,11 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def aggregate(self, freq='1D', spatial=False):
-
+    def aggregate(
+        self,
+        freq: str = '1D',
+        spatial: bool = False
+    ) -> 'Daily':
         """
         Aggregate observations
         """
@@ -216,8 +262,10 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def convert(self, units):
-
+    def convert(
+        self,
+        units: dict
+    ) -> 'Daily':
         """
         Convert columns to a different unit
         """
@@ -233,8 +281,10 @@ class Daily(Core):
         # Return class instance
         return temp
 
-    def coverage(self, parameter=None):
-
+    def coverage(
+        self,
+        parameter: str = None
+    ) -> float:
         """
         Calculate data coverage (overall or by parameter)
         """
@@ -246,16 +296,14 @@ class Daily(Core):
 
         return self._data[parameter].count() / expect
 
-    def count(self):
-
+    def count(self) -> int:
         """
         Return number of rows in DataFrame
         """
 
         return len(self._data.index)
 
-    def fetch(self):
-
+    def fetch(self) -> pd.DataFrame:
         """
         Fetch DataFrame
         """
