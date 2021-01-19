@@ -77,7 +77,9 @@ class Hourly(Core):
     }
 
     # Columns for date parsing
-    _parse_dates = { 'time': [0, 1] }
+    _parse_dates = {
+        'time': [0, 1]
+    }
 
     # Default aggregation functions
     _aggregations = {

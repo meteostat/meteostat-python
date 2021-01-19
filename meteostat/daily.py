@@ -67,7 +67,9 @@ class Daily(Core):
     }
 
     # Columns for date parsing
-    _parse_dates: dict = { 'time': [0] }
+    _parse_dates: dict = {
+        'time': [0]
+    }
 
     # Default aggregation functions
     _aggregations: dict = {

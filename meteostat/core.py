@@ -137,7 +137,7 @@ class Core:
     ) -> pd.DataFrame:
 
         # Add missing column(s)
-        if not 'time' in df.columns:
+        if 'time' not in df.columns:
             df['time'] = None
 
         # Add weather station ID
