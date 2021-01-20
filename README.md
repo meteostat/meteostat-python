@@ -10,6 +10,8 @@ The Meteostat Python package is available through [PyPI](https://pypi.org/projec
 pip install meteostat
 ```
 
+Meteostat **requires Python 3.5** or higher.
+
 ## Documentation
 
 The Meteostat Python library is divided into multiple classes which provide access to the actual data. The [documentation](https://dev.meteostat.net/python/) covers all aspects of the library:
