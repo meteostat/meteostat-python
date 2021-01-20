@@ -78,7 +78,7 @@ class Stations(Core):
         if self.max_age > 0 and self._file_in_cache(path):
 
             # Read cached data
-            df = pd.read_parquet(path)
+            df = pd.read_pickle(path)
 
         else:
 
@@ -92,9 +92,9 @@ class Stations(Core):
             # Add index
             df = df.set_index('id')
 
-            # Save as Parquet
+            # Save as Pickle
             if self.max_age > 0:
-                df.to_parquet(path)
+                df.to_pickle(path)
 
         # Set data
         self._stations = df

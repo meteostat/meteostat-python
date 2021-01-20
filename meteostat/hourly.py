@@ -156,7 +156,7 @@ class Hourly(Core):
         if self.max_age > 0 and self._file_in_cache(path):
 
             # Read cached data
-            df = pd.read_parquet(path)
+            df = pd.read_pickle(path)
 
         else:
 
@@ -170,12 +170,12 @@ class Hourly(Core):
             # Validate Series
             df = self._validate_series(df, station)
 
-            # Save as Parquet
+            # Save as Pickle
             if self.max_age > 0:
-                df.to_parquet(path)
+                df.to_pickle(path)
 
         # Localize time column
-        if self._timezone is not None:
+        if self._timezone is not None and len(df.index) > 0:
             df = df.tz_localize(
                 'UTC', level='time').tz_convert(
                 self._timezone, level='time')
@@ -267,8 +267,17 @@ class Hourly(Core):
         for station in temp._stations:
             # Create data frame
             df = pd.DataFrame(columns=temp._columns[2:])
-            # Add time series
-            df['time'] = pd.date_range(temp._start, temp._end, freq='1H')
+            # Create data range
+            if temp._timezone is not None:
+                # Make start and end date timezone-aware
+                timezone = pytz.timezone(temp._timezone)
+                start = temp._start.astimezone(timezone)
+                end = temp._end.astimezone(timezone)
+                # Add time series
+                df['time'] = pd.date_range(
+                    start, end, freq='1H', tz=temp._timezone)
+            else:
+                df['time'] = pd.date_range(temp._start, temp._end, freq='1H')
             # Add station ID
             df['station'] = station
             # Add columns

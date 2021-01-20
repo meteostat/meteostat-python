@@ -103,7 +103,7 @@ class Daily(Core):
         if self.max_age > 0 and self._file_in_cache(path):
 
             # Read cached data
-            df = pd.read_parquet(path)
+            df = pd.read_pickle(path)
 
         else:
 
@@ -117,9 +117,9 @@ class Daily(Core):
             # Validate Series
             df = self._validate_series(df, station)
 
-            # Save as Parquet
+            # Save as Pickle
             if self.max_age > 0:
-                df.to_parquet(path)
+                df.to_pickle(path)
 
         # Filter time period and append to DataFrame
         if self._start and self._end:
