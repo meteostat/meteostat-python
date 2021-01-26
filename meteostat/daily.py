@@ -12,6 +12,7 @@ from math import nan
 from copy import copy
 from datetime import datetime
 from typing import Union
+from numpy import NaN
 import pandas as pd
 from meteostat.core import Core
 
@@ -205,7 +206,7 @@ class Daily(Core):
             # Add columns
             for column in temp._columns[1:]:
                 # Add column to DataFrame
-                df[column] = nan
+                df[column] = NaN
 
             result = pd.concat([result, df], axis=0)
 
@@ -215,6 +216,9 @@ class Daily(Core):
         # Merge data
         temp._data = pd.concat([temp._data, result], axis=0).groupby(
             ['station', 'time'], as_index=True).first()
+
+        # None -> NaN
+        temp._data = temp._data.fillna(NaN)
 
         # Return class instance
         return temp

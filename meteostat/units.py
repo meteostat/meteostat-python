@@ -7,6 +7,7 @@ The code is licensed under the MIT license.
 """
 
 from math import nan, isnan
+from numpy import NaN
 
 def fahrenheit(value):
 
@@ -62,7 +63,7 @@ def direction(value):
     Convert degrees to wind direction
     """
 
-    wdir = nan
+    wdir = NaN
 
     if (337 <= value <= 360) or value <= 23:
         wdir = 'N'
@@ -90,7 +91,7 @@ def condition(value):
     """
 
     if isnan(value) or value < 1 or value > 27:
-        return nan
+        return NaN
 
     return [
         'Clear',
