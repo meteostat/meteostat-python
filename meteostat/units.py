@@ -6,8 +6,7 @@ Convert a Pandas Series to any meteorological data unit
 The code is licensed under the MIT license.
 """
 
-from math import nan, isnan
-from numpy import NaN
+from numpy import NaN, isnan
 
 def fahrenheit(value):
 
