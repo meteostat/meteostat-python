@@ -4,7 +4,9 @@ disable=print-statement,
         singleton-comparison,
         no-member,
         too-few-public-methods,
-        protected-access
+        protected-access,
+        import-error,
+        unsubscriptable-object
 
 [BASIC]
 

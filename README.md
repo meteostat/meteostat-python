@@ -8,11 +8,11 @@ Among the data sources are national weather services like the National Oceanic a
 
 The Meteostat Python package is available through [PyPI](https://pypi.org/project/meteostat/):
 
-```
+```sh
 pip install meteostat
 ```
 
-Meteostat **requires Python 3.5** or higher.
+Meteostat **requires Python 3.5** or higher. If you want to visualize data, please install Matplotlib, too.
 
 ## Documentation
 
