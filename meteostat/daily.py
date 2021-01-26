@@ -8,7 +8,6 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from math import nan
 from copy import copy
 from datetime import datetime
 from typing import Union

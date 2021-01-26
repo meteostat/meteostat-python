@@ -3,7 +3,8 @@
 disable=print-statement,
         singleton-comparison,
         no-member,
-        too-few-public-methods
+        too-few-public-methods,
+        protected-access
 
 [BASIC]
 
