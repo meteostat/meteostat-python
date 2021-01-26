@@ -8,11 +8,12 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from math import floor, nan
+from math import floor
 from copy import copy
 from datetime import datetime
 from typing import Union
 import pytz
+from numpy import NaN
 import pandas as pd
 from meteostat.core import Core
 
@@ -283,7 +284,7 @@ class Hourly(Core):
             # Add columns
             for column in temp._columns[2:]:
                 # Add column to DataFrame
-                df[column] = nan
+                df[column] = NaN
 
             result = pd.concat([result, df], axis=0)
 
@@ -293,6 +294,9 @@ class Hourly(Core):
         # Merge data
         temp._data = pd.concat([temp._data, result], axis=0).groupby(
             ['station', 'time'], as_index=True).first()
+
+        # None -> NaN
+        temp._data = temp._data.fillna(NaN)
 
         # Return class instance
         return temp
