@@ -19,36 +19,30 @@ Meteostat **requires Python 3.5** or higher. If you want to visualize data, plea
 The Meteostat Python library is divided into multiple classes which provide access to the actual data. The [documentation](https://dev.meteostat.net/python/) covers all aspects of the library:
 
 * [Weather Stations](https://dev.meteostat.net/python/stations.html)
+* [Point](https://dev.meteostat.net/python/point.html)
 * [Hourly Data](https://dev.meteostat.net/python/hourly.html)
 * [Daily Data](https://dev.meteostat.net/python/daily.html)
 * [Contributing](https://dev.meteostat.net/python/contributing.html)
 
 ## Example
 
-Let's pretend you want to plot temperature data for Vancouver, BC from 2018:
+Let's plot 2018 temperature data for Vancouver, BC:
 
 ```python
 # Import Meteostat library and dependencies
 from datetime import datetime
 import matplotlib.pyplot as plt
-from meteostat import Stations, Daily
-
-# Set coordinates of Vancouver
-lat = 49.2497
-lon = -123.1193
+from meteostat import Point, Daily
 
 # Set time period
 start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
 
-# Get closest weather station to Vancouver, BC
-stations = Stations()
-stations = stations.nearby(lat, lon)
-stations = stations.inventory('daily', (start, end))
-station = stations.fetch(1)
+# Create Point for Vancouver, BC
+vancouver = Point(49.2497, -123.1193, 70)
 
-# Get daily data for 2018 at the selected weather station
-data = Daily(station, start, end)
+# Get daily data for 2018
+data = Daily(vancouver, start, end)
 data = data.fetch()
 
 # Plot line chart including average, minimum and maximum temperature

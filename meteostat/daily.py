@@ -12,8 +12,10 @@ from copy import copy
 from datetime import datetime
 from typing import Union
 from numpy import NaN
+import numpy as np
 import pandas as pd
 from meteostat.core import Core
+from meteostat.point import Point
 
 
 class Daily(Core):
@@ -78,7 +80,7 @@ class Daily(Core):
         'tmax': 'max',
         'prcp': 'sum',
         'snow': 'mean',
-        'wdir': 'mean',
+        'wdir': Core._degree_mean,
         'wspd': 'mean',
         'wpgt': 'max',
         'pres': 'mean',
@@ -154,19 +156,77 @@ class Daily(Core):
             # Data Processing
             self._processing_handler(datasets, self._load, self.max_threads)
 
+    def _resolve_point(
+        self,
+        method: str,
+        stations: pd.DataFrame,
+        alt: int,
+        adapt_temp: bool
+    ) -> None:
+        """
+        Project weather station data onto a single point
+        """
+
+        if method == 'nearest':
+
+            self._data = self._data.groupby(
+                pd.Grouper(level='time', freq='1D')).agg('first')
+
+        else:
+
+            # Join score and elevation of involved weather stations
+            data = self._data.join(
+                stations[['score', 'elevation']], on='station')
+
+            # Adapt temperature-like data based on altitude
+            if adapt_temp:
+                data.loc[data['tavg'] != np.NaN, 'tavg'] = data['tavg'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+                data.loc[data['tmin'] != np.NaN, 'tmin'] = data['tmin'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+                data.loc[data['tmax'] != np.NaN, 'tmax'] = data['tmax'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+
+            # Exclude non-mean data & perform aggregation
+            excluded = data['wdir']
+            excluded = excluded.groupby(
+                pd.Grouper(level='time', freq='1D')).agg('first')
+
+            # Aggregate mean data
+            data = data.groupby(
+                pd.Grouper(level='time', freq='1D')).apply(self._weighted_average)
+
+            # Drop RangeIndex
+            data.index = data.index.droplevel(1)
+
+            # Merge excluded fields
+            data['wdir'] = excluded
+
+            # Drop score and elevation
+            self._data = data.drop(['score', 'elevation'], axis=1).round(1)
+
+        # Set placeholder station ID
+        self._data['station'] = 'XXXXX'
+        self._data = self._data.set_index(
+            ['station', self._data.index.get_level_values('time')])
+        self._stations = pd.Index(['XXXXX'])
+
     def __init__(
         self,
-        stations: Union[pd.DataFrame, list, str],
+        loc: Union[pd.DataFrame, Point, list, str],
         start: datetime = None,
         end: datetime = None
     ) -> None:
 
         # Set list of weather stations
-        if isinstance(stations, pd.DataFrame):
+        if isinstance(loc, pd.DataFrame):
+            self._stations = loc.index
+        elif isinstance(loc, Point):
+            stations = loc.get_stations('hourly', start, end)
             self._stations = stations.index
         else:
-            if not isinstance(stations, list):
-                stations = [stations]
+            if not isinstance(loc, list):
+                stations = [loc]
 
             self._stations = pd.Index(stations)
 
@@ -178,6 +238,10 @@ class Daily(Core):
 
         # Get data for all weather stations
         self._get_data()
+
+        # Interpolate data
+        if isinstance(loc, Point):
+            self._resolve_point(loc.method, stations, loc.alt, loc.adapt_temp)
 
         # Clear cache
         if self.max_age > 0:
@@ -261,6 +325,9 @@ class Daily(Core):
         if spatial:
             temp._data = temp._data.groupby(
                 [pd.Grouper(level='time', freq=freq)]).mean()
+
+        # Round
+        temp._data = temp._data.round(1)
 
         # Return class instance
         return temp
