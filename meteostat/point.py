@@ -52,12 +52,15 @@ class Point:
         self,
         lat: float,
         lon: float,
-        alt: int
+        alt: int = None
     ) -> None:
 
         self.lat = lat
         self.lon = lon
         self.alt = alt
+
+        if alt is None:
+            self.adapt_temp = False
 
     def get_stations(self, granularity: str, start: datetime, end: datetime):
         """
@@ -67,6 +70,10 @@ class Point:
         # Get nearby weather stations
         stations = Stations()
         stations = stations.nearby(self.lat, self.lon, self.radius)
+
+        # Guess altitude if not set
+        if self.alt is None:
+            self.alt = stations.fetch().head(self.max_count)['elevation'].mean()
 
         # Apply inventory filter
         stations = stations.inventory(granularity, (start, end))
