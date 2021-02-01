@@ -1,5 +1,6 @@
 pandas>=1.1.0
 pytz
+numpy
 matplotlib
 pylint
 autopep8

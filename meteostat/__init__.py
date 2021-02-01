@@ -12,9 +12,10 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = 'meteostat'
-__version__ = '1.0.3'
+__version__ = '1.1.0'
 
 from .core import Core
 from .stations import Stations
+from .point import Point
 from .hourly import Hourly
 from .daily import Daily
