@@ -15,6 +15,7 @@ import hashlib
 from multiprocessing.pool import ThreadPool
 from urllib.error import HTTPError
 from typing import Callable
+import numpy as np
 import pandas as pd
 
 
@@ -149,6 +150,18 @@ class Core:
         # Return DataFrame
         return df
 
+    @staticmethod
+    def _weighted_average(step: pd.DataFrame):
+        """
+        Calculate weighted average from grouped data
+        """
+
+        data = np.ma.masked_array(step, np.isnan(step))
+        data = np.ma.average(data, axis=0, weights=data[:, -1])
+        data = data.filled(np.NaN)
+
+        return pd.DataFrame(data=[data], columns=step.columns)
+
     @classmethod
     def clear_cache(
         cls,
@@ -182,3 +195,13 @@ class Core:
 
         except BaseException as clear_error:
             raise Exception('Cannot clear cache') from clear_error
+
+    @staticmethod
+    def _degree_mean(data: pd.Series):
+        """
+        Return the mean of a list of degrees
+        """
+
+        rads = np.deg2rad(data)
+        sums = np.arctan2(np.sum(np.sin(rads)), np.sum(np.cos(rads)))
+        return (np.rad2deg(sums) + 360) % 360

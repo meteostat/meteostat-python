@@ -13,9 +13,10 @@ from copy import copy
 from datetime import datetime
 from typing import Union
 import pytz
-from numpy import NaN
+import numpy as np
 import pandas as pd
 from meteostat.core import Core
+from meteostat.point import Point
 
 
 class Hourly(Core):
@@ -89,7 +90,7 @@ class Hourly(Core):
         'rhum': 'mean',
         'prcp': 'sum',
         'snow': 'mean',
-        'wdir': 'mean',
+        'wdir': Core._degree_mean,
         'wspd': 'mean',
         'wpgt': 'max',
         'pres': 'mean',
@@ -226,20 +227,76 @@ class Hourly(Core):
             # Data Processing
             self._processing_handler(datasets, self._load, self.max_threads)
 
+    def _resolve_point(
+        self,
+        method: str,
+        stations: pd.DataFrame,
+        alt: int,
+        adapt_temp: bool
+    ) -> None:
+        """
+        Project weather station data onto a single point
+        """
+
+        if method == 'nearest':
+
+            self._data = self._data.groupby(
+                pd.Grouper(level='time', freq='1H')).agg('first')
+
+        else:
+
+            # Join score and elevation of involved weather stations
+            data = self._data.join(
+                stations[['score', 'elevation']], on='station')
+
+            # Adapt temperature-like data based on altitude
+            if adapt_temp:
+                data.loc[data['temp'] != np.NaN, 'temp'] = data['temp'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+                data.loc[data['dwpt'] != np.NaN, 'dwpt'] = data['dwpt'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+
+            # Exclude non-mean data & perform aggregation
+            excluded = data[['wdir', 'coco']]
+            excluded = excluded.groupby(
+                pd.Grouper(level='time', freq='1H')).agg('first')
+
+            # Aggregate mean data
+            data = data.groupby(
+                pd.Grouper(level='time', freq='1H')).apply(self._weighted_average)
+
+            # Drop RangeIndex
+            data.index = data.index.droplevel(1)
+
+            # Merge excluded fields
+            data[['wdir', 'coco']] = excluded
+
+            # Drop score and elevation
+            self._data = data.drop(['score', 'elevation'], axis=1).round(1)
+
+        # Set placeholder station ID
+        self._data['station'] = 'XXXXX'
+        self._data = self._data.set_index(
+            ['station', self._data.index.get_level_values('time')])
+        self._stations = pd.Index(['XXXXX'])
+
     def __init__(
         self,
-        stations: Union[pd.DataFrame, list, str],
+        loc: Union[pd.DataFrame, Point, list, str],
         start: datetime = None,
         end: datetime = None,
         timezone: str = None
     ) -> None:
 
         # Set list of weather stations
-        if isinstance(stations, pd.DataFrame):
+        if isinstance(loc, pd.DataFrame):
+            self._stations = loc.index
+        elif isinstance(loc, Point):
+            stations = loc.get_stations('hourly', start, end)
             self._stations = stations.index
         else:
-            if not isinstance(stations, list):
-                stations = [stations]
+            if not isinstance(loc, list):
+                stations = [loc]
 
             self._stations = pd.Index(stations)
 
@@ -248,6 +305,10 @@ class Hourly(Core):
 
         # Get data for all weather stations
         self._get_data()
+
+        # Interpolate data
+        if isinstance(loc, Point):
+            self._resolve_point(loc.method, stations, loc.alt, loc.adapt_temp)
 
         # Clear cache
         if self.max_age > 0:
@@ -268,7 +329,7 @@ class Hourly(Core):
         for station in temp._stations:
             # Create data frame
             df = pd.DataFrame(columns=temp._columns[2:])
-            # Create data range
+            # Create date range
             if temp._timezone is not None:
                 # Make start and end date timezone-aware
                 timezone = pytz.timezone(temp._timezone)
@@ -284,7 +345,7 @@ class Hourly(Core):
             # Add columns
             for column in temp._columns[2:]:
                 # Add column to DataFrame
-                df[column] = NaN
+                df[column] = np.NaN
 
             result = pd.concat([result, df], axis=0)
 
@@ -296,7 +357,7 @@ class Hourly(Core):
             ['station', 'time'], as_index=True).first()
 
         # None -> NaN
-        temp._data = temp._data.fillna(NaN)
+        temp._data = temp._data.fillna(np.NaN)
 
         # Return class instance
         return temp
@@ -344,6 +405,9 @@ class Hourly(Core):
         if spatial:
             temp._data = temp._data.groupby(
                 [pd.Grouper(key='time', freq=freq)]).mean()
+
+        # Round
+        temp._data = temp._data.round(1)
 
         # Return class instance
         return temp
