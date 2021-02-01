@@ -18,8 +18,8 @@ Meteostat **requires Python 3.5** or higher. If you want to visualize data, plea
 
 The Meteostat Python library is divided into multiple classes which provide access to the actual data. The [documentation](https://dev.meteostat.net/python/) covers all aspects of the library:
 
-* [Weather Stations](https://dev.meteostat.net/python/stations.html)
 * [Point](https://dev.meteostat.net/python/point.html)
+* [Weather Stations](https://dev.meteostat.net/python/stations.html)
 * [Hourly Data](https://dev.meteostat.net/python/hourly.html)
 * [Daily Data](https://dev.meteostat.net/python/daily.html)
 * [Contributing](https://dev.meteostat.net/python/contributing.html)
