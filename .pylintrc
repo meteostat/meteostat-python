@@ -6,7 +6,8 @@ disable=print-statement,
         too-few-public-methods,
         protected-access,
         import-error,
-        unsubscriptable-object
+        unsubscriptable-object,
+        inconsistent-return-statements
 
 [BASIC]
 

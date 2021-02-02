@@ -172,26 +172,29 @@ class Core:
         """
 
         try:
-            # Set max_age
-            if max_age is None:
-                max_age = cls.max_age
 
-            # Get current time
-            now = time.time()
+            if os.path.exists(cls.cache_dir + os.sep + cls.cache_subdir):
 
-            # Go through all files
-            for file in os.listdir(
-                    cls.cache_dir + os.sep + cls.cache_subdir):
+                # Set max_age
+                if max_age is None:
+                    max_age = cls.max_age
 
-                # Get full path
-                path = os.path.join(
-                    cls.cache_dir + os.sep + cls.cache_subdir, file)
+                # Get current time
+                now = time.time()
 
-                # Check if file is older than max_age
-                if now - \
-                        os.path.getmtime(path) > max_age and os.path.isfile(path):
-                    # Delete file
-                    os.remove(path)
+                # Go through all files
+                for file in os.listdir(
+                        cls.cache_dir + os.sep + cls.cache_subdir):
+
+                    # Get full path
+                    path = os.path.join(
+                        cls.cache_dir + os.sep + cls.cache_subdir, file)
+
+                    # Check if file is older than max_age
+                    if now - \
+                            os.path.getmtime(path) > max_age and os.path.isfile(path):
+                        # Delete file
+                        os.remove(path)
 
         except BaseException as clear_error:
             raise Exception('Cannot clear cache') from clear_error

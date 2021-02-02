@@ -227,6 +227,11 @@ class Hourly(Core):
             # Data Processing
             self._processing_handler(datasets, self._load, self.max_threads)
 
+        else:
+
+            # Empty DataFrame
+            self._data = pd.DataFrame(columns=[*self._types])
+
     def _resolve_point(
         self,
         method: str,
@@ -237,6 +242,9 @@ class Hourly(Core):
         """
         Project weather station data onto a single point
         """
+
+        if self._stations.size == 0:
+            return None
 
         if method == 'nearest':
 
@@ -296,9 +304,9 @@ class Hourly(Core):
             self._stations = stations.index
         else:
             if not isinstance(loc, list):
-                stations = [loc]
+                loc = [loc]
 
-            self._stations = pd.Index(stations)
+            self._stations = pd.Index(loc)
 
         # Set time zone and adapt period
         self._set_time(start, end, timezone)
