@@ -110,7 +110,8 @@ class Core:
         path: str,
         columns: list,
         types: dict,
-        parse_dates: list
+        parse_dates: list,
+        coerce_dates: bool = False
     ) -> pd.DataFrame:
 
         try:
@@ -122,6 +123,11 @@ class Core:
                 names=columns,
                 dtype=types,
                 parse_dates=parse_dates)
+
+            # Force datetime conversion
+            if coerce_dates:
+                df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
+                    pd.to_datetime, errors='coerce')
 
         except HTTPError:
 
