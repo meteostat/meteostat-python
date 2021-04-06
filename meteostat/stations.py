@@ -87,7 +87,8 @@ class Stations(Core):
                 'stations/' + file,
                 self._columns,
                 self._types,
-                self._parse_dates)
+                self._parse_dates,
+                True)
 
             # Add index
             df = df.set_index('id')
