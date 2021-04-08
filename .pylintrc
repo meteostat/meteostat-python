@@ -1,6 +1,7 @@
 [MESSAGES CONTROL]
 
 disable=print-statement,
+        nan-comparison,
         singleton-comparison,
         no-member,
         too-few-public-methods,
