@@ -1,8 +1,10 @@
 [MESSAGES CONTROL]
 
 disable=print-statement,
+        nan-comparison,
         singleton-comparison,
         no-member,
+        broad-except,
         too-few-public-methods,
         protected-access,
         import-error,

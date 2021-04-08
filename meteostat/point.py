@@ -73,7 +73,8 @@ class Point:
 
         # Guess altitude if not set
         if self.alt is None:
-            self.alt = stations.fetch().head(self.max_count)['elevation'].mean()
+            self.alt = stations.fetch().head(self.max_count)[
+                'elevation'].mean()
 
         # Apply inventory filter
         stations = stations.inventory(granularity, (start, end))
