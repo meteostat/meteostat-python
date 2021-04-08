@@ -13,7 +13,6 @@ import errno
 import time
 import hashlib
 from multiprocessing.pool import ThreadPool
-from urllib.error import HTTPError
 from typing import Callable
 import numpy as np
 import pandas as pd
@@ -26,7 +25,7 @@ class Core:
     """
 
     # Base URL of the Meteostat bulk data interface
-    _endpoint: str = 'https://bulk.meteostat.net/'
+    endpoint: str = 'https://bulk.meteostat.net/v2/'
 
     # Location of the cache directory
     cache_dir: str = os.path.expanduser(
@@ -118,7 +117,7 @@ class Core:
 
             # Read CSV file from Meteostat endpoint
             df = pd.read_csv(
-                self._endpoint + path,
+                self.endpoint + path,
                 compression='gzip',
                 names=columns,
                 dtype=types,
@@ -129,7 +128,7 @@ class Core:
                 df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
                     pd.to_datetime, errors='coerce')
 
-        except HTTPError:
+        except BaseException:
 
             # Create empty DataFrane
             df = pd.DataFrame(columns=[*types])

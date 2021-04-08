@@ -1,6 +1,6 @@
 # Meteostat Python Package
 
-The Meteostat Python library provides a simple API for accessing open weather and climate data. The historical observations and statistics are collected by the [Meteostat project](https://meteostat.net/en) from different public interfaces, most of which are governmental.
+The Meteostat Python library provides a simple API for accessing open weather and climate data. The historical observations and statistics are collected by [Meteostat](https://meteostat.net) from different public interfaces, most of which are governmental.
 
 Among the data sources are national weather services like the National Oceanic and Atmospheric Administration (NOAA) and Germany's national meteorological service (DWD).
 
@@ -58,16 +58,13 @@ Take a look at the expected output:
 
 Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://dev.meteostat.net/python/contributing.html). More information about the Meteostat bulk data interface is available [here](https://dev.meteostat.net/bulk/).
 
-If you want to support the project financially, you can make a donation via:
-
-* [Patreon](https://www.patreon.com/meteostat)
-* [PayPal](https://paypal.me/meteostat)
+If you want to support the project financially, you can make a donation via [PayPal](https://paypal.me/meteostat).
 
 ## Data License
 
-Meteorological data is provided under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International Public License](https://creativecommons.org/licenses/by-nc/4.0/legalcode). Please be aware that Meteostat uses data which is shared under [WMO resolution 40](https://www.wmo.int/pages/prog/www/ois/Operational_Information/Publications/Congress/Cg_XII/res40_en.html).
+Meteorological data is provided under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International Public License](https://creativecommons.org/licenses/by-nc/4.0/legalcode). You are not allowed to redistribute Meteostat data "as-is" for commercial purposes.
 
-All meteorological data sources used by the Meteostat project are listed [here](https://dev.meteostat.net/docs/sources.html).
+By using the Meteostat Python library you agree to our [terms of service](https://dev.meteostat.net/docs/terms.html). All meteorological data sources used by the Meteostat project are listed [here](https://dev.meteostat.net/docs/sources.html).
 
 ## Code License
 
