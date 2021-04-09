@@ -35,8 +35,8 @@ import matplotlib.pyplot as plt
 from meteostat import Point, Daily
 
 # Set time period
-start = datetime(2018, 1, 1)
-end = datetime(2018, 12, 31)
+start = '2020-01-01'
+end = '2020-12-31'
 
 # Create Point for Vancouver, BC
 vancouver = Point(49.2497, -123.1193, 70)
