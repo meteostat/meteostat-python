@@ -101,9 +101,8 @@ class Daily(Core):
         """
 
         # File name
-        file = 'stations' + os.sep + 'daily' + os.sep + \
-            ('full' if self.model else 'observation') + \
-            os.sep + station + '.csv.gz'
+        file = 'daily/' + ('full' if self.model else 'obs') + \
+            '/' + station + '.csv.gz'
 
         # Get local file path
         path = self._get_file_path(self.cache_subdir, file)

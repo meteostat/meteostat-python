@@ -150,8 +150,7 @@ class Hourly(Core):
         """
 
         # File name
-        file = 'stations' + os.sep + 'hourly' + os.sep + \
-            ('full' if self.model else 'observation') + os.sep + \
+        file = 'hourly/' + ('full' if self.model else 'obs') + '/' + \
             (year + os.sep if year else '') + station + '.csv.gz'
 
         # Get local file path

@@ -70,7 +70,7 @@ class Stations(Core):
         """
 
         # File name
-        file = 'stations' + os.sep + 'meta' + os.sep + 'lib.csv.gz'
+        file = 'stations/lib.csv.gz'
 
         # Get local file path
         path = self._get_file_path(self.cache_subdir, file)
