@@ -12,7 +12,7 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = 'meteostat'
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 from .core import Core
 from .stations import Stations
