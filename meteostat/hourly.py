@@ -151,7 +151,7 @@ class Hourly(Core):
 
         # File name
         file = 'hourly/' + ('full' if self.model else 'obs') + '/' + \
-            (year + os.sep if year else '') + station + '.csv.gz'
+            (year + '/' if year else '') + station + '.csv.gz'
 
         # Get local file path
         path = self._get_file_path(self.cache_subdir, file)
