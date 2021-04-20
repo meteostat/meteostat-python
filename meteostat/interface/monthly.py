@@ -8,12 +8,14 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import os
 from datetime import datetime
 from typing import Union
-from numpy import NaN
 import numpy as np
 import pandas as pd
+from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.loader import processing_handler, load_handler
+from meteostat.utilities.validations import validate_series
+from meteostat.utilities.aggregations import degree_mean, weighted_average
 from meteostat.interface.base import Base
 from meteostat.interface.point import Point
 
@@ -88,7 +90,7 @@ class Monthly(Base):
         'tmax': 'max',
         'prcp': 'sum',
         'snow': 'mean',
-        'wdir': Base._degree_mean,
+        'wdir': degree_mean,
         'wspd': 'mean',
         'wpgt': 'max',
         'pres': 'mean',
@@ -108,10 +110,10 @@ class Monthly(Base):
             '/' + station + '.csv.gz'
 
         # Get local file path
-        path = self._get_file_path(self.cache_subdir, file)
+        path = get_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
-        if self.max_age > 0 and self._file_in_cache(path):
+        if self.max_age > 0 and file_in_cache(path, self.max_age):
 
             # Read cached data
             df = pd.read_pickle(path)
@@ -119,14 +121,15 @@ class Monthly(Base):
         else:
 
             # Get data from Meteostat
-            df = self._load_handler(
+            df = load_handler(
+                self.endpoint,
                 file,
                 self._columns,
                 self._types,
                 self._parse_dates)
 
             # Validate Series
-            df = self._validate_series(df, station)
+            df = validate_series(df, station)
 
             # Save as Pickle
             if self.max_age > 0:
@@ -163,7 +166,7 @@ class Monthly(Base):
                 ))
 
             # Data Processing
-            self._processing_handler(datasets, self._load, self.max_threads)
+            processing_handler(datasets, self._load, self.max_threads)
 
         else:
 
@@ -211,7 +214,7 @@ class Monthly(Base):
 
             # Aggregate mean data
             data = data.groupby(
-                pd.Grouper(level='time', freq='1D')).apply(self._weighted_average)
+                pd.Grouper(level='time', freq='1D')).apply(weighted_average)
 
             # Drop RangeIndex
             data.index = data.index.droplevel(1)
@@ -269,10 +272,11 @@ class Monthly(Base):
             self.clear_cache()
 
     # Import methods
-    from meteostat.shared.normalize import normalize
-    from meteostat.shared.interpolate import interpolate
-    from meteostat.shared.aggregate import aggregate
-    from meteostat.shared.convert import convert
-    from meteostat.shared.coverage import coverage
-    from meteostat.shared.count import count
-    from meteostat.shared.fetch import fetch
+    from meteostat.series.normalize import normalize
+    from meteostat.series.interpolate import interpolate
+    from meteostat.series.aggregate import aggregate
+    from meteostat.series.convert import convert
+    from meteostat.series.coverage import coverage
+    from meteostat.series.count import count
+    from meteostat.series.fetch import fetch
+    from meteostat.core.cache import clear_cache

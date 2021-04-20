@@ -21,3 +21,4 @@ from .interface.hourly import Hourly
 from .interface.daily import Daily
 from .interface.monthly import Monthly
 from .interface.normals import Normals
+from .utilities import units

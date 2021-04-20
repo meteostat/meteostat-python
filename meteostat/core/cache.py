@@ -12,8 +12,8 @@ import os
 import time
 import hashlib
 
-def _get_file_path(
-    self,
+def get_file_path(
+    dir: str,
     subdir: str,
     path: str
 ) -> str:
@@ -25,11 +25,11 @@ def _get_file_path(
     file = hashlib.md5(path.encode('utf-8')).hexdigest()
 
     # Return path
-    return self.cache_dir + os.sep + subdir + os.sep + file
+    return dir + os.sep + subdir + os.sep + file
 
-def _file_in_cache(
-    self,
-    path: str
+def file_in_cache(
+    path: str,
+    max_age: 0
 ) -> bool:
     """
     Check if a file exists in the local cache
@@ -44,7 +44,7 @@ def _file_in_cache(
 
     # Return the file path if it exists
     if os.path.isfile(path) and time.time() - \
-            os.path.getmtime(path) <= self.max_age:
+            os.path.getmtime(path) <= max_age:
         return True
 
     return False

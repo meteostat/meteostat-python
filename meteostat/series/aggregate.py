@@ -9,7 +9,6 @@ The code is licensed under the MIT license.
 """
 
 from copy import copy
-from numpy import NaN
 import pandas as pd
 
 def aggregate(

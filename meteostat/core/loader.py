@@ -12,8 +12,7 @@ from multiprocessing.pool import ThreadPool
 from typing import Callable
 import pandas as pd
 
-@staticmethod
-def _processing_handler(
+def processing_handler(
     datasets: list,
     load: Callable[[dict], None],
     max_threads: int
@@ -35,8 +34,8 @@ def _processing_handler(
         pool.close()
         pool.join()
 
-def _load_handler(
-    self,
+def load_handler(
+    endpoint: str,
     path: str,
     columns: list,
     types: dict,
@@ -48,7 +47,7 @@ def _load_handler(
 
         # Read CSV file from Meteostat endpoint
         df = pd.read_csv(
-            self.endpoint + path,
+            endpoint + path,
             compression='gzip',
             names=columns,
             dtype=types,

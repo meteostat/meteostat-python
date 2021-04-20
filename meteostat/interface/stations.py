@@ -14,6 +14,8 @@ from copy import copy
 from datetime import datetime, timedelta
 from typing import Union
 import pandas as pd
+from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.loader import processing_handler, load_handler
 from meteostat.interface.base import Base
 
 
@@ -27,7 +29,7 @@ class Stations(Base):
     cache_subdir: str = 'stations'
 
     # The list of selected weather Stations
-    stations = None
+    data: pd.DataFrame = None
 
     # Raw data columns
     _columns: list = [
@@ -70,13 +72,13 @@ class Stations(Base):
         """
 
         # File name
-        file = 'stations' + os.sep + 'meta' + os.sep + 'lib.csv.gz'
+        file = 'stations/lib.csv.gz'
 
         # Get local file path
-        path = self._get_file_path(self.cache_subdir, file)
+        path = get_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
-        if self.max_age > 0 and self._file_in_cache(path):
+        if self.max_age > 0 and file_in_cache(path, self.max_age):
 
             # Read cached data
             df = pd.read_pickle(path)
@@ -84,7 +86,8 @@ class Stations(Base):
         else:
 
             # Get data from Meteostat
-            df = self._load_handler(
+            df = load_handler(
+                self.endpoint,
                 file,
                 self._columns,
                 self._types,
@@ -99,7 +102,7 @@ class Stations(Base):
                 df.to_pickle(path)
 
         # Set data
-        self.stations = df
+        self.data = df
 
     def __init__(self) -> None:
 
@@ -126,9 +129,9 @@ class Stations(Base):
             code = [code]
 
         if organization == 'meteostat':
-            temp.stations = temp.stations[temp.stations.index.isin(code)]
+            temp.data = temp.data[temp.data.index.isin(code)]
         else:
-            temp.stations = temp.stations[temp.stations[organization].isin(
+            temp.data = temp.data[temp.data[organization].isin(
                 code)]
 
         # Return self
@@ -159,16 +162,16 @@ class Stations(Base):
             return radius * sqrt(x * x + y * y)
 
         # Get distance for each stationsd
-        temp.stations['distance'] = temp.stations.apply(
+        temp.data['distance'] = temp.data.apply(
             lambda station: distance(station, [lat, lon]), axis=1)
 
         # Filter by radius
         if radius is not None:
-            temp.stations = temp.stations[temp.stations['distance'] <= radius]
+            temp.data = temp.data[temp.data['distance'] <= radius]
 
         # Sort stations by distance
-        temp.stations.columns.str.strip()
-        temp.stations = temp.stations.sort_values('distance')
+        temp.data.columns.str.strip()
+        temp.data = temp.data.sort_values('distance')
 
         # Return self
         return temp
@@ -186,11 +189,11 @@ class Stations(Base):
         temp = copy(self)
 
         # Country code
-        temp.stations = temp.stations[temp.stations['country'] == country]
+        temp.data = temp.data[temp.data['country'] == country]
 
         # State code
         if state is not None:
-            temp.stations = temp.stations[temp.stations['region'] == state]
+            temp.data = temp.data[temp.data['region'] == state]
 
         # Return self
         return temp
@@ -208,11 +211,11 @@ class Stations(Base):
         temp = copy(self)
 
         # Return stations in boundaries
-        temp.stations = temp.stations[
-            (temp.stations['latitude'] <= top_left[0]) &
-            (temp.stations['latitude'] >= bottom_right[0]) &
-            (temp.stations['longitude'] <= bottom_right[1]) &
-            (temp.stations['longitude'] >= top_left[1])
+        temp.data = temp.data[
+            (temp.data['latitude'] <= top_left[0]) &
+            (temp.data['latitude'] >= bottom_right[0]) &
+            (temp.data['longitude'] <= bottom_right[1]) &
+            (temp.data['longitude'] >= top_left[1])
         ]
 
         # Return self
@@ -232,27 +235,27 @@ class Stations(Base):
 
         if required is True:
             # Make sure data exists at all
-            temp.stations = temp.stations[
-                (pd.isna(temp.stations[granularity + '_start']) == False)
+            temp.data = temp.data[
+                (pd.isna(temp.data[granularity + '_start']) == False)
             ]
         elif isinstance(required, tuple):
             # Make sure data exists across period
-            temp.stations = temp.stations[
-                (pd.isna(temp.stations[granularity + '_start']) == False) &
-                (temp.stations[granularity + '_start'] <= required[0]) &
+            temp.data = temp.data[
+                (pd.isna(temp.data[granularity + '_start']) == False) &
+                (temp.data[granularity + '_start'] <= required[0]) &
                 (
-                    temp.stations[granularity + '_end'] +
+                    temp.data[granularity + '_end'] +
                     timedelta(seconds=temp.max_age)
                     >= required[1]
                 )
             ]
         else:
             # Make sure data exists on a certain day
-            temp.stations = temp.stations[
-                (pd.isna(temp.stations[granularity + '_start']) == False) &
-                (temp.stations[granularity + '_start'] <= required) &
+            temp.data = temp.data[
+                (pd.isna(temp.data[granularity + '_start']) == False) &
+                (temp.data[granularity + '_start'] <= required) &
                 (
-                    temp.stations[granularity + '_end'] +
+                    temp.data[granularity + '_end'] +
                     timedelta(seconds=temp.max_age)
                     >= required
                 )
@@ -273,8 +276,8 @@ class Stations(Base):
 
         # Change data units
         for parameter, unit in units.items():
-            if parameter in temp.stations.columns.values:
-                temp.stations[parameter] = temp.stations[parameter].apply(
+            if parameter in temp.data.columns.values:
+                temp.data[parameter] = temp.data[parameter].apply(
                     unit)
 
         # Return class instance
@@ -285,7 +288,7 @@ class Stations(Base):
         Return number of weather stations in current selection
         """
 
-        return len(self.stations.index)
+        return len(self.data.index)
 
     def fetch(
         self,
@@ -297,7 +300,7 @@ class Stations(Base):
         """
 
         # Copy DataFrame
-        temp = copy(self.stations)
+        temp = copy(self.data)
 
         # Return limited number of sampled entries
         if sample and limit:
@@ -309,3 +312,6 @@ class Stations(Base):
 
         # Return all entries
         return temp
+
+    # Import additional methods
+    from meteostat.core.cache import clear_cache

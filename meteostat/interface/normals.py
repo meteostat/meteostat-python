@@ -11,6 +11,7 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from typing import Union
 import pandas as pd
+from meteostat.utilities.aggregations import degree_mean
 from meteostat.interface.base import Base
 from meteostat.interface.point import Point
 from meteostat.interface.monthly import Monthly
@@ -36,7 +37,7 @@ class Normals(Base):
         'tmax': 'mean',
         'prcp': 'mean',
         'snow': 'mean',
-        'wdir': Base._degree_mean,
+        'wdir': degree_mean,
         'wspd': 'mean',
         'wpgt': 'mean',
         'pres': 'mean',
@@ -65,5 +66,5 @@ class Normals(Base):
             'time').month]).agg(self._aggregations)
 
     # Import methods
-    from meteostat.shared.convert import convert
-    from meteostat.shared.fetch import fetch
+    from meteostat.series.convert import convert
+    from meteostat.series.fetch import fetch

@@ -1,5 +1,5 @@
 """
-Core Class - Static Helpers
+Utilities - Aggregation Methods
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -11,27 +11,7 @@ The code is licensed under the MIT license.
 import numpy as np
 import pandas as pd
 
-@staticmethod
-def _validate_series(
-    df: pd.DataFrame,
-    station: str
-) -> pd.DataFrame:
-
-    # Add missing column(s)
-    if 'time' not in df.columns:
-        df['time'] = None
-
-    # Add weather station ID
-    df['station'] = station
-
-    # Set index
-    df = df.set_index(['station', 'time'])
-
-    # Return DataFrame
-    return df
-
-@staticmethod
-def _weighted_average(step: pd.DataFrame) -> pd.DataFrame:
+def weighted_average(step: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate weighted average from grouped data
     """
@@ -42,8 +22,7 @@ def _weighted_average(step: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(data=[data], columns=step.columns)
 
-@staticmethod
-def _degree_mean(data: pd.Series) -> float:
+def degree_mean(data: pd.Series) -> float:
     """
     Return the mean of a list of degrees
     """

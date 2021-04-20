@@ -9,7 +9,8 @@ disable=print-statement,
         protected-access,
         import-error,
         unsubscriptable-object,
-        inconsistent-return-statements
+        inconsistent-return-statements,
+        import-outside-toplevel
 
 [BASIC]
 

@@ -8,8 +8,6 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from copy import copy
-
 def coverage(
     self,
     parameter: str = None
