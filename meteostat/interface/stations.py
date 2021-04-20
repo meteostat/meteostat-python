@@ -8,14 +8,13 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import os
 from math import cos, sqrt, radians
 from copy import copy
 from datetime import datetime, timedelta
 from typing import Union
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
-from meteostat.core.loader import processing_handler, load_handler
+from meteostat.core.loader import load_handler
 from meteostat.interface.base import Base
 
 

@@ -17,6 +17,9 @@ def processing_handler(
     load: Callable[[dict], None],
     max_threads: int
 ) -> None:
+    """
+    Load multiple datasets simultaneously
+    """
 
     # Single-thread processing
     if max_threads < 2:
@@ -42,6 +45,9 @@ def load_handler(
     parse_dates: list,
     coerce_dates: bool = False
 ) -> pd.DataFrame:
+    """
+    Load a single CSV file into a DataFrame
+    """
 
     try:
 

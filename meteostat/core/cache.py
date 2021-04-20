@@ -13,8 +13,8 @@ import time
 import hashlib
 
 def get_file_path(
-    dir: str,
-    subdir: str,
+    cache_dir: str,
+    cache_subdir: str,
     path: str
 ) -> str:
     """
@@ -25,7 +25,7 @@ def get_file_path(
     file = hashlib.md5(path.encode('utf-8')).hexdigest()
 
     # Return path
-    return dir + os.sep + subdir + os.sep + file
+    return cache_dir + os.sep + cache_subdir + os.sep + file
 
 def file_in_cache(
     path: str,

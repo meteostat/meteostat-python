@@ -8,13 +8,15 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import numpy as np
 import pandas as pd
 
 def validate_series(
     df: pd.DataFrame,
     station: str
 ) -> pd.DataFrame:
+    """
+    Make sure a series is formatted correctly
+    """
 
     # Add missing column(s)
     if 'time' not in df.columns:
