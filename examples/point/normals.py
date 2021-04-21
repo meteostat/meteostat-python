@@ -16,11 +16,11 @@ from meteostat import Normals, Point
 start = datetime(1961, 1, 1)
 end = datetime(1990, 12, 31)
 
-# The point
-point = Point(50.3167, 8.5, 320)
+# Create Point for Vancouver, BC
+vancouver = Point(49.2497, -123.1193, 70)
 
 # Get normals
-data = Normals(point, start, end)
+data = Normals(vancouver, start, end)
 data = data.fetch()
 
 # Plot chart

@@ -222,8 +222,8 @@ class Stations(Base):
 
     def inventory(
         self,
-        granularity: str,
-        required: Union[bool, datetime, tuple]
+        freq: str,
+        required: Union[bool, datetime, tuple] = True
     ) -> 'Stations':
         """
         Filter weather stations by inventory data
@@ -235,15 +235,15 @@ class Stations(Base):
         if required is True:
             # Make sure data exists at all
             temp.data = temp.data[
-                (pd.isna(temp.data[granularity + '_start']) == False)
+                (pd.isna(temp.data[freq + '_start']) == False)
             ]
         elif isinstance(required, tuple):
             # Make sure data exists across period
             temp.data = temp.data[
-                (pd.isna(temp.data[granularity + '_start']) == False) &
-                (temp.data[granularity + '_start'] <= required[0]) &
+                (pd.isna(temp.data[freq + '_start']) == False) &
+                (temp.data[freq + '_start'] <= required[0]) &
                 (
-                    temp.data[granularity + '_end'] +
+                    temp.data[freq + '_end'] +
                     timedelta(seconds=temp.max_age)
                     >= required[1]
                 )
@@ -251,10 +251,10 @@ class Stations(Base):
         else:
             # Make sure data exists on a certain day
             temp.data = temp.data[
-                (pd.isna(temp.data[granularity + '_start']) == False) &
-                (temp.data[granularity + '_start'] <= required) &
+                (pd.isna(temp.data[freq + '_start']) == False) &
+                (temp.data[freq + '_start'] <= required) &
                 (
-                    temp.data[granularity + '_end'] +
+                    temp.data[freq + '_end'] +
                     timedelta(seconds=temp.max_age)
                     >= required
                 )

@@ -63,7 +63,7 @@ class Point:
         if alt is None:
             self.adapt_temp = False
 
-    def get_stations(self, granularity: str, start: datetime, end: datetime) -> pd.DataFrame:
+    def get_stations(self, freq: str, start: datetime, end: datetime) -> pd.DataFrame:
         """
         Get list of nearby weather stations
         """
@@ -77,13 +77,23 @@ class Point:
             self.alt = stations.fetch().head(self.max_count)[
                 'elevation'].mean()
 
+        # Captue unfiltered weather stations
+        unfiltered = stations.fetch()
+        unfiltered = unfiltered[abs(self.alt -
+                                unfiltered['elevation']) <= self.alt_range]
+
         # Apply inventory filter
-        stations = stations.inventory(granularity, (start, end))
+        stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
         stations = stations.fetch()
         stations = stations[abs(self.alt -
                                 stations['elevation']) <= self.alt_range]
+
+        # Fill up stations
+        selected: int = len(stations.index)
+        if selected < self.max_count:
+            stations = stations.append(unfiltered.head(self.max_count - selected))
 
         # Calculate score values
         stations['score'] = ((1 - (stations['distance'] / self.radius)) * self.weight_dist) + (
