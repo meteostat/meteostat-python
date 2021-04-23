@@ -24,7 +24,7 @@ def convert(
     # Change data units
     for parameter, unit in units.items():
         if parameter in temp._columns:
-            temp.data[parameter] = temp.data[parameter].apply(unit)
+            temp._data[parameter] = temp._data[parameter].apply(unit)
 
     # Return class instance
     return temp

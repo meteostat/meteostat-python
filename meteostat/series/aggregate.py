@@ -25,19 +25,19 @@ def aggregate(
 
     # Set default frequency if not set
     if freq is None:
-        freq = self.freq
+        freq = self._freq
 
     # Time aggregation
-    temp.data = temp.data.groupby(['station', pd.Grouper(
-        level='time', freq=freq)]).agg(temp._aggregations)
+    temp._data = temp._data.groupby(['station', pd.Grouper(
+        level='time', freq=freq)]).agg(temp.aggregations)
 
     # Spatial aggregation
     if spatial:
-        temp.data = temp.data.groupby(
+        temp._data = temp._data.groupby(
             [pd.Grouper(level='time', freq=freq)]).mean()
 
     # Round
-    temp.data = temp.data.round(1)
+    temp._data = temp._data.round(1)
 
     # Return class instance
     return temp

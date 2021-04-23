@@ -31,22 +31,22 @@ class Daily(Base):
     cache_subdir: str = 'daily'
 
     # The list of weather Stations
-    stations: pd.Index = None
+    _stations: pd.Index = None
 
     # The start date
-    start: datetime = None
+    _start: datetime = None
 
     # The end date
-    end: datetime = None
+    _end: datetime = None
 
     # Include model data?
-    model: bool = True
+    _model: bool = True
 
     # The data frame
-    data: pd.DataFrame = pd.DataFrame()
+    _data: pd.DataFrame = pd.DataFrame()
 
     # Default frequency
-    freq: str = '1D'
+    _freq: str = '1D'
 
     # Columns
     _columns: list = [
@@ -83,7 +83,7 @@ class Daily(Base):
     }
 
     # Default aggregation functions
-    _aggregations: dict = {
+    aggregations: dict = {
         'tavg': 'mean',
         'tmin': 'min',
         'tmax': 'max',
@@ -105,7 +105,7 @@ class Daily(Base):
         """
 
         # File name
-        file = 'daily/' + ('full' if self.model else 'obs') + \
+        file = 'daily/' + ('full' if self._model else 'obs') + \
             '/' + station + '.csv.gz'
 
         # Get local file path
@@ -135,31 +135,31 @@ class Daily(Base):
                 df.to_pickle(path)
 
         # Filter time period and append to DataFrame
-        if self.start and self.end:
+        if self._start and self._end:
 
             # Get time index
             time = df.index.get_level_values('time')
 
             # Filter & append
-            self.data = self.data.append(
-                df.loc[(time >= self.start) & (time <= self.end)])
+            self._data = self._data.append(
+                df.loc[(time >= self._start) & (time <= self._end)])
 
         else:
 
             # Append
-            self.data = self.data.append(df)
+            self._data = self._data.append(df)
 
     def _get_data(self) -> None:
         """
         Get all required data
         """
 
-        if len(self.stations) > 0:
+        if len(self._stations) > 0:
 
             # List of datasets
             datasets = []
 
-            for station in self.stations:
+            for station in self._stations:
                 datasets.append((
                     str(station),
                 ))
@@ -170,7 +170,7 @@ class Daily(Base):
         else:
 
             # Empty DataFrame
-            self.data = pd.DataFrame(columns=[*self._types])
+            self._data = pd.DataFrame(columns=[*self._types])
 
     def _resolve_point(
         self,
@@ -183,18 +183,18 @@ class Daily(Base):
         Project weather station data onto a single point
         """
 
-        if self.stations.size == 0:
+        if self._stations.size == 0:
             return None
 
         if method == 'nearest':
 
-            self.data = self.data.groupby(
+            self._data = self._data.groupby(
                 pd.Grouper(level='time', freq='1D')).agg('first')
 
         else:
 
             # Join score and elevation of involved weather stations
-            data = self.data.join(
+            data = self._data.join(
                 stations[['score', 'elevation']], on='station')
 
             # Adapt temperature-like data based on altitude
@@ -222,13 +222,13 @@ class Daily(Base):
             data['wdir'] = excluded
 
             # Drop score and elevation
-            self.data = data.drop(['score', 'elevation'], axis=1).round(1)
+            self._data = data.drop(['score', 'elevation'], axis=1).round(1)
 
         # Set placeholder station ID
-        self.data['station'] = 'XXXXX'
-        self.data = self.data.set_index(
-            ['station', self.data.index.get_level_values('time')])
-        self.stations = pd.Index(['XXXXX'])
+        self._data['station'] = 'XXXXX'
+        self._data = self._data.set_index(
+            ['station', self._data.index.get_level_values('time')])
+        self._stations = pd.Index(['XXXXX'])
 
     def __init__(
         self,
@@ -240,24 +240,24 @@ class Daily(Base):
 
         # Set list of weather stations
         if isinstance(loc, pd.DataFrame):
-            self.stations = loc.index
+            self._stations = loc.index
         elif isinstance(loc, Point):
             stations = loc.get_stations('hourly', start, end)
-            self.stations = stations.index
+            self._stations = stations.index
         else:
             if not isinstance(loc, list):
                 loc = [loc]
 
-            self.stations = pd.Index(loc)
+            self._stations = pd.Index(loc)
 
         # Set start date
-        self.start = start
+        self._start = start
 
         # Set end date
-        self.end = end
+        self._end = end
 
         # Set model
-        self.model = model
+        self._model = model
 
         # Get data for all weather stations
         self._get_data()
@@ -278,4 +278,5 @@ class Daily(Base):
     from meteostat.series.coverage import coverage
     from meteostat.series.count import count
     from meteostat.series.fetch import fetch
+    from meteostat.series.stations import stations
     from meteostat.core.cache import clear_cache

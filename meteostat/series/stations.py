@@ -1,5 +1,5 @@
 """
-Get Number Of Rows
+Get Weather Stations
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -8,9 +8,14 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-def count(self) -> int:
+from copy import copy
+import pandas as pd
+
+@property
+def stations(self) -> pd.Index:
     """
-    Return number of rows in DataFrame
+    Fetch Weather Stations
     """
 
-    return len(self._data.index)
+    # Return index of weather stations
+    return copy(self._stations)

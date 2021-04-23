@@ -24,11 +24,11 @@ def normalize(self):
     result = pd.DataFrame(columns=temp._columns[1:])
 
     # Go through list of weather stations
-    for station in temp.stations:
+    for station in temp._stations:
         # Create data frame
         df = pd.DataFrame(columns=temp._columns[1:])
         # Add time series
-        df['time'] = pd.date_range(temp.start, temp.end, freq=self.freq)
+        df['time'] = pd.date_range(temp._start, temp._end, freq=self._freq)
         # Add station ID
         df['station'] = station
         # Add columns
@@ -42,11 +42,11 @@ def normalize(self):
     result = result.set_index(['station', 'time'])
 
     # Merge data
-    temp.data = pd.concat([temp.data, result], axis=0).groupby(
+    temp._data = pd.concat([temp._data, result], axis=0).groupby(
         ['station', 'time'], as_index=True).first()
 
     # None -> NaN
-    temp.data = temp.data.fillna(NaN)
+    temp._data = temp._data.fillna(NaN)
 
     # Return class instance
     return temp

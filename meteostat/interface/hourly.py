@@ -34,25 +34,25 @@ class Hourly(Base):
     chunked: bool = True
 
     # The list of weather Stations
-    stations: pd.Index = None
+    _stations: pd.Index = None
 
     # The start date
-    start: datetime = None
+    _start: datetime = None
 
     # The end date
-    end: datetime = None
+    _end: datetime = None
 
     # The time zone
-    timezone: str = None
+    _timezone: str = None
 
     # Include model data?
-    model: bool = True
+    _model: bool = True
 
     # The data frame
-    data: pd.DataFrame = pd.DataFrame()
+    _data: pd.DataFrame = pd.DataFrame()
 
     # Default frequency
-    freq: str = '1H'
+    _freq: str = '1H'
 
     # Raw data columns
     _columns: list = [
@@ -92,7 +92,7 @@ class Hourly(Base):
     }
 
     # Default aggregation functions
-    _aggregations: dict = {
+    aggregations: dict = {
         'temp': 'mean',
         'dwpt': 'mean',
         'rhum': 'mean',
@@ -119,30 +119,30 @@ class Hourly(Base):
         if timezone:
 
             # Save timezone
-            self.timezone = timezone
+            self._timezone = timezone
 
             if start and end:
 
                 # Initialize time zone
-                timezone = pytz.timezone(self.timezone)
+                timezone = pytz.timezone(self._timezone)
 
                 # Set start date
-                self.start = timezone.localize(
+                self._start = timezone.localize(
                     start, is_dst=None).astimezone(
                     pytz.utc)
 
                 # Set end date
-                self.end = timezone.localize(
+                self._end = timezone.localize(
                     end, is_dst=None).astimezone(
                     pytz.utc)
 
         else:
 
             # Set start date
-            self.start = start
+            self._start = start
 
             # Set end date
-            self.end = end
+            self._end = end
 
     def _load(
         self,
@@ -154,7 +154,7 @@ class Hourly(Base):
         """
 
         # File name
-        file = 'hourly/' + ('full' if self.model else 'obs') + '/' + \
+        file = 'hourly/' + ('full' if self._model else 'obs') + '/' + \
             (year + '/' if year else '') + station + '.csv.gz'
 
         # Get local file path
@@ -184,41 +184,41 @@ class Hourly(Base):
                 df.to_pickle(path)
 
         # Localize time column
-        if self.timezone is not None and len(df.index) > 0:
+        if self._timezone is not None and len(df.index) > 0:
             df = df.tz_localize(
                 'UTC', level='time').tz_convert(
-                self.timezone, level='time')
+                self._timezone, level='time')
 
         # Filter time period and append to DataFrame
-        if self.start and self.end:
+        if self._start and self._end:
 
             # Get time index
             time = df.index.get_level_values('time')
 
             # Filter & append
-            self.data = self.data.append(
-                df.loc[(time >= self.start) & (time <= self.end)])
+            self._data = self._data.append(
+                df.loc[(time >= self._start) & (time <= self._end)])
 
         else:
 
             # Append
-            self.data = self.data.append(df)
+            self._data = self._data.append(df)
 
     def _get_data(self) -> None:
         """
         Get all required data
         """
 
-        if len(self.stations) > 0:
+        if len(self._stations) > 0:
 
             # List of datasets
             datasets = []
 
-            for station in self.stations:
+            for station in self._stations:
 
-                if self.chunked and self.start and self.end:
+                if self.chunked and self._start and self._end:
 
-                    for year in range(self.start.year, self.end.year + 1):
+                    for year in range(self._start.year, self._end.year + 1):
                         datasets.append((
                             str(station),
                             str(year)
@@ -237,7 +237,7 @@ class Hourly(Base):
         else:
 
             # Empty DataFrame
-            self.data = pd.DataFrame(columns=[*self._types])
+            self._data = pd.DataFrame(columns=[*self._types])
 
     def _resolve_point(
         self,
@@ -250,18 +250,18 @@ class Hourly(Base):
         Project weather station data onto a single point
         """
 
-        if self.stations.size == 0:
+        if self._stations.size == 0:
             return None
 
         if method == 'nearest':
 
-            self.data = self.data.groupby(
+            self._data = self._data.groupby(
                 pd.Grouper(level='time', freq='1H')).agg('first')
 
         else:
 
             # Join score and elevation of involved weather stations
-            data = self.data.join(
+            data = self._data.join(
                 stations[['score', 'elevation']], on='station')
 
             # Adapt temperature-like data based on altitude
@@ -287,13 +287,13 @@ class Hourly(Base):
             data[['wdir', 'coco']] = excluded
 
             # Drop score and elevation
-            self.data = data.drop(['score', 'elevation'], axis=1).round(1)
+            self._data = data.drop(['score', 'elevation'], axis=1).round(1)
 
         # Set placeholder station ID
-        self.data['station'] = 'XXXXX'
-        self.data = self.data.set_index(
-            ['station', self.data.index.get_level_values('time')])
-        self.stations = pd.Index(['XXXXX'])
+        self._data['station'] = 'XXXXX'
+        self._data = self._data.set_index(
+            ['station', self._data.index.get_level_values('time')])
+        self._stations = pd.Index(['XXXXX'])
 
     def __init__(
         self,
@@ -306,21 +306,21 @@ class Hourly(Base):
 
         # Set list of weather stations
         if isinstance(loc, pd.DataFrame):
-            self.stations = loc.index
+            self._stations = loc.index
         elif isinstance(loc, Point):
             stations = loc.get_stations('hourly', start, end)
-            self.stations = stations.index
+            self._stations = stations.index
         else:
             if not isinstance(loc, list):
                 loc = [loc]
 
-            self.stations = pd.Index(loc)
+            self._stations = pd.Index(loc)
 
         # Set time zone and adapt period
         self._set_time(start, end, timezone)
 
         # Set model
-        self.model = model
+        self._model = model
 
         # Get data for all weather stations
         self._get_data()
@@ -341,4 +341,5 @@ class Hourly(Base):
     from meteostat.series.coverage import coverage
     from meteostat.series.count import count
     from meteostat.series.fetch import fetch
+    from meteostat.series.stations import stations
     from meteostat.core.cache import clear_cache

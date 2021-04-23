@@ -17,10 +17,10 @@ def fetch(self) -> pd.DataFrame:
     """
 
     # Copy DataFrame
-    temp = copy(self.data)
+    temp = copy(self._data)
 
     # Remove station index if it's a single station
-    if len(self.stations) == 1 and 'station' in temp.index.names:
+    if len(self._stations) == 1 and 'station' in temp.index.names:
         temp = temp.reset_index(level='station', drop=True)
 
     # Return data frame

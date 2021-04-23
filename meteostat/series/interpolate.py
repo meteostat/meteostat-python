@@ -22,7 +22,7 @@ def interpolate(
     temp = copy(self)
 
     # Apply interpolation
-    temp.data = temp.data.groupby('station').apply(
+    temp._data = temp._data.groupby('station').apply(
         lambda group: group.interpolate(
             method='linear', limit=limit, limit_direction='both', axis=0))
 

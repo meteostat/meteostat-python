@@ -25,13 +25,13 @@ class Normals(Base):
     """
 
     # The list of weather Stations
-    stations: pd.Index = None
+    _stations: pd.Index = None
 
     # The data frame
-    data: pd.DataFrame = pd.DataFrame()
+    _data: pd.DataFrame = pd.DataFrame()
 
     # Default aggregation functions
-    _aggregations: dict = {
+    aggregations: dict = {
         'tavg': 'mean',
         'tmin': 'mean',
         'tmax': 'mean',
@@ -56,14 +56,14 @@ class Normals(Base):
         raw = Monthly(loc, start, end, model)
 
         # Get list of weather stations
-        self.stations = raw.stations
+        self._stations = raw.stations
 
         # Get DataFrame
-        self.data = raw.data
+        self._data = raw._data
 
         # Aggregate
-        self.data = self.data.groupby(['station', self.data.index.get_level_values(
-            'time').month]).agg(self._aggregations)
+        self._data = self._data.groupby(['station', self._data.index.get_level_values(
+            'time').month]).agg(self.aggregations)
 
     # Import methods
     from meteostat.series.convert import convert

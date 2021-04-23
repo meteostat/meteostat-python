@@ -17,6 +17,6 @@ def coverage(
     """
 
     if parameter is None:
-        return len(self.data.index) / self.expected_rows()
+        return len(self._data.index) / self.expected_rows()
 
-    return self.data[parameter].count() / self.expected_rows()
+    return self._data[parameter].count() / self.expected_rows()
