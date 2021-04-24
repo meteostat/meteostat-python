@@ -28,7 +28,7 @@ class Stations(Base):
     cache_subdir: str = 'stations'
 
     # The list of selected weather Stations
-    data: pd.DataFrame = None
+    _data: pd.DataFrame = None
 
     # Raw data columns
     _columns: list = [
@@ -101,7 +101,7 @@ class Stations(Base):
                 df.to_pickle(path)
 
         # Set data
-        self.data = df
+        self._data = df
 
     def __init__(self) -> None:
 
@@ -128,9 +128,9 @@ class Stations(Base):
             code = [code]
 
         if organization == 'meteostat':
-            temp.data = temp.data[temp.data.index.isin(code)]
+            temp._data = temp._data[temp._data.index.isin(code)]
         else:
-            temp.data = temp.data[temp.data[organization].isin(
+            temp._data = temp._data[temp._data[organization].isin(
                 code)]
 
         # Return self
@@ -161,16 +161,16 @@ class Stations(Base):
             return radius * sqrt(x * x + y * y)
 
         # Get distance for each stationsd
-        temp.data['distance'] = temp.data.apply(
+        temp._data['distance'] = temp._data.apply(
             lambda station: distance(station, [lat, lon]), axis=1)
 
         # Filter by radius
         if radius is not None:
-            temp.data = temp.data[temp.data['distance'] <= radius]
+            temp._data = temp._data[temp._data['distance'] <= radius]
 
         # Sort stations by distance
-        temp.data.columns.str.strip()
-        temp.data = temp.data.sort_values('distance')
+        temp._data.columns.str.strip()
+        temp._data = temp._data.sort_values('distance')
 
         # Return self
         return temp
@@ -188,11 +188,11 @@ class Stations(Base):
         temp = copy(self)
 
         # Country code
-        temp.data = temp.data[temp.data['country'] == country]
+        temp._data = temp._data[temp._data['country'] == country]
 
         # State code
         if state is not None:
-            temp.data = temp.data[temp.data['region'] == state]
+            temp._data = temp._data[temp._data['region'] == state]
 
         # Return self
         return temp
@@ -210,11 +210,11 @@ class Stations(Base):
         temp = copy(self)
 
         # Return stations in boundaries
-        temp.data = temp.data[
-            (temp.data['latitude'] <= top_left[0]) &
-            (temp.data['latitude'] >= bottom_right[0]) &
-            (temp.data['longitude'] <= bottom_right[1]) &
-            (temp.data['longitude'] >= top_left[1])
+        temp._data = temp._data[
+            (temp._data['latitude'] <= top_left[0]) &
+            (temp._data['latitude'] >= bottom_right[0]) &
+            (temp._data['longitude'] <= bottom_right[1]) &
+            (temp._data['longitude'] >= top_left[1])
         ]
 
         # Return self
@@ -234,27 +234,27 @@ class Stations(Base):
 
         if required is True:
             # Make sure data exists at all
-            temp.data = temp.data[
-                (pd.isna(temp.data[freq + '_start']) == False)
+            temp._data = temp._data[
+                (pd.isna(temp._data[freq + '_start']) == False)
             ]
         elif isinstance(required, tuple):
             # Make sure data exists across period
-            temp.data = temp.data[
-                (pd.isna(temp.data[freq + '_start']) == False) &
-                (temp.data[freq + '_start'] <= required[0]) &
+            temp._data = temp._data[
+                (pd.isna(temp._data[freq + '_start']) == False) &
+                (temp._data[freq + '_start'] <= required[0]) &
                 (
-                    temp.data[freq + '_end'] +
+                    temp._data[freq + '_end'] +
                     timedelta(seconds=temp.max_age)
                     >= required[1]
                 )
             ]
         else:
             # Make sure data exists on a certain day
-            temp.data = temp.data[
-                (pd.isna(temp.data[freq + '_start']) == False) &
-                (temp.data[freq + '_start'] <= required) &
+            temp._data = temp._data[
+                (pd.isna(temp._data[freq + '_start']) == False) &
+                (temp._data[freq + '_start'] <= required) &
                 (
-                    temp.data[freq + '_end'] +
+                    temp._data[freq + '_end'] +
                     timedelta(seconds=temp.max_age)
                     >= required
                 )
@@ -275,8 +275,8 @@ class Stations(Base):
 
         # Change data units
         for parameter, unit in units.items():
-            if parameter in temp.data.columns.values:
-                temp.data[parameter] = temp.data[parameter].apply(
+            if parameter in temp._data.columns.values:
+                temp._data[parameter] = temp._data[parameter].apply(
                     unit)
 
         # Return class instance
@@ -287,7 +287,7 @@ class Stations(Base):
         Return number of weather stations in current selection
         """
 
-        return len(self.data.index)
+        return len(self._data.index)
 
     def fetch(
         self,
@@ -299,7 +299,7 @@ class Stations(Base):
         """
 
         # Copy DataFrame
-        temp = copy(self.data)
+        temp = copy(self._data)
 
         # Return limited number of sampled entries
         if sample and limit:
