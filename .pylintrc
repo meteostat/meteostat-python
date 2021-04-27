@@ -7,7 +7,8 @@ disable=print-statement,
         protected-access,
         inconsistent-return-statements,
         import-outside-toplevel,
-        duplicate-code
+        duplicate-code,
+        import-error
 
 [BASIC]
 
