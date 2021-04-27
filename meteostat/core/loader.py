@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from urllib.error import HTTPError
 from multiprocessing.pool import ThreadPool
 from typing import Callable
 import pandas as pd
@@ -66,7 +67,7 @@ def load_handler(
             df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
                 pd.to_datetime, errors='coerce')
 
-    except BaseException:
+    except (FileNotFoundError, HTTPError):
 
         # Create empty DataFrane
         df = pd.DataFrame(columns=[*types])

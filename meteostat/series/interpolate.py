@@ -14,7 +14,7 @@ from copy import copy
 def interpolate(
     self,
     limit: int = 3
-) -> 'Daily':
+):
     """
     Interpolate NULL values
     """

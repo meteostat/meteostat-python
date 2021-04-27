@@ -14,7 +14,7 @@ from copy import copy
 def convert(
     self,
     units: dict
-) -> 'Daily':
+):
     """
     Convert columns to a different unit
     """

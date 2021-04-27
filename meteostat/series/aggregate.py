@@ -16,7 +16,7 @@ def aggregate(
     self,
     freq: str = None,
     spatial: bool = False
-) -> 'Daily':
+):
     """
     Aggregate observations
     """

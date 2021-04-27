@@ -31,7 +31,7 @@ def get_file_path(
 
 def file_in_cache(
     path: str,
-    max_age: 0
+    max_age: int = 0
 ) -> bool:
     """
     Check if a file exists in the local cache
