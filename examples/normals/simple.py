@@ -1,5 +1,5 @@
 """
-Example: Simple
+Example: Simple climate data access
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial

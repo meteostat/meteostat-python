@@ -1,5 +1,5 @@
 """
-Example: Simple
+Example: Daily point data access
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -10,19 +10,19 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 import matplotlib.pyplot as plt
-from meteostat import Normals, Point
+from meteostat import Point, Daily
 
-# Time period
-start = datetime(1961, 1, 1)
-end = datetime(1990, 12, 31)
+# Set time period
+start = datetime(2018, 1, 1)
+end = datetime(2018, 12, 31)
 
 # Create Point for Vancouver, BC
 vancouver = Point(49.2497, -123.1193, 70)
 
-# Get normals
-data = Normals(vancouver, start, end)
+# Get daily data for 2018
+data = Daily(vancouver, start, end)
 data = data.fetch()
 
-# Plot chart
+# Plot line chart including average, minimum and maximum temperature
 data.plot(y=['tavg', 'tmin', 'tmax'])
 plt.show()
