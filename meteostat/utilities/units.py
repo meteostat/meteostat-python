@@ -8,56 +8,56 @@ The code is licensed under the MIT license.
 
 from numpy import NaN, isnan
 
-def fahrenheit(value):
 
+def fahrenheit(value):
     """
     Convert Celsius to Fahrenheit
     """
 
     return round((value * 9 / 5) + 32, 1)
 
-def kelvin(value):
 
+def kelvin(value):
     """
     Convert Celsius to Kelvin
     """
 
     return round(value + 273.15, 1)
 
-def inches(value):
 
+def inches(value):
     """
     Convert millimeters to inches
     """
 
     return round(value / 25.4, 3)
 
-def feet(value):
 
+def feet(value):
     """
     Convert meters to feet
     """
 
     return round(value / 0.3048, 1)
 
-def ms(value):
 
+def ms(value):
     """
     Convert kilometers per hour to meters per second
     """
 
     return round(value / 3.6, 1)
 
-def mph(value):
 
+def mph(value):
     """
     Convert kilometers per hour to miles per hour
     """
 
     return round(value * 0.6214, 1)
 
-def direction(value):
 
+def direction(value):
     """
     Convert degrees to wind direction
     """
@@ -83,8 +83,8 @@ def direction(value):
 
     return wdir
 
-def condition(value):
 
+def condition(value):
     """
     Convert Meteostat condition code to descriptive string
     """
@@ -121,6 +121,7 @@ def condition(value):
         'Heavy Thunderstorm',
         'Storm',
     ][int(value) - 1]
+
 
 # Imperial units
 imperial = {

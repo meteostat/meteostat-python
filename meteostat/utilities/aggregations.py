@@ -11,6 +11,7 @@ The code is licensed under the MIT license.
 import numpy as np
 import pandas as pd
 
+
 def weighted_average(step: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate weighted average from grouped data
@@ -21,6 +22,7 @@ def weighted_average(step: pd.DataFrame) -> pd.DataFrame:
     data = data.filled(np.NaN)
 
     return pd.DataFrame(data=[data], columns=step.columns)
+
 
 def degree_mean(data: pd.Series) -> float:
     """

@@ -11,6 +11,7 @@ The code is licensed under the MIT license.
 from copy import copy
 import pandas as pd
 
+
 def fetch(self) -> pd.DataFrame:
     """
     Fetch DataFrame

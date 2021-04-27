@@ -10,6 +10,7 @@ The code is licensed under the MIT license.
 
 from copy import copy
 
+
 def interpolate(
     self,
     limit: int = 3

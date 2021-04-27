@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+
 def count(self) -> int:
     """
     Return number of rows in DataFrame

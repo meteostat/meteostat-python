@@ -12,6 +12,7 @@ from copy import copy
 from numpy import NaN
 import pandas as pd
 
+
 def normalize(self):
     """
     Normalize the DataFrame

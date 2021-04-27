@@ -12,6 +12,7 @@ import os
 import time
 import hashlib
 
+
 def get_file_path(
     cache_dir: str,
     cache_subdir: str,
@@ -26,6 +27,7 @@ def get_file_path(
 
     # Return path
     return cache_dir + os.sep + cache_subdir + os.sep + file
+
 
 def file_in_cache(
     path: str,
@@ -48,6 +50,7 @@ def file_in_cache(
         return True
 
     return False
+
 
 @classmethod
 def clear_cache(

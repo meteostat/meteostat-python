@@ -45,7 +45,9 @@ class Stations(Base):
         'hourly_start',
         'hourly_end',
         'daily_start',
-        'daily_end'
+        'daily_end',
+        'monthly_start',
+        'monthly_end'
     ]
 
     # Processed data columns with types
@@ -71,7 +73,7 @@ class Stations(Base):
         """
 
         # File name
-        file = 'stations/lib.csv.gz'
+        file = 'stations/slim.csv.gz'
 
         # Get local file path
         path = get_file_path(self.cache_dir, self.cache_subdir, file)

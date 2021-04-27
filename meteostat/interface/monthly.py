@@ -271,6 +271,14 @@ class Monthly(Base):
         if self.max_age > 0:
             self.clear_cache()
 
+    def expected_rows(self) -> int:
+        """
+        Return the number of rows expected for the defined date range
+        """
+
+        return ((self._end.year - self._start.year) * 12 +
+                self._end.month - self._start.month) + 1
+
     # Import methods
     from meteostat.series.normalize import normalize
     from meteostat.series.interpolate import interpolate

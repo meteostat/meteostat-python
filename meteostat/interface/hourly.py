@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from math import floor
 from datetime import datetime
 from typing import Union
 import pytz
@@ -24,7 +25,8 @@ from meteostat.interface.point import Point
 class Hourly(Base):
 
     """
-    Retrieve hourly weather observations for one or multiple weather stations
+    Retrieve hourly weather observations for one or multiple weather stations or
+    a single geographical point
     """
 
     # The cache subdirectory
@@ -332,6 +334,13 @@ class Hourly(Base):
         # Clear cache
         if self.max_age > 0:
             self.clear_cache()
+
+    def expected_rows(self) -> int:
+        """
+        Return the number of rows expected for the defined date range
+        """
+
+        return floor((self._end - self._start).total_seconds() / 3600) + 1
 
     # Import methods
     from meteostat.series.normalize import normalize

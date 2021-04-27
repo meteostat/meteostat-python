@@ -12,6 +12,7 @@ from multiprocessing.pool import ThreadPool
 from typing import Callable
 import pandas as pd
 
+
 def processing_handler(
     datasets: list,
     load: Callable[[dict], None],
@@ -36,6 +37,7 @@ def processing_handler(
         # Wait for Pool to finish
         pool.close()
         pool.join()
+
 
 def load_handler(
     endpoint: str,

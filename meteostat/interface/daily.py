@@ -270,6 +270,13 @@ class Daily(Base):
         if self.max_age > 0:
             self.clear_cache()
 
+    def expected_rows(self) -> int:
+        """
+        Return the number of rows expected for the defined date range
+        """
+
+        return (self._end - self._start).days + 1
+
     # Import methods
     from meteostat.series.normalize import normalize
     from meteostat.series.interpolate import interpolate

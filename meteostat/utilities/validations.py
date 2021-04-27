@@ -10,6 +10,7 @@ The code is licensed under the MIT license.
 
 import pandas as pd
 
+
 def validate_series(
     df: pd.DataFrame,
     station: str

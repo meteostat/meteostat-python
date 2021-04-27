@@ -30,6 +30,9 @@ class Normals(Base):
     # The data frame
     _data: pd.DataFrame = pd.DataFrame()
 
+    # Columns
+    _columns = Monthly._columns
+
     # Default aggregation functions
     aggregations: dict = {
         'tavg': 'mean',
@@ -43,6 +46,9 @@ class Normals(Base):
         'pres': 'mean',
         'tsun': 'mean'
     }
+
+    # Coverage
+    _coverage: dict = {}
 
     def __init__(
         self,
@@ -61,10 +67,29 @@ class Normals(Base):
         # Get DataFrame
         self._data = raw._data
 
+        # Get coverage
+        self._coverage['global'] = raw.coverage()
+        for parameter in self._columns[2:]:
+            self._coverage[parameter] = raw.coverage(parameter)
+
         # Aggregate
         self._data = self._data.groupby(['station', self._data.index.get_level_values(
             'time').month]).agg(self.aggregations)
 
+    def coverage(
+        self,
+        parameter: str = None
+    ) -> float:
+        """
+        Return data coverage (overall or by parameter)
+        """
+
+        if parameter is None:
+            return self._coverage['global']
+
+        return self._coverage[parameter]
+
     # Import methods
     from meteostat.series.convert import convert
+    from meteostat.series.count import count
     from meteostat.series.fetch import fetch

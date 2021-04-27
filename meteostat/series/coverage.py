@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+
 def coverage(
     self,
     parameter: str = None
