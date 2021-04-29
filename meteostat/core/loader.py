@@ -12,6 +12,7 @@ from urllib.error import HTTPError
 from multiprocessing.pool import ThreadPool
 from typing import Callable
 import pandas as pd
+from meteostat.core.warn import warn
 
 
 def processing_handler(
@@ -71,6 +72,9 @@ def load_handler(
 
         # Create empty DataFrane
         df = pd.DataFrame(columns=[*types])
+
+        # Display warning
+        warn(f'Cannot load {path} from {endpoint}')
 
     # Return DataFrame
     return df

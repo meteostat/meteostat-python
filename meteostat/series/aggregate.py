@@ -10,6 +10,7 @@ The code is licensed under the MIT license.
 
 from copy import copy
 import pandas as pd
+from meteostat.core.warn import warn
 
 
 def aggregate(
@@ -21,24 +22,32 @@ def aggregate(
     Aggregate observations
     """
 
-    # Create temporal instance
-    temp = copy(self)
+    if self.count() > 0 and not self._data.isnull().values.all():
 
-    # Set default frequency if not set
-    if freq is None:
-        freq = self._freq
+        # Create temporal instance
+        temp = copy(self)
 
-    # Time aggregation
-    temp._data = temp._data.groupby(['station', pd.Grouper(
-        level='time', freq=freq)]).agg(temp.aggregations)
+        # Set default frequency if not set
+        if freq is None:
+            freq = self._freq
 
-    # Spatial aggregation
-    if spatial:
-        temp._data = temp._data.groupby(
-            [pd.Grouper(level='time', freq=freq)]).mean()
+        # Time aggregation
+        temp._data = temp._data.groupby(['station', pd.Grouper(
+            level='time', freq=freq)]).agg(temp.aggregations)
 
-    # Round
-    temp._data = temp._data.round(1)
+        # Spatial aggregation
+        if spatial:
+            temp._data = temp._data.groupby(
+                [pd.Grouper(level='time', freq=freq)]).mean()
 
-    # Return class instance
-    return temp
+        # Round
+        temp._data = temp._data.round(1)
+
+        # Return class instance
+        return temp
+
+    else:
+
+        warn('Skipping aggregation on empty DataFrame')
+
+        return self
