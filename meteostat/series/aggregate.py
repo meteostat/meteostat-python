@@ -46,8 +46,6 @@ def aggregate(
         # Return class instance
         return temp
 
-    else:
-
-        warn('Skipping aggregation on empty DataFrame')
-
-        return self
+    # Show warning & return self
+    warn('Skipping aggregation on empty DataFrame')
+    return self

@@ -11,10 +11,7 @@ The code is licensed under the MIT license.
 import warnings
 
 
-"""
-FORMATTING
-"""
-def _warning_on_one_line(message, category, filename, lineno, file=None, line=None):
+def _warning_on_one_line(message, category, *args) -> str:
     """
     Print warning on a single line
     """
@@ -23,10 +20,7 @@ def _warning_on_one_line(message, category, filename, lineno, file=None, line=No
 # Set warning format
 warnings.formatwarning = _warning_on_one_line
 
-"""
-WRAPPER
-"""
-def warn(message: str):
+def warn(message: str) -> None:
     """
     Create a warning
     """
