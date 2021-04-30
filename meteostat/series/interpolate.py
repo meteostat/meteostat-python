@@ -9,6 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from copy import copy
+from meteostat.core.warn import warn
 
 
 def interpolate(
@@ -19,13 +20,19 @@ def interpolate(
     Interpolate NULL values
     """
 
-    # Create temporal instance
-    temp = copy(self)
+    if self.count() > 0 and not self._data.isnull().values.all():
 
-    # Apply interpolation
-    temp._data = temp._data.groupby('station').apply(
-        lambda group: group.interpolate(
-            method='linear', limit=limit, limit_direction='both', axis=0))
+        # Create temporal instance
+        temp = copy(self)
 
-    # Return class instance
-    return temp
+        # Apply interpolation
+        temp._data = temp._data.groupby('station').apply(
+            lambda group: group.interpolate(
+                method='linear', limit=limit, limit_direction='both', axis=0))
+
+        # Return class instance
+        return temp
+
+    # Show warning & return self
+    warn('Skipping interpolation on empty DataFrame')
+    return self

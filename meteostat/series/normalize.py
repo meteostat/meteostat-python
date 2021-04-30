@@ -11,12 +11,16 @@ The code is licensed under the MIT license.
 from copy import copy
 from numpy import NaN
 import pandas as pd
+from meteostat.core.warn import warn
 
 
 def normalize(self):
     """
     Normalize the DataFrame
     """
+
+    if self.count() == 0:
+        warn('Pointless normalization of empty DataFrame')
 
     # Create temporal instance
     temp = copy(self)

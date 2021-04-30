@@ -21,7 +21,7 @@ start = datetime(2018, 1, 1)
 end = datetime(2018, 1, 1, 23, 59)
 
 # Get hourly data & aggregate
-data = Hourly('XXXXX', start, end)
+data = Hourly(station, start, end)
 data = data.aggregate('1D')
 data = data.fetch()
 
