@@ -9,19 +9,14 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from meteostat import Stations, Hourly
-
-# Hourly
-stations = Stations()
-stations = stations.id('wmo', '10637')
-station = stations.fetch()
+from meteostat import Hourly
 
 # Time period
 start = datetime(2018, 1, 1)
 end = datetime(2018, 1, 1, 23, 59)
 
-# Get hourly data & aggregate
-data = Hourly(station, start, end)
+# Get hourly data & aggregate daily
+data = Hourly('10637', start, end)
 data = data.aggregate('1D')
 data = data.fetch()
 

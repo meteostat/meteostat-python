@@ -12,7 +12,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Stations, Hourly
 
-# Get a weather station
+# Get closest weather station
 stations = Stations()
 stations = stations.nearby(50, 8)
 station = stations.fetch(1)

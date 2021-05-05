@@ -18,6 +18,8 @@ end = datetime(2018, 12, 31)
 
 # Get daily data
 data = Daily('10637', start, end)
+
+# Group & aggregate weekly
 data = data.normalize().aggregate(freq='1W').fetch()
 
 # Plot chart

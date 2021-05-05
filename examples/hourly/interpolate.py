@@ -18,8 +18,12 @@ end = datetime(2018, 8, 4, 23, 59)
 
 # Get hourly data
 data = Hourly('10730', start, end)
+
+# Normalize data & interpolate up to 6 missing consecutive records
 data = data.normalize()
 data = data.interpolate(6)
+
+# Fetch data
 data = data.fetch()
 
 # Plot chart
