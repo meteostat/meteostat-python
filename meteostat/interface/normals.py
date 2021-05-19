@@ -80,6 +80,9 @@ class Normals(Base):
         self._data = self._data.groupby(['station', self._data.index.get_level_values(
             'time').month]).agg(self.aggregations)
 
+        # Rename time column
+        self._data.index.rename(['station', 'month'], inplace=True)
+
     def coverage(
         self,
         parameter: str = None
