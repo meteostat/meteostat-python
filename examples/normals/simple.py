@@ -8,16 +8,11 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Normals
 
-# Time period
-start = datetime(1961, 1, 1)
-end = datetime(1990, 12, 31)
-
 # Get normals
-data = Normals('10637', start, end)
+data = Normals('10637', 1961, 1990)
 data = data.fetch()
 
 # Plot chart

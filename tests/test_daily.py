@@ -8,6 +8,7 @@ import unittest
 from datetime import datetime
 from meteostat import Daily
 
+
 class TestDaily(unittest.TestCase):
 
     """
@@ -15,7 +16,6 @@ class TestDaily(unittest.TestCase):
     """
 
     def test_normalize(self):
-
         """
         Test: normalize() method
         """
@@ -36,7 +36,6 @@ class TestDaily(unittest.TestCase):
             ', should be 365')
 
     def test_aggregate(self):
-
         """
         Test: aggregate() method
         """
@@ -57,7 +56,6 @@ class TestDaily(unittest.TestCase):
             ', should be 53')
 
     def test_coverage(self):
-
         """
         Test: coverage() method
         """

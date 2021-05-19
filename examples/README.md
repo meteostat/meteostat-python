@@ -8,3 +8,4 @@ This directory contains some examples which showcase the usage of the different 
 * [Daily Data](daily)
 * [Monthly Data](monthly)
 * [Climate Normals](normals)
+* [Weather Stations](stations)

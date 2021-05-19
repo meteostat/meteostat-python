@@ -53,10 +53,14 @@ class Normals(Base):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],
-        start: datetime = None,
-        end: datetime = None,
+        start: int = 1981,
+        end: int = 2020,
         model: bool = True
     ) -> None:
+
+        # Convert start & end to datetime
+        start = datetime(start, 1, 1)
+        end = datetime(end, 12, 31)
 
         # Get monthly data
         raw = Monthly(loc, start, end, model)
