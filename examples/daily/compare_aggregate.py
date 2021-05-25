@@ -12,7 +12,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from meteostat import Stations, Daily
 
-# Get weather stations by WMO ID
+# Get weather stations by Meteostat ID
 stations = Stations()
 stations = stations.id('meteostat', ('D1424', '10729', '10803', '10513'))
 stations = stations.fetch()
@@ -26,6 +26,8 @@ end = datetime(2019, 12, 31)
 
 # Get daily data
 data = Daily(stations, start, end)
+
+# Aggregate annually
 data = data.aggregate(freq='1Y').fetch()
 
 # Plot chart

@@ -9,7 +9,8 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from meteostat.stations import Stations
+import pandas as pd
+from meteostat.interface.stations import Stations
 
 
 class Point:
@@ -40,13 +41,13 @@ class Point:
     weight_alt: float = 0.4
 
     # The latitude
-    lat: float = None
+    _lat: float = None
 
     # The longitude
-    lon: float = None
+    _lon: float = None
 
     # The altitude
-    alt: int = None
+    _alt: int = None
 
     def __init__(
         self,
@@ -55,40 +56,62 @@ class Point:
         alt: int = None
     ) -> None:
 
-        self.lat = lat
-        self.lon = lon
-        self.alt = alt
+        self._lat = lat
+        self._lon = lon
+        self._alt = alt
 
         if alt is None:
             self.adapt_temp = False
 
-    def get_stations(self, granularity: str, start: datetime, end: datetime):
+    def get_stations(self, freq: str, start: datetime,
+                     end: datetime) -> pd.DataFrame:
         """
         Get list of nearby weather stations
         """
 
         # Get nearby weather stations
         stations = Stations()
-        stations = stations.nearby(self.lat, self.lon, self.radius)
+        stations = stations.nearby(self._lat, self._lon, self.radius)
 
         # Guess altitude if not set
-        if self.alt is None:
-            self.alt = stations.fetch().head(self.max_count)[
+        if self._alt is None:
+            self._alt = stations.fetch().head(self.max_count)[
                 'elevation'].mean()
 
+        # Captue unfiltered weather stations
+        unfiltered = stations.fetch()
+        unfiltered = unfiltered[abs(self._alt -
+                                    unfiltered['elevation']) <= self.alt_range]
+
         # Apply inventory filter
-        stations = stations.inventory(granularity, (start, end))
+        stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
         stations = stations.fetch()
-        stations = stations[abs(self.alt -
+        stations = stations[abs(self._alt -
                                 stations['elevation']) <= self.alt_range]
+
+        # Fill up stations
+        selected: int = len(stations.index)
+        if selected < self.max_count:
+            stations = stations.append(
+                unfiltered.head(
+                    self.max_count - selected))
 
         # Calculate score values
         stations['score'] = ((1 - (stations['distance'] / self.radius)) * self.weight_dist) + (
-            (1 - (abs(self.alt - stations['elevation']) / self.alt_range)) * self.weight_alt)
+            (1 - (abs(self._alt - stations['elevation']) / self.alt_range)) * self.weight_alt)
 
         # Sort by score (descending)
         stations = stations.sort_values('score', ascending=False)
 
         return stations.head(self.max_count)
+
+    @property
+    def alt(self) -> int:
+        """
+        Returns the point's altitude
+        """
+
+        # Return altitude
+        return self._alt

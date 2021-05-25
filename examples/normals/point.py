@@ -1,5 +1,5 @@
 """
-Example: Aggregation
+Example: Climate normals by geo point
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -8,19 +8,15 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
 import matplotlib.pyplot as plt
-from meteostat import Daily
+from meteostat import Normals, Point
 
-# Time period
-start = datetime(2018, 1, 1)
-end = datetime(2018, 12, 31)
+# Create Point for Vancouver, BC
+vancouver = Point(49.2497, -123.1193, 70)
 
-# Get daily data
-data = Daily('10637', start, end)
-
-# Group & aggregate weekly
-data = data.normalize().aggregate(freq='1W').fetch()
+# Get normals
+data = Normals(vancouver, 1961, 1990)
+data = data.fetch()
 
 # Plot chart
 data.plot(y=['tavg', 'tmin', 'tmax'])

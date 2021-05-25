@@ -22,6 +22,8 @@ The Meteostat Python library is divided into multiple classes which provide acce
 * [Weather Stations](https://dev.meteostat.net/python/stations.html)
 * [Hourly Data](https://dev.meteostat.net/python/hourly.html)
 * [Daily Data](https://dev.meteostat.net/python/daily.html)
+* [Monthly Data](https://dev.meteostat.net/python/monthly.html)
+* [Climate Normals](https://dev.meteostat.net/python/normals.html)
 * [Contributing](https://dev.meteostat.net/python/contributing.html)
 
 ## Example

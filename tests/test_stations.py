@@ -5,7 +5,8 @@ The code is licensed under the MIT license.
 """
 
 import unittest
-from meteostat import Stations
+from datetime import datetime
+from meteostat import Stations, units
 
 
 class TestStations(unittest.TestCase):
@@ -26,11 +27,10 @@ class TestStations(unittest.TestCase):
         self.assertEqual(
             station['country'],
             'DE',
-            'Closest weather stations returns country code ' +
-            station['country'] +
-            ', should be DE')
+            f'Closest weather stations returns country code {station["country"]}, should be DE'
+        )
 
-    def test_identifier(self):
+    def test_id(self):
         """
         Test: Stations by identifier
         """
@@ -42,11 +42,9 @@ class TestStations(unittest.TestCase):
         self.assertEqual(
             station['icao'],
             'CYYZ',
-            'Weather station returns ICAO ID ' +
-            station['icao'] +
-            ', should be CYYZ')
+            f'Weather station returns ICAO ID {station["icao"]}, should be CYYZ')
 
-    def test_regional(self):
+    def test_region(self):
         """
         Test: Stations by country/region code
         """
@@ -59,19 +57,16 @@ class TestStations(unittest.TestCase):
         self.assertEqual(
             station['country'],
             'CA',
-            'Weather station returns country code ' +
-            station['country'] +
-            ', should be CA')
+            f'Weather station returns country code {station["country"]}, should be CA')
 
         # Check if region code matches Ontario
         self.assertEqual(
             station['region'],
             'ON',
-            'Weather station returns province code ' +
-            station['region'] +
-            ', should be ON')
+            f'Weather station returns province code {station["region"]}, should be ON'
+        )
 
-    def test_area(self):
+    def test_bounds(self):
         """
         Test: Stations by geographical area
         """
@@ -84,6 +79,47 @@ class TestStations(unittest.TestCase):
         self.assertTrue(
             -90 <= station['latitude'] <= 0,
             'Weather station is not in latitude range'
+        )
+
+    def test_inventory(self):
+        """
+        Test: Filter stations by inventory
+        """
+
+        # Select weather stations in Germany
+        stations = Stations().region('DE')
+
+        # Apply inventory filter
+        stations = stations.inventory('daily', datetime(2020, 1, 1))
+
+        # Get count
+        count = stations.count()
+
+        # Check if at least one station remains
+        self.assertTrue(
+            count > 0,
+            'No remaining weather stations'
+        )
+
+    def test_convert(self):
+        """
+        Test: Convert distance to feet
+        """
+
+        # Get closest weather stations to Seattle, WA
+        stations = Stations().nearby(47.6062, -122.3321)
+
+        # Convert distance to feet
+        stations = stations.convert({'distance': units.feet})
+
+        # Get three closest weather stations
+        stations = stations.fetch(3)
+
+        # Check if three stations are returned
+        self.assertEqual(
+            len(stations.index),
+            3,
+            f'{len(stations.index)} weather stations returned, should be 3'
         )
 
 

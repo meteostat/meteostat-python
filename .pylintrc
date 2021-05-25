@@ -1,15 +1,15 @@
 [MESSAGES CONTROL]
 
 disable=print-statement,
-        nan-comparison,
         singleton-comparison,
         no-member,
-        broad-except,
         too-few-public-methods,
         protected-access,
+        inconsistent-return-statements,
+        import-outside-toplevel,
+        duplicate-code,
         import-error,
-        unsubscriptable-object,
-        inconsistent-return-statements
+        nan-comparison
 
 [BASIC]
 

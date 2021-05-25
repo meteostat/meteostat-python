@@ -16,7 +16,7 @@ from meteostat import Stations, Daily
 start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
 
-# Get a weather station
+# Get closest weather station
 stations = Stations()
 stations = stations.nearby(49.2497, -123.1193)
 stations = stations.inventory('daily', (start, end))

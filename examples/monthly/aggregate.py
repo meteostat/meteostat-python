@@ -10,17 +10,15 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 import matplotlib.pyplot as plt
-from meteostat import Daily
+from meteostat import Monthly
 
 # Time period
-start = datetime(2018, 1, 1)
+start = datetime(2000, 1, 1)
 end = datetime(2018, 12, 31)
 
-# Get daily data
-data = Daily('10637', start, end)
-
-# Group & aggregate weekly
-data = data.normalize().aggregate(freq='1W').fetch()
+# Get monthly data
+data = Monthly('10637', start, end)
+data = data.normalize().aggregate(freq='1Y').fetch()
 
 # Plot chart
 data.plot(y=['tavg', 'tmin', 'tmax'])
