@@ -73,6 +73,9 @@ class Hourly(Base):
         'coco'
     ]
 
+    # Index of first meteorological column
+    _first_met_col = 2
+
     # Processed data columns with types
     _types: dict = {
         'temp': 'float64',

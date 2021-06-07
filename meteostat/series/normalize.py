@@ -11,6 +11,7 @@ The code is licensed under the MIT license.
 from copy import copy
 from numpy import NaN
 import pandas as pd
+import pytz
 from meteostat.core.warn import warn
 
 
@@ -26,18 +27,31 @@ def normalize(self):
     temp = copy(self)
 
     # Create result DataFrame
-    result = pd.DataFrame(columns=temp._columns[1:])
+    result = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
+
+    # Handle tz-aware date ranges
+    if hasattr(temp, '_timezone') and temp._timezone is not None:
+        timezone = pytz.timezone(temp._timezone)
+        start = temp._start.astimezone(timezone)
+        end = temp._end.astimezone(timezone)
+    else:
+        start = temp._start
+        end = temp._end
 
     # Go through list of weather stations
     for station in temp._stations:
         # Create data frame
-        df = pd.DataFrame(columns=temp._columns[1:])
+        df = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
         # Add time series
-        df['time'] = pd.date_range(temp._start, temp._end, freq=self._freq)
+        df['time'] = pd.date_range(
+            start,
+            end,
+            freq=self._freq,
+            tz=temp._timezone if hasattr(temp, '_timezone') else None)
         # Add station ID
         df['station'] = station
         # Add columns
-        for column in temp._columns[1:]:
+        for column in temp._columns[temp._first_met_col:]:
             # Add column to DataFrame
             df[column] = NaN
 

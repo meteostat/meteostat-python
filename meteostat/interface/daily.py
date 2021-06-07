@@ -63,6 +63,9 @@ class Daily(Base):
         'tsun'
     ]
 
+    # Index of first meteorological column
+    _first_met_col = 1
+
     # Data tapes
     _types: dict = {
         'tavg': 'float64',

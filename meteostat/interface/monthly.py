@@ -1,5 +1,5 @@
 """
-Monthly Interface Class
+Monthly Class
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -63,6 +63,9 @@ class Monthly(Base):
         'pres',
         'tsun'
     ]
+
+    # Index of first meteorological column
+    _first_met_col = 2
 
     # Data tapes
     _types: dict = {
