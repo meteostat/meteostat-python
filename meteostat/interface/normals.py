@@ -83,6 +83,9 @@ class Normals(Base):
         # Rename time column
         self._data.index.rename(['station', 'month'], inplace=True)
 
+        # Round numeric data
+        self._data = self._data.round(1)
+
     def coverage(
         self,
         parameter: str = None
