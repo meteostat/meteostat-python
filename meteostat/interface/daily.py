@@ -192,7 +192,7 @@ class Daily(Base):
         if method == 'nearest':
 
             self._data = self._data.groupby(
-                pd.Grouper(level='time', freq='1D')).agg('first')
+                pd.Grouper(level='time', freq=self._freq)).agg('first')
 
         else:
 
@@ -212,11 +212,11 @@ class Daily(Base):
             # Exclude non-mean data & perform aggregation
             excluded = data['wdir']
             excluded = excluded.groupby(
-                pd.Grouper(level='time', freq='1D')).agg('first')
+                pd.Grouper(level='time', freq=self._freq)).agg('first')
 
             # Aggregate mean data
             data = data.groupby(
-                pd.Grouper(level='time', freq='1D')).apply(weighted_average)
+                pd.Grouper(level='time', freq=self._freq)).apply(weighted_average)
 
             # Drop RangeIndex
             data.index = data.index.droplevel(1)
