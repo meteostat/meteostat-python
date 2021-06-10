@@ -255,7 +255,7 @@ class Hourly(Base):
         Project weather station data onto a single point
         """
 
-        if self._stations.size == 0:
+        if self._stations.size == 0 or self._data.size == 0:
             return None
 
         if method == 'nearest':
