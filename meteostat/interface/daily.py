@@ -245,7 +245,7 @@ class Daily(Base):
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
         elif isinstance(loc, Point):
-            stations = loc.get_stations('hourly', start, end)
+            stations = loc.get_stations('daily', start, end)
             self._stations = stations.index
         else:
             if not isinstance(loc, list):

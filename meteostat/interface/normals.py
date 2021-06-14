@@ -122,7 +122,10 @@ class Normals(Base):
         else:
 
             # Append
-            self._data = self._data.append(df)
+            if self._data.index.size == 0:
+                self._data = df
+            else:
+                self._data = self._data.append(df)
 
     def _get_data(self) -> None:
         """
@@ -171,7 +174,6 @@ class Normals(Base):
 
         else:
 
-            # Join score and elevation of involved weather stations
             data = self._data.join(
                 stations[['score', 'elevation']], on='station')
 
