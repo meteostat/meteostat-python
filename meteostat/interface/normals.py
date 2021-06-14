@@ -8,13 +8,16 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from copy import copy
 from datetime import datetime
 from typing import Union
+import numpy as np
 import pandas as pd
-from meteostat.utilities.aggregations import degree_mean
+from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.loader import processing_handler, load_handler
+from meteostat.utilities.aggregations import weighted_average
 from meteostat.interface.base import Base
 from meteostat.interface.point import Point
-from meteostat.interface.monthly import Monthly
 
 
 class Normals(Base):
@@ -24,82 +27,241 @@ class Normals(Base):
     a single geographical point
     """
 
+    # The cache subdirectory
+    cache_subdir: str = 'normals'
+
     # The list of weather Stations
     _stations: pd.Index = None
+
+    # The period
+    _period: Union[int, str] = 'auto'
 
     # The data frame
     _data: pd.DataFrame = pd.DataFrame()
 
     # Columns
-    _columns = Monthly._columns
+    _columns: list = [
+        'start',
+        'end',
+        'month',
+        'tavg',
+        'tmin',
+        'tmax',
+        'prcp',
+        'wspd',
+        'pres',
+        'tsun'
+    ]
 
-    # Default aggregation functions
-    aggregations: dict = {
-        'tavg': 'mean',
-        'tmin': 'mean',
-        'tmax': 'mean',
-        'prcp': 'mean',
-        'snow': 'mean',
-        'wdir': degree_mean,
-        'wspd': 'mean',
-        'wpgt': 'mean',
-        'pres': 'mean',
-        'tsun': 'mean'
+    # Index of first meteorological column
+    _first_met_col = 3
+
+    # Data tapes
+    _types: dict = {
+        'tavg': 'float64',
+        'tmin': 'float64',
+        'tmax': 'float64',
+        'prcp': 'float64',
+        'wspd': 'float64',
+        'pres': 'float64',
+        'tsun': 'float64'
     }
 
-    # Coverage
-    _coverage: dict = {}
+    def _load(
+        self,
+        station: str
+    ) -> None:
+        """
+        Load file from Meteostat
+        """
+
+        # File name
+        file = f'normals/{station}.csv.gz'
+
+        # Get local file path
+        path = get_file_path(self.cache_dir, self.cache_subdir, file)
+
+        # Check if file in cache
+        if self.max_age > 0 and file_in_cache(path, self.max_age):
+
+            # Read cached data
+            df = pd.read_pickle(path)
+
+        else:
+
+            # Get data from Meteostat
+            df = load_handler(
+                self.endpoint,
+                file,
+                self._columns,
+                self._types,
+                None)
+
+            if df.index.size > 0:
+
+                # Add weather station ID
+                df['station'] = station
+
+                # Set index
+                df = df.set_index(['station', 'start', 'end', 'month'])
+
+            # Save as Pickle
+            if self.max_age > 0:
+                df.to_pickle(path)
+
+        # Filter time period and append to DataFrame
+        if df.index.size > 0 and self._period not in ['auto', 'all']:
+
+            # Get time index
+            end = df.index.get_level_values('end')
+
+            # Filter & append
+            self._data = self._data.append(
+                df.loc[end == self._period])
+
+        else:
+
+            # Append
+            self._data = self._data.append(df)
+
+    def _get_data(self) -> None:
+        """
+        Get all required data
+        """
+
+        if len(self._stations) > 0:
+
+            # List of datasets
+            datasets = []
+
+            for station in self._stations:
+                datasets.append((
+                    str(station),
+                ))
+
+            # Data Processing
+            processing_handler(datasets, self._load, self.max_threads)
+
+        else:
+
+            # Empty DataFrame
+            self._data = pd.DataFrame(columns=[*self._types])
+
+    def _resolve_point(
+        self,
+        method: str,
+        stations: pd.DataFrame,
+        alt: int,
+        adapt_temp: bool
+    ) -> None:
+        """
+        Project weather station data onto a single point
+        """
+
+        if self._stations.size == 0 or self._data.size == 0:
+            return None
+
+        if method == 'nearest':
+
+            self._data = self._data.groupby(level=[
+                'start',
+                'end',
+                'month'
+            ]).agg('first')
+
+        else:
+
+            # Join score and elevation of involved weather stations
+            data = self._data.join(
+                stations[['score', 'elevation']], on='station')
+
+            # Adapt temperature-like data based on altitude
+            if adapt_temp:
+                data.loc[data['tavg'] != np.NaN, 'tavg'] = data['tavg'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+                data.loc[data['tmin'] != np.NaN, 'tmin'] = data['tmin'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+                data.loc[data['tmax'] != np.NaN, 'tmax'] = data['tmax'] + \
+                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+
+            # Aggregate mean data
+            data = data.groupby(level=[
+                'start',
+                'end',
+                'month'
+            ]).apply(weighted_average)
+
+            # Remove obsolete index column
+            try:
+                data = data.reset_index(level=3, drop=True)
+            except IndexError:
+                pass
+
+            # Drop score and elevation
+            self._data = data.drop(['score', 'elevation'], axis=1).round(1)
+
+        # Set placeholder station ID
+        self._data['station'] = 'XXXXX'
+        self._data = self._data.set_index('station', append=True)
+        self._stations = pd.Index(['XXXXX'])
 
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],
-        start: int = 1981,
-        end: int = 2020,
-        model: bool = True
+        period: Union[int, str] = 'auto'
     ) -> None:
 
-        # Convert start & end to datetime
-        start = datetime(start, 1, 1)
-        end = datetime(end, 12, 31)
+        # Set list of weather stations
+        if isinstance(loc, pd.DataFrame):
+            self._stations = loc.index
+        elif isinstance(loc, Point):
+            stations = loc.get_stations()
+            self._stations = stations.index
+        else:
+            if not isinstance(loc, list):
+                loc = [loc]
 
-        # Get monthly data
-        raw = Monthly(loc, start, end, model)
+            self._stations = pd.Index(loc)
 
-        # Get list of weather stations
-        self._stations = raw.stations
+        # The reference period
+        self._period = period
 
-        # Get DataFrame
-        self._data = raw._data
+        # Get data for all weather stations
+        self._get_data()
 
-        # Get coverage
-        self._coverage['global'] = raw.coverage()
-        for parameter in self._columns[2:]:
-            self._coverage[parameter] = raw.coverage(parameter)
+        # Interpolate data
+        if isinstance(loc, Point):
+            self._resolve_point(loc.method, stations, loc.alt, loc.adapt_temp)
 
-        # Aggregate
-        self._data = self._data.groupby(['station', self._data.index.get_level_values(
-            'time').month]).agg(self.aggregations)
+        # Aggregate if period is auto
+        if self._period == 'auto':
+            self._data = self._data.groupby(level='month').agg('last')
 
-        # Rename time column
-        self._data.index.rename(['station', 'month'], inplace=True)
+        # Clear cache
+        if self.max_age > 0:
+            self.clear_cache()
 
-        # Round numeric data
-        self._data = self._data.round(1)
-
-    def coverage(
-        self,
-        parameter: str = None
-    ) -> float:
+    def fetch(self) -> pd.DataFrame:
         """
-        Return data coverage (overall or by parameter)
+        Fetch DataFrame
         """
 
-        if parameter is None:
-            return self._coverage['global']
+        # Copy DataFrame
+        temp = copy(self._data)
 
-        return self._coverage[parameter]
+        # Remove station index if it's a single station
+        if len(self._stations) == 1 and 'station' in temp.index.names:
+            temp = temp.reset_index(level='station', drop=True)
+
+        # Remove start & end year if period is set
+        if isinstance(self._period, int):
+            temp = temp.reset_index(level='start', drop=True)
+            temp = temp.reset_index(level='end', drop=True)
+
+        # Return data frame
+        return temp
 
     # Import methods
     from meteostat.series.convert import convert
     from meteostat.series.count import count
-    from meteostat.series.fetch import fetch
+    from meteostat.core.cache import clear_cache

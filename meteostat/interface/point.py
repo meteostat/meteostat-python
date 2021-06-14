@@ -63,8 +63,8 @@ class Point:
         if alt is None:
             self.adapt_temp = False
 
-    def get_stations(self, freq: str, start: datetime,
-                     end: datetime) -> pd.DataFrame:
+    def get_stations(self, freq: str = None, start: datetime = None,
+                     end: datetime = None) -> pd.DataFrame:
         """
         Get list of nearby weather stations
         """
@@ -84,7 +84,8 @@ class Point:
                                     unfiltered['elevation']) <= self.alt_range]
 
         # Apply inventory filter
-        stations = stations.inventory(freq, (start, end))
+        if freq and start and end:
+            stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
         stations = stations.fetch()
