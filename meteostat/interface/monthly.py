@@ -255,7 +255,8 @@ class Monthly(Base):
             self._stations = pd.Index(loc)
 
         # Set start date
-        self._start = start.replace(day=1)
+        if start is not None:
+            self._start = start.replace(day=1)
 
         # Set end date
         self._end = end
