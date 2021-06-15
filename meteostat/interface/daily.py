@@ -66,7 +66,7 @@ class Daily(Base):
     # Index of first meteorological column
     _first_met_col = 1
 
-    # Data tapes
+    # Data types
     _types: dict = {
         'tavg': 'float64',
         'tmin': 'float64',

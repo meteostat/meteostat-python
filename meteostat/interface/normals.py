@@ -44,7 +44,6 @@ class Normals(Base):
         'start',
         'end',
         'month',
-        'tavg',
         'tmin',
         'tmax',
         'prcp',
@@ -56,9 +55,8 @@ class Normals(Base):
     # Index of first meteorological column
     _first_met_col = 3
 
-    # Data tapes
+    # Data types
     _types: dict = {
-        'tavg': 'float64',
         'tmin': 'float64',
         'tmax': 'float64',
         'prcp': 'float64',
@@ -101,6 +99,10 @@ class Normals(Base):
 
                 # Add weather station ID
                 df['station'] = station
+
+                # Add avg. temperature column
+                df.insert(0, 'tavg', df[['tmin', 'tmax']].mean(
+                    axis=1).round(1))
 
                 # Set index
                 df = df.set_index(['station', 'start', 'end', 'month'])
@@ -210,7 +212,7 @@ class Normals(Base):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],
-        period: Union[int, str] = 'auto'
+        period: Union[tuple, str] = 'auto'
     ) -> None:
 
         # Set list of weather stations
@@ -226,7 +228,7 @@ class Normals(Base):
             self._stations = pd.Index(loc)
 
         # The reference period
-        self._period = period
+        self._period = period[1] if isinstance(period, tuple) else period
 
         # Get data for all weather stations
         self._get_data()
@@ -256,7 +258,7 @@ class Normals(Base):
             temp = temp.reset_index(level='station', drop=True)
 
         # Remove start & end year if period is set
-        if isinstance(self._period, int):
+        if isinstance(self._period, int) and 'start' in temp.index.names:
             temp = temp.reset_index(level='start', drop=True)
             temp = temp.reset_index(level='end', drop=True)
 
