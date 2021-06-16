@@ -65,7 +65,7 @@ class Stations(Base):
     }
 
     # Columns for date parsing
-    _parse_dates: list = [10, 11, 12, 13]
+    _parse_dates: list = [10, 11, 12, 13, 14, 15]
 
     def _load(self) -> None:
         """
