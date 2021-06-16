@@ -10,6 +10,7 @@ The code is licensed under the MIT license.
 
 from copy import copy
 from typing import Union
+from datetime import datetime
 import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
@@ -99,10 +100,6 @@ class Normals(Base):
                 # Add weather station ID
                 df['station'] = station
 
-                # Add avg. temperature column
-                df.insert(0, 'tavg', df[['tmin', 'tmax']].mean(
-                    axis=1).round(1))
-
                 # Set index
                 df = df.set_index(['station', 'start', 'end', 'month'])
 
@@ -180,8 +177,6 @@ class Normals(Base):
 
             # Adapt temperature-like data based on altitude
             if adapt_temp:
-                data.loc[data['tavg'] != np.NaN, 'tavg'] = data['tavg'] + \
-                    ((2 / 3) * ((data['elevation'] - alt) / 100))
                 data.loc[data['tmin'] != np.NaN, 'tmin'] = data['tmin'] + \
                     ((2 / 3) * ((data['elevation'] - alt) / 100))
                 data.loc[data['tmax'] != np.NaN, 'tmax'] = data['tmax'] + \
@@ -217,9 +212,17 @@ class Normals(Base):
         # Set list of weather stations
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
+
         elif isinstance(loc, Point):
-            stations = loc.get_stations()
+            if isinstance(period, tuple):
+                start = datetime(period[0], 1, 1)
+                end = datetime(period[1], 12, 31)
+                stations = loc.get_stations('monthly', start, end)
+            else:
+                stations = loc.get_stations()
+
             self._stations = stations.index
+
         else:
             if not isinstance(loc, list):
                 loc = [loc]
@@ -238,7 +241,8 @@ class Normals(Base):
 
         # Aggregate if period is auto
         if self._period == 'auto':
-            self._data = self._data.groupby(level='month').agg('last')
+            self._data = self._data.groupby(
+                level=['station', 'month']).agg('last')
 
         # Clear cache
         if self.max_age > 0:
@@ -251,6 +255,10 @@ class Normals(Base):
 
         # Copy DataFrame
         temp = copy(self._data)
+
+        # Add avg. temperature column
+        temp.insert(0, 'tavg', temp[['tmin', 'tmax']].mean(
+            axis=1).round(1))
 
         # Remove station index if it's a single station
         if len(self._stations) == 1 and 'station' in temp.index.names:

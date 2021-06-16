@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from meteostat import Normals
 
 # Get normals
-data = Normals('KHWO0', (1961, 1990))
+data = Normals('10637')
 data = data.fetch()
 
 # Plot chart
