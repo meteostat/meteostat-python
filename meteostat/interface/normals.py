@@ -240,7 +240,7 @@ class Normals(Base):
             self._resolve_point(loc.method, stations, loc.alt, loc.adapt_temp)
 
         # Aggregate if period is auto
-        if self._period == 'auto':
+        if self._period == 'auto' and self._data.index.size > 0:
             self._data = self._data.groupby(
                 level=['station', 'month']).agg('last')
 

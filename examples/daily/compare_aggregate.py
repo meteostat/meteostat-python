@@ -14,8 +14,8 @@ from meteostat import Stations, Daily
 
 # Get weather stations by Meteostat ID
 stations = Stations()
-stations = stations.id('meteostat', ('D1424', '10729', '10803', '10513'))
 stations = stations.fetch()
+stations = stations[stations.index.isin(('D1424', '10729', '10803', '10513'))]
 
 # Get names of weather stations
 names = stations['name'].to_list()

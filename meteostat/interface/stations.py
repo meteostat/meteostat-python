@@ -114,30 +114,6 @@ class Stations(Base):
         if self.max_age > 0:
             self.clear_cache()
 
-    def id(
-        self,
-        organization: str,
-        code: str
-    ) -> 'Stations':
-        """
-        Get weather station by identifier
-        """
-
-        # Create temporal instance
-        temp = copy(self)
-
-        if isinstance(code, str):
-            code = [code]
-
-        if organization == 'meteostat':
-            temp._data = temp._data[temp._data.index.isin(code)]
-        else:
-            temp._data = temp._data[temp._data[organization].isin(
-                code)]
-
-        # Return self
-        return temp
-
     def nearby(
         self,
         lat: float,
@@ -225,7 +201,7 @@ class Stations(Base):
     def inventory(
         self,
         freq: str,
-        required: Union[bool, datetime, tuple] = True
+        required: Union[datetime, tuple, bool] = True
     ) -> 'Stations':
         """
         Filter weather stations by inventory data
@@ -239,6 +215,7 @@ class Stations(Base):
             temp._data = temp._data[
                 (pd.isna(temp._data[freq + '_start']) == False)
             ]
+
         elif isinstance(required, tuple):
             # Make sure data exists across period
             temp._data = temp._data[
@@ -250,6 +227,7 @@ class Stations(Base):
                     >= required[1]
                 )
             ]
+
         else:
             # Make sure data exists on a certain day
             temp._data = temp._data[
