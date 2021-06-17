@@ -67,7 +67,13 @@ Take a look at the expected output:
 
 Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://dev.meteostat.net/python/contributing.html). More information about the Meteostat bulk data interface is available [here](https://dev.meteostat.net/bulk/).
 
-If you want to support the project financially, you can make a donation via [PayPal](https://paypal.me/meteostat).
+## Donating
+
+If you want to support the project financially, you can make a donation using one of the following services:
+
+* [GitHub](https://github.com/sponsors/clampr)
+* [Patreon](https://www.patreon.com/meteostat)
+* [PayPal](https://www.paypal.com/donate?hosted_button_id=MQ67WRDC8EW38)
 
 ## Data License
 
