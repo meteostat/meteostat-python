@@ -30,20 +30,6 @@ class TestStations(unittest.TestCase):
             f'Closest weather stations returns country code {station["country"]}, should be DE'
         )
 
-    def test_id(self):
-        """
-        Test: Stations by identifier
-        """
-
-        # Select weather station 'Toronto Pearson Airport'
-        station = Stations().id('wmo', '71624').fetch(1).to_dict('records')[0]
-
-        # Check if ICAO ID matches CYYZ
-        self.assertEqual(
-            station['icao'],
-            'CYYZ',
-            f'Weather station returns ICAO ID {station["icao"]}, should be CYYZ')
-
     def test_region(self):
         """
         Test: Stations by country/region code

@@ -13,7 +13,7 @@ from meteostat import Stations
 # Get weather station
 stations = Stations()
 stations = stations.nearby(50, 8)
-stations = stations.inventory('hourly', True)
+stations = stations.inventory('hourly')
 station = stations.fetch(1).to_dict('records')[0]
 
 # Print name
