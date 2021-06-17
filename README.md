@@ -18,13 +18,20 @@ Meteostat **requires Python 3.5** or higher. If you want to visualize data, plea
 
 The Meteostat Python library is divided into multiple classes which provide access to the actual data. The [documentation](https://dev.meteostat.net/python/) covers all aspects of the library:
 
-* [Geographical Point](https://dev.meteostat.net/python/point.html)
-* [Weather Stations](https://dev.meteostat.net/python/stations.html)
-* [Hourly Data](https://dev.meteostat.net/python/hourly.html)
-* [Daily Data](https://dev.meteostat.net/python/daily.html)
-* [Monthly Data](https://dev.meteostat.net/python/monthly.html)
-* [Climate Normals](https://dev.meteostat.net/python/normals.html)
-* [Contributing](https://dev.meteostat.net/python/contributing.html)
+* **Selecting Locations**
+  * [Geographical Point](https://dev.meteostat.net/python/point.html)
+  * [Weather Stations](https://dev.meteostat.net/python/stations.html)
+* **Time Series**
+  * [Hourly Data](https://dev.meteostat.net/python/hourly.html)
+  * [Daily Data](https://dev.meteostat.net/python/daily.html)
+  * [Monthly Data](https://dev.meteostat.net/python/monthly.html)
+* **Miscellaneous Data**
+  * [Climate Normals](https://dev.meteostat.net/python/normals.html)
+* **Library**
+  * [Contributing](https://dev.meteostat.net/python/contributing.html)
+  * [Formats & Units](https://dev.meteostat.net/formats.html)
+  * [Data Sources](https://dev.meteostat.net/sources.html)
+  * [Terms & License](https://dev.meteostat.net/terms.html)
 
 ## Example
 
