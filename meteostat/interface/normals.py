@@ -33,8 +33,11 @@ class Normals(Base):
     # The list of weather Stations
     _stations: pd.Index = None
 
-    # The period
-    _period: Union[int, str] = 'auto'
+    # The first year of the period
+    _start: int = None
+
+    # The last year of the period
+    _end: int = None
 
     # The data frame
     _data: pd.DataFrame = pd.DataFrame()
@@ -108,14 +111,14 @@ class Normals(Base):
                 df.to_pickle(path)
 
         # Filter time period and append to DataFrame
-        if df.index.size > 0 and self._period not in ['auto', 'all']:
+        if df.index.size > 0 and self._end:
 
             # Get time index
             end = df.index.get_level_values('end')
 
             # Filter & append
             self._data = self._data.append(
-                df.loc[end == self._period])
+                df.loc[end == self._end])
 
         else:
 
@@ -206,7 +209,8 @@ class Normals(Base):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],
-        period: Union[tuple, str] = 'auto'
+        start: int = None,
+        end: int = None
     ) -> None:
 
         # Set list of weather stations
@@ -214,10 +218,11 @@ class Normals(Base):
             self._stations = loc.index
 
         elif isinstance(loc, Point):
-            if isinstance(period, tuple):
-                start = datetime(period[0], 1, 1)
-                end = datetime(period[1], 12, 31)
-                stations = loc.get_stations('monthly', start, end)
+            if start and end:
+                stations = loc.get_stations(
+                    'monthly', datetime(
+                        start, 1, 1), datetime(
+                        end, 12, 31))
             else:
                 stations = loc.get_stations()
 
@@ -229,8 +234,9 @@ class Normals(Base):
 
             self._stations = pd.Index(loc)
 
-        # The reference period
-        self._period = period[1] if isinstance(period, tuple) else period
+        # Set period
+        self._start = start
+        self._end = end
 
         # Get data for all weather stations
         self._get_data()
@@ -238,11 +244,6 @@ class Normals(Base):
         # Interpolate data
         if isinstance(loc, Point):
             self._resolve_point(loc.method, stations, loc.alt, loc.adapt_temp)
-
-        # Aggregate if period is auto
-        if self._period == 'auto' and self._data.index.size > 0:
-            self._data = self._data.groupby(
-                level=['station', 'month']).agg('last')
 
         # Clear cache
         if self.max_age > 0:
@@ -265,7 +266,7 @@ class Normals(Base):
             temp = temp.reset_index(level='station', drop=True)
 
         # Remove start & end year if period is set
-        if isinstance(self._period, int) and 'start' in temp.index.names:
+        if self._start and self._end:
             temp = temp.reset_index(level='start', drop=True)
             temp = temp.reset_index(level='end', drop=True)
 
