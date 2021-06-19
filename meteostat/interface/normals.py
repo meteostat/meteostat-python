@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.core.warn import warn
 from meteostat.utilities.aggregations import weighted_average
 from meteostat.interface.base import Base
 from meteostat.interface.point import Point
@@ -248,6 +249,43 @@ class Normals(Base):
         # Clear cache
         if self.max_age > 0:
             self.clear_cache()
+
+    def normalize(self):
+        """
+        Normalize the DataFrame
+        """
+
+        # Create temporal instance
+        temp = copy(self)
+
+        if self.count() == 0:
+            warn('Pointless normalization of empty DataFrame')
+
+        else:
+            # Go through list of weather stations
+            for station in temp._stations:
+                # Get periods
+                periods = temp._data[temp._data.index.get_level_values(
+                    'station') == station].index.unique('end')
+                # Go through all periods
+                for period in periods:
+                    # Create DataFrame
+                    df = pd.DataFrame(
+                        columns=temp._columns[temp._first_met_col:])
+                    # Populate index columns
+                    df['month'] = range(1, 13)
+                    df['station'] = station
+                    df['start'] = period - 29
+                    df['end'] = period
+                    # Set index
+                    df.set_index(
+                        ['station', 'start', 'end', 'month'], inplace=True)
+                    # Merge data
+                    temp._data = pd.concat([temp._data, df], axis=0).groupby(
+                        ['station', 'start', 'end', 'month'], as_index=True).first()
+
+        # Return class instance
+        return temp
 
     def fetch(self) -> pd.DataFrame:
         """

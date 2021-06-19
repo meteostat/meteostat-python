@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from meteostat import Normals
 
 # Get normals
-data = Normals('10637')
-data = data.fetch()
+data = Normals('72407')
+data = data.normalize().fetch()
 
 # Plot chart
 data.plot(y=['tavg', 'tmin', 'tmax'])
