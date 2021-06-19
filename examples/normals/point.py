@@ -16,7 +16,7 @@ vancouver = Point(49.2497, -123.1193, 70)
 
 # Get normals
 data = Normals(vancouver, 1961, 1990)
-data = data.fetch()
+data = data.normalize().fetch()
 
 # Plot chart
 data.plot(y=['tavg', 'tmin', 'tmax'])

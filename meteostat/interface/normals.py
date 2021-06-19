@@ -205,6 +205,8 @@ class Normals(Base):
         # Set placeholder station ID
         self._data['station'] = 'XXXXX'
         self._data = self._data.set_index('station', append=True)
+        self._data = self._data.reorder_levels(
+            ['station', 'start', 'end', 'month'])
         self._stations = pd.Index(['XXXXX'])
 
     def __init__(
