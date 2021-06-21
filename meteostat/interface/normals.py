@@ -237,6 +237,11 @@ class Normals(Base):
 
             self._stations = pd.Index(loc)
 
+        # Check period
+        if (start and end) and (end - start != 29 or end %
+                                10 != 0 or end >= datetime.now().year):
+            raise ValueError('Invalid reference period')
+
         # Set period
         self._start = start
         self._end = end
@@ -263,28 +268,35 @@ class Normals(Base):
         if self.count() == 0:
             warn('Pointless normalization of empty DataFrame')
 
-        else:
-            # Go through list of weather stations
-            for station in temp._stations:
-                # Get periods
+        # Go through list of weather stations
+        for station in temp._stations:
+            # The list of periods
+            periods: pd.Index = pd.Index([])
+            # Get periods
+            if self.count() > 0:
                 periods = temp._data[temp._data.index.get_level_values(
                     'station') == station].index.unique('end')
-                # Go through all periods
-                for period in periods:
-                    # Create DataFrame
-                    df = pd.DataFrame(
-                        columns=temp._columns[temp._first_met_col:])
-                    # Populate index columns
-                    df['month'] = range(1, 13)
-                    df['station'] = station
-                    df['start'] = period - 29
-                    df['end'] = period
-                    # Set index
-                    df.set_index(
-                        ['station', 'start', 'end', 'month'], inplace=True)
-                    # Merge data
-                    temp._data = pd.concat([temp._data, df], axis=0).groupby(
-                        ['station', 'start', 'end', 'month'], as_index=True).first()
+            elif periods.size == 0 and self._end:
+                periods = pd.Index([self._end])
+            # Go through all periods
+            for period in periods:
+                # Create DataFrame
+                df = pd.DataFrame(
+                    columns=temp._columns[temp._first_met_col:])
+                # Populate index columns
+                df['month'] = range(1, 13)
+                df['station'] = station
+                df['start'] = period - 29
+                df['end'] = period
+                # Set index
+                df.set_index(
+                    ['station', 'start', 'end', 'month'], inplace=True)
+                # Merge data
+                temp._data = pd.concat([temp._data, df], axis=0).groupby(
+                    ['station', 'start', 'end', 'month'], as_index=True).first()
+
+        # None -> NaN
+        temp._data = temp._data.fillna(np.NaN)
 
         # Return class instance
         return temp
@@ -306,7 +318,7 @@ class Normals(Base):
             temp = temp.reset_index(level='station', drop=True)
 
         # Remove start & end year if period is set
-        if self._start and self._end:
+        if self._start and self._end and self.count() > 0:
             temp = temp.reset_index(level='start', drop=True)
             temp = temp.reset_index(level='end', drop=True)
 
