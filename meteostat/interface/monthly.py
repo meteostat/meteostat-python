@@ -89,10 +89,10 @@ class Monthly(Base):
     # Default aggregation functions
     aggregations: dict = {
         'tavg': 'mean',
-        'tmin': 'min',
-        'tmax': 'max',
+        'tmin': 'mean',
+        'tmax': 'mean',
         'prcp': 'sum',
-        'snow': 'mean',
+        'snow': 'max',
         'wdir': degree_mean,
         'wspd': 'mean',
         'wpgt': 'max',

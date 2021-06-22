@@ -91,7 +91,7 @@ class Daily(Base):
         'tmin': 'min',
         'tmax': 'max',
         'prcp': 'sum',
-        'snow': 'mean',
+        'snow': 'max',
         'wdir': degree_mean,
         'wspd': 'mean',
         'wpgt': 'max',

@@ -102,7 +102,7 @@ class Hourly(Base):
         'dwpt': 'mean',
         'rhum': 'mean',
         'prcp': 'sum',
-        'snow': 'mean',
+        'snow': 'max',
         'wdir': degree_mean,
         'wspd': 'mean',
         'wpgt': 'max',
