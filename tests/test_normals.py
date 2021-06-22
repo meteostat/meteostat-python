@@ -25,13 +25,13 @@ class TestNormals(unittest.TestCase):
         # Count rows
         count = data.count()
 
-        # Check if count matches 12
+        # Check if count matches 48
         self.assertEqual(
             count,
-            12,
+            48,
             'Normals returns count of ' +
             str(count) +
-            ', should be 12')
+            ', should be 48')
 
 
 if __name__ == '__main__':
