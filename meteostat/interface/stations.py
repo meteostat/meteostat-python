@@ -8,7 +8,6 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from math import cos, sqrt, radians
 from copy import copy
 from datetime import datetime, timedelta
 from typing import Union
@@ -131,7 +130,7 @@ class Stations(Base):
         # Calculate distance between weather station and geo point
         def distance(lat1, lon1, lat2, lon2):
             # Earth radius in meters
-            RADIUS = 6371000
+            radius = 6371000
 
             # Degress to radian
             lat1, lon1, lat2, lon2 = map(np.deg2rad, [lat1, lon1, lat2, lon2])
@@ -141,11 +140,11 @@ class Stations(Base):
             dlon = lon2 - lon1
 
             # Calculate distance
-            a = np.sin(dlat / 2)**2 + np.cos(lat1) * \
+            arch = np.sin(dlat / 2)**2 + np.cos(lat1) * \
                 np.cos(lat2) * np.sin(dlon / 2)**2
-            c = 2 * np.arcsin(np.sqrt(a))
+            arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
-            return RADIUS * c
+            return radius * arch_sin
 
         # Get distance for each station
         temp._data['distance'] = distance(

@@ -153,10 +153,8 @@ class Daily(Timeseries):
             return processing_handler(
                 datasets, self._load, self.cores, self.threads)
 
-        else:
-
-            # Empty DataFrame
-            return pd.DataFrame(columns=[*self._types])
+        # Empty DataFrame
+        return pd.DataFrame(columns=[*self._types])
 
     def _resolve_point(
         self,

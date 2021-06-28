@@ -33,33 +33,27 @@ def processing_handler(
     if cores > 1 and len(datasets) > 1:
 
         # Create process pool
-        pool = Pool(cores)
+        with Pool(cores) as pool:
 
-        # Process datasets in pool
-        output = pool.starmap(load, datasets)
+            # Process datasets in pool
+            output = pool.starmap(load, datasets)
 
-        # Wait for Pool to finish
-        pool.close()
-        pool.join()
-
-        # Get result
-        output = output
+            # Wait for Pool to finish
+            pool.close()
+            pool.join()
 
     # Multi-thread processing
     elif threads > 1 and len(datasets) > 1:
 
         # Create process pool
-        pool = ThreadPool(cores)
+        with ThreadPool(cores) as pool:
 
-        # Process datasets in pool
-        output = pool.starmap(load, datasets)
+            # Process datasets in pool
+            output = pool.starmap(load, datasets)
 
-        # Wait for Pool to finish
-        pool.close()
-        pool.join()
-
-        # Get result
-        output = output
+            # Wait for Pool to finish
+            pool.close()
+            pool.join()
 
     # Single-thread processing
     else:
