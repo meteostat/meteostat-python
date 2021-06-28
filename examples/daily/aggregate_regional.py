@@ -8,32 +8,34 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
-import matplotlib.pyplot as plt
-from meteostat import Stations, Daily
+if __name__ == '__main__':
 
-# Configuration
-Daily.max_threads = 5
+    from datetime import datetime
+    import matplotlib.pyplot as plt
+    from meteostat import Stations, Daily
 
-# Time period
-start = datetime(1980, 1, 1)
-end = datetime(2019, 12, 31)
+    # Configuration
+    Daily.cores = 12
 
-# Get random weather stations in the US
-stations = Stations()
-stations = stations.region('US')
-stations = stations.inventory('daily', (start, end))
-stations = stations.fetch(limit=20, sample=True)
+    # Time period
+    start = datetime(1980, 1, 1)
+    end = datetime(2019, 12, 31)
 
-# Get daily data
-data = Daily(stations, start, end)
+    # Get random weather stations in the US
+    stations = Stations()
+    stations = stations.region('US')
+    stations = stations.inventory('daily', (start, end))
+    stations = stations.fetch(limit=50, sample=True)
 
-# Normalize & aggregate
-data = data.normalize().aggregate('1Y', spatial=True).fetch()
+    # Get daily data
+    data = Daily(stations, start, end)
 
-# Chart title
-TITLE = 'Average US Annual Temperature from 1980 to 2019'
+    # Normalize & aggregate
+    data = data.normalize().aggregate('1Y', spatial=True).fetch()
 
-# Plot chart
-data.plot(y=['tavg'], title=TITLE)
-plt.show()
+    # Chart title
+    TITLE = 'Average US Annual Temperature from 1980 to 2019'
+
+    # Plot chart
+    data.plot(y=['tavg'], title=TITLE)
+    plt.show()

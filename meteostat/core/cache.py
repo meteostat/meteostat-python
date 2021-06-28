@@ -42,7 +42,10 @@ def file_in_cache(
 
     # Make sure the cache directory exists
     if not os.path.exists(directory):
-        os.makedirs(directory)
+        try:
+            os.makedirs(directory)
+        except FileExistsError:
+            pass
 
     # Return the file path if it exists
     if os.path.isfile(path) and time.time() - \

@@ -18,11 +18,11 @@ from meteostat.core.cache import get_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import degree_mean, weighted_average
-from meteostat.interface.base import Base
+from meteostat.interface.timeseries import Timeseries
 from meteostat.interface.point import Point
 
 
-class Hourly(Base):
+class Hourly(Timeseries):
 
     """
     Retrieve hourly weather observations for one or multiple weather stations or
@@ -35,23 +35,8 @@ class Hourly(Base):
     # Specify if the library should use chunks or full dumps
     chunked: bool = True
 
-    # The list of weather Stations
-    _stations: pd.Index = None
-
-    # The start date
-    _start: datetime = None
-
-    # The end date
-    _end: datetime = None
-
     # The time zone
     _timezone: str = None
-
-    # Include model data?
-    _model: bool = True
-
-    # The data frame
-    _data: pd.DataFrame = pd.DataFrame()
 
     # Default frequency
     _freq: str = '1H'
@@ -200,14 +185,11 @@ class Hourly(Base):
             # Get time index
             time = df.index.get_level_values('time')
 
-            # Filter & append
-            self._data = self._data.append(
-                df.loc[(time >= self._start) & (time <= self._end)])
+            # Filter & return
+            return df.loc[(time >= self._start) & (time <= self._end)]
 
-        else:
-
-            # Append
-            self._data = self._data.append(df)
+        # Return
+        return df
 
     def _get_data(self) -> None:
         """
@@ -237,12 +219,10 @@ class Hourly(Base):
                     ))
 
             # Data Processing
-            processing_handler(datasets, self._load, self.max_threads)
+            return processing_handler(
+                datasets, self._load, self.cores, self.threads)
 
-        else:
-
-            # Empty DataFrame
-            self._data = pd.DataFrame(columns=[*self._types])
+        return pd.DataFrame(columns=[*self._types])
 
     def _resolve_point(
         self,
@@ -260,8 +240,8 @@ class Hourly(Base):
 
         if method == 'nearest':
 
-            self._data = self._data.groupby(
-                pd.Grouper(level='time', freq=self._freq)).agg('first')
+            self._data = self._data.groupby(pd.Grouper(
+                level='time', freq=self._freq)).agg('first')
 
         else:
 
@@ -328,7 +308,7 @@ class Hourly(Base):
         self._model = model
 
         # Get data for all weather stations
-        self._get_data()
+        self._data = self._get_data()
 
         # Interpolate data
         if isinstance(loc, Point):
@@ -344,14 +324,3 @@ class Hourly(Base):
         """
 
         return floor((self._end - self._start).total_seconds() / 3600) + 1
-
-    # Import methods
-    from meteostat.series.normalize import normalize
-    from meteostat.series.interpolate import interpolate
-    from meteostat.series.aggregate import aggregate
-    from meteostat.series.convert import convert
-    from meteostat.series.coverage import coverage
-    from meteostat.series.count import count
-    from meteostat.series.fetch import fetch
-    from meteostat.series.stations import stations
-    from meteostat.core.cache import clear_cache

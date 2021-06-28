@@ -26,46 +26,48 @@ def normalize(self):
     # Create temporal instance
     temp = copy(self)
 
-    # Create result DataFrame
-    result = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
+    if temp._start and temp._end and temp.coverage() < 1:
 
-    # Handle tz-aware date ranges
-    if hasattr(temp, '_timezone') and temp._timezone is not None:
-        timezone = pytz.timezone(temp._timezone)
-        start = temp._start.astimezone(timezone)
-        end = temp._end.astimezone(timezone)
-    else:
-        start = temp._start
-        end = temp._end
+        # Create result DataFrame
+        result = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
 
-    # Go through list of weather stations
-    for station in temp._stations:
-        # Create data frame
-        df = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
-        # Add time series
-        df['time'] = pd.date_range(
-            start,
-            end,
-            freq=self._freq,
-            tz=temp._timezone if hasattr(temp, '_timezone') else None)
-        # Add station ID
-        df['station'] = station
-        # Add columns
-        for column in temp._columns[temp._first_met_col:]:
-            # Add column to DataFrame
-            df[column] = NaN
+        # Handle tz-aware date ranges
+        if hasattr(temp, '_timezone') and temp._timezone is not None:
+            timezone = pytz.timezone(temp._timezone)
+            start = temp._start.astimezone(timezone)
+            end = temp._end.astimezone(timezone)
+        else:
+            start = temp._start
+            end = temp._end
 
-        result = pd.concat([result, df], axis=0)
+        # Go through list of weather stations
+        for station in temp._stations:
+            # Create data frame
+            df = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
+            # Add time series
+            df['time'] = pd.date_range(
+                start,
+                end,
+                freq=self._freq,
+                tz=temp._timezone if hasattr(temp, '_timezone') else None)
+            # Add station ID
+            df['station'] = station
+            # Add columns
+            for column in temp._columns[temp._first_met_col:]:
+                # Add column to DataFrame
+                df[column] = NaN
 
-    # Set index
-    result = result.set_index(['station', 'time'])
+            result = pd.concat([result, df], axis=0)
 
-    # Merge data
-    temp._data = pd.concat([temp._data, result], axis=0).groupby(
-        ['station', 'time'], as_index=True).first()
+        # Set index
+        result = result.set_index(['station', 'time'])
 
-    # None -> NaN
-    temp._data = temp._data.fillna(NaN)
+        # Merge data
+        temp._data = pd.concat([temp._data, result], axis=0).groupby(
+            ['station', 'time'], as_index=True).first()
+
+        # None -> NaN
+        temp._data = temp._data.fillna(NaN)
 
     # Return class instance
     return temp

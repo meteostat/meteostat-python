@@ -117,17 +117,10 @@ class Normals(Base):
             # Get time index
             end = df.index.get_level_values('end')
 
-            # Filter & append
-            self._data = self._data.append(
-                df.loc[end == self._end])
+            # Filter & return
+            return df.loc[end == self._end]
 
-        else:
-
-            # Append
-            if self._data.index.size == 0:
-                self._data = df
-            else:
-                self._data = self._data.append(df)
+        return df
 
     def _get_data(self) -> None:
         """
@@ -145,12 +138,11 @@ class Normals(Base):
                 ))
 
             # Data Processing
-            processing_handler(datasets, self._load, self.max_threads)
+            return processing_handler(
+                datasets, self._load, self.cores, self.threads)
 
-        else:
-
-            # Empty DataFrame
-            self._data = pd.DataFrame(columns=[*self._types])
+        # Empty DataFrame
+        return pd.DataFrame(columns=[*self._types])
 
     def _resolve_point(
         self,
@@ -247,7 +239,7 @@ class Normals(Base):
         self._end = end
 
         # Get data for all weather stations
-        self._get_data()
+        self._data = self._get_data()
 
         # Interpolate data
         if isinstance(loc, Point):
