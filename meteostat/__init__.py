@@ -12,8 +12,10 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = 'meteostat'
-__version__ = '1.4.6'
+__version__ = '1.5.0'
 
+from .interface.base import Base
+from .interface.timeseries import Timeseries
 from .interface.stations import Stations
 from .interface.point import Point
 from .interface.hourly import Hourly

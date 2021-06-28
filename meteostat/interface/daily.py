@@ -16,11 +16,11 @@ from meteostat.core.cache import get_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import degree_mean, weighted_average
-from meteostat.interface.base import Base
+from meteostat.interface.timeseries import Timeseries
 from meteostat.interface.point import Point
 
 
-class Daily(Base):
+class Daily(Timeseries):
 
     """
     Retrieve daily weather observations for one or multiple weather stations or
@@ -29,21 +29,6 @@ class Daily(Base):
 
     # The cache subdirectory
     cache_subdir: str = 'daily'
-
-    # The list of weather Stations
-    _stations: pd.Index = None
-
-    # The start date
-    _start: datetime = None
-
-    # The end date
-    _end: datetime = None
-
-    # Include model data?
-    _model: bool = True
-
-    # The data frame
-    _data: pd.DataFrame = pd.DataFrame()
 
     # Default frequency
     _freq: str = '1D'
@@ -143,14 +128,11 @@ class Daily(Base):
             # Get time index
             time = df.index.get_level_values('time')
 
-            # Filter & append
-            self._data = self._data.append(
-                df.loc[(time >= self._start) & (time <= self._end)])
+            # Filter & return
+            return df.loc[(time >= self._start) & (time <= self._end)]
 
-        else:
-
-            # Append
-            self._data = self._data.append(df)
+        # Return
+        return df
 
     def _get_data(self) -> None:
         """
@@ -168,12 +150,11 @@ class Daily(Base):
                 ))
 
             # Data Processing
-            processing_handler(datasets, self._load, self.max_threads)
+            return processing_handler(
+                datasets, self._load, self.cores, self.threads)
 
-        else:
-
-            # Empty DataFrame
-            self._data = pd.DataFrame(columns=[*self._types])
+        # Empty DataFrame
+        return pd.DataFrame(columns=[*self._types])
 
     def _resolve_point(
         self,
@@ -263,7 +244,7 @@ class Daily(Base):
         self._model = model
 
         # Get data for all weather stations
-        self._get_data()
+        self._data = self._get_data()
 
         # Interpolate data
         if isinstance(loc, Point):
@@ -279,14 +260,3 @@ class Daily(Base):
         """
 
         return (self._end - self._start).days + 1
-
-    # Import methods
-    from meteostat.series.normalize import normalize
-    from meteostat.series.interpolate import interpolate
-    from meteostat.series.aggregate import aggregate
-    from meteostat.series.convert import convert
-    from meteostat.series.coverage import coverage
-    from meteostat.series.count import count
-    from meteostat.series.fetch import fetch
-    from meteostat.series.stations import stations
-    from meteostat.core.cache import clear_cache

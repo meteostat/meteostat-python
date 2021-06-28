@@ -8,10 +8,10 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from math import cos, sqrt, radians
 from copy import copy
 from datetime import datetime, timedelta
 from typing import Union
+import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
 from meteostat.core.loader import load_handler
@@ -128,19 +128,27 @@ class Stations(Base):
         temp = copy(self)
 
         # Calculate distance between weather station and geo point
-        def distance(station, point) -> float:
-            # Earth radius in m
+        def distance(lat1, lon1, lat2, lon2):
+            # Earth radius in meters
             radius = 6371000
 
-            x = (radians(point[1]) - radians(station['longitude'])) * \
-                cos(0.5 * (radians(point[0]) + radians(station['latitude'])))
-            y = (radians(point[0]) - radians(station['latitude']))
+            # Degress to radian
+            lat1, lon1, lat2, lon2 = map(np.deg2rad, [lat1, lon1, lat2, lon2])
 
-            return radius * sqrt(x * x + y * y)
+            # Deltas
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
 
-        # Get distance for each stationsd
-        temp._data['distance'] = temp._data.apply(
-            lambda station: distance(station, [lat, lon]), axis=1)
+            # Calculate distance
+            arch = np.sin(dlat / 2)**2 + np.cos(lat1) * \
+                np.cos(lat2) * np.sin(dlon / 2)**2
+            arch_sin = 2 * np.arcsin(np.sqrt(arch))
+
+            return radius * arch_sin
+
+        # Get distance for each station
+        temp._data['distance'] = distance(
+            lat, lon, temp._data['latitude'], temp._data['longitude'])
 
         # Filter by radius
         if radius is not None:

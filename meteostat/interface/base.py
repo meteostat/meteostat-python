@@ -8,6 +8,8 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+import os
+
 
 class Base:
 
@@ -15,5 +17,18 @@ class Base:
     Base class that provides features which are used across the package
     """
 
-    # Import configuration
-    from meteostat.core.config import endpoint, cache_dir, max_age, max_threads
+    # Base URL of the Meteostat bulk data interface
+    endpoint: str = 'https://bulk.meteostat.net/v2/'
+
+    # Location of the cache directory
+    cache_dir: str = os.path.expanduser(
+        '~') + os.sep + '.meteostat' + os.sep + 'cache'
+
+    # Maximum age of a cached file in seconds
+    max_age: int = 24 * 60 * 60
+
+    # Number of cores used for processing files
+    cores: int = 1
+
+    # Number of threads used for processing files
+    threads: int = 1

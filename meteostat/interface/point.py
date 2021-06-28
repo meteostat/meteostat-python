@@ -40,6 +40,9 @@ class Point:
     # Altitude Weight
     weight_alt: float = 0.4
 
+    # The list of weather stations
+    stations: pd.Index = None
+
     # The latitude
     _lat: float = None
 
@@ -105,6 +108,9 @@ class Point:
 
         # Sort by score (descending)
         stations = stations.sort_values('score', ascending=False)
+
+        # Capture result
+        self.stations = stations.index[:self.max_count]
 
         return stations.head(self.max_count)
 

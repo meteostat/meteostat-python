@@ -9,6 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from urllib.error import HTTPError
+from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
 from typing import Callable
 import pandas as pd
@@ -18,27 +19,49 @@ from meteostat.core.warn import warn
 def processing_handler(
     datasets: list,
     load: Callable[[dict], None],
-    max_threads: int
+    cores: int,
+    threads: int
 ) -> None:
     """
-    Load multiple datasets simultaneously
+    Load multiple datasets (simultaneously)
     """
 
-    # Single-thread processing
-    if max_threads < 2:
+    # Data output
+    output = []
 
-        for dataset in datasets:
-            load(*dataset)
+    # Multi-core processing
+    if cores > 1 and len(datasets) > 1:
+
+        # Create process pool
+        with Pool(cores) as pool:
+
+            # Process datasets in pool
+            output = pool.starmap(load, datasets)
+
+            # Wait for Pool to finish
+            pool.close()
+            pool.join()
 
     # Multi-thread processing
+    elif threads > 1 and len(datasets) > 1:
+
+        # Create process pool
+        with ThreadPool(cores) as pool:
+
+            # Process datasets in pool
+            output = pool.starmap(load, datasets)
+
+            # Wait for Pool to finish
+            pool.close()
+            pool.join()
+
+    # Single-thread processing
     else:
 
-        pool = ThreadPool(max_threads)
-        pool.starmap(load, datasets)
+        for dataset in datasets:
+            output.append(load(*dataset))
 
-        # Wait for Pool to finish
-        pool.close()
-        pool.join()
+    return pd.concat(output)
 
 
 def load_handler(
