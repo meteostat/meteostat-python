@@ -4,6 +4,8 @@ The Meteostat Python library provides a simple API for accessing open weather an
 
 Among the data sources are national weather services like the National Oceanic and Atmospheric Administration (NOAA) and Germany's national meteorological service (DWD).
 
+Are you looking for a **hosted solution**? Try our [JSON API](https://rapidapi.com/meteostat/api/meteostat/).
+
 ## Installation
 
 The Meteostat Python package is available through [PyPI](https://pypi.org/project/meteostat/):
