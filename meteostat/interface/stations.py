@@ -151,7 +151,7 @@ class Stations(Base):
             lat, lon, temp._data['latitude'], temp._data['longitude'])
 
         # Filter by radius
-        if radius is not None:
+        if radius:
             temp._data = temp._data[temp._data['distance'] <= radius]
 
         # Sort stations by distance

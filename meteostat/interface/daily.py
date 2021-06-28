@@ -170,9 +170,39 @@ class Daily(Timeseries):
         if self._stations.size == 0 or self._data.size == 0:
             return None
 
+        def adjust_temp(data: pd.DataFrame):
+            """
+            Adjust temperature-like data based on altitude
+            """
+
+            data.loc[data['tavg'] != np.NaN, 'tavg'] = data['tavg'] + \
+                ((2 / 3) * ((data['elevation'] - alt) / 100))
+            data.loc[data['tmin'] != np.NaN, 'tmin'] = data['tmin'] + \
+                ((2 / 3) * ((data['elevation'] - alt) / 100))
+            data.loc[data['tmax'] != np.NaN, 'tmax'] = data['tmax'] + \
+                ((2 / 3) * ((data['elevation'] - alt) / 100))
+
+            return data
+
         if method == 'nearest':
 
-            self._data = self._data.groupby(
+            if adapt_temp:
+
+                # Join elevation of involved weather stations
+                data = self._data.join(
+                    stations['elevation'], on='station')
+
+                # Adapt temperature-like data based on altitude
+                data = adjust_temp(data)
+
+                # Drop elevation & round
+                data = data.drop('elevation', axis=1).round(1)
+
+            else:
+
+                data = self._data
+
+            self._data = data.groupby(
                 pd.Grouper(level='time', freq=self._freq)).agg('first')
 
         else:
@@ -183,12 +213,7 @@ class Daily(Timeseries):
 
             # Adapt temperature-like data based on altitude
             if adapt_temp:
-                data.loc[data['tavg'] != np.NaN, 'tavg'] = data['tavg'] + \
-                    ((2 / 3) * ((data['elevation'] - alt) / 100))
-                data.loc[data['tmin'] != np.NaN, 'tmin'] = data['tmin'] + \
-                    ((2 / 3) * ((data['elevation'] - alt) / 100))
-                data.loc[data['tmax'] != np.NaN, 'tmax'] = data['tmax'] + \
-                    ((2 / 3) * ((data['elevation'] - alt) / 100))
+                data = adjust_temp(data)
 
             # Exclude non-mean data & perform aggregation
             excluded = data['wdir']

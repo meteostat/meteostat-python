@@ -20,7 +20,7 @@ class Point:
     """
 
     # The interpolation method (weighted or nearest)
-    method: str = 'weighted'
+    method: str = 'nearest'
 
     # Maximum radius for nearby stations
     radius: int = 35000
@@ -41,7 +41,7 @@ class Point:
     weight_alt: float = 0.4
 
     # The list of weather stations
-    stations: pd.Index = None
+    _stations: pd.Index = None
 
     # The latitude
     _lat: float = None
@@ -83,8 +83,9 @@ class Point:
 
         # Captue unfiltered weather stations
         unfiltered = stations.fetch()
-        unfiltered = unfiltered[abs(self._alt -
-                                    unfiltered['elevation']) <= self.alt_range]
+        if self.alt_range:
+            unfiltered = unfiltered[abs(self._alt -
+                                        unfiltered['elevation']) <= self.alt_range]
 
         # Apply inventory filter
         if freq and start and end:
@@ -92,8 +93,9 @@ class Point:
 
         # Apply altitude filter
         stations = stations.fetch()
-        stations = stations[abs(self._alt -
-                                stations['elevation']) <= self.alt_range]
+        if self.alt_range:
+            stations = stations[abs(self._alt -
+                                    stations['elevation']) <= self.alt_range]
 
         # Fill up stations
         selected: int = len(stations.index)
@@ -102,15 +104,18 @@ class Point:
                 unfiltered.head(
                     self.max_count - selected))
 
-        # Calculate score values
-        stations['score'] = ((1 - (stations['distance'] / self.radius)) * self.weight_dist) + (
-            (1 - (abs(self._alt - stations['elevation']) / self.alt_range)) * self.weight_alt)
+        # Score values
+        if self.radius:
 
-        # Sort by score (descending)
-        stations = stations.sort_values('score', ascending=False)
+            # Calculate score values
+            stations['score'] = ((1 - (stations['distance'] / self.radius)) * self.weight_dist) + (
+                (1 - (abs(self._alt - stations['elevation']) / self.alt_range)) * self.weight_alt)
+
+            # Sort by score (descending)
+            stations = stations.sort_values('score', ascending=False)
 
         # Capture result
-        self.stations = stations.index[:self.max_count]
+        self._stations = stations.index[:self.max_count]
 
         return stations.head(self.max_count)
 
@@ -122,3 +127,12 @@ class Point:
 
         # Return altitude
         return self._alt
+
+    @property
+    def stations(self) -> pd.Index:
+        """
+        Returns the point's weather stations
+        """
+
+        # Return weather stations
+        return self._stations
