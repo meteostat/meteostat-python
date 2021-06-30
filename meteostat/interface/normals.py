@@ -246,7 +246,7 @@ class Normals(Base):
             self._resolve_point(loc.method, stations, loc.alt, loc.adapt_temp)
 
         # Clear cache
-        if self.max_age > 0:
+        if self.max_age > 0 and self.autoclean:
             self.clear_cache()
 
     def normalize(self):

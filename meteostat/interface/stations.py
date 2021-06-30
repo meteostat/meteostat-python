@@ -110,10 +110,6 @@ class Stations(Base):
         # Get all weather stations
         self._load()
 
-        # Clear cache
-        if self.max_age > 0:
-            self.clear_cache()
-
     def nearby(
         self,
         lat: float,

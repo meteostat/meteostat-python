@@ -24,6 +24,9 @@ class Base:
     cache_dir: str = os.path.expanduser(
         '~') + os.sep + '.meteostat' + os.sep + 'cache'
 
+    # Auto clean cache directories?
+    autoclean: bool = True
+
     # Maximum age of a cached file in seconds
     max_age: int = 24 * 60 * 60
 
