@@ -151,7 +151,7 @@ class Daily(Timeseries):
 
             # Data Processing
             return processing_handler(
-                datasets, self._load, self.cores, self.threads)
+                datasets, self._load, self.processes, self.threads)
 
         # Empty DataFrame
         return pd.DataFrame(columns=[*self._types])
@@ -251,7 +251,7 @@ class Daily(Timeseries):
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
         elif isinstance(loc, Point):
-            stations = loc.get_stations('daily', start, end)
+            stations = loc.get_stations('daily', start, end, model)
             self._stations = stations.index
         else:
             if not isinstance(loc, list):

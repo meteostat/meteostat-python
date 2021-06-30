@@ -139,7 +139,7 @@ class Normals(Base):
 
             # Data Processing
             return processing_handler(
-                datasets, self._load, self.cores, self.threads)
+                datasets, self._load, self.processes, self.threads)
 
         # Empty DataFrame
         return pd.DataFrame(columns=[*self._types])

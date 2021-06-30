@@ -27,8 +27,8 @@ class Base:
     # Maximum age of a cached file in seconds
     max_age: int = 24 * 60 * 60
 
-    # Number of cores used for processing files
-    cores: int = 1
+    # Number of processes used for processing files
+    processes: int = 1
 
     # Number of threads used for processing files
     threads: int = 1

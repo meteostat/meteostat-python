@@ -11,7 +11,7 @@ The code is licensed under the MIT license.
 import warnings
 
 
-def _warning_on_one_line(message, category, *args) -> str:  # pylint: disable=unused-argument
+def _warning_on_one_line(message, category, filename, lineno, line=None) -> str:  # pylint: disable=unused-argument
     """
     Print warning on a single line
     """
