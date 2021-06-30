@@ -220,7 +220,7 @@ class Hourly(Timeseries):
 
             # Data Processing
             return processing_handler(
-                datasets, self._load, self.cores, self.threads)
+                datasets, self._load, self.processes, self.threads)
 
         return pd.DataFrame(columns=[*self._types])
 
@@ -318,7 +318,7 @@ class Hourly(Timeseries):
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
         elif isinstance(loc, Point):
-            stations = loc.get_stations('hourly', start, end)
+            stations = loc.get_stations('hourly', start, end, model)
             self._stations = stations.index
         else:
             if not isinstance(loc, list):

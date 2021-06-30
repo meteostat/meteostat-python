@@ -151,7 +151,7 @@ class Monthly(Timeseries):
                 ))
 
             # Data Processing
-            return processing_handler(datasets, self._load, self.cores, self.threads)
+            return processing_handler(datasets, self._load, self.processes, self.threads)
 
         # Empty DataFrame
         return pd.DataFrame(columns=[*self._types])
@@ -251,7 +251,7 @@ class Monthly(Timeseries):
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
         elif isinstance(loc, Point):
-            stations = loc.get_stations('monthly', start, end)
+            stations = loc.get_stations('monthly', start, end, model)
             self._stations = stations.index
         else:
             if not isinstance(loc, list):

@@ -67,7 +67,7 @@ class Point:
             self.adapt_temp = False
 
     def get_stations(self, freq: str = None, start: datetime = None,
-                     end: datetime = None) -> pd.DataFrame:
+                     end: datetime = None, model: bool = True) -> pd.DataFrame:
         """
         Get list of nearby weather stations
         """
@@ -88,7 +88,8 @@ class Point:
                                         unfiltered['elevation']) <= self.alt_range]
 
         # Apply inventory filter
-        if freq and start and end:
+        age = (datetime.now() - end).days
+        if freq and start and end and (model == False or age > 180):
             stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
@@ -100,6 +101,9 @@ class Point:
         # Fill up stations
         selected: int = len(stations.index)
         if selected < self.max_count:
+            # Remove already included stations from unfiltered
+            unfiltered = unfiltered.loc[~unfiltered.index.isin(stations.index)]
+            # Append to existing DataFrame
             stations = stations.append(
                 unfiltered.head(
                     self.max_count - selected))
