@@ -25,7 +25,7 @@ if __name__ == '__main__':
     stations = Stations()
     stations = stations.region('US')
     stations = stations.inventory('daily', (start, end))
-    stations = stations.fetch(limit=50, sample=True)
+    stations = stations.fetch(limit=150, sample=True)
 
     # Get daily data
     data = Daily(stations, start, end)
