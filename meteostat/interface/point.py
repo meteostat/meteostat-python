@@ -88,9 +88,10 @@ class Point:
                                         unfiltered['elevation']) <= self.alt_range]
 
         # Apply inventory filter
-        age = (datetime.now() - end).days
-        if freq and start and end and (model == False or age > 180):
-            stations = stations.inventory(freq, (start, end))
+        if freq and start and end:
+            age = (datetime.now() - end).days
+            if model == False or age > 180:
+                stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
         stations = stations.fetch()
