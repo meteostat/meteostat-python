@@ -11,19 +11,21 @@ The code is licensed under the MIT license.
 import warnings
 
 
-def _warning_on_one_line(message, category, *args ,**kwargs) -> str:  # pylint: disable=unused-argument
+def _format(message, category, filename, lineno, line=None) -> str:  # pylint: disable=unused-argument
     """
     Print warning on a single line
     """
+
     return '%s: %s\n' % (category.__name__, message)
 
 # Set warning format
-warnings.formatwarning = _warning_on_one_line
+warnings.formatwarning = _format
 
 def warn(message: str) -> None:
     """
     Create a warning
     """
+
     try:
         warnings.warn(message, Warning)
     except TypeError:
