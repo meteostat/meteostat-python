@@ -46,7 +46,7 @@ def processing_handler(
     elif threads > 1 and len(datasets) > 1:
 
         # Create process pool
-        with ThreadPool(cores) as pool:
+        with ThreadPool(threads) as pool:
 
             # Process datasets in pool
             output = pool.starmap(load, datasets)
