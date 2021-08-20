@@ -302,7 +302,7 @@ class Normals(Base):
         temp = copy(self._data)
 
         # Add avg. temperature column
-        temp.insert(0, 'tavg', temp[['tmin', 'tmax']].mean(
+        temp.insert(0, 'tavg', temp[['tmin', 'tmax']].dropna(how='any').mean(
             axis=1).round(1))
 
         # Remove station index if it's a single station
