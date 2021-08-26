@@ -285,7 +285,12 @@ class Normals(Base):
                     ['station', 'start', 'end', 'month'], inplace=True)
                 # Merge data
                 temp._data = pd.concat([temp._data, df], axis=0).groupby(
-                    ['station', 'start', 'end', 'month'], as_index=True).first()
+                    [
+                        'station',
+                        'start',
+                        'end',
+                        'month'
+                    ], as_index=True).first() if temp._data.index.size > 0 else df
 
         # None -> NaN
         temp._data = temp._data.fillna(np.NaN)
