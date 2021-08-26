@@ -61,7 +61,10 @@ def processing_handler(
         for dataset in datasets:
             output.append(load(*dataset))
 
-    return pd.concat(output)
+    # Remove empty DataFrames
+    filtered = list(filter(lambda df: df.index.size > 0, output))
+
+    return pd.concat(filtered) if len(filtered) > 0 else output[0]
 
 
 def load_handler(
