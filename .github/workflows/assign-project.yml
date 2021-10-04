@@ -1,0 +1,14 @@
+on:
+  issues:
+    types: [opened]
+jobs:
+  createCard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or Update Project Card
+        uses: peter-evans/create-or-update-project-card@v1
+        with:
+          token: ${{ secrets.PAT }}
+          project-location: meteostat
+          project-name: Meteostat
+          column-name: Triage
