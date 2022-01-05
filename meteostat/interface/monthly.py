@@ -14,8 +14,10 @@ import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import degree_mean, weighted_average
+from meteostat.enumerations.granularity import Granularity
 from meteostat.interface.timeseries import Timeseries
 from meteostat.interface.point import Point
 
@@ -94,8 +96,7 @@ class Monthly(Timeseries):
         """
 
         # File name
-        file = 'monthly/' + ('full' if self._model else 'obs') + \
-            '/' + station + '.csv.gz'
+        file = generate_endpoint_path(self._start, self._end, Granularity.MONTHLY, station, self._model,)
 
         # Get local file path
         path = get_file_path(self.cache_dir, self.cache_subdir, file)
@@ -143,13 +144,7 @@ class Monthly(Timeseries):
         if len(self._stations) > 0:
 
             # List of datasets
-            datasets = []
-
-            for station in self._stations:
-                datasets.append((
-                    str(station),
-                ))
-
+            datasets = [(str(station),) for station in self._stations]
             # Data Processing
             return processing_handler(datasets, self._load, self.processes, self.threads)
 

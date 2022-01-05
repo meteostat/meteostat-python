@@ -9,15 +9,17 @@ The code is licensed under the MIT license.
 """
 
 from math import floor
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 import pytz
 import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import degree_mean, weighted_average
+from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.timeseries import Timeseries
 from meteostat.interface.point import Point
 
@@ -134,18 +136,17 @@ class Hourly(Timeseries):
             # Set end date
             self._end = end
 
+        self._yearly_steps = [(self._start+timedelta(days=365*i)).year for i in range(self._end.year - self._start.year + 1 )]
+
+
     def _load(
         self,
         station: str,
-        year: str = None
+        file: str,
     ) -> None:
         """
         Load file from Meteostat
         """
-
-        # File name
-        file = 'hourly/' + ('full' if self._model else 'obs') + '/' + \
-            (year + '/' if year else '') + station + '.csv.gz'
 
         # Get local file path
         path = get_file_path(self.cache_dir, self.cache_subdir, file)
@@ -199,26 +200,24 @@ class Hourly(Timeseries):
         if len(self._stations) > 0:
 
             # List of datasets
-            datasets = []
-
-            for station in self._stations:
-
-                if self.chunked and self._start and self._end:
-
-                    for year in range(self._start.year, self._end.year + 1):
-                        datasets.append((
-                            str(station),
-                            str(year)
-                        ))
-
-                else:
-
-                    datasets.append((
-                        str(station),
-                        None
-                    ))
 
             # Data Processing
+            if self.chunked:
+                datasets = [(str(station),
+                             generate_endpoint_path(
+                                 self._start.replace(year=year, month=1, day=1, hour=0, minute=0),
+                                 self._end.replace(year=year, month=12, day=31, hour=0, minute=0),
+                                 Granularity.HOURLY,
+                                 station,
+                                 self._model)
+                             )
+                            for station in self._stations for year in self._yearly_steps]
+
+            else:
+                datasets = [(str(station),
+                             generate_endpoint_path(self._start, self._end, Granularity.HOURLY, station, self._model))
+                            for station in self._stations]
+
             return processing_handler(
                 datasets, self._load, self.processes, self.threads)
 

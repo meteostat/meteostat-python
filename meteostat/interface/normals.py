@@ -14,9 +14,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.enumerations.granularity import Granularity
 from meteostat.core.loader import processing_handler, load_handler
 from meteostat.core.warn import warn
 from meteostat.utilities.aggregations import weighted_average
+from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.base import Base
 from meteostat.interface.point import Point
 
@@ -78,7 +80,7 @@ class Normals(Base):
         """
 
         # File name
-        file = f'normals/{station}.csv.gz'
+        file = generate_endpoint_path(self._start, self._end, Granularity.NORMALS, station)
 
         # Get local file path
         path = get_file_path(self.cache_dir, self.cache_subdir, file)
@@ -130,12 +132,7 @@ class Normals(Base):
         if len(self._stations) > 0:
 
             # List of datasets
-            datasets = []
-
-            for station in self._stations:
-                datasets.append((
-                    str(station),
-                ))
+            datasets = [(str(station),) for station in self._stations]
 
             # Data Processing
             return processing_handler(
