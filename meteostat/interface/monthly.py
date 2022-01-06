@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Union
 import numpy as np
 import pandas as pd
-from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
 from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.utilities.validations import validate_series
@@ -99,7 +99,7 @@ class Monthly(Timeseries):
         file = generate_endpoint_path(self._start, self._end, Granularity.MONTHLY, station, self._model,)
 
         # Get local file path
-        path = get_file_path(self.cache_dir, self.cache_subdir, file)
+        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
