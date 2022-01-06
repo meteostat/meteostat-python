@@ -14,7 +14,7 @@ from typing import Union
 import pytz
 import numpy as np
 import pandas as pd
-from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.validations import validate_series
@@ -34,7 +34,7 @@ class Hourly(Timeseries):
     # The cache subdirectory
     cache_subdir: str = 'hourly'
 
-    # Specify if the library should use chunks or full dumps
+    # download yearly files as chunks
     chunked: bool = True
 
     # The time zone
@@ -149,7 +149,7 @@ class Hourly(Timeseries):
         """
 
         # Get local file path
-        path = get_file_path(self.cache_dir, self.cache_subdir, file)
+        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
@@ -310,7 +310,7 @@ class Hourly(Timeseries):
         start: datetime = None,
         end: datetime = None,
         timezone: str = None,
-        model: bool = True
+        model: bool = True,
     ) -> None:
 
         # Set list of weather stations

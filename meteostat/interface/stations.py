@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from typing import Union
 import numpy as np
 import pandas as pd
-from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import load_handler
 from meteostat.interface.base import Base
 
@@ -76,7 +76,7 @@ class Stations(Base):
         file = 'stations/slim.csv.gz'
 
         # Get local file path
-        path = get_file_path(self.cache_dir, self.cache_subdir, file)
+        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
