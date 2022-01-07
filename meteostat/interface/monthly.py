@@ -151,7 +151,8 @@ class Monthly(Timeseries):
             datasets = [(str(station),) for station in self._stations]
             # Data Processing
             return processing_handler(
-                datasets, self._load, self.processes, self.threads)
+                datasets, self._load, self.processes, self.threads
+            )
 
         # Empty DataFrame
         return pd.DataFrame(columns=[*self._types])
