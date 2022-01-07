@@ -34,7 +34,7 @@ class Hourly(Timeseries):
     # The cache subdirectory
     cache_subdir: str = 'hourly'
 
-    # download yearly files as chunks
+    # Download data as annual chunks
     chunked: bool = True
 
     # The time zone
@@ -120,13 +120,15 @@ class Hourly(Timeseries):
 
                 # Set start date
                 self._start = timezone.localize(
-                    start, is_dst=None).astimezone(
-                    pytz.utc)
+                    start,
+                    is_dst=None
+                ).astimezone(pytz.utc)
 
                 # Set end date
                 self._end = timezone.localize(
-                    end, is_dst=None).astimezone(
-                    pytz.utc)
+                    end,
+                    is_dst=None
+                ).astimezone(pytz.utc)
 
         else:
 
@@ -136,13 +138,18 @@ class Hourly(Timeseries):
             # Set end date
             self._end = end
 
-        self._yearly_steps = [(self._start+timedelta(days=365*i)).year for i in range(self._end.year - self._start.year + 1 )]
-
+        self._annual_steps = [
+            (
+                self._start + timedelta(days=365 * i)
+            ).year for i in range(
+                self._end.year - self._start.year + 1
+            )
+        ]
 
     def _load(
         self,
         station: str,
-        file: str,
+        file: str
     ) -> None:
         """
         Load file from Meteostat
@@ -165,7 +172,8 @@ class Hourly(Timeseries):
                 file,
                 self._columns,
                 self._types,
-                self._parse_dates)
+                self._parse_dates
+            )
 
             # Validate Series
             df = validate_series(df, station)
@@ -177,8 +185,12 @@ class Hourly(Timeseries):
         # Localize time column
         if self._timezone is not None and len(df.index) > 0:
             df = df.tz_localize(
-                'UTC', level='time').tz_convert(
-                self._timezone, level='time')
+                'UTC',
+                level='time'
+            ).tz_convert(
+                self._timezone,
+                level='time'
+            )
 
         # Filter time period and append to DataFrame
         if self._start and self._end:
@@ -199,27 +211,40 @@ class Hourly(Timeseries):
 
         if len(self._stations) > 0:
 
-            # List of datasets
-
-            # Data Processing
+            # Create list of datasets
             if self.chunked:
-                datasets = [(str(station),
-                             generate_endpoint_path(
-                                 self._start.replace(year=year, month=1, day=1, hour=0, minute=0),
-                                 self._end.replace(year=year, month=12, day=31, hour=0, minute=0),
-                                 Granularity.HOURLY,
-                                 station,
-                                 self._model)
-                             )
-                            for station in self._stations for year in self._yearly_steps]
+                datasets = [
+                    (
+                        str(station),
+                        generate_endpoint_path(
+                            Granularity.HOURLY,
+                            station,
+                            self._model,
+                            year
+                        )
+                    )
+                    for station in self._stations for year in self._annual_steps
+                ]
 
             else:
-                datasets = [(str(station),
-                             generate_endpoint_path(self._start, self._end, Granularity.HOURLY, station, self._model))
-                            for station in self._stations]
+                datasets = [
+                    (
+                        str(station),
+                        generate_endpoint_path(
+                            Granularity.HOURLY,
+                            station,
+                            self._model
+                        )
+                    )
+                    for station in self._stations
+                ]
 
             return processing_handler(
-                datasets, self._load, self.processes, self.threads)
+                datasets,
+                self._load,
+                self.processes,
+                self.threads
+            )
 
         return pd.DataFrame(columns=[*self._types])
 
@@ -310,7 +335,7 @@ class Hourly(Timeseries):
         start: datetime = None,
         end: datetime = None,
         timezone: str = None,
-        model: bool = True,
+        model: bool = True
     ) -> None:
 
         # Set list of weather stations

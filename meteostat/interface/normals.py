@@ -80,7 +80,10 @@ class Normals(Base):
         """
 
         # File name
-        file = generate_endpoint_path(self._start, self._end, Granularity.NORMALS, station)
+        file = generate_endpoint_path(
+            Granularity.NORMALS,
+            station
+        )
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
@@ -99,11 +102,13 @@ class Normals(Base):
                 file,
                 self._columns,
                 self._types,
-                None)
+                None
+            )
 
             if df.index.size > 0:
 
                 # Add weather station ID
+                # pylint: disable=unsupported-assignment-operation
                 df['station'] = station
 
                 # Set index

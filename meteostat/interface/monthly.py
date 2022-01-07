@@ -96,7 +96,11 @@ class Monthly(Timeseries):
         """
 
         # File name
-        file = generate_endpoint_path(self._start, self._end, Granularity.MONTHLY, station, self._model,)
+        file = generate_endpoint_path(
+            Granularity.MONTHLY,
+            station,
+            self._model
+        )
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
@@ -146,7 +150,8 @@ class Monthly(Timeseries):
             # List of datasets
             datasets = [(str(station),) for station in self._stations]
             # Data Processing
-            return processing_handler(datasets, self._load, self.processes, self.threads)
+            return processing_handler(
+                datasets, self._load, self.processes, self.threads)
 
         # Empty DataFrame
         return pd.DataFrame(columns=[*self._types])

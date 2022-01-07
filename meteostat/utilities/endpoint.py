@@ -1,24 +1,37 @@
-""" util functions to generate endpoints to the API """
+"""
+Utilities - Endpoint Helpers
+
+Meteorological data provided by Meteostat (https://dev.meteostat.net)
+under the terms of the Creative Commons Attribution-NonCommercial
+4.0 International Public License.
+
+The code is licensed under the MIT license.
+"""
+
 from typing import Union
-from datetime import datetime
 from meteostat.enumerations.granularity import Granularity
 
+
 def generate_endpoint_path(
-        dt_start: Union[datetime, int],
-        dt_end: Union[datetime, int],
         granularity: Granularity,
         station: str,
-        model: bool = False,
+        model: bool = True,
+        year: Union[int, None] = None
 ) -> str:
-    """ api endpoint path generation function """
+    """
+    Generate Meteostat Bulk path
+    """
 
-    if granularity == Granularity.NORMALS:
-        data_subset = ''
-    elif model:
-        data_subset = 'obs/'
-    elif dt_start.year == dt_end.year and granularity == Granularity.HOURLY:
-        data_subset = f"{dt_start.year}/"
-    else:
-        data_subset = 'full/'
+    # Base path
+    path = f"{granularity.value}/"
 
-    return f"{granularity.value}/{data_subset}{station}.csv.gz"
+    if granularity != Granularity.NORMALS:
+        if model:
+            path += 'full/'
+        else:
+            path += 'obs/'
+
+    if Granularity.HOURLY and year:
+        path += f"{year}/"
+
+    return f"{path}{station}.csv.gz"

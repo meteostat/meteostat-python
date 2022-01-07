@@ -95,7 +95,11 @@ class Daily(Timeseries):
         """
 
         # File name
-        file = generate_endpoint_path(self._start, self._end, Granularity.DAILY, station, self._model)
+        file = generate_endpoint_path(
+            Granularity.DAILY,
+            station,
+            self._model
+        )
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)

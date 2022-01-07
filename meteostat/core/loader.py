@@ -57,6 +57,7 @@ def processing_handler(
 
     # Single-thread processing
     else:
+
         for dataset in datasets:
             output.append(load(*dataset))
 

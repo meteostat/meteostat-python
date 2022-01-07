@@ -16,9 +16,12 @@ import hashlib
 def get_local_file_path(
     cache_dir: str,
     cache_subdir: str,
-    path: str,
+    path: str
 ) -> str:
-    """ Get the local file path """
+    """
+    Get the local file path
+    """
+
     # Get file ID
     file = hashlib.md5(path.encode('utf-8')).hexdigest()
 
