@@ -12,10 +12,12 @@ from datetime import datetime
 from typing import Union
 import numpy as np
 import pandas as pd
-from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import degree_mean, weighted_average
+from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.timeseries import Timeseries
 from meteostat.interface.point import Point
 
@@ -93,11 +95,14 @@ class Daily(Timeseries):
         """
 
         # File name
-        file = 'daily/' + ('full' if self._model else 'obs') + \
-            '/' + station + '.csv.gz'
+        file = generate_endpoint_path(
+            Granularity.DAILY,
+            station,
+            self._model
+        )
 
         # Get local file path
-        path = get_file_path(self.cache_dir, self.cache_subdir, file)
+        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
@@ -142,12 +147,7 @@ class Daily(Timeseries):
         if len(self._stations) > 0:
 
             # List of datasets
-            datasets = []
-
-            for station in self._stations:
-                datasets.append((
-                    str(station),
-                ))
+            datasets = [(str(station),) for station in self._stations]
 
             # Data Processing
             return processing_handler(

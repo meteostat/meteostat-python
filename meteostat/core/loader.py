@@ -87,7 +87,8 @@ def load_handler(
             compression='gzip',
             names=columns,
             dtype=types,
-            parse_dates=parse_dates)
+            parse_dates=parse_dates
+        )
 
         # Force datetime conversion
         if coerce_dates:

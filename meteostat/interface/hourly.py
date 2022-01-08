@@ -9,15 +9,17 @@ The code is licensed under the MIT license.
 """
 
 from math import floor
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 import pytz
 import numpy as np
 import pandas as pd
-from meteostat.core.cache import get_file_path, file_in_cache
+from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import degree_mean, weighted_average
+from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.timeseries import Timeseries
 from meteostat.interface.point import Point
 
@@ -32,7 +34,7 @@ class Hourly(Timeseries):
     # The cache subdirectory
     cache_subdir: str = 'hourly'
 
-    # Specify if the library should use chunks or full dumps
+    # Download data as annual chunks
     chunked: bool = True
 
     # The time zone
@@ -118,13 +120,15 @@ class Hourly(Timeseries):
 
                 # Set start date
                 self._start = timezone.localize(
-                    start, is_dst=None).astimezone(
-                    pytz.utc)
+                    start,
+                    is_dst=None
+                ).astimezone(pytz.utc)
 
                 # Set end date
                 self._end = timezone.localize(
-                    end, is_dst=None).astimezone(
-                    pytz.utc)
+                    end,
+                    is_dst=None
+                ).astimezone(pytz.utc)
 
         else:
 
@@ -134,21 +138,25 @@ class Hourly(Timeseries):
             # Set end date
             self._end = end
 
+        self._annual_steps = [
+            (
+                self._start + timedelta(days=365 * i)
+            ).year for i in range(
+                self._end.year - self._start.year + 1
+            )
+        ]
+
     def _load(
         self,
         station: str,
-        year: str = None
+        file: str
     ) -> None:
         """
         Load file from Meteostat
         """
 
-        # File name
-        file = 'hourly/' + ('full' if self._model else 'obs') + '/' + \
-            (year + '/' if year else '') + station + '.csv.gz'
-
         # Get local file path
-        path = get_file_path(self.cache_dir, self.cache_subdir, file)
+        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
@@ -164,7 +172,8 @@ class Hourly(Timeseries):
                 file,
                 self._columns,
                 self._types,
-                self._parse_dates)
+                self._parse_dates
+            )
 
             # Validate Series
             df = validate_series(df, station)
@@ -176,8 +185,12 @@ class Hourly(Timeseries):
         # Localize time column
         if self._timezone is not None and len(df.index) > 0:
             df = df.tz_localize(
-                'UTC', level='time').tz_convert(
-                self._timezone, level='time')
+                'UTC',
+                level='time'
+            ).tz_convert(
+                self._timezone,
+                level='time'
+            )
 
         # Filter time period and append to DataFrame
         if self._start and self._end:
@@ -198,29 +211,40 @@ class Hourly(Timeseries):
 
         if len(self._stations) > 0:
 
-            # List of datasets
-            datasets = []
-
-            for station in self._stations:
-
-                if self.chunked and self._start and self._end:
-
-                    for year in range(self._start.year, self._end.year + 1):
-                        datasets.append((
-                            str(station),
-                            str(year)
-                        ))
-
-                else:
-
-                    datasets.append((
+            # Create list of datasets
+            if self.chunked:
+                datasets = [
+                    (
                         str(station),
-                        None
-                    ))
+                        generate_endpoint_path(
+                            Granularity.HOURLY,
+                            station,
+                            self._model,
+                            year
+                        )
+                    )
+                    for station in self._stations for year in self._annual_steps
+                ]
 
-            # Data Processing
+            else:
+                datasets = [
+                    (
+                        str(station),
+                        generate_endpoint_path(
+                            Granularity.HOURLY,
+                            station,
+                            self._model
+                        )
+                    )
+                    for station in self._stations
+                ]
+
             return processing_handler(
-                datasets, self._load, self.processes, self.threads)
+                datasets,
+                self._load,
+                self.processes,
+                self.threads
+            )
 
         return pd.DataFrame(columns=[*self._types])
 

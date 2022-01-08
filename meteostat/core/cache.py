@@ -13,7 +13,7 @@ import time
 import hashlib
 
 
-def get_file_path(
+def get_local_file_path(
     cache_dir: str,
     cache_subdir: str,
     path: str
@@ -25,8 +25,7 @@ def get_file_path(
     # Get file ID
     file = hashlib.md5(path.encode('utf-8')).hexdigest()
 
-    # Return path
-    return cache_dir + os.sep + cache_subdir + os.sep + file
+    return f"{cache_dir}/{cache_subdir}/{file}"
 
 
 def file_in_cache(
