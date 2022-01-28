@@ -1,5 +1,5 @@
 """
-Tests - Monthly Class
+E2E Test - Monthly Class
 
 The code is licensed under the MIT license.
 """

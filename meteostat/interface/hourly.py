@@ -117,13 +117,13 @@ class Hourly(Timeseries):
                 timezone = pytz.timezone(self._timezone)
 
                 # Set start date
-                self._start = timezone.localize(
+                start = timezone.localize(
                     start,
                     is_dst=None
                 ).astimezone(pytz.utc)
 
                 # Set end date
-                self._end = timezone.localize(
+                end = timezone.localize(
                     end,
                     is_dst=None
                 ).astimezone(pytz.utc)
@@ -132,11 +132,14 @@ class Hourly(Timeseries):
 
             self._annual_steps = [
                 (
-                    self._start + timedelta(days=365 * i)
+                    start + timedelta(days=365 * i)
                 ).year for i in range(
-                    self._end.year - self._start.year + 1
+                    end.year - start.year + 1
                 )
             ]
+
+        self._start = start
+        self._end = end
 
     def __init__(
         self,

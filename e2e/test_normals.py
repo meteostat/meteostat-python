@@ -1,5 +1,5 @@
 """
-Tests - Normals Class
+E2E Test - Normals Class
 
 The code is licensed under the MIT license.
 """

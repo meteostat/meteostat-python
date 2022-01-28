@@ -1,5 +1,5 @@
 """
-Unit Tests - Hourly Class
+E2E Test - Hourly Class
 
 The code is licensed under the MIT license.
 """

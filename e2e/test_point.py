@@ -1,5 +1,5 @@
 """
-Tests - Point Class
+E2E Test - Point Class
 
 The code is licensed under the MIT license.
 """

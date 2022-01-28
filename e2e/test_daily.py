@@ -1,5 +1,5 @@
 """
-Unit Tests - Daily Class
+E2E Test - Daily Class
 
 The code is licensed under the MIT license.
 """

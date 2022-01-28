@@ -1,5 +1,5 @@
 """
-Unit Tests - Stations Class
+E2E Test - Stations Class
 
 The code is licensed under the MIT license.
 """
