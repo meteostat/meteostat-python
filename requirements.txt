@@ -3,5 +3,6 @@ pytz
 numpy
 matplotlib
 pylint
+pytest
 autopep8
 twine

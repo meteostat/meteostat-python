@@ -8,41 +8,30 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-import unittest
 from meteostat.core.cache import get_local_file_path
+
 
 EXPECTED_FILE_PATH = "cache/hourly/6dfc35c47756e962ef055d1049f1f8ec"
 
-class TestCache(unittest.TestCase):
+def test_get_local_file_path():
     """
-    Test cache methods
+    Test local file path
     """
 
-    def test_get_local_file_path(self):
-        """
-        Test local file path
-        """
-
-        self.assertEqual(
-            get_local_file_path(
-                'cache',
-                'hourly',
-                '10101'
-            ),
-            EXPECTED_FILE_PATH
-        )
+    assert get_local_file_path(
+        'cache',
+        'hourly',
+        '10101'
+    ) == EXPECTED_FILE_PATH
 
 
-    def test_get_local_file_path_chunked(self):
-        """
-        Test local file path II
-        """
+def test_get_local_file_path_chunked():
+    """
+    Test local file path II
+    """
 
-        self.assertNotEqual(
-            get_local_file_path(
-                'cache',
-                'hourly',
-                '10101_2022'
-            ),
-            EXPECTED_FILE_PATH
-        )
+    assert get_local_file_path(
+        'cache',
+        'hourly',
+        '10101_2022'
+    ) != EXPECTED_FILE_PATH
