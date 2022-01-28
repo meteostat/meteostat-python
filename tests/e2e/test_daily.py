@@ -7,6 +7,19 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from meteostat import Daily
 
+def test_flags():
+    """
+    Test request with flags
+    """
+
+    # Get 2018 daily data for Frankfurt Airport
+    df = Daily(
+        ['10637'],
+        start=datetime(2018, 1, 1),
+        end=datetime(2018, 12, 31),
+        flags=True).fetch()
+
+    assert len(df.columns) == 20
 
 def test_normalize():
     """

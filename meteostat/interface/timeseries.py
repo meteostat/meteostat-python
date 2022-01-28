@@ -129,15 +129,15 @@ class Timeseries(Meteo):
             self._data.loc[self._data[f'{col_name}_flag']
                            == 'M', col_name] = np.NaN
 
-        # Drop NaN-only rows
-        self._data.dropna(how='all', inplace=True)
-
         # Conditionally, remove flags from DataFrame
         if not self._flags:
             self._data.drop(
                 map(lambda col_name: f'{col_name}_flag', columns),
                 axis=1,
                 inplace=True)
+
+        # Drop NaN-only rows
+        self._data.dropna(how='all', inplace=True)
 
     def _init_timeseries(
         self,

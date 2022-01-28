@@ -4,9 +4,21 @@ E2E Test - Hourly Class
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from meteostat import Hourly
 
+
+def test_model_disabled():
+    """
+    Test request with disabled model data
+    """
+
+    today = datetime.today()
+    start= today + timedelta(days = 2)
+    end = today + timedelta(days = 3) 
+    data = Hourly('10637', start, end, model=False)
+
+    assert data.count() == 0
 
 def test_normalize():
     """

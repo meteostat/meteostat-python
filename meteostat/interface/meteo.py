@@ -126,8 +126,8 @@ class Meteo(Base):
             end = df.index.get_level_values('end')
             # Filter & return
             return df.loc[end == self._end]
-
-        df = Meteo._filter_time(df, self._start, self._end)
+        elif not self.granularity == Granularity.NORMALS:
+            df = Meteo._filter_time(df, self._start, self._end)
 
         # Return
         return df
@@ -271,6 +271,15 @@ class Meteo(Base):
 
         # Set placeholder station ID
         self._data['station'] = 'XXXXX'
-        self._data = self._data.set_index(
-            ['station', self._data.index.get_level_values('time')])
+
+        # Set index
+        if self.granularity == Granularity.NORMALS:
+            self._data = self._data.set_index('station', append=True)
+            self._data = self._data.reorder_levels(
+                ['station', 'start', 'end', 'month'])
+        else:
+            self._data = self._data.set_index(
+                ['station', self._data.index.get_level_values('time')])
+
+        # Set station index
         self._stations = pd.Index(['XXXXX'])
