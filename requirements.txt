@@ -4,3 +4,4 @@ numpy
 matplotlib
 pylint
 autopep8
+twine
