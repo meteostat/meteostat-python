@@ -10,8 +10,8 @@ The code is licensed under the MIT license.
 
 from meteostat.core.cache import get_local_file_path
 
-EXPECTED_FILE_PATH = "cache/hourly/6dfc35c47756e962ef055d1049f1f8ec"
 
+EXPECTED_FILE_PATH = "cache/hourly/6dfc35c47756e962ef055d1049f1f8ec"
 
 def test_get_local_file_path():
     """

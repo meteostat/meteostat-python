@@ -15,8 +15,8 @@ from meteostat.enumerations.granularity import Granularity
 def generate_endpoint_path(
         granularity: Granularity,
         station: str,
-        model: bool = True,
-        year: Union[int, None] = None
+        year: Union[int, None] = None,
+        map_file: bool = False # Is a source map file?
 ) -> str:
     """
     Generate Meteostat Bulk path
@@ -25,13 +25,9 @@ def generate_endpoint_path(
     # Base path
     path = f"{granularity.value}/"
 
-    if granularity != Granularity.NORMALS:
-        if model:
-            path += 'full/'
-        else:
-            path += 'obs/'
-
     if Granularity.HOURLY and year:
         path += f"{year}/"
 
-    return f"{path}{station}.csv.gz"
+    appendix = '.map' if map_file else ''
+
+    return f"{path}{station}{appendix}.csv.gz"

@@ -13,17 +13,13 @@ from typing import Union
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.enumerations.granularity import Granularity
-from meteostat.core.loader import processing_handler, load_handler
 from meteostat.core.warn import warn
-from meteostat.utilities.aggregations import weighted_average
-from meteostat.utilities.endpoint import generate_endpoint_path
-from meteostat.interface.base import Base
+from meteostat.interface.meteo import Meteo
 from meteostat.interface.point import Point
 
 
-class Normals(Base):
+class Normals(Meteo):
 
     """
     Retrieve climate normals for one or multiple weather stations or
@@ -32,6 +28,9 @@ class Normals(Base):
 
     # The cache subdirectory
     cache_subdir: str = 'normals'
+
+    # Granularity
+    granularity = Granularity.NORMALS
 
     # The list of weather Stations
     _stations: pd.Index = None
@@ -71,162 +70,8 @@ class Normals(Base):
         'tsun': 'float64'
     }
 
-    def _load(
-        self,
-        station: str
-    ) -> None:
-        """
-        Load file from Meteostat
-        """
-
-        # File name
-        file = generate_endpoint_path(
-            Granularity.NORMALS,
-            station
-        )
-
-        # Get local file path
-        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
-
-        # Check if file in cache
-        if self.max_age > 0 and file_in_cache(path, self.max_age):
-
-            # Read cached data
-            df = pd.read_pickle(path)
-
-        else:
-
-            # Get data from Meteostat
-            df = load_handler(
-                self.endpoint,
-                file,
-                self._columns,
-                self._types,
-                None
-            )
-
-            if df.index.size > 0:
-
-                # Add weather station ID
-                # pylint: disable=unsupported-assignment-operation
-                df['station'] = station
-
-                # Set index
-                df = df.set_index(['station', 'start', 'end', 'month'])
-
-            # Save as Pickle
-            if self.max_age > 0:
-                df.to_pickle(path)
-
-        # Filter time period and append to DataFrame
-        if df.index.size > 0 and self._end:
-
-            # Get time index
-            end = df.index.get_level_values('end')
-
-            # Filter & return
-            return df.loc[end == self._end]
-
-        return df
-
-    def _get_data(self) -> None:
-        """
-        Get all required data
-        """
-
-        if len(self._stations) > 0:
-
-            # List of datasets
-            datasets = [(str(station),) for station in self._stations]
-
-            # Data Processing
-            return processing_handler(
-                datasets, self._load, self.processes, self.threads)
-
-        # Empty DataFrame
-        return pd.DataFrame(columns=[*self._types])
-
-    def _resolve_point(
-        self,
-        method: str,
-        stations: pd.DataFrame,
-        alt: int,
-        adapt_temp: bool
-    ) -> None:
-        """
-        Project weather station data onto a single point
-        """
-
-        if self._stations.size == 0 or self._data.size == 0:
-            return None
-
-        def adjust_temp(data: pd.DataFrame):
-            """
-            Adjust temperature-like data based on altitude
-            """
-
-            data.loc[data['tmin'] != np.NaN, 'tmin'] = data['tmin'] + \
-                ((2 / 3) * ((data['elevation'] - alt) / 100))
-            data.loc[data['tmax'] != np.NaN, 'tmax'] = data['tmax'] + \
-                ((2 / 3) * ((data['elevation'] - alt) / 100))
-
-            return data
-
-        if method == 'nearest':
-
-            if adapt_temp:
-
-                # Join elevation of involved weather stations
-                data = self._data.join(
-                    stations['elevation'], on='station')
-
-                # Adapt temperature-like data based on altitude
-                data = adjust_temp(data)
-
-                # Drop elevation & round
-                data = data.drop('elevation', axis=1).round(1)
-
-            else:
-
-                data = self._data
-
-            self._data = data.groupby(level=[
-                'start',
-                'end',
-                'month'
-            ]).agg('first')
-
-        else:
-
-            data = self._data.join(
-                stations[['score', 'elevation']], on='station')
-
-            # Adapt temperature-like data based on altitude
-            if adapt_temp:
-                data = adjust_temp(data)
-
-            # Aggregate mean data
-            data = data.groupby(level=[
-                'start',
-                'end',
-                'month'
-            ]).apply(weighted_average)
-
-            # Remove obsolete index column
-            try:
-                data = data.reset_index(level=3, drop=True)
-            except IndexError:
-                pass
-
-            # Drop score and elevation
-            self._data = data.drop(['score', 'elevation'], axis=1).round(1)
-
-        # Set placeholder station ID
-        self._data['station'] = 'XXXXX'
-        self._data = self._data.set_index('station', append=True)
-        self._data = self._data.reorder_levels(
-            ['station', 'start', 'end', 'month'])
-        self._stations = pd.Index(['XXXXX'])
+    # Which columns should be parsed as dates?
+    _parse_dates = None
 
     def __init__(
         self,

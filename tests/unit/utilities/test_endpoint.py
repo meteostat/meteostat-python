@@ -23,19 +23,18 @@ def test_generate_endpoint_path_normals():
     ) == 'normals/10286.csv.gz'
 
 
-def test_generate_endpoint_path_hourly_full():
+def test_generate_endpoint_path_hourly():
     """
-    Generate endpoint path for full hourly data
+    Generate endpoint path for hourly data
     """
 
     assert generate_endpoint_path(
         Granularity.HOURLY,
-        '10286',
-        True
-    ) == 'hourly/full/10286.csv.gz'
+        '10286'
+    ) == 'hourly/10286.csv.gz'
 
 
-def test_generate_endpoint_path_hourly_full_obs():
+def test_generate_endpoint_path_hourly_map():
     """
     Generate endpoint path for hourly observation data
     """
@@ -43,11 +42,12 @@ def test_generate_endpoint_path_hourly_full_obs():
     assert generate_endpoint_path(
         Granularity.HOURLY,
         '10286',
-        False
-    ) == 'hourly/obs/10286.csv.gz'
+        None,
+        True
+    ) == 'hourly/10286.map.csv.gz'
 
 
-def test_generate_endpoint_path_hourly_subset():
+def test_generate_endpoint_path_hourly_chunk():
     """
     Generate endpoint path for hourly chunk
     """
@@ -55,30 +55,27 @@ def test_generate_endpoint_path_hourly_subset():
     assert generate_endpoint_path(
         Granularity.HOURLY,
         '10286',
-        True,
         2021
-    ) == 'hourly/full/2021/10286.csv.gz'
+    ) == 'hourly/2021/10286.csv.gz'
 
 
-def test_generate_endpoint_path_daily_subset():
+def test_generate_endpoint_path_daily():
     """
-    Generate endpoint path for full daily data
+    Generate endpoint path for daily data
     """
 
     assert generate_endpoint_path(
         Granularity.DAILY,
-        '10286',
-        True
-    ) == 'daily/full/10286.csv.gz'
+        '10286'
+    ) == 'daily/10286.csv.gz'
 
 
-def test_generate_endpoint_path_monthly_subset():
+def test_generate_endpoint_path_monthly():
     """
-    Generate endpoint path for full monthly data
+    Generate endpoint path for monthly data
     """
 
     assert generate_endpoint_path(
         Granularity.MONTHLY,
-        '10286',
-        True
-    ) == 'monthly/full/10286.csv.gz'
+        '10286'
+    ) == 'monthly/10286.csv.gz'
