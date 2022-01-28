@@ -5,4 +5,5 @@ matplotlib
 pylint
 pytest
 autopep8
+wheel
 twine
