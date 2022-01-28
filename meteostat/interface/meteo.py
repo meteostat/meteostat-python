@@ -127,8 +127,7 @@ class Meteo(Base):
             # Filter & return
             return df.loc[end == self._end]
 
-        elif self._start and self._end:
-            df = Meteo._filter_time(df, self._start, self._end)
+        df = Meteo._filter_time(df, self._start, self._end)
 
         # Return
         return df
