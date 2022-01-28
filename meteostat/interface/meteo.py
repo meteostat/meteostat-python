@@ -126,6 +126,7 @@ class Meteo(Base):
             end = df.index.get_level_values('end')
             # Filter & return
             return df.loc[end == self._end]
+        # pylint: disable=no-else-return
         elif not self.granularity == Granularity.NORMALS:
             df = Meteo._filter_time(df, self._start, self._end)
 
@@ -183,6 +184,7 @@ class Meteo(Base):
 
         return df
 
+    # pylint: disable=too-many-branches
     def _resolve_point(
         self,
         method: str,

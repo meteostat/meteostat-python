@@ -15,7 +15,7 @@ def test_model_disabled():
 
     today = datetime.today()
     start= today + timedelta(days = 2)
-    end = today + timedelta(days = 3) 
+    end = today + timedelta(days = 3)
     data = Hourly('10637', start, end, model=False)
 
     assert data.count() == 0
