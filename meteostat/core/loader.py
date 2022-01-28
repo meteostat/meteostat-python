@@ -11,7 +11,7 @@ The code is licensed under the MIT license.
 from urllib.error import HTTPError
 from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
-from typing import Callable
+from typing import Callable, Union
 import pandas as pd
 from meteostat.core.warn import warn
 
@@ -71,7 +71,7 @@ def load_handler(
     endpoint: str,
     path: str,
     columns: list,
-    types: dict,
+    types: Union[dict, None],
     parse_dates: list,
     coerce_dates: bool = False
 ) -> pd.DataFrame:
