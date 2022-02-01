@@ -11,13 +11,12 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from typing import Union
 import pandas as pd
-from meteostat.utilities.aggregations import degree_mean
 from meteostat.enumerations.granularity import Granularity
-from meteostat.interface.timeseries import Timeseries
+from meteostat.interface.timeseries import TimeSeries
 from meteostat.interface.point import Point
 
 
-class Monthly(Timeseries):
+class Monthly(TimeSeries):
 
     """
     Retrieve monthly weather data for one or multiple weather stations or
@@ -33,6 +32,9 @@ class Monthly(Timeseries):
     # Default frequency
     _freq: str = '1MS'
 
+    # Flag which represents model data
+    _model_flag = 'I'
+
     # Columns
     _columns: list = [
         'year',
@@ -41,10 +43,7 @@ class Monthly(Timeseries):
         'tmin',
         'tmax',
         'prcp',
-        'snow',
-        'wdir',
         'wspd',
-        'wpgt',
         'pres',
         'tsun'
     ]
@@ -58,10 +57,7 @@ class Monthly(Timeseries):
         'tmin': 'float64',
         'tmax': 'float64',
         'prcp': 'float64',
-        'snow': 'float64',
-        'wdir': 'float64',
         'wspd': 'float64',
-        'wpgt': 'float64',
         'pres': 'float64',
         'tsun': 'float64'
     }
@@ -77,10 +73,7 @@ class Monthly(Timeseries):
         'tmin': 'mean',
         'tmax': 'mean',
         'prcp': 'sum',
-        'snow': 'max',
-        'wdir': degree_mean,
         'wspd': 'mean',
-        'wpgt': 'max',
         'pres': 'mean',
         'tsun': 'sum'
     }
@@ -99,7 +92,7 @@ class Monthly(Timeseries):
             start = start.replace(day=1)
 
         # Initialize time series
-        self._init_timeseries(loc, start, end, model, flags)
+        self._init_time_series(loc, start, end, model, flags)
 
     def expected_rows(self) -> int:
         """

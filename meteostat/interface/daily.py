@@ -13,11 +13,11 @@ from typing import Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.aggregations import degree_mean
-from meteostat.interface.timeseries import Timeseries
+from meteostat.interface.timeseries import TimeSeries
 from meteostat.interface.point import Point
 
 
-class Daily(Timeseries):
+class Daily(TimeSeries):
 
     """
     Retrieve daily weather observations for one or multiple weather stations or
@@ -32,6 +32,9 @@ class Daily(Timeseries):
 
     # Default frequency
     _freq: str = '1D'
+
+    # Flag which represents model data
+    _model_flag = 'G'
 
     # Columns
     _columns: list = [
@@ -94,7 +97,7 @@ class Daily(Timeseries):
     ) -> None:
 
         # Initialize time series
-        self._init_timeseries(loc, start, end, model, flags)
+        self._init_time_series(loc, start, end, model, flags)
 
     def expected_rows(self) -> int:
         """

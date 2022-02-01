@@ -15,7 +15,7 @@ __appname__ = 'meteostat'
 __version__ = '1.6.0'
 
 from .interface.base import Base
-from .interface.timeseries import Timeseries
+from .interface.timeseries import TimeSeries
 from .interface.stations import Stations
 from .interface.point import Point
 from .interface.hourly import Hourly

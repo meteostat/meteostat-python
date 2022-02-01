@@ -11,20 +11,19 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
 from typing import Union
-import numpy as np
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.utilities.mutations import localize, filter_time, adjust_temp
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.aggregations import weighted_average
 from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.base import Base
 
 
-class Meteo(Base):
+class MeteoData(Base):
 
     """
     A parent class for both time series and
@@ -36,33 +35,6 @@ class Meteo(Base):
 
     # The data frame
     _data: pd.DataFrame = pd.DataFrame()
-
-    @staticmethod
-    def _localize(df: pd.DataFrame, timezone: str) -> pd.DataFrame:
-        """
-        Convert time data to any time zone
-        """
-
-        return df.tz_localize(
-            'UTC',
-            level='time'
-        ).tz_convert(
-            timezone,
-            level='time'
-        )
-
-    @staticmethod
-    def _filter_time(df: pd.DataFrame, start: datetime,
-                     end: datetime) -> pd.DataFrame:
-        """
-        Filter time series data based on start and end date
-        """
-
-        # Get time index
-        time = df.index.get_level_values('time')
-
-        # Filter & return
-        return df.loc[(time >= start) & (time <= end)]
 
     def _load_data(
         self,
@@ -118,7 +90,7 @@ class Meteo(Base):
         # Localize time column
         if self.granularity == Granularity.HOURLY and self._timezone is not None and len(
                 df.index) > 0:
-            df = Meteo._localize(df, self._timezone)
+            df = localize(df, self._timezone)
 
         # Filter time period and append to DataFrame
         # pylint: disable=no-else-return
@@ -128,7 +100,7 @@ class Meteo(Base):
             # Filter & return
             return df.loc[end == self._end]
         elif not self.granularity == Granularity.NORMALS:
-            df = Meteo._filter_time(df, self._start, self._end)
+            df = filter_time(df, self._start, self._end)
 
         # Return
         return df
@@ -167,23 +139,6 @@ class Meteo(Base):
         # Empty DataFrame
         return pd.DataFrame(columns=[*self._types])
 
-    @staticmethod
-    def adjust_temp(df: pd.DataFrame, alt: int):
-        """
-        Adjust temperature-like data based on altitude
-        """
-
-        # Temperature-like columns
-        temp_like = ('temp', 'dwpt', 'tavg', 'tmin', 'tmax')
-
-        # Adjust values for all temperature-like data
-        for col_name in temp_like:
-            if col_name in df.columns:
-                df.loc[df[col_name] != np.NaN, col_name] = df[col_name] + \
-                    ((2 / 3) * ((df['elevation'] - alt) / 100))
-
-        return df
-
     # pylint: disable=too-many-branches
     def _resolve_point(
         self,
@@ -208,7 +163,7 @@ class Meteo(Base):
                     stations['elevation'], on='station')
 
                 # Adapt temperature-like data based on altitude
-                data = Meteo.adjust_temp(data, alt)
+                data = adjust_temp(data, alt)
 
                 # Drop elevation & round
                 data = data.drop('elevation', axis=1).round(1)
@@ -236,7 +191,7 @@ class Meteo(Base):
 
             # Adapt temperature-like data based on altitude
             if adapt_temp:
-                data = Meteo.adjust_temp(data, alt)
+                data = adjust_temp(data, alt)
 
             # Exclude non-mean data & perform aggregation
             if not self.granularity == Granularity.NORMALS:
