@@ -143,7 +143,7 @@ class TimeSeries(MeteoData):
                 inplace=True)
 
         # Drop NaN-only rows
-        self._data.dropna(how='all', inplace=True)
+        self._data.dropna(how='all', subset=columns, inplace=True)
 
     def _init_time_series(
         self,
