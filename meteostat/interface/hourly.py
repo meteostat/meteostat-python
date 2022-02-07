@@ -15,11 +15,11 @@ import pytz
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.aggregations import degree_mean
-from meteostat.interface.timeseries import Timeseries
+from meteostat.interface.timeseries import TimeSeries
 from meteostat.interface.point import Point
 
 
-class Hourly(Timeseries):
+class Hourly(TimeSeries):
 
     """
     Retrieve hourly weather observations for one or multiple weather stations or
@@ -40,6 +40,9 @@ class Hourly(Timeseries):
 
     # Default frequency
     _freq: str = '1H'
+
+    # Flag which represents model data
+    _model_flag = 'E'
 
     # Raw data columns
     _columns: list = [
@@ -155,7 +158,7 @@ class Hourly(Timeseries):
         self._set_time(start, end, timezone)
 
         # Initialize time series
-        self._init_timeseries(loc, start, end, model, flags)
+        self._init_time_series(loc, start, end, model, flags)
 
     def expected_rows(self) -> int:
         """

@@ -17,9 +17,10 @@ start = datetime(2000, 1, 1)
 end = datetime(2018, 12, 31)
 
 # Get monthly data
-data = Monthly('10637', start, end)
+# Then, aggregate annually
+data = Monthly('72202', start, end)
 data = data.normalize().aggregate(freq='1Y').fetch()
 
 # Plot chart
-data.plot(y=['tavg', 'tmin', 'tmax'])
+data.plot(y='tavg')
 plt.show()

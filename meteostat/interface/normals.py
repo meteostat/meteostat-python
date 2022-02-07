@@ -15,11 +15,11 @@ import numpy as np
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.core.warn import warn
-from meteostat.interface.meteo import Meteo
+from meteostat.interface.meteodata import MeteoData
 from meteostat.interface.point import Point
 
 
-class Normals(Meteo):
+class Normals(MeteoData):
 
     """
     Retrieve climate normals for one or multiple weather stations or

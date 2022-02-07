@@ -1,5 +1,5 @@
 """
-Timeseries Class
+TimeSeries Class
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
 under the terms of the Creative Commons Attribution-NonCommercial
@@ -15,16 +15,17 @@ import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import processing_handler, load_handler
+from meteostat.utilities.mutations import localize, filter_time
 from meteostat.utilities.validations import validate_series
 from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.point import Point
-from meteostat.interface.meteo import Meteo
+from meteostat.interface.meteodata import MeteoData
 
 
-class Timeseries(Meteo):
+class TimeSeries(MeteoData):
 
     """
-    Timeseries class which provides features which are
+    TimeSeries class which provides features which are
     used across all time series classes
     """
 
@@ -76,7 +77,9 @@ class Timeseries(Meteo):
                 self.endpoint,
                 file,
                 self._columns,
-                None,
+                {
+                    key: 'string' for key in self._columns[self._first_met_col:]
+                },
                 self._parse_dates)
 
             # Validate Series
@@ -89,11 +92,11 @@ class Timeseries(Meteo):
         # Localize time column
         if self.granularity == Granularity.HOURLY and self._timezone is not None and len(
                 df.index) > 0:
-            df = Timeseries._localize(df, self._timezone)
+            df = localize(df, self._timezone)
 
         # Filter time period and append to DataFrame
         if self._start and self._end:
-            df = Timeseries._filter_time(df, self._start, self._end)
+            df = filter_time(df, self._start, self._end)
 
         return df
 
@@ -126,8 +129,11 @@ class Timeseries(Meteo):
         columns = self._columns[self._first_met_col:]
 
         for col_name in columns:
-            self._data.loc[self._data[f'{col_name}_flag']
-                           == 'M', col_name] = np.NaN
+            self._data.loc[
+                (pd.isna(self._data[f'{col_name}_flag'])) |
+                (self._data[f'{col_name}_flag'].str.contains(self._model_flag)),
+                col_name
+            ] = np.NaN
 
         # Conditionally, remove flags from DataFrame
         if not self._flags:
@@ -137,9 +143,9 @@ class Timeseries(Meteo):
                 inplace=True)
 
         # Drop NaN-only rows
-        self._data.dropna(how='all', inplace=True)
+        self._data.dropna(how='all', subset=columns, inplace=True)
 
-    def _init_timeseries(
+    def _init_time_series(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,

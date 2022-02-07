@@ -15,9 +15,10 @@ def test_normalize():
 
     # Get 2018 monthly data for Frankfurt Airport
     data = Monthly(
-        ['10637'], start=datetime(
-            2018, 1, 1), end=datetime(
-            2018, 12, 31))
+        '72202',
+        start=datetime(2018, 1, 1),
+        end=datetime(2018, 12, 31)
+    )
     count = data.normalize().count()
 
     # Check if count matches 12
@@ -29,13 +30,13 @@ def test_aggregate():
     """
 
     # Get 2018 monthly data for Frankfurt Airport
-    data = Monthly(
-        ['10637'], start=datetime(
-            2018, 1, 1), end=datetime(
-            2018, 12, 31))
+    data = Monthly('72202',
+        start=datetime(2018, 1, 1),
+        end=datetime(2018, 12, 31)
+    )
     count = data.normalize().aggregate('1Y').count()
 
-    # Check if count matches 53
+    # Check if count matches 1
     assert count == 1
 
 def test_coverage():
@@ -45,9 +46,10 @@ def test_coverage():
 
     # Get 2018 monthly data for Frankfurt Airport
     data = Monthly(
-        ['10637'], start=datetime(
-            2018, 1, 1), end=datetime(
-            2018, 12, 31))
+        '72202',
+        start=datetime(2018, 1, 1),
+        end=datetime(2018, 12, 31)
+    )
     coverage = data.normalize().coverage()
 
     # Check if coverage is 100%
