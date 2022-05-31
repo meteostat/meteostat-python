@@ -17,10 +17,7 @@ from meteostat.core.warn import warn
 
 
 def processing_handler(
-    datasets: list,
-    load: Callable[[dict], None],
-    cores: int,
-    threads: int
+    datasets: list, load: Callable[[dict], None], cores: int, threads: int
 ) -> None:
     """
     Load multiple datasets (simultaneously)
@@ -73,7 +70,7 @@ def load_handler(
     columns: list,
     types: Union[dict, None],
     parse_dates: list,
-    coerce_dates: bool = False
+    coerce_dates: bool = False,
 ) -> pd.DataFrame:
     """
     Load a single CSV file into a DataFrame
@@ -84,16 +81,17 @@ def load_handler(
         # Read CSV file from Meteostat endpoint
         df = pd.read_csv(
             endpoint + path,
-            compression='gzip',
+            compression="gzip",
             names=columns,
             dtype=types,
-            parse_dates=parse_dates
+            parse_dates=parse_dates,
         )
 
         # Force datetime conversion
         if coerce_dates:
             df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
-                pd.to_datetime, errors='coerce')
+                pd.to_datetime, errors="coerce"
+            )
 
     except (FileNotFoundError, HTTPError):
 
@@ -101,7 +99,7 @@ def load_handler(
         df = pd.DataFrame(columns=[*types])
 
         # Display warning
-        warn(f'Cannot load {path} from {endpoint}')
+        warn(f"Cannot load {path} from {endpoint}")
 
     # Return DataFrame
     return df

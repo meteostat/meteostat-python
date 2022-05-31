@@ -19,7 +19,7 @@ end = datetime(2018, 12, 31)
 # Get closest weather station
 stations = Stations()
 stations = stations.nearby(49.2497, -123.1193)
-stations = stations.inventory('daily', (start, end))
+stations = stations.inventory("daily", (start, end))
 station = stations.fetch(1)
 
 # Get daily data
@@ -27,5 +27,5 @@ data = Daily(station, start, end)
 data = data.fetch()
 
 # Plot chart
-data.plot(y=['tavg', 'tmin', 'tmax'])
+data.plot(y=["tavg", "tmin", "tmax"])
 plt.show()

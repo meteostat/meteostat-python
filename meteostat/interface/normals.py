@@ -27,7 +27,7 @@ class Normals(MeteoData):
     """
 
     # The cache subdirectory
-    cache_subdir: str = 'normals'
+    cache_subdir: str = "normals"
 
     # Granularity
     granularity = Granularity.NORMALS
@@ -46,15 +46,15 @@ class Normals(MeteoData):
 
     # Columns
     _columns: list = [
-        'start',
-        'end',
-        'month',
-        'tmin',
-        'tmax',
-        'prcp',
-        'wspd',
-        'pres',
-        'tsun'
+        "start",
+        "end",
+        "month",
+        "tmin",
+        "tmax",
+        "prcp",
+        "wspd",
+        "pres",
+        "tsun",
     ]
 
     # Index of first meteorological column
@@ -62,12 +62,12 @@ class Normals(MeteoData):
 
     # Data types
     _types: dict = {
-        'tmin': 'float64',
-        'tmax': 'float64',
-        'prcp': 'float64',
-        'wspd': 'float64',
-        'pres': 'float64',
-        'tsun': 'float64'
+        "tmin": "float64",
+        "tmax": "float64",
+        "prcp": "float64",
+        "wspd": "float64",
+        "pres": "float64",
+        "tsun": "float64",
     }
 
     # Which columns should be parsed as dates?
@@ -77,7 +77,7 @@ class Normals(MeteoData):
         self,
         loc: Union[pd.DataFrame, Point, list, str],
         start: int = None,
-        end: int = None
+        end: int = None,
     ) -> None:
 
         # Set list of weather stations
@@ -87,9 +87,8 @@ class Normals(MeteoData):
         elif isinstance(loc, Point):
             if start and end:
                 stations = loc.get_stations(
-                    'monthly', datetime(
-                        start, 1, 1), datetime(
-                        end, 12, 31))
+                    "monthly", datetime(start, 1, 1), datetime(end, 12, 31)
+                )
             else:
                 stations = loc.get_stations()
 
@@ -102,9 +101,10 @@ class Normals(MeteoData):
             self._stations = pd.Index(loc)
 
         # Check period
-        if (start and end) and (end - start != 29 or end %
-                                10 != 0 or end >= datetime.now().year):
-            raise ValueError('Invalid reference period')
+        if (start and end) and (
+            end - start != 29 or end % 10 != 0 or end >= datetime.now().year
+        ):
+            raise ValueError("Invalid reference period")
 
         # Set period
         self._start = start
@@ -130,7 +130,7 @@ class Normals(MeteoData):
         temp = copy(self)
 
         if self.count() == 0:
-            warn('Pointless normalization of empty DataFrame')
+            warn("Pointless normalization of empty DataFrame")
 
         # Go through list of weather stations
         for station in temp._stations:
@@ -138,31 +138,30 @@ class Normals(MeteoData):
             periods: pd.Index = pd.Index([])
             # Get periods
             if self.count() > 0:
-                periods = temp._data[temp._data.index.get_level_values(
-                    'station') == station].index.unique('end')
+                periods = temp._data[
+                    temp._data.index.get_level_values("station") == station
+                ].index.unique("end")
             elif periods.size == 0 and self._end:
                 periods = pd.Index([self._end])
             # Go through all periods
             for period in periods:
                 # Create DataFrame
-                df = pd.DataFrame(
-                    columns=temp._columns[temp._first_met_col:])
+                df = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
                 # Populate index columns
-                df['month'] = range(1, 13)
-                df['station'] = station
-                df['start'] = period - 29
-                df['end'] = period
+                df["month"] = range(1, 13)
+                df["station"] = station
+                df["start"] = period - 29
+                df["end"] = period
                 # Set index
-                df.set_index(
-                    ['station', 'start', 'end', 'month'], inplace=True)
+                df.set_index(["station", "start", "end", "month"], inplace=True)
                 # Merge data
-                temp._data = pd.concat([temp._data, df], axis=0).groupby(
-                    [
-                        'station',
-                        'start',
-                        'end',
-                        'month'
-                    ], as_index=True).first() if temp._data.index.size > 0 else df
+                temp._data = (
+                    pd.concat([temp._data, df], axis=0)
+                    .groupby(["station", "start", "end", "month"], as_index=True)
+                    .first()
+                    if temp._data.index.size > 0
+                    else df
+                )
 
         # None -> NaN
         temp._data = temp._data.fillna(np.NaN)
@@ -179,17 +178,18 @@ class Normals(MeteoData):
         temp = copy(self._data)
 
         # Add avg. temperature column
-        temp.insert(0, 'tavg', temp[['tmin', 'tmax']].dropna(how='any').mean(
-            axis=1).round(1))
+        temp.insert(
+            0, "tavg", temp[["tmin", "tmax"]].dropna(how="any").mean(axis=1).round(1)
+        )
 
         # Remove station index if it's a single station
-        if len(self._stations) == 1 and 'station' in temp.index.names:
-            temp = temp.reset_index(level='station', drop=True)
+        if len(self._stations) == 1 and "station" in temp.index.names:
+            temp = temp.reset_index(level="station", drop=True)
 
         # Remove start & end year if period is set
         if self._start and self._end and self.count() > 0:
-            temp = temp.reset_index(level='start', drop=True)
-            temp = temp.reset_index(level='end', drop=True)
+            temp = temp.reset_index(level="start", drop=True)
+            temp = temp.reset_index(level="end", drop=True)
 
         # Return data frame
         return temp

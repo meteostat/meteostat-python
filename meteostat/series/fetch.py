@@ -21,8 +21,8 @@ def fetch(self) -> pd.DataFrame:
     temp = copy(self._data)
 
     # Remove station index if it's a single station
-    if len(self._stations) == 1 and 'station' in temp.index.names:
-        temp = temp.reset_index(level='station', drop=True)
+    if len(self._stations) == 1 and "station" in temp.index.names:
+        temp = temp.reset_index(level="station", drop=True)
 
     # Return data frame
     return temp

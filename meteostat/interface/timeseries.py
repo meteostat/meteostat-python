@@ -44,22 +44,13 @@ class TimeSeries(MeteoData):
     # Fetch source flags?
     _flags = bool = False
 
-    def _load_flags(
-        self,
-        station: str,
-        year: Union[int, None] = None
-    ) -> None:
+    def _load_flags(self, station: str, year: Union[int, None] = None) -> None:
         """
         Load flag file for a single station from Meteostat
         """
 
         # File name
-        file = generate_endpoint_path(
-            self.granularity,
-            station,
-            year,
-            True
-        )
+        file = generate_endpoint_path(self.granularity, station, year, True)
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
@@ -77,10 +68,9 @@ class TimeSeries(MeteoData):
                 self.endpoint,
                 file,
                 self._columns,
-                {
-                    key: 'string' for key in self._columns[self._first_met_col:]
-                },
-                self._parse_dates)
+                {key: "string" for key in self._columns[self._first_met_col :]},
+                self._parse_dates,
+            )
 
             # Validate Series
             df = validate_series(df, station)
@@ -90,8 +80,11 @@ class TimeSeries(MeteoData):
                 df.to_pickle(path)
 
         # Localize time column
-        if self.granularity == Granularity.HOURLY and self._timezone is not None and len(
-                df.index) > 0:
+        if (
+            self.granularity == Granularity.HOURLY
+            and self._timezone is not None
+            and len(df.index) > 0
+        ):
             df = localize(df, self._timezone)
 
         # Filter time period and append to DataFrame
@@ -112,10 +105,7 @@ class TimeSeries(MeteoData):
 
             # Data Processings
             return processing_handler(
-                datasets,
-                self._load_flags,
-                self.processes,
-                self.threads
+                datasets, self._load_flags, self.processes, self.threads
             )
 
         # Empty DataFrame
@@ -126,24 +116,23 @@ class TimeSeries(MeteoData):
         Remove model data from time series
         """
 
-        columns = self._columns[self._first_met_col:]
+        columns = self._columns[self._first_met_col :]
 
         for col_name in columns:
             self._data.loc[
-                (pd.isna(self._data[f'{col_name}_flag'])) |
-                (self._data[f'{col_name}_flag'].str.contains(self._model_flag)),
-                col_name
+                (pd.isna(self._data[f"{col_name}_flag"]))
+                | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
+                col_name,
             ] = np.NaN
 
         # Conditionally, remove flags from DataFrame
         if not self._flags:
             self._data.drop(
-                map(lambda col_name: f'{col_name}_flag', columns),
-                axis=1,
-                inplace=True)
+                map(lambda col_name: f"{col_name}_flag", columns), axis=1, inplace=True
+            )
 
         # Drop NaN-only rows
-        self._data.dropna(how='all', subset=columns, inplace=True)
+        self._data.dropna(how="all", subset=columns, inplace=True)
 
     def _init_time_series(
         self,
@@ -151,7 +140,7 @@ class TimeSeries(MeteoData):
         start: datetime = None,
         end: datetime = None,
         model: bool = True,  # Include model data?
-        flags: bool = False  # Load source flags?
+        flags: bool = False,  # Load source flags?
     ) -> None:
         """
         Common initialization for all time series, regardless
@@ -164,7 +153,7 @@ class TimeSeries(MeteoData):
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
         elif isinstance(loc, Point):
-            stations = loc.get_stations('daily', start, end, model)
+            stations = loc.get_stations("daily", start, end, model)
             self._stations = stations.index
         else:
             if not isinstance(loc, list):
@@ -186,10 +175,8 @@ class TimeSeries(MeteoData):
         if flags or not model:
             flags = self._get_flags()
             self._data = self._data.merge(
-                flags,
-                on=['station', 'time'],
-                how='left',
-                suffixes=[None, '_flag'])
+                flags, on=["station", "time"], how="left", suffixes=[None, "_flag"]
+            )
 
         # Remove model data from DataFrame and
         # drop flags if not specified otherwise

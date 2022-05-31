@@ -11,10 +11,7 @@ The code is licensed under the MIT license.
 from copy import copy
 
 
-def convert(
-    self,
-    units: dict
-):
+def convert(self, units: dict):
     """
     Convert columns to a different unit
     """

@@ -15,8 +15,8 @@ stations = Stations()
 
 # Get number of stations in northern hemisphere
 northern = stations.bounds((90, -180), (0, 180))
-print('Stations in northern hemisphere:', northern.count())
+print("Stations in northern hemisphere:", northern.count())
 
 # Get number of stations in southern hemisphere
 southern = stations.bounds((0, -180), (-90, 180))
-print('Stations in southern hemisphere:', southern.count())
+print("Stations in southern hemisphere:", southern.count())

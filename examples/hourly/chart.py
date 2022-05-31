@@ -26,5 +26,5 @@ data = Hourly(station, start, end)
 data = data.fetch()
 
 # Plot chart
-data.plot(y='temp')
+data.plot(y="temp")
 plt.show()
