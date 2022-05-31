@@ -14,7 +14,7 @@ The Meteostat Python package is available through [PyPI](https://pypi.org/projec
 pip install meteostat
 ```
 
-Meteostat **requires Python 3.5** or higher. If you want to visualize data, please install Matplotlib, too.
+Meteostat **requires Python 3.6** or higher. If you want to visualize data, please install Matplotlib, too.
 
 ## Documentation
 

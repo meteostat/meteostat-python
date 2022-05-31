@@ -12,7 +12,7 @@ from meteostat import Stations
 
 # Get stations in Ontario
 stations = Stations()
-stations = stations.region('CA', 'ON')
+stations = stations.region("CA", "ON")
 
 # Print count to console
-print('Stations in Ontario:', stations.count())
+print("Stations in Ontario:", stations.count())

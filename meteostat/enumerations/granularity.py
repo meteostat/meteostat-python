@@ -16,7 +16,7 @@ class Granularity(Enum):
     The different levels of time series granularity
     """
 
-    HOURLY = 'hourly'
-    DAILY = 'daily'
-    MONTHLY = 'monthly'
-    NORMALS = 'normals'
+    HOURLY = "hourly"
+    DAILY = "daily"
+    MONTHLY = "monthly"
+    NORMALS = "normals"

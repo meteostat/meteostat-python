@@ -11,23 +11,20 @@ The code is licensed under the MIT license.
 import pandas as pd
 
 
-def validate_series(
-    df: pd.DataFrame,
-    station: str
-) -> pd.DataFrame:
+def validate_series(df: pd.DataFrame, station: str) -> pd.DataFrame:
     """
     Make sure a series is formatted correctly
     """
 
     # Add missing column(s)
-    if 'time' not in df.columns:
-        df['time'] = None
+    if "time" not in df.columns:
+        df["time"] = None
 
     # Add weather station ID
-    df['station'] = station
+    df["station"] = station
 
     # Set index
-    df = df.set_index(['station', 'time'])
+    df = df.set_index(["station", "time"])
 
     # Return DataFrame
     return df

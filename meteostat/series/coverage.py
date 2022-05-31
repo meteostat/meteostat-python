@@ -9,10 +9,7 @@ The code is licensed under the MIT license.
 """
 
 
-def coverage(
-    self,
-    parameter: str = None
-) -> float:
+def coverage(self, parameter: str = None) -> float:
     """
     Calculate data coverage (overall or by parameter)
     """

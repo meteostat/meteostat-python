@@ -21,7 +21,7 @@ def normalize(self):
     """
 
     if self.count() == 0:
-        warn('Pointless normalization of empty DataFrame')
+        warn("Pointless normalization of empty DataFrame")
 
     # Create temporal instance
     temp = copy(self)
@@ -29,10 +29,10 @@ def normalize(self):
     if temp._start and temp._end and temp.coverage() < 1:
 
         # Create result DataFrame
-        result = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
+        result = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
 
         # Handle tz-aware date ranges
-        if hasattr(temp, '_timezone') and temp._timezone is not None:
+        if hasattr(temp, "_timezone") and temp._timezone is not None:
             timezone = pytz.timezone(temp._timezone)
             start = temp._start.astimezone(timezone)
             end = temp._end.astimezone(timezone)
@@ -43,28 +43,32 @@ def normalize(self):
         # Go through list of weather stations
         for station in temp._stations:
             # Create data frame
-            df = pd.DataFrame(columns=temp._columns[temp._first_met_col:])
+            df = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
             # Add time series
-            df['time'] = pd.date_range(
+            df["time"] = pd.date_range(
                 start,
                 end,
                 freq=self._freq,
-                tz=temp._timezone if hasattr(temp, '_timezone') else None)
+                tz=temp._timezone if hasattr(temp, "_timezone") else None,
+            )
             # Add station ID
-            df['station'] = station
+            df["station"] = station
             # Add columns
-            for column in temp._columns[temp._first_met_col:]:
+            for column in temp._columns[temp._first_met_col :]:
                 # Add column to DataFrame
                 df[column] = NaN
 
             result = pd.concat([result, df], axis=0)
 
         # Set index
-        result = result.set_index(['station', 'time'])
+        result = result.set_index(["station", "time"])
 
         # Merge data
-        temp._data = pd.concat([temp._data, result], axis=0).groupby(
-            ['station', 'time'], as_index=True).first()
+        temp._data = (
+            pd.concat([temp._data, result], axis=0)
+            .groupby(["station", "time"], as_index=True)
+            .first()
+        )
 
         # None -> NaN
         temp._data = temp._data.fillna(NaN)

@@ -13,7 +13,7 @@ def test_normals():
     """
 
     # Get normals for Frankfurt Airport
-    data = Normals('10637', (1961, 1990))
+    data = Normals("10637", (1961, 1990))
 
     # Count rows
     count = data.count()

@@ -24,28 +24,28 @@ class Monthly(TimeSeries):
     """
 
     # The cache subdirectory
-    cache_subdir: str = 'monthly'
+    cache_subdir: str = "monthly"
 
     # Granularity
     granularity = Granularity.MONTHLY
 
     # Default frequency
-    _freq: str = '1MS'
+    _freq: str = "1MS"
 
     # Flag which represents model data
-    _model_flag = 'I'
+    _model_flag = "I"
 
     # Columns
     _columns: list = [
-        'year',
-        'month',
-        'tavg',
-        'tmin',
-        'tmax',
-        'prcp',
-        'wspd',
-        'pres',
-        'tsun'
+        "year",
+        "month",
+        "tavg",
+        "tmin",
+        "tmax",
+        "prcp",
+        "wspd",
+        "pres",
+        "tsun",
     ]
 
     # Index of first meteorological column
@@ -53,38 +53,36 @@ class Monthly(TimeSeries):
 
     # Data types
     _types: dict = {
-        'tavg': 'float64',
-        'tmin': 'float64',
-        'tmax': 'float64',
-        'prcp': 'float64',
-        'wspd': 'float64',
-        'pres': 'float64',
-        'tsun': 'float64'
+        "tavg": "float64",
+        "tmin": "float64",
+        "tmax": "float64",
+        "prcp": "float64",
+        "wspd": "float64",
+        "pres": "float64",
+        "tsun": "float64",
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {
-        'time': [0, 1]
-    }
+    _parse_dates: dict = {"time": [0, 1]}
 
     # Default aggregation functions
     aggregations: dict = {
-        'tavg': 'mean',
-        'tmin': 'mean',
-        'tmax': 'mean',
-        'prcp': 'sum',
-        'wspd': 'mean',
-        'pres': 'mean',
-        'tsun': 'sum'
+        "tavg": "mean",
+        "tmin": "mean",
+        "tmax": "mean",
+        "prcp": "sum",
+        "wspd": "mean",
+        "pres": "mean",
+        "tsun": "sum",
     }
 
     def __init__(
         self,
-        loc: Union[pd.DataFrame, Point, list, str], # Station(s) or geo point
+        loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
-        model: bool = True, # Include model data?
-        flags: bool = False # Load source flags?
+        model: bool = True,  # Include model data?
+        flags: bool = False,  # Load source flags?
     ) -> None:
 
         # Set start date
@@ -99,5 +97,8 @@ class Monthly(TimeSeries):
         Return the number of rows expected for the defined date range
         """
 
-        return ((self._end.year - self._start.year) * 12 +
-                self._end.month - self._start.month) + 1
+        return (
+            (self._end.year - self._start.year) * 12
+            + self._end.month
+            - self._start.month
+        ) + 1

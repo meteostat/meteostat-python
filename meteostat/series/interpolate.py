@@ -12,10 +12,7 @@ from copy import copy
 from meteostat.core.warn import warn
 
 
-def interpolate(
-    self,
-    limit: int = 3
-):
+def interpolate(self, limit: int = 3):
     """
     Interpolate NULL values
     """
@@ -26,13 +23,15 @@ def interpolate(
         temp = copy(self)
 
         # Apply interpolation
-        temp._data = temp._data.groupby('station').apply(
+        temp._data = temp._data.groupby("station").apply(
             lambda group: group.interpolate(
-                method='linear', limit=limit, limit_direction='both', axis=0))
+                method="linear", limit=limit, limit_direction="both", axis=0
+            )
+        )
 
         # Return class instance
         return temp
 
     # Show warning & return self
-    warn('Skipping interpolation on empty DataFrame')
+    warn("Skipping interpolation on empty DataFrame")
     return self

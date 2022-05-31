@@ -13,25 +13,18 @@ import time
 import hashlib
 
 
-def get_local_file_path(
-    cache_dir: str,
-    cache_subdir: str,
-    path: str
-) -> str:
+def get_local_file_path(cache_dir: str, cache_subdir: str, path: str) -> str:
     """
     Get the local file path
     """
 
     # Get file ID
-    file = hashlib.md5(path.encode('utf-8')).hexdigest()
+    file = hashlib.md5(path.encode("utf-8")).hexdigest()
 
     return f"{cache_dir}/{cache_subdir}/{file}"
 
 
-def file_in_cache(
-    path: str,
-    max_age: int = 0
-) -> bool:
+def file_in_cache(path: str, max_age: int = 0) -> bool:
     """
     Check if a file exists in the local cache
     """
@@ -47,18 +40,14 @@ def file_in_cache(
             pass
 
     # Return the file path if it exists
-    if os.path.isfile(path) and time.time() - \
-            os.path.getmtime(path) <= max_age:
+    if os.path.isfile(path) and time.time() - os.path.getmtime(path) <= max_age:
         return True
 
     return False
 
 
 @classmethod
-def clear_cache(
-    cls,
-    max_age: int = None
-) -> None:
+def clear_cache(cls, max_age: int = None) -> None:
     """
     Clear the cache
     """
@@ -73,15 +62,12 @@ def clear_cache(
         now = time.time()
 
         # Go through all files
-        for file in os.listdir(
-                cls.cache_dir + os.sep + cls.cache_subdir):
+        for file in os.listdir(cls.cache_dir + os.sep + cls.cache_subdir):
 
             # Get full path
-            path = os.path.join(
-                cls.cache_dir + os.sep + cls.cache_subdir, file)
+            path = os.path.join(cls.cache_dir + os.sep + cls.cache_subdir, file)
 
             # Check if file is older than max_age
-            if now - \
-                    os.path.getmtime(path) > max_age and os.path.isfile(path):
+            if now - os.path.getmtime(path) > max_age and os.path.isfile(path):
                 # Delete file
                 os.remove(path)

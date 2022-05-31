@@ -11,8 +11,8 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-__appname__ = 'meteostat'
-__version__ = '1.6.1'
+__appname__ = "meteostat"
+__version__ = "1.6.2"
 
 from .interface.base import Base
 from .interface.timeseries import TimeSeries

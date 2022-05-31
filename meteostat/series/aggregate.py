@@ -13,11 +13,7 @@ import pandas as pd
 from meteostat.core.warn import warn
 
 
-def aggregate(
-    self,
-    freq: str = None,
-    spatial: bool = False
-):
+def aggregate(self, freq: str = None, spatial: bool = False):
     """
     Aggregate observations
     """
@@ -32,13 +28,15 @@ def aggregate(
             freq = self._freq
 
         # Time aggregation
-        temp._data = temp._data.groupby(['station', pd.Grouper(
-            level='time', freq=freq)]).agg(temp.aggregations)
+        temp._data = temp._data.groupby(
+            ["station", pd.Grouper(level="time", freq=freq)]
+        ).agg(temp.aggregations)
 
         # Spatial aggregation
         if spatial:
             temp._data = temp._data.groupby(
-                [pd.Grouper(level='time', freq=freq)]).mean()
+                [pd.Grouper(level="time", freq=freq)]
+            ).mean()
 
         # Round
         temp._data = temp._data.round(1)
@@ -47,5 +45,5 @@ def aggregate(
         return temp
 
     # Show warning & return self
-    warn('Skipping aggregation on empty DataFrame')
+    warn("Skipping aggregation on empty DataFrame")
     return self
