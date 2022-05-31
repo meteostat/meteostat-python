@@ -11,7 +11,6 @@ The code is licensed under the MIT license.
 from copy import copy
 from datetime import datetime, timedelta
 from typing import Union
-import numpy as np
 import pandas as pd
 from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import load_handler

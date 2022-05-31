@@ -106,7 +106,7 @@ class Point:
             # Remove already included stations from unfiltered
             unfiltered = unfiltered.loc[~unfiltered.index.isin(stations.index)]
             # Append to existing DataFrame
-            stations = pd.concat((stations, unfiltered.head(self.max_count - selected)))
+            stations = pd.concat(stations, unfiltered.head(self.max_count - selected))
 
         # Score values
         if self.radius:
