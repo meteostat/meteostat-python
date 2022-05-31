@@ -26,10 +26,7 @@ def get_distance(lat1, lon1, lat2, lon2) -> float:
     dlon = lon2 - lon1
 
     # Calculate distance
-    arch = (
-        np.sin(dlat / 2) ** 2
-        + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
-    )
+    arch = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
     arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
     return radius * arch_sin

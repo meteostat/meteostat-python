@@ -174,7 +174,7 @@ class MeteoData(Base):
 
             # Adapt temperature-like data based on altitude
             if adapt_temp:
-                data = adjust_temp(data, alt
+                data = adjust_temp(data, alt)
 
             # Exclude non-mean data & perform aggregation
             if not self.granularity == Granularity.NORMALS:
