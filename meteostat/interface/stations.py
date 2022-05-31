@@ -16,6 +16,7 @@ import pandas as pd
 from meteostat.core.cache import get_local_file_path, file_in_cache
 from meteostat.core.loader import load_handler
 from meteostat.interface.base import Base
+from meteostat.utilities.helpers import get_distance
 
 
 class Stations(Base):
@@ -25,43 +26,43 @@ class Stations(Base):
     """
 
     # The cache subdirectory
-    cache_subdir: str = 'stations'
+    cache_subdir: str = "stations"
 
     # The list of selected weather Stations
     _data: pd.DataFrame = None
 
     # Raw data columns
     _columns: list = [
-        'id',
-        'name',
-        'country',
-        'region',
-        'wmo',
-        'icao',
-        'latitude',
-        'longitude',
-        'elevation',
-        'timezone',
-        'hourly_start',
-        'hourly_end',
-        'daily_start',
-        'daily_end',
-        'monthly_start',
-        'monthly_end'
+        "id",
+        "name",
+        "country",
+        "region",
+        "wmo",
+        "icao",
+        "latitude",
+        "longitude",
+        "elevation",
+        "timezone",
+        "hourly_start",
+        "hourly_end",
+        "daily_start",
+        "daily_end",
+        "monthly_start",
+        "monthly_end",
     ]
 
     # Processed data columns with types
     _types: dict = {
-        'id': 'string',
-        'name': 'object',
-        'country': 'string',
-        'region': 'string',
-        'wmo': 'string',
-        'icao': 'string',
-        'latitude': 'float64',
-        'longitude': 'float64',
-        'elevation': 'float64',
-        'timezone': 'string'
+        "id": "string",
+        "name": "object",
+        "country": "string",
+        "region": "string",
+        "wmo": "string",
+        "icao": "string",
+        "latitude": "float64",
+        "longitude": "float64",
+        "elevation": "float64",
+        "timezone": "string",
     }
 
     # Columns for date parsing
@@ -73,7 +74,7 @@ class Stations(Base):
         """
 
         # File name
-        file = 'stations/slim.csv.gz'
+        file = "stations/slim.csv.gz"
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
@@ -88,15 +89,11 @@ class Stations(Base):
 
             # Get data from Meteostat
             df = load_handler(
-                self.endpoint,
-                file,
-                self._columns,
-                self._types,
-                self._parse_dates,
-                True)
+                self.endpoint, file, self._columns, self._types, self._parse_dates, True
+            )
 
             # Add index
-            df = df.set_index('id')
+            df = df.set_index("id")
 
             # Save as Pickle
             if self.max_age > 0:
@@ -110,12 +107,7 @@ class Stations(Base):
         # Get all weather stations
         self._load()
 
-    def nearby(
-        self,
-        lat: float,
-        lon: float,
-        radius: int = None
-    ) -> 'Stations':
+    def nearby(self, lat: float, lon: float, radius: int = None) -> "Stations":
         """
         Sort/filter weather stations by physical distance
         """
@@ -123,45 +115,23 @@ class Stations(Base):
         # Create temporal instance
         temp = copy(self)
 
-        # Calculate distance between weather station and geo point
-        def distance(lat1, lon1, lat2, lon2):
-            # Earth radius in meters
-            radius = 6371000
-
-            # Degress to radian
-            lat1, lon1, lat2, lon2 = map(np.deg2rad, [lat1, lon1, lat2, lon2])
-
-            # Deltas
-            dlat = lat2 - lat1
-            dlon = lon2 - lon1
-
-            # Calculate distance
-            arch = np.sin(dlat / 2)**2 + np.cos(lat1) * \
-                np.cos(lat2) * np.sin(dlon / 2)**2
-            arch_sin = 2 * np.arcsin(np.sqrt(arch))
-
-            return radius * arch_sin
-
         # Get distance for each station
-        temp._data['distance'] = distance(
-            lat, lon, temp._data['latitude'], temp._data['longitude'])
+        temp._data["distance"] = get_distance(
+            lat, lon, temp._data["latitude"], temp._data["longitude"]
+        )
 
         # Filter by radius
         if radius:
-            temp._data = temp._data[temp._data['distance'] <= radius]
+            temp._data = temp._data[temp._data["distance"] <= radius]
 
         # Sort stations by distance
         temp._data.columns.str.strip()
-        temp._data = temp._data.sort_values('distance')
+        temp._data = temp._data.sort_values("distance")
 
         # Return self
         return temp
 
-    def region(
-        self,
-        country: str,
-        state: str = None
-    ) -> 'Stations':
+    def region(self, country: str, state: str = None) -> "Stations":
         """
         Filter weather stations by country/region code
         """
@@ -170,20 +140,16 @@ class Stations(Base):
         temp = copy(self)
 
         # Country code
-        temp._data = temp._data[temp._data['country'] == country]
+        temp._data = temp._data[temp._data["country"] == country]
 
         # State code
         if state is not None:
-            temp._data = temp._data[temp._data['region'] == state]
+            temp._data = temp._data[temp._data["region"] == state]
 
         # Return self
         return temp
 
-    def bounds(
-        self,
-        top_left: tuple,
-        bottom_right: tuple
-    ) -> 'Stations':
+    def bounds(self, top_left: tuple, bottom_right: tuple) -> "Stations":
         """
         Filter weather stations by geographical bounds
         """
@@ -193,20 +159,18 @@ class Stations(Base):
 
         # Return stations in boundaries
         temp._data = temp._data[
-            (temp._data['latitude'] <= top_left[0]) &
-            (temp._data['latitude'] >= bottom_right[0]) &
-            (temp._data['longitude'] <= bottom_right[1]) &
-            (temp._data['longitude'] >= top_left[1])
+            (temp._data["latitude"] <= top_left[0])
+            & (temp._data["latitude"] >= bottom_right[0])
+            & (temp._data["longitude"] <= bottom_right[1])
+            & (temp._data["longitude"] >= top_left[1])
         ]
 
         # Return self
         return temp
 
     def inventory(
-        self,
-        freq: str,
-        required: Union[datetime, tuple, bool] = True
-    ) -> 'Stations':
+        self, freq: str, required: Union[datetime, tuple, bool] = True
+    ) -> "Stations":
         """
         Filter weather stations by inventory data
         """
@@ -216,18 +180,15 @@ class Stations(Base):
 
         if required is True:
             # Make sure data exists at all
-            temp._data = temp._data[
-                (pd.isna(temp._data[freq + '_start']) == False)
-            ]
+            temp._data = temp._data[(pd.isna(temp._data[freq + "_start"]) == False)]
 
         elif isinstance(required, tuple):
             # Make sure data exists across period
             temp._data = temp._data[
-                (pd.isna(temp._data[freq + '_start']) == False) &
-                (temp._data[freq + '_start'] <= required[0]) &
-                (
-                    temp._data[freq + '_end'] +
-                    timedelta(seconds=temp.max_age)
+                (pd.isna(temp._data[freq + "_start"]) == False)
+                & (temp._data[freq + "_start"] <= required[0])
+                & (
+                    temp._data[freq + "_end"] + timedelta(seconds=temp.max_age)
                     >= required[1]
                 )
             ]
@@ -235,21 +196,17 @@ class Stations(Base):
         else:
             # Make sure data exists on a certain day
             temp._data = temp._data[
-                (pd.isna(temp._data[freq + '_start']) == False) &
-                (temp._data[freq + '_start'] <= required) &
-                (
-                    temp._data[freq + '_end'] +
-                    timedelta(seconds=temp.max_age)
+                (pd.isna(temp._data[freq + "_start"]) == False)
+                & (temp._data[freq + "_start"] <= required)
+                & (
+                    temp._data[freq + "_end"] + timedelta(seconds=temp.max_age)
                     >= required
                 )
             ]
 
         return temp
 
-    def convert(
-        self,
-        units: dict
-    ) -> 'Stations':
+    def convert(self, units: dict) -> "Stations":
         """
         Convert columns to a different unit
         """
@@ -260,8 +217,7 @@ class Stations(Base):
         # Change data units
         for parameter, unit in units.items():
             if parameter in temp._data.columns.values:
-                temp._data[parameter] = temp._data[parameter].apply(
-                    unit)
+                temp._data[parameter] = temp._data[parameter].apply(unit)
 
         # Return class instance
         return temp
@@ -273,11 +229,7 @@ class Stations(Base):
 
         return len(self._data.index)
 
-    def fetch(
-        self,
-        limit: int = None,
-        sample: bool = False
-    ) -> pd.DataFrame:
+    def fetch(self, limit: int = None, sample: bool = False) -> pd.DataFrame:
         """
         Fetch all weather stations or a (sampled) subset
         """
