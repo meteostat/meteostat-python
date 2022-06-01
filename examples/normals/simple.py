@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from meteostat import Normals
 
 # Get normals
-data = Normals("72407")
+data = Normals("10637")
 data = data.normalize().fetch()
 
 # Plot chart
