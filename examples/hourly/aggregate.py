@@ -16,8 +16,8 @@ start = datetime(2018, 1, 1)
 end = datetime(2018, 1, 1, 23, 59)
 
 # Get hourly data & aggregate daily
-data = Hourly('10637', start, end)
-data = data.aggregate('1D')
+data = Hourly("10637", start, end)
+data = data.aggregate("1D")
 data = data.fetch()
 
 # Print

@@ -27,7 +27,7 @@ class Hourly(TimeSeries):
     """
 
     # The cache subdirectory
-    cache_subdir: str = 'hourly'
+    cache_subdir: str = "hourly"
 
     # Granularity
     granularity = Granularity.HOURLY
@@ -39,26 +39,26 @@ class Hourly(TimeSeries):
     _timezone: str = None
 
     # Default frequency
-    _freq: str = '1H'
+    _freq: str = "1H"
 
     # Flag which represents model data
-    _model_flag = 'E'
+    _model_flag = "E"
 
     # Raw data columns
     _columns: list = [
-        'date',
-        'hour',
-        'temp',
-        'dwpt',
-        'rhum',
-        'prcp',
-        'snow',
-        'wdir',
-        'wspd',
-        'wpgt',
-        'pres',
-        'tsun',
-        'coco'
+        "date",
+        "hour",
+        "temp",
+        "dwpt",
+        "rhum",
+        "prcp",
+        "snow",
+        "wdir",
+        "wspd",
+        "wpgt",
+        "pres",
+        "tsun",
+        "coco",
     ]
 
     # Index of first meteorological column
@@ -66,44 +66,39 @@ class Hourly(TimeSeries):
 
     # Data types
     _types: dict = {
-        'temp': 'float64',
-        'dwpt': 'float64',
-        'rhum': 'float64',
-        'prcp': 'float64',
-        'snow': 'float64',
-        'wdir': 'float64',
-        'wspd': 'float64',
-        'wpgt': 'float64',
-        'pres': 'float64',
-        'tsun': 'float64',
-        'coco': 'float64'
+        "temp": "float64",
+        "dwpt": "float64",
+        "rhum": "float64",
+        "prcp": "float64",
+        "snow": "float64",
+        "wdir": "float64",
+        "wspd": "float64",
+        "wpgt": "float64",
+        "pres": "float64",
+        "tsun": "float64",
+        "coco": "float64",
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {
-        'time': [0, 1]
-    }
+    _parse_dates: dict = {"time": [0, 1]}
 
     # Default aggregation functions
     aggregations: dict = {
-        'temp': 'mean',
-        'dwpt': 'mean',
-        'rhum': 'mean',
-        'prcp': 'sum',
-        'snow': 'max',
-        'wdir': degree_mean,
-        'wspd': 'mean',
-        'wpgt': 'max',
-        'pres': 'mean',
-        'tsun': 'sum',
-        'coco': 'max'
+        "temp": "mean",
+        "dwpt": "mean",
+        "rhum": "mean",
+        "prcp": "sum",
+        "snow": "max",
+        "wdir": degree_mean,
+        "wspd": "mean",
+        "wpgt": "max",
+        "pres": "mean",
+        "tsun": "sum",
+        "coco": "max",
     }
 
     def _set_time(
-        self,
-        start: datetime = None,
-        end: datetime = None,
-        timezone: str = None
+        self, start: datetime = None, end: datetime = None, timezone: str = None
     ) -> None:
         """
         Set & adapt the period's time zone
@@ -120,25 +115,16 @@ class Hourly(TimeSeries):
                 timezone = pytz.timezone(self._timezone)
 
                 # Set start date
-                start = timezone.localize(
-                    start,
-                    is_dst=None
-                ).astimezone(pytz.utc)
+                start = timezone.localize(start, is_dst=None).astimezone(pytz.utc)
 
                 # Set end date
-                end = timezone.localize(
-                    end,
-                    is_dst=None
-                ).astimezone(pytz.utc)
+                end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
 
         if self.chunked:
 
             self._annual_steps = [
-                (
-                    start + timedelta(days=365 * i)
-                ).year for i in range(
-                    end.year - start.year + 1
-                )
+                (start + timedelta(days=365 * i)).year
+                for i in range(end.year - start.year + 1)
             ]
 
         self._start = start
@@ -146,12 +132,12 @@ class Hourly(TimeSeries):
 
     def __init__(
         self,
-        loc: Union[pd.DataFrame, Point, list, str], # Station(s) or geo point
+        loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
         timezone: str = None,
-        model: bool = True, # Include model data?
-        flags: bool = False # Load source flags?
+        model: bool = True,  # Include model data?
+        flags: bool = False,  # Load source flags?
     ) -> None:
 
         # Set time zone and adapt period

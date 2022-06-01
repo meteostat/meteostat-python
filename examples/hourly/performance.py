@@ -8,7 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     from timeit import default_timer as timer
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     start = datetime(1960, 1, 1)
     end = datetime(2021, 1, 1, 23, 59)
 
-    data = Hourly('10637', start, end, timezone='Europe/Berlin')
+    data = Hourly("10637", start, end, timezone="Europe/Berlin")
     data = data.fetch()
 
     # Get end time

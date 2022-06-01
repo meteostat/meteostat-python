@@ -17,10 +17,7 @@ def test_point():
     point = Point(49.2497, -123.1193, 70)
 
     # Get count of weather stations
-    stations = point.get_stations(
-        'daily', datetime(
-            2020, 1, 1), datetime(
-            2020, 1, 31))
+    stations = point.get_stations("daily", datetime(2020, 1, 1), datetime(2020, 1, 31))
 
     # Check if three stations are returned
     assert len(stations.index) == 4

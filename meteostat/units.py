@@ -65,21 +65,21 @@ def direction(value):
     wdir = NaN
 
     if (337 <= value <= 360) or value <= 23:
-        wdir = 'N'
+        wdir = "N"
     if 24 <= value <= 68:
-        wdir = 'NE'
+        wdir = "NE"
     if 69 <= value <= 113:
-        wdir = 'E'
+        wdir = "E"
     if 114 <= value <= 158:
-        wdir = 'SE'
+        wdir = "SE"
     if 159 <= value <= 203:
-        wdir = 'S'
+        wdir = "S"
     if 204 <= value <= 248:
-        wdir = 'SW'
+        wdir = "SW"
     if 249 <= value <= 293:
-        wdir = 'W'
+        wdir = "W"
     if 294 <= value <= 336:
-        wdir = 'NW'
+        wdir = "NW"
 
     return wdir
 
@@ -93,57 +93,57 @@ def condition(value):
         return NaN
 
     return [
-        'Clear',
-        'Fair',
-        'Cloudy',
-        'Overcast',
-        'Fog',
-        'Freezing Fog',
-        'Light Rain',
-        'Rain',
-        'Heavy Rain',
-        'Freezing Rain',
-        'Heavy Freezing Rain',
-        'Sleet',
-        'Heavy Sleet',
-        'Light Snowfall',
-        'Snowfall',
-        'Heavy Snowfall',
-        'Rain Shower',
-        'Heavy Rain Shower',
-        'Sleet Shower',
-        'Heavy Sleet Shower',
-        'Snow Shower',
-        'Heavy Snow Shower',
-        'Lightning',
-        'Hail',
-        'Thunderstorm',
-        'Heavy Thunderstorm',
-        'Storm',
+        "Clear",
+        "Fair",
+        "Cloudy",
+        "Overcast",
+        "Fog",
+        "Freezing Fog",
+        "Light Rain",
+        "Rain",
+        "Heavy Rain",
+        "Freezing Rain",
+        "Heavy Freezing Rain",
+        "Sleet",
+        "Heavy Sleet",
+        "Light Snowfall",
+        "Snowfall",
+        "Heavy Snowfall",
+        "Rain Shower",
+        "Heavy Rain Shower",
+        "Sleet Shower",
+        "Heavy Sleet Shower",
+        "Snow Shower",
+        "Heavy Snow Shower",
+        "Lightning",
+        "Hail",
+        "Thunderstorm",
+        "Heavy Thunderstorm",
+        "Storm",
     ][int(value) - 1]
 
 
 # Imperial units
 imperial = {
-    'temp': fahrenheit,
-    'tavg': fahrenheit,
-    'tmin': fahrenheit,
-    'tmax': fahrenheit,
-    'dwpt': fahrenheit,
-    'prcp': inches,
-    'snow': inches,
-    'wspd': mph,
-    'wpgt': mph,
-    'distance': feet
+    "temp": fahrenheit,
+    "tavg": fahrenheit,
+    "tmin": fahrenheit,
+    "tmax": fahrenheit,
+    "dwpt": fahrenheit,
+    "prcp": inches,
+    "snow": inches,
+    "wspd": mph,
+    "wpgt": mph,
+    "distance": feet,
 }
 
 # Scientific units
 scientific = {
-    'temp': kelvin,
-    'tavg': kelvin,
-    'tmin': kelvin,
-    'tmax': kelvin,
-    'dwpt': kelvin,
-    'wspd': ms,
-    'wpgt': ms
+    "temp": kelvin,
+    "tavg": kelvin,
+    "tmin": kelvin,
+    "tmax": kelvin,
+    "dwpt": kelvin,
+    "wspd": ms,
+    "wpgt": ms,
 }

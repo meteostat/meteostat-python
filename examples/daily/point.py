@@ -24,5 +24,5 @@ data = Daily(vancouver, start, end)
 data = data.fetch()
 
 # Plot line chart including average, minimum and maximum temperature
-data.plot(y=['tavg', 'tmin', 'tmax'])
+data.plot(y=["tavg", "tmin", "tmax"])
 plt.show()

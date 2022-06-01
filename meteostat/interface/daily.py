@@ -25,30 +25,30 @@ class Daily(TimeSeries):
     """
 
     # The cache subdirectory
-    cache_subdir: str = 'daily'
+    cache_subdir: str = "daily"
 
     # Granularity
     granularity = Granularity.DAILY
 
     # Default frequency
-    _freq: str = '1D'
+    _freq: str = "1D"
 
     # Flag which represents model data
-    _model_flag = 'G'
+    _model_flag = "G"
 
     # Columns
     _columns: list = [
-        'date',
-        'tavg',
-        'tmin',
-        'tmax',
-        'prcp',
-        'snow',
-        'wdir',
-        'wspd',
-        'wpgt',
-        'pres',
-        'tsun'
+        "date",
+        "tavg",
+        "tmin",
+        "tmax",
+        "prcp",
+        "snow",
+        "wdir",
+        "wspd",
+        "wpgt",
+        "pres",
+        "tsun",
     ]
 
     # Index of first meteorological column
@@ -56,44 +56,42 @@ class Daily(TimeSeries):
 
     # Data types
     _types: dict = {
-        'tavg': 'float64',
-        'tmin': 'float64',
-        'tmax': 'float64',
-        'prcp': 'float64',
-        'snow': 'float64',
-        'wdir': 'float64',
-        'wspd': 'float64',
-        'wpgt': 'float64',
-        'pres': 'float64',
-        'tsun': 'float64'
+        "tavg": "float64",
+        "tmin": "float64",
+        "tmax": "float64",
+        "prcp": "float64",
+        "snow": "float64",
+        "wdir": "float64",
+        "wspd": "float64",
+        "wpgt": "float64",
+        "pres": "float64",
+        "tsun": "float64",
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {
-        'time': [0]
-    }
+    _parse_dates: dict = {"time": [0]}
 
     # Default aggregation functions
     aggregations: dict = {
-        'tavg': 'mean',
-        'tmin': 'min',
-        'tmax': 'max',
-        'prcp': 'sum',
-        'snow': 'max',
-        'wdir': degree_mean,
-        'wspd': 'mean',
-        'wpgt': 'max',
-        'pres': 'mean',
-        'tsun': 'sum'
+        "tavg": "mean",
+        "tmin": "min",
+        "tmax": "max",
+        "prcp": "sum",
+        "snow": "max",
+        "wdir": degree_mean,
+        "wspd": "mean",
+        "wpgt": "max",
+        "pres": "mean",
+        "tsun": "sum",
     }
 
     def __init__(
         self,
-        loc: Union[pd.DataFrame, Point, list, str], # Station(s) or geo point
+        loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
-        model: bool = True, # Include model data?
-        flags: bool = False # Load source flags?
+        model: bool = True,  # Include model data?
+        flags: bool = False,  # Load source flags?
     ) -> None:
 
         # Initialize time series

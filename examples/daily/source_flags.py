@@ -15,7 +15,7 @@ from meteostat import Daily
 start = datetime(2018, 1, 1)
 end = datetime(2018, 12, 31)
 
-data = Daily('10637', start, end, flags=True)
+data = Daily("10637", start, end, flags=True)
 df = data.fetch()
 
 # Print DataFrame

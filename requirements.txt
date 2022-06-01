@@ -4,6 +4,6 @@ numpy
 matplotlib
 pylint
 pytest
-autopep8
+black
 wheel
 twine

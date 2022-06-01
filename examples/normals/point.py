@@ -19,5 +19,5 @@ data = Normals(vancouver, 1961, 1990)
 data = data.normalize().fetch()
 
 # Plot chart
-data.plot(y=['tavg', 'tmin', 'tmax'])
+data.plot(y=["tavg", "tmin", "tmax"])
 plt.show()

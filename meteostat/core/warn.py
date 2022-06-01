@@ -11,15 +11,17 @@ The code is licensed under the MIT license.
 import warnings
 
 
-def _format(message, category, filename, lineno, line=None) -> str:  # pylint: disable=unused-argument
+def _format(message, category, _filename, _lineno, _line=None) -> str:
     """
     Print warning on a single line
     """
 
-    return '%s: %s\n' % (category.__name__, message)
+    return "%s: %s\n" % (category.__name__, message)
+
 
 # Set warning format
 warnings.formatwarning = _format
+
 
 def warn(message: str) -> None:
     """

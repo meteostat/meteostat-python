@@ -18,11 +18,10 @@ class Base:
     """
 
     # Base URL of the Meteostat bulk data interface
-    endpoint: str = 'https://bulk.meteostat.net/v2/'
+    endpoint: str = "https://bulk.meteostat.net/v2/"
 
     # Location of the cache directory
-    cache_dir: str = os.path.expanduser(
-        '~') + os.sep + '.meteostat' + os.sep + 'cache'
+    cache_dir: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
 
     # Auto clean cache directories?
     autoclean: bool = True

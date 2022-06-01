@@ -20,7 +20,7 @@ class Point:
     """
 
     # The interpolation method (weighted or nearest)
-    method: str = 'nearest'
+    method: str = "nearest"
 
     # Maximum radius for nearby stations
     radius: int = 35000
@@ -52,12 +52,7 @@ class Point:
     # The altitude
     _alt: int = None
 
-    def __init__(
-        self,
-        lat: float,
-        lon: float,
-        alt: int = None
-    ) -> None:
+    def __init__(self, lat: float, lon: float, alt: int = None) -> None:
 
         self._lat = lat
         self._lon = lon
@@ -66,8 +61,13 @@ class Point:
         if alt is None:
             self.adapt_temp = False
 
-    def get_stations(self, freq: str = None, start: datetime = None,
-                     end: datetime = None, model: bool = True) -> pd.DataFrame:
+    def get_stations(
+        self,
+        freq: str = None,
+        start: datetime = None,
+        end: datetime = None,
+        model: bool = True,
+    ) -> pd.DataFrame:
         """
         Get list of nearby weather stations
         """
@@ -78,14 +78,14 @@ class Point:
 
         # Guess altitude if not set
         if self._alt is None:
-            self._alt = stations.fetch().head(self.max_count)[
-                'elevation'].mean()
+            self._alt = stations.fetch().head(self.max_count)["elevation"].mean()
 
         # Captue unfiltered weather stations
         unfiltered = stations.fetch()
         if self.alt_range:
-            unfiltered = unfiltered[abs(self._alt -
-                                        unfiltered['elevation']) <= self.alt_range]
+            unfiltered = unfiltered[
+                abs(self._alt - unfiltered["elevation"]) <= self.alt_range
+            ]
 
         # Apply inventory filter
         if freq and start and end:
@@ -96,8 +96,9 @@ class Point:
         # Apply altitude filter
         stations = stations.fetch()
         if self.alt_range:
-            stations = stations[abs(self._alt -
-                                    stations['elevation']) <= self.alt_range]
+            stations = stations[
+                abs(self._alt - stations["elevation"]) <= self.alt_range
+            ]
 
         # Fill up stations
         selected: int = len(stations.index)
@@ -105,22 +106,24 @@ class Point:
             # Remove already included stations from unfiltered
             unfiltered = unfiltered.loc[~unfiltered.index.isin(stations.index)]
             # Append to existing DataFrame
-            stations = stations.append(
-                unfiltered.head(
-                    self.max_count - selected))
+            stations = pd.concat((stations, unfiltered.head(self.max_count - selected)))
 
         # Score values
         if self.radius:
 
             # Calculate score values
-            stations['score'] = ((1 - (stations['distance'] / self.radius)) * self.weight_dist) + (
-                (1 - (abs(self._alt - stations['elevation']) / self.alt_range)) * self.weight_alt)
+            stations["score"] = (
+                (1 - (stations["distance"] / self.radius)) * self.weight_dist
+            ) + (
+                (1 - (abs(self._alt - stations["elevation"]) / self.alt_range))
+                * self.weight_alt
+            )
 
             # Sort by score (descending)
-            stations = stations.sort_values('score', ascending=False)
+            stations = stations.sort_values("score", ascending=False)
 
         # Capture result
-        self._stations = stations.index[:self.max_count]
+        self._stations = stations.index[: self.max_count]
 
         return stations.head(self.max_count)
 

@@ -19,7 +19,7 @@ end = datetime(2021, 1, 1, 23, 59)
 point = Point(50.3167, 8.5, 320)
 
 # Get hourly data
-data = Hourly(point, start, end, timezone='Europe/Berlin')
+data = Hourly(point, start, end, timezone="Europe/Berlin")
 
 # Print to console
 data = data.fetch()

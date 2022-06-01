@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: Meteostat Python
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Christian Sebastian
+    family-names: Lamprecht
+    email: cla@meteostat.net
+    orcid: 'https://orcid.org/0000-0003-3301-2852'

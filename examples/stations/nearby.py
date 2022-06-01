@@ -13,8 +13,8 @@ from meteostat import Stations
 # Get weather station
 stations = Stations()
 stations = stations.nearby(50, 8)
-stations = stations.inventory('hourly')
-station = stations.fetch(1).to_dict('records')[0]
+stations = stations.inventory("hourly")
+station = stations.fetch(1).to_dict("records")[0]
 
 # Print name
-print('Closest weather station at coordinates 50, 8:', station["name"])
+print("Closest weather station at coordinates 50, 8:", station["name"])

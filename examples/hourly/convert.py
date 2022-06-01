@@ -22,10 +22,10 @@ stations = stations.nearby(50, 8)
 station = stations.fetch(1)
 
 # Get hourly data
-data = Hourly(station, start, end, timezone='Europe/Berlin')
+data = Hourly(station, start, end, timezone="Europe/Berlin")
 
 # Convert data units
-data = data.convert({'temp': fahrenheit, 'wdir': direction, 'coco': condition})
+data = data.convert({"temp": fahrenheit, "wdir": direction, "coco": condition})
 
 # Print to console
 data = data.fetch()

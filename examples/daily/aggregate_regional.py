@@ -8,7 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     from datetime import datetime
     import matplotlib.pyplot as plt
@@ -23,19 +23,19 @@ if __name__ == '__main__':
 
     # Get random weather stations in the US
     stations = Stations()
-    stations = stations.region('US')
-    stations = stations.inventory('daily', (start, end))
+    stations = stations.region("US")
+    stations = stations.inventory("daily", (start, end))
     stations = stations.fetch(limit=150, sample=True)
 
     # Get daily data
     data = Daily(stations, start, end)
 
     # Normalize & aggregate
-    data = data.normalize().aggregate('1Y', spatial=True).fetch()
+    data = data.normalize().aggregate("1Y", spatial=True).fetch()
 
     # Chart title
-    TITLE = 'Average US Annual Temperature from 1980 to 2019'
+    TITLE = "Average US Annual Temperature from 1980 to 2019"
 
     # Plot chart
-    data.plot(y=['tavg'], title=TITLE)
+    data.plot(y=["tavg"], title=TITLE)
     plt.show()
