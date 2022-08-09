@@ -82,7 +82,7 @@ If you want to support the project financially, you can make a donation using on
 Meteorological data is provided under the terms of the [Creative Commons Attribution-NonCommercial 4.0 International Public License (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/legalcode). You may build upon the material
 for any purpose, even commercially. However, you are not allowed to redistribute Meteostat data "as-is" for commercial purposes.
 
-By using the Meteostat Python library you agree to our [terms of service](https://dev.meteostat.net/docs/terms.html). All meteorological data sources used by the Meteostat project are listed [here](https://dev.meteostat.net/docs/sources.html).
+By using the Meteostat Python library you agree to our [terms of service](https://dev.meteostat.net/terms.html). All meteorological data sources used by the Meteostat project are listed [here](https://dev.meteostat.net/sources.html).
 
 ## Code License
 

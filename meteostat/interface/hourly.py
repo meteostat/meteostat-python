@@ -124,7 +124,7 @@ class Hourly(TimeSeries):
 
             self._annual_steps = [
                 (start + timedelta(days=365 * i)).year
-                for i in range(end.year - start.year + 1)
+                for i in range(end.year - start.year + 2)
             ]
 
         self._start = start
