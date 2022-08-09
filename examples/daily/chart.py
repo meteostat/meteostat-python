@@ -27,5 +27,5 @@ data = Daily(station, start, end)
 data = data.fetch()
 
 # Plot chart
-data.plot(y=["tavg", "tmin", "tmax"])
+data.plot(y=["tavg", "tmin", "tmax", "prcp"], subplots=True)
 plt.show()
