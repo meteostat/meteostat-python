@@ -104,8 +104,11 @@ class Hourly(TimeSeries):
         Set & adapt the period's time zone
         """
 
-        if timezone:
+        # Don't use chunks if full dataset is requested
+        if start == None:
+            self.chunked = False
 
+        if timezone:
             # Save timezone
             self._timezone = timezone
 
@@ -121,11 +124,14 @@ class Hourly(TimeSeries):
                 end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
 
         if self.chunked:
-
-            self._annual_steps = [
-                (start + timedelta(days=365 * i)).year
-                for i in range(end.year - start.year + 2)
-            ]
+            self._annual_steps = list(
+                set(
+                    [
+                        (start + timedelta(days=365 * i)).year
+                        for i in range(end.year - start.year + 2)
+                    ]
+                )
+            )
 
         self._start = start
         self._end = end

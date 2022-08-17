@@ -9,6 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
+from typing import Union
 import numpy as np
 import pandas as pd
 
@@ -21,7 +22,11 @@ def localize(df: pd.DataFrame, timezone: str) -> pd.DataFrame:
     return df.tz_localize("UTC", level="time").tz_convert(timezone, level="time")
 
 
-def filter_time(df: pd.DataFrame, start: datetime, end: datetime) -> pd.DataFrame:
+def filter_time(
+    df: pd.DataFrame,
+    start: Union[datetime, None] = None,
+    end: Union[datetime, None] = None,
+) -> pd.DataFrame:
     """
     Filter time series data based on start and end date
     """
@@ -30,7 +35,7 @@ def filter_time(df: pd.DataFrame, start: datetime, end: datetime) -> pd.DataFram
     time = df.index.get_level_values("time")
 
     # Filter & return
-    return df.loc[(time >= start) & (time <= end)]
+    return df.loc[(time >= start) & (time <= end)] if start and end else df
 
 
 def adjust_temp(df: pd.DataFrame, alt: int):
