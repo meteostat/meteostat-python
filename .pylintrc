@@ -9,7 +9,8 @@ disable=print-statement,
         import-outside-toplevel,
         duplicate-code,
         import-error,
-        nan-comparison
+        nan-comparison,
+        consider-using-set-comprehension
 
 [BASIC]
 
