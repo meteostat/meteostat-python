@@ -1,0 +1,16 @@
+# directories:
+#   meteostat:
+#   cache:
+debug: true
+log:
+  file: /Users/chris/Meteostat/meteostat-python/examples/debug.log
+  format: '%(levelname)s:%(message)s'
+max_threads: 8
+cache:
+  enable: true
+  max_age: 2592000 # 30 days (60*60*24*30)
+  autoclean: true
+stations:
+  meta:
+    mirrors:
+      - https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json
