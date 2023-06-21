@@ -1,5 +1,5 @@
 from datetime import datetime
-from meteostat.types import Station
+from meteostat.interface.types import Station
 
 def handler(station: Station, start: datetime, end: datetime):
     print(station, start, end)

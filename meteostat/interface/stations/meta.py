@@ -2,7 +2,7 @@ from typing import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed, Future
 from requests import get, HTTPError, Timeout
 from meteostat.framework import config, cache
-from meteostat import Station
+from meteostat.stations import Station
 
 @cache(60 * 60 * 24 * 7, False)
 def meta(id: str) -> Station | None:

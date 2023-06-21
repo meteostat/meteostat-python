@@ -15,23 +15,20 @@ __appname__ = "meteostat"
 __version__ = "2.0.0"
 
 from meteostat.core.config import Config
-from meteostat.enumerations import Parameters
-from meteostat.enumerations import Providers
-from meteostat.types import Station
+from meteostat.interface.enumerations.parameters import Parameters
+from meteostat.interface.enumerations.providers import Providers
+from meteostat.interface.enumerations.granularity import Granularity
 from meteostat.interface.point import Point
-from meteostat.interface.meta import meta, meta_bulk
-from meteostat.interface.nearby import nearby
-from meteostat.interface.hourly import hourly
+from meteostat.interface.collection import Collection
 
 __all__ = [
     'Config',
     'Parameters',
     'Providers',
-    'Station',
+    'Granularity',
     'Point',
-    'meta',
-    'meta_bulk',
-    'nearby',
-    'hourly',
+    'Collection',
+    'stations',
+    'timeseries',
     'framework'
 ]

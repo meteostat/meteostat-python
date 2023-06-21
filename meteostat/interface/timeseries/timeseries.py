@@ -8,8 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 import polars as pl
-from meteostat.interface.collection import Collection
-from meteostat.enumerations.granularity import Granularity
+from meteostat import Collection, Granularity
 
 class Timeseries(Collection):
     """
