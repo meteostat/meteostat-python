@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TypedDict
 
 class Station(TypedDict):
@@ -14,3 +15,15 @@ class Station(TypedDict):
     longitude: float
     elevation: int
     timezone: str
+
+class Provider(TypedDict):
+    """
+    A typed dictionary for a provider
+    """
+    
+    id: Enum
+    name: str
+    countries: list[str]
+    parameters: list[Enum]
+    license: str
+    handler: str

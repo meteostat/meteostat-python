@@ -1,12 +1,14 @@
-from meteostat import Config, timeseries, Parameters, Providers
+from meteostat import config, timeseries, Parameters, Providers
 
-Config.debug = True
-Config.log_file = '/Users/chris/Meteostat/meteostat-python/examples/debug.log'
+config.debug = True
+config.max_workers=12
+config.log_file = '/Users/chris/Meteostat/meteostat-python/examples/debug.log'
 
-ts = timeseries.hourly(
-  ['10637', '10635', '10729', '71508', '71624', '71265', '71639'],
-  '2020-01-01',
-  '2021-12-31',
-  parameters=[Parameters.TEMP],
-  providers=[Providers.DWD_CLIMATE_HOURLY]
-)
+if __name__ == '__main__':
+  ts = timeseries.hourly(
+    ['10637', '10635', '10729', '71508', '71624', '71265', '71639'],
+    '2020-01-01',
+    '2023-08-07',
+    parameters=[Parameters.TEMP],
+    providers=[Providers.NOAA_ISD_LITE]
+  )

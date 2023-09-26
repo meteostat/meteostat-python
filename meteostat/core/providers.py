@@ -7,53 +7,32 @@ under the terms of the Creative Commons Attribution-NonCommercial
 
 The code is licensed under the MIT license.
 """
-import os
-import importlib.resources
-from functools import cache
-from yaml import safe_load
-from meteostat.framework import config
-from meteostat.utilities.pool import pool
+from meteostat.framework import Provider
+from meteostat.data.providers import DEFAULT_PROVIDERS
     
 class _Providers:
-    _dict = {}
+    _list: list[Provider] = DEFAULT_PROVIDERS
 
-    @staticmethod
-    def _get_default_providers() -> dict:
-        with importlib.resources.open_text("meteostat.data", "providers.yml") as file:
-            return safe_load(file)
-
-    @staticmethod    
-    def _get_local_providers():
-        with open(config().meteostat_dir + os.sep + 'providers.yml', 'r') as file:
-            return safe_load(file.read())
-        
-    def __init__(self) -> None:
-        default_providers = _Providers._get_default_providers()
-        local_providers = _Providers._get_local_providers()
-        self._dict = default_providers | _Providers._get_local_providers() if local_providers else default_providers
-
-    def get(self, key: str | None = None) -> dict | dict[dict]:
+    def get(self, id: str | None = None) -> Provider | list[Provider] | None:
         """
-        Returns a single provider when passing a key or a dict of all providers otherwise
+        Returns a single provider when passing a key or a list of all providers otherwise
         """
-        return self._dict[key] if key else self._dict
+        return next(
+            (provider for provider in self._list if provider['id'] == id),
+            None
+        ) if id else self._list
     
     def add(self, id: str, name: str, countries: list[str], parameters: list[str], license: str, handler: str) -> None:
-        if id in self._dict:
+        if id in map(lambda provider: provider['id'], self._list):
             raise Exception(f'Provider {id} already exists')
 
-        self._dict[id] = {
-            'name': name,
-            'countries': countries,
-            'parameters': parameters,
-            'license': license,
-            'handler': handler
-        }
+        self._list.append(Provider(
+            name,
+            countries,
+            parameters,
+            license,
+            handler
+        ))
 
 
-@cache
-def providers() -> _Providers:
-    """
-    Get providers
-    """
-    return _Providers()
+providers = _Providers()

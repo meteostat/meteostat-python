@@ -1,56 +1,48 @@
+from typing import Any
 import os
-from functools import cache
-from yaml import safe_load
-from meteostat.utilities.flatten import flatten_dict
+import json
+from meteostat.data.config import DefaultConfig
 
-class _DefaultConfig:
-    debug = False
-    meteostat_dir = os.path.expanduser("~") + os.sep + ".meteostat"
-    cache_dir = meteostat_dir + os.sep + "cache"
-    log_file = meteostat_dir + os.sep + 'debug.log'
-    max_threads = 8
-    cache_enable = True
-    cache_max_age = 60*60*24*30 # 30 days
-    cache_autoclean = True
-    stations_meta_mirrors = [
-        'https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json'
-    ]
-
-class Config(_DefaultConfig):
+class _Config(DefaultConfig):
     """
     A class for loading, reading and writing configuration data
-    """
-    def load_local_config(self) -> dict:
-        """
-        Read local config file and merge with default configuration
-        """
-        with open(self.meteostat_dir + os.sep + 'config.yml', 'r') as file:
-            data = safe_load(file.read())
-            if data:
-                return flatten_dict(data)
-            
-    def set(self, key: str, value: str) -> None:
-        if hasattr(self, key) and self.__getattribute__(key) == _DefaultConfig().__getattribute__(key):
+    """ 
+    def _set(self, key: str, value: Any) -> None:
+        if hasattr(self, key):
+            if not type(self.__getattribute__(key)) == type(value):
+                raise Exception('Types do not match')
             self.__setattr__(key, value)
 
-    def __init__(self) -> None:
+    def from_env(self) -> None:
+        """
+        Import configuration from environment variables
+
+        Use the METEOSTAT_ prefix for the variables to be recognized by Meteostat
+        The variable's value is parsed as JSON
+        """
         for key, value in os.environ.items():
-            if key.startswith('METEOSTAT_'):
-                key = key.replace('METEOSTAT_', '').lower()
-                self.set(key, value)
-        os.makedirs(self.meteostat_dir, exist_ok=True)
-        local_config = self.load_local_config()
-        if local_config:
-            for key, value in local_config.items():
-                self.set(key, value)
+            if not key.startswith('METEOSTAT_'):
+                continue
+            key = key.replace('METEOSTAT_', '').lower()
+            value = json.loads(value)
+            self._set(key, value)
+
+    def from_dict(self, data: dict) -> None:
+        """
+        Import configuration from a dict
+        """
+        for key, value in data.items():
+            self._set(key, value)
+
+    def __init__(self) -> None:
+        self.from_env()
     
     def get_max_threads(self, max_required_threads = 1) -> int:
         """
+        SHOULD BE MOVED TO LOADER ETC.
         Get maximum number of threads for an async operation
         """
         return min(self.max_threads, max_required_threads)
 
 
-@cache
-def config() -> Config:
-    return Config()
+config = _Config()
