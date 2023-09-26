@@ -18,7 +18,7 @@ def weighted_average(step: pd.DataFrame) -> pd.DataFrame:
     """
 
     data = np.ma.masked_array(step, np.isnan(step))
-    data = np.ma.average(data, axis=0, weights=data[:, -1])
+    data = np.ma.average(data, axis=0, weights=data[:, -2])
     data = data.filled(np.NaN)
 
     return pd.DataFrame(data=[data], columns=step.columns)

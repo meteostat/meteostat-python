@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from math import floor
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Union
 import pytz
 import pandas as pd
@@ -124,14 +124,7 @@ class Hourly(TimeSeries):
                 end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
 
         if self.chunked:
-            self._annual_steps = list(
-                set(
-                    [
-                        (start + timedelta(days=365 * i)).year
-                        for i in range(end.year - start.year + 2)
-                    ]
-                )
-            )
+            self._annual_steps = [start.year + i for i in range(end.year - start.year + 1)]
 
         self._start = start
         self._end = end

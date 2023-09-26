@@ -15,7 +15,7 @@ with open(path.join(here, "README.md")) as f:
 # Setup
 setup(
     name="meteostat",
-    version="1.6.5",
+    version="1.6.6",
     author="Meteostat",
     author_email="info@meteostat.net",
     description="Access and analyze historical weather and climate data with Python.",
@@ -26,7 +26,7 @@ setup(
     python_requires=">=3.6.0",
     packages=find_packages(),
     include_package_data=True,
-    install_requires=["pandas>=1.1", "pytz", "numpy"],
+    install_requires=["pandas>=1.1,<2", "pytz", "numpy"],
     license="MIT",
     classifiers=[
         "Programming Language :: Python :: 3",
