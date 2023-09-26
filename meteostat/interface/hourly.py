@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from math import floor
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Union
 import pytz
 import pandas as pd
