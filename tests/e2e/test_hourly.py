@@ -51,6 +51,21 @@ def test_aggregate():
     assert count == 3
 
 
+def test_interpolate():
+    """
+    Test: interpolate() method
+    """
+
+    # Get data for one day at Frankfurt Airport
+    data = Hourly(
+        ["10637"], start=datetime(2018, 1, 1), end=datetime(2018, 1, 1, 23, 59)
+    )
+    count = data.normalize().interpolate().count()
+
+    # Check if count matches 24
+    assert count == 24
+
+
 def test_coverage():
     """
     Test: coverage() method
