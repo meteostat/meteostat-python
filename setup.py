@@ -26,7 +26,7 @@ setup(
     python_requires=">=3.6.0",
     packages=find_packages(),
     include_package_data=True,
-    install_requires=["pandas>=1.1,<2", "pytz", "numpy"],
+    install_requires=["pandas>=1.1", "pytz", "numpy"],
     license="MIT",
     classifiers=[
         "Programming Language :: Python :: 3",
