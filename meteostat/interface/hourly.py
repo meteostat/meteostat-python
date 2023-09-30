@@ -105,7 +105,7 @@ class Hourly(TimeSeries):
         """
 
         # Don't use chunks if full dataset is requested
-        if start == None:
+        if start is None:
             self.chunked = False
 
         if timezone:

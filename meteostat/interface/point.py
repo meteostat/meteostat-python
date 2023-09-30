@@ -89,7 +89,7 @@ class Point:
         # Apply inventory filter
         if freq and start and end:
             age = (datetime.now() - end).days
-            if model == False or age > 180:
+            if model is False or age > 180:
                 stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
