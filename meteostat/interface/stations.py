@@ -80,12 +80,10 @@ class Stations(Base):
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
-
             # Read cached data
             df = pd.read_pickle(path)
 
         else:
-
             # Get data from Meteostat
             df = load_handler(
                 self.endpoint, file, self._columns, self._types, self._parse_dates, True
@@ -102,7 +100,6 @@ class Stations(Base):
         self._data = df
 
     def __init__(self) -> None:
-
         # Get all weather stations
         self._load()
 

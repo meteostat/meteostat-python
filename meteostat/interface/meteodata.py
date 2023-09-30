@@ -49,12 +49,10 @@ class MeteoData(Base):
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
-
             # Read cached data
             df = pd.read_pickle(path)
 
         else:
-
             # Get data from Meteostat
             df = load_handler(
                 self.endpoint, file, self._columns, self._types, self._parse_dates
@@ -119,7 +117,6 @@ class MeteoData(Base):
         """
 
         if len(self._stations) > 0:
-
             # Get list of datasets
             datasets = self._get_datasets()
 
@@ -143,9 +140,7 @@ class MeteoData(Base):
             return None
 
         if method == "nearest":
-
             if adapt_temp:
-
                 # Join elevation of involved weather stations
                 data = self._data.join(stations["elevation"], on="station")
 
@@ -156,7 +151,6 @@ class MeteoData(Base):
                 data = data.drop("elevation", axis=1).round(1)
 
             else:
-
                 data = self._data
 
             if self.granularity == Granularity.NORMALS:
@@ -168,7 +162,6 @@ class MeteoData(Base):
                 ).agg("first")
 
         else:
-
             # Join score and elevation of involved weather stations
             data = self._data.join(stations[["score", "elevation"]], on="station")
 

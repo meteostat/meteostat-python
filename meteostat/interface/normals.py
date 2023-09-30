@@ -79,7 +79,6 @@ class Normals(MeteoData):
         start: int = None,
         end: int = None,
     ) -> None:
-
         # Set list of weather stations
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
