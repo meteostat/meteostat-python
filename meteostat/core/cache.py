@@ -53,7 +53,6 @@ def clear_cache(cls, max_age: int = None) -> None:
     """
 
     if os.path.exists(cls.cache_dir + os.sep + cls.cache_subdir):
-
         # Set max_age
         if max_age is None:
             max_age = cls.max_age
@@ -63,7 +62,6 @@ def clear_cache(cls, max_age: int = None) -> None:
 
         # Go through all files
         for file in os.listdir(cls.cache_dir + os.sep + cls.cache_subdir):
-
             # Get full path
             path = os.path.join(cls.cache_dir + os.sep + cls.cache_subdir, file)
 
