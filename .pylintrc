@@ -1,7 +1,6 @@
 [MESSAGES CONTROL]
 
-disable=print-statement,
-        singleton-comparison,
+disable=singleton-comparison,
         no-member,
         too-few-public-methods,
         protected-access,
@@ -10,7 +9,8 @@ disable=print-statement,
         duplicate-code,
         import-error,
         nan-comparison,
-        consider-using-set-comprehension
+        consider-using-set-comprehension,
+        consider-using-f-string,
 
 [BASIC]
 

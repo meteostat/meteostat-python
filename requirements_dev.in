@@ -1,0 +1,9 @@
+black
+pytest
+pytest-cov
+mock
+flake8
+pylint
+pip-tools
+meteostat
+-r requirements.in
