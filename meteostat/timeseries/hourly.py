@@ -4,11 +4,19 @@ from importlib import import_module
 
 import pandas as pd
 
-from meteostat import framework, stations
+from meteostat import stations, providers, Parameter
+from meteostat.core import logger
+from meteostat.core.pool import allocate_workers, Pool
 from meteostat.utilities.time import parse_time
 
+SUPPORTED_PARAMETERS = [
+    Parameter.TEMP,
+    Parameter.PRCP,
+    Parameter.RHUM
+]
+
 def call_handler(provider, station, start, end, pool):
-    details = framework.providers.get(provider)
+    details = providers.get(provider)
     handler = import_module(details['handler'])
     df = handler.handler(station, start, end, pool)
     df['station'] = station['id']
@@ -27,19 +35,19 @@ def hourly(
     """
     Retrieve hourly time series data
     """
-    framework.logger.info(f'timeseries.hourly called for {len(station) if isinstance(station, list) else 1} station(s) with start={start} and end={end}')
+    logger.info(f'timeseries.hourly called for {len(station) if isinstance(station, list) else 1} station(s) with start={start} and end={end}')
     # with framework.create_pool() as core_pool:
     #     result = core_pool.map(stations.meta, station)
     # for r in result:
     #     print(r)
-    workers = framework.allocate_workers(len(station) * len(providers))
-    with framework.Pool(workers[0]) as pool:
+    workers = allocate_workers(len(station) * len(providers))
+    with Pool(workers[0]) as pool:
         station = pool.map(stations.meta, station)
     start = parse_time(start)
     end = parse_time(end, True)
     # print([[provider.name, s['id']] for provider in providers for s in station])
     data = []
-    with framework.Pool(workers[0]) as pool_outer, framework.Pool(workers[1]) as pool_inner:
+    with Pool(workers[0]) as pool_outer, Pool(workers[1]) as pool_inner:
         for s in station:
             for provider in providers:
                 data.append(pool_outer.submit(lambda: call_handler(provider, s, start, end, pool_inner)))

@@ -1,15 +1,16 @@
 from typing import Any, Callable, Iterator
 from math import floor
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
-from meteostat import config, framework
+from meteostat import settings
+from meteostat.core import logger
 
 def allocate_workers(max_workers: int) -> tuple[int]:
     """
     Get the maximum number of workers for a Pool
     along with the number of remaining workers
     """
-    worker_count = min(max_workers, config.max_workers)
-    return (worker_count, config.max_workers - worker_count)
+    worker_count = min(max_workers, settings.max_workers)
+    return (worker_count, settings.max_workers - worker_count)
 
 class MockFuture:
     _result: Any
@@ -24,7 +25,7 @@ class Pool:
     _executor: ThreadPoolExecutor | None = None
 
     def __init__(self, max_workers: int) -> None:
-        framework.logger.info(f'Creating a Pool with {max_workers} out of {config.max_workers} workers')
+        logger.info(f'Creating a Pool with {max_workers} out of {settings.max_workers} workers')
         if max_workers > 1:
             self._executor = ThreadPoolExecutor(max_workers)
 
@@ -76,8 +77,8 @@ class Pool:
         self.shutdown()
 
 # def create_pool() -> ThreadPoolExecutor | None:
-#     if config.max_workers > 1:
-#         return ThreadPoolExecutor(config.max_workers)
+#     if settings.max_workers > 1:
+#         return ThreadPoolExecutor(settings.max_workers)
 #     return None
 
 
@@ -126,7 +127,7 @@ class Pool:
 #     """
 #     Create a new ThreadPoolExecutor which respects the user-defined worker limits
 #     """
-#     max_workers = max(min(floor(config.max_threads / split), max_workers), 1)
+#     max_workers = max(min(floor(settings.max_threads / split), max_workers), 1)
 #     framework.logger.info(f'Creating new ThreadPoolExecutor with max_workers={max_workers}')
 #     return ThreadPoolExecutor()
 
@@ -146,7 +147,7 @@ class Pool:
 
 #     @classmethod
 #     def reserve(cls, n: int) -> int:
-#         count = max(min(config.max_threads - cls._active_workers, n), 1)
+#         count = max(min(settings.max_threads - cls._active_workers, n), 1)
 #         cls._active_workers += count
 #         return count
     
@@ -175,7 +176,7 @@ class Pool:
 
 #     def get_executor(self) -> ThreadPoolExecutor:
 #         if not self._executor:
-#             self._executor = ThreadPoolExecutor(config.max_threads)
+#             self._executor = ThreadPoolExecutor(settings.max_threads)
 #         return self._executor
     
 #     def submit(self, func: Callable, args, kwargs) -> Future:
@@ -200,7 +201,7 @@ class Pool:
 #     """
 #     Create a new ThreadPoolExecutor which respects the user-defined worker limits
 #     """
-#     return ThreadPoolExecutor(max(min(floor(config.max_threads / split), max_workers), 1))
+#     return ThreadPoolExecutor(max(min(floor(settings.max_threads / split), max_workers), 1))
 
 # def map_async(pool: ThreadPoolExecutor, func: Callable, args) -> Iterator[Future]:
 #     result = []

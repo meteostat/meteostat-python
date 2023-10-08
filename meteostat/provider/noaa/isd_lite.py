@@ -1,12 +1,14 @@
 from datetime import datetime
-import gzip
+from gzip import decompress
 from io import BytesIO
+from zipfile import ZipFile
+from requests import get, HTTPError, Timeout
 from typing import Union
 from numpy import isnan
 import pandas as pd
+from meteostat import settings
 from meteostat.core.pool import Pool
-from meteostat.interface.types import Station
-from meteostat.provider.noaa.shared import get_ftp_connection
+from meteostat.types import Station
 from meteostat.utilities.units import ms_to_kmh, temp_dwpt_to_rhum
 
 # Column ranges
@@ -36,31 +38,16 @@ def fetch(usaf: str, wban: str, year: int) -> pd.DataFrame:
     if not usaf:
         return pd.DataFrame()
 
-    ftp = get_ftp_connection()
-    ftp.cwd("/pub/data/noaa/isd-lite/" + str(year))
-
     filename = f"{usaf}-{wban if wban else '99999'}-{year}.gz"
 
-    if filename in ftp.nlst():
-        # Download file
-        buffer = BytesIO()
-        ftp.retrbinary("RETR " + filename, buffer.write)
-
-        # Unzip file
-        # BUFFER IS ISSUE
-        file = gzip.open(buffer, "rb")
-        raw = file.read()
-        file.close()
-
-        print(raw)
-        exit()
-
+    try:
         df = pd.read_fwf(
-            BytesIO(raw),
+            f'{settings.noaa_isd_lite_endpoint}/{year}/{filename}',
             parse_dates={"time": [0, 1, 2, 3]},
             na_values=["-9999", -9999],
             header=None,
             colspecs=COLSPECS,
+            compression='gzip'
         )
 
         # Rename columns
@@ -86,7 +73,10 @@ def fetch(usaf: str, wban: str, year: int) -> pd.DataFrame:
         df = df.set_index("time")
 
         # Round decimals
-        df = df.round(1)
+        return df.round(1)
+
+    except:
+        return pd.DataFrame()
 
 def handler(station: Station, start: datetime, end: datetime, pool: Pool):
     """
@@ -97,6 +87,5 @@ def handler(station: Station, start: datetime, end: datetime, pool: Pool):
         station["identifiers"]["wban"] if "wban" in station["identifiers"] else None,
         year
     ) for year in years))
-    print(pd.concat(data))
-    exit()
+
     return pd.concat(data)

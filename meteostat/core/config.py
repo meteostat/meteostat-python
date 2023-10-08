@@ -1,19 +1,14 @@
-from typing import Any
 import os
 import json
-from meteostat.data.config import DefaultConfig
 
-class _Config(DefaultConfig):
+class _Config(Settings):
     """
-    A class for loading, reading and writing configuration data
-    """ 
-    def _set(self, key: str, value: Any) -> None:
-        if hasattr(self, key):
-            if not type(self.__getattribute__(key)) == type(value):
-                raise Exception('Types do not match')
-            self.__setattr__(key, value)
+    A class for loading, reading and writing configuration data.
 
-    def from_env(self) -> None:
+    This class is not meant to be consumed directly.
+    Please use the class instance "config" instead.
+    """
+    def __init__(self) -> None:
         """
         Import configuration from environment variables
 
@@ -25,17 +20,9 @@ class _Config(DefaultConfig):
                 continue
             key = key.replace('METEOSTAT_', '').lower()
             value = json.loads(value)
-            self._set(key, value)
-
-    def from_dict(self, data: dict) -> None:
-        """
-        Import configuration from a dict
-        """
-        for key, value in data.items():
-            self._set(key, value)
-
-    def __init__(self) -> None:
-        self.from_env()
+            if not type(self.__getattribute__(key)) == type(value):
+                raise Exception('Types do not match')
+            self.__setattr__(key, value)
     
     def get_max_threads(self, max_required_threads = 1) -> int:
         """

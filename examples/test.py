@@ -1,14 +1,13 @@
-from meteostat import config, timeseries, Parameters, Providers
+from meteostat import settings, timeseries, Parameter, Provider, stations
 
-config.debug = True
-config.max_workers=12
-config.log_file = '/Users/chris/Meteostat/meteostat-python/examples/debug.log'
+settings.debug = True
+settings.log_file = '/Users/chris/Meteostat/meteostat-python/examples/debug.log'
 
 if __name__ == '__main__':
   ts = timeseries.hourly(
-    ['10637', '10635', '10729', '71508', '71624', '71265', '71639'],
+    ['10637'],
     '2020-01-01',
-    '2023-08-07',
-    parameters=[Parameters.TEMP],
-    providers=[Providers.NOAA_ISD_LITE]
+    '2020-01-01',
+    parameters=[Parameter.TEMP],
+    providers=[Provider.NOAA_ISD_LITE]
   )

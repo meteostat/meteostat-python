@@ -14,21 +14,22 @@ The code is licensed under the MIT license.
 __appname__ = "meteostat"
 __version__ = "2.0.0"
 
-from meteostat.core.config import config
-from meteostat.interface.enumerations.parameters import Parameters
-from meteostat.interface.enumerations.providers import Providers
-from meteostat.interface.enumerations.granularity import Granularity
+from meteostat.core.settings import settings
+from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.interface.point import Point
 from meteostat.interface.collection import Collection
+from meteostat.core.providers import providers
+from meteostat import types
 
 __all__ = [
-    'config',
-    'Parameters',
-    'Providers',
+    'settings',
+    'Parameter',
+    'Provider',
     'Granularity',
+    'providers',
     'Point',
     'Collection',
     'stations',
     'timeseries',
-    'framework'
+    'types'
 ]

@@ -11,11 +11,12 @@ from ftplib import FTP
 from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
-from meteostat.interface.types import Station
+from meteostat.types import Station
 from meteostat.provider.dwd.condicode import get_condicode
 from meteostat.provider.dwd.shared import get_ftp_connection
 from meteostat.utilities.units import jcm2_to_wm2, ms_to_kmh
-from meteostat.framework import with_cache, Pool
+from meteostat.core.cache import cache
+from meteostat.core.pool import allocate_workers
 
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/hourly/"
@@ -103,6 +104,7 @@ def find_file(ftp: FTP, path: str, needle: str):
 
     return match
 
+@cache(60*60*24, 'pickle')
 def fetch(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
@@ -153,12 +155,7 @@ def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.Data
     for mode in modes:
         data = []
         data.append(
-            with_cache(
-                fetch,
-                (parameter, mode, station["identifiers"]["national"]),
-                ttl=60*60*24,
-                format='pickle'
-            )
+            fetch(parameter, mode, station["identifiers"]["national"])
         )
     return pd.concat(data)
 

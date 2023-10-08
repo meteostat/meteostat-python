@@ -1,44 +1,41 @@
+"""
+Log info messages, warnings and errors while keeping track of performance.
+
+This class is not meant to be consumed directly.
+Please use the class instance "logger" instead.
+"""
+
 from time import perf_counter
 import logging
-from meteostat import config
+from meteostat import settings
+from functools import cache
 
+def info(message: str) -> None:
+    _get_logger().info(_format_message(message))
 
-class _Logger():
-    """
-    Log info messages, warnings and errors while keeping track of performance.
+def warning(message: str) -> None:
+    _get_logger().warning(_format_message(message))
 
-    This class is not meant to be consumed directly.
-    Please use the class instance "log" instead.
-    """
-    _logger: logging.Logger | None = None
-    _start_time = perf_counter()
-    _formatter = logging.Formatter('%(levelname)s:%(message)s')
+def error(message: str) -> None:
+    _get_logger().error(_format_message(message))
 
-    def _get_time(self) -> str:
-        return str(round(perf_counter() - self._start_time, 5))
-    
-    def _format_message(self, message: str) -> str:
-        return f'{message} ({self._get_time()} s)'
-    
-    def get_logger(self):
-        if not self._logger:
-            self._logger = logging.getLogger('meteostat')
-            self._logger.setLevel(logging.DEBUG)
+_start_time = perf_counter()
+_formatter = logging.Formatter('%(levelname)s:%(message)s')
 
-            if config.debug:
-                file_handler = logging.FileHandler(config.log_file, 'w')
-                file_handler.setFormatter(self._formatter)
-                self._logger.addHandler(file_handler)
+def _get_time() -> str:
+    return str(round(perf_counter() - _start_time, 5))
 
-        return self._logger
+def _format_message(message: str) -> str:
+    return f'{message} ({_get_time()} s)'
 
-    def info(self, message: str) -> None:
-        self.get_logger().info(self._format_message(message))
+@cache
+def _get_logger():
+    logger = logging.getLogger('meteostat')
+    logger.setLevel(logging.DEBUG)
 
-    def warning(self, message: str) -> None:
-        self.get_logger().warning(self._format_message(message))
+    if settings.debug:
+        file_handler = logging.FileHandler(settings.log_file, 'w')
+        file_handler.setFormatter(_formatter)
+        logger.addHandler(file_handler)
 
-    def error(self,message: str) -> None:
-        self.get_logger().error(self._format_message(message))
-
-logger = _Logger()
+    return logger
