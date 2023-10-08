@@ -7,7 +7,6 @@ from typing import Union
 from numpy import isnan
 import pandas as pd
 from meteostat import settings
-from meteostat.core.pool import Pool
 from meteostat.types import Station
 from meteostat.utilities.units import ms_to_kmh, temp_dwpt_to_rhum
 
@@ -78,11 +77,11 @@ def fetch(usaf: str, wban: str, year: int) -> pd.DataFrame:
     except:
         return pd.DataFrame()
 
-def handler(station: Station, start: datetime, end: datetime, pool: Pool):
+def handler(station: Station, start: datetime, end: datetime):
     """
     """
     years = range(start.year, end.year + 1)
-    data = pool.map(lambda i: fetch(*i), ((
+    data = map(lambda i: fetch(*i), ((
         station["identifiers"]["usaf"] if "usaf" in station["identifiers"] else None,
         station["identifiers"]["wban"] if "wban" in station["identifiers"] else None,
         year

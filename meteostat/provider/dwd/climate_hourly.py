@@ -16,7 +16,6 @@ from meteostat.provider.dwd.condicode import get_condicode
 from meteostat.provider.dwd.shared import get_ftp_connection
 from meteostat.utilities.units import jcm2_to_wm2, ms_to_kmh
 from meteostat.core.cache import cache
-from meteostat.core.pool import allocate_workers
 
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/hourly/"
@@ -159,7 +158,7 @@ def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.Data
         )
     return pd.concat(data)
 
-def handler(station: Station, start: datetime, end: datetime, pool: Pool):
+def handler(station: Station, start: datetime, end: datetime):
     if not "national" in station["identifiers"]:
         return pd.DataFrame()
 
@@ -168,7 +167,7 @@ def handler(station: Station, start: datetime, end: datetime, pool: Pool):
         "recent" if abs((end - datetime.now()).days) < 120 else None
     ] if m is not None] # can be "recent" and/or "historical"
 
-    columns = pool.map(lambda i: get_parameter(*i), ((parameter, modes, station) for parameter in PARAMETERS))
+    columns = map(lambda i: get_parameter(*i), ((parameter, modes, station) for parameter in PARAMETERS))
 
     return pd.concat(columns, axis=1)
 
