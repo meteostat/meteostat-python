@@ -25,12 +25,12 @@ def call_handler(provider, station, start, end, pool):
     return df
 
 def hourly(
-        station: list[str] | str,
+        stations: list[str] | str,
         start: str | datetime,
-        end: str | datetime,
+        end: str | datetime = None,
         parameters: Optional[list[str]] = None,
         providers: Optional[list[Literal]] = None,
-        sync = False
+        squash = True
 ):
     """
     Retrieve hourly time series data

@@ -1,7 +1,7 @@
 from meteostat import settings, timeseries, Parameter, Provider, stations
 
 settings.debug = True
-settings.log_file = '/Users/chris/Meteostat/meteostat-python/examples/debug.log'
+settings.log_file = '/Users/christianlamprecht/Private/meteostat-python/examples/debug.log'
 
 if __name__ == '__main__':
   ts = timeseries.hourly(

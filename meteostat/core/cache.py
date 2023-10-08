@@ -96,6 +96,8 @@ def _persist(path: str, data: pd.DataFrame | dict | list, type: str):
     """
     Persist any given data under a specific path
     """
+    if not os.path.exists(settings.cache_dir):
+        os.makedirs(settings.cache_dir)
     if type == 'json':
         _write_json(path, data)
     else:
