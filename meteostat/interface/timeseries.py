@@ -66,11 +66,11 @@ class TimeSeries(MeteoData):
             # Get data from Meteostat
             df = load_handler(
                 self.endpoint,
-                self.proxy_url,
                 file,
                 self._columns,
                 {key: "string" for key in self._columns[self._first_met_col :]},
                 self._parse_dates,
+                self.proxy_url
             )
 
             # Validate Series
