@@ -82,7 +82,7 @@ def load_handler(
 
     try:
         # Set a proxy
-        if proxy_url:
+        if proxy:
             opener = build_opener(ProxyHandler({'http': proxy, 'https': proxy}))
         else:
             opener = urlopen
