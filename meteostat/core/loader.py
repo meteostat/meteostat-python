@@ -71,29 +71,35 @@ def load_handler(
     columns: list,
     types: Union[dict, None],
     parse_dates: list,
-    proxy_url: str = None,
+    proxy: str = None,
     coerce_dates: bool = False,
+    encoding='utf-8'
 ) -> pd.DataFrame:
     """
     Load a single CSV file into a DataFrame
     """
 
     try:
+        # Set a proxy
+        if proxy_url:
+            opener = build_opener(ProxyHandler({'http': proxy, 'https': proxy}))
+        else:
+            opener = urlopen
 
         # Read CSV file from Meteostat endpoint
-        df = pd.read_csv(
-            endpoint + path,
-            compression="gzip",
-            names=columns,
-            dtype=types,
-            parse_dates=parse_dates,
-        )
-
-        # Force datetime conversion
-        if coerce_dates:
-            df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
-                pd.to_datetime, errors="coerce"
+        with opener(Request(endpoint + path)) as response:
+            df = pd.read_csv(
+                StringIO(response.read().decode(encoding)),
+                names=columns,
+                dtype=types,
+                parse_dates=parse_dates,
             )
+    
+            # Force datetime conversion
+            if coerce_dates:
+                df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
+                    pd.to_datetime, errors="coerce"
+                )
 
     except (FileNotFoundError, HTTPError):
 
