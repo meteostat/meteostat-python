@@ -62,7 +62,7 @@ class MeteoData(Base):
                 self._columns,
                 self._types,
                 self._parse_dates,
-                self.proxy_url
+                self.proxy
             )
 
             # Validate and prepare data for further processing
