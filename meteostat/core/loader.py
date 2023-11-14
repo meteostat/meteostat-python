@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from urllib.request import urlopen, Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
@@ -70,6 +71,7 @@ def load_handler(
     columns: list,
     types: Union[dict, None],
     parse_dates: list,
+    proxy_url: str = None,
     coerce_dates: bool = False,
 ) -> pd.DataFrame:
     """
