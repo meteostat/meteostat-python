@@ -20,11 +20,8 @@ class Base:
     # Base URL of the Meteostat bulk data interface
     endpoint: str = "https://bulk.meteostat.net/v2/"
 
-    # Proxy URI for the Meteostat bulk data interface
-    proxy_http: str = None
-
-    # Proxy URI for the Meteostat bulk data interface
-    proxy_https: str = None
+    # Proxy URL for the Meteostat bulk data interface
+    proxy_url: str = None
 
     # Location of the cache directory
     cache_dir: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
