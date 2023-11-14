@@ -81,14 +81,14 @@ def load_handler(
     """
 
     try:
+        handlers = []
+        
         # Set a proxy
         if proxy:
-            opener = build_opener(ProxyHandler({'http': proxy, 'https': proxy}))
-        else:
-            opener = urlopen
+            opener = (ProxyHandler({'http': proxy, 'https': proxy}))
 
         # Read CSV file from Meteostat endpoint
-        with opener(Request(endpoint + path)) as response:
+        with build_opener(*handlers).open(Request(endpoint + path)) as response:
             # Decompress the content
             with GzipFile(fileobj=BytesIO(response.read()), mode='rb') as file:
                 df = pd.read_csv(
