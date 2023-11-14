@@ -8,6 +8,8 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from io import BytesIO
+from gzip import GzipFile
 from urllib.request import urlopen, Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from multiprocessing import Pool
@@ -72,8 +74,7 @@ def load_handler(
     types: Union[dict, None],
     parse_dates: list,
     proxy: str = None,
-    coerce_dates: bool = False,
-    encoding='utf-8'
+    coerce_dates: bool = False
 ) -> pd.DataFrame:
     """
     Load a single CSV file into a DataFrame
@@ -88,18 +89,20 @@ def load_handler(
 
         # Read CSV file from Meteostat endpoint
         with opener(Request(endpoint + path)) as response:
-            df = pd.read_csv(
-                StringIO(response.read().decode(encoding)),
-                names=columns,
-                dtype=types,
-                parse_dates=parse_dates,
-            )
-    
-            # Force datetime conversion
-            if coerce_dates:
-                df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
-                    pd.to_datetime, errors="coerce"
+            # Decompress the content
+            with GzipFile(fileobj=BytesIO(response.read()), mode='rb') as file:
+                df = pd.read_csv(
+                    file,
+                    names=columns,
+                    dtype=types,
+                    parse_dates=parse_dates,
                 )
+        
+                # Force datetime conversion
+                if coerce_dates:
+                    df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
+                        pd.to_datetime, errors="coerce"
+                    )
 
     except (FileNotFoundError, HTTPError):
 
