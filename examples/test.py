@@ -1,11 +1,18 @@
-from meteostat import timeseries, Parameter, Provider
+import logging
+import meteostat as ms
 
-ts = timeseries.hourly(
-  '10637',
-  '2020-01-01',
-  '2020-01-01',
-  parameters=[Parameter.TEMP],
-  providers=[Provider.NOAA_ISD_LITE]
-)
+logging.basicConfig(level=logging.INFO)
 
-print(ts.df)
+nearby = ms.stations.nearby(50, 8, 10000, 4)
+
+print(nearby)
+
+# ts = ms.hourly(
+#   '10637',
+#   '2020-01-01',
+#   '2020-01-01',
+#   parameters=[ms.Parameter.TEMP],
+#   providers=[ms.Provider.NOAA_GHCND]
+# )
+
+# print(ts.fetch())

@@ -1,12 +1,17 @@
-import polars as pl
+import pandas as pd
+from meteostat.data.point import Point
+from meteostat.types import Station
 
 class Collection:
     """
     A class for storing meteorological data
     """
-    _df: str
+    _df = pd.DataFrame()
+    _stations: list[Station] = []
+    _point: Point | None = None
+    _squash = True
 
-    def __init__(self, df: pl.DataFrame):
+    def __init__(self, df: pd.DataFrame):
         self._df = df
 
     def homogenize(elevation: int):
@@ -23,3 +28,6 @@ class Collection:
 
     def copyright() -> str:
         print('(C) DWD')
+
+    def fetch(self, squash = True) -> pd.DataFrame:
+        return self._df

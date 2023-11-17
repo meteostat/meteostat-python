@@ -1,0 +1,2 @@
+def daily():
+    pass

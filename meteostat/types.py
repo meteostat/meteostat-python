@@ -19,4 +19,4 @@ class Provider(TypedDict):
     countries: list[str]
     parameters: list[Enum]
     license: str
-    handler: str
+    module: str

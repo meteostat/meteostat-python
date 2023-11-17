@@ -12,10 +12,10 @@ from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
 from meteostat.types import Station
-from meteostat.provider.dwd.condicode import get_condicode
-from meteostat.provider.dwd.shared import get_ftp_connection
-from meteostat.utilities.units import jcm2_to_wm2, ms_to_kmh
-from meteostat.core.cache import cache
+from meteostat.utils.cache import cache
+from meteostat.utils.units import jcm2_to_wm2, ms_to_kmh
+from meteostat.providers.dwd.shared import get_condicode
+from meteostat.providers.dwd.shared import get_ftp_connection
 
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/hourly/"
@@ -104,7 +104,7 @@ def find_file(ftp: FTP, path: str, needle: str):
     return match
 
 @cache(60*60*24, 'pickle')
-def fetch(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
+def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
@@ -151,14 +151,10 @@ def fetch(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
     return df
 
 def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.DataFrame:
-    for mode in modes:
-        data = []
-        data.append(
-            fetch(parameter, mode, station["identifiers"]["national"])
-        )
+    data = [get_df(parameter, mode, station["identifiers"]["national"]) for mode in modes]
     return pd.concat(data)
 
-def handler(station: Station, start: datetime, end: datetime):
+def fetch(station: Station, start: datetime, end: datetime):
     if not "national" in station["identifiers"]:
         return pd.DataFrame()
 
@@ -167,7 +163,7 @@ def handler(station: Station, start: datetime, end: datetime):
         "recent" if abs((end - datetime.now()).days) < 120 else None
     ] if m is not None] # can be "recent" and/or "historical"
 
-    columns = map(lambda i: get_parameter(*i), ((parameter, modes, station) for parameter in PARAMETERS))
+    columns = map(lambda args: get_parameter(*args), ((parameter, modes, station) for parameter in PARAMETERS))
 
     return pd.concat(columns, axis=1)
 

@@ -1,16 +1,17 @@
-from ftplib import FTP
 from typing import Union
+from ftplib import FTP
 
 
 DWD_FTP_SERVER = "opendata.dwd.de"
+dwd_ftp_connection = None
 
 def get_ftp_connection() -> FTP:
     """
     Get DWD Open Data FTP connection
     """
-    ftp = FTP(DWD_FTP_SERVER)
-    ftp.login()
-    return ftp
+    dwd_ftp_connection = FTP(DWD_FTP_SERVER)
+    dwd_ftp_connection.login()
+    return dwd_ftp_connection
 
 def get_condicode(code: str) -> Union[int, None]:
     """

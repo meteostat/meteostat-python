@@ -16,9 +16,11 @@ __version__ = "2.0.0"
 
 from meteostat.core.settings import settings
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.interface.point import Point
-from meteostat.interface.collection import Collection
-from meteostat.core.providers import providers
+from meteostat.data.point import Point
+from meteostat.data.stations import stations
+from meteostat.data.hourly import hourly
+from meteostat.data.daily import daily
+from meteostat.utils.cache import purge_cache
 from meteostat import types
 
 __all__ = [
@@ -26,10 +28,10 @@ __all__ = [
     'Parameter',
     'Provider',
     'Granularity',
-    'providers',
     'Point',
-    'Collection',
     'stations',
-    'timeseries',
-    'types'
+    'hourly',
+    'daily',
+    'types',
+    'purge_cache'
 ]

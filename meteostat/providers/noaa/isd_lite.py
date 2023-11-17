@@ -1,15 +1,12 @@
 from datetime import datetime
-from gzip import decompress
-from io import BytesIO
-from zipfile import ZipFile
-from requests import get, HTTPError, Timeout
 from typing import Union
 from numpy import isnan
 import pandas as pd
-from meteostat import settings
+from meteostat.utils.cache import cache
 from meteostat.types import Station
-from meteostat.utilities.units import ms_to_kmh, temp_dwpt_to_rhum
+from meteostat.utils.units import ms_to_kmh, temp_dwpt_to_rhum
 
+ISD_LITE_ENDPOINT = 'https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/'
 # Column ranges
 COLSPECS = [
     (0, 4),
@@ -33,7 +30,8 @@ def map_sky_code(code: Union[int, str]) -> Union[int, None]:
     """
     return int(code) if not isnan(code) and int(code) >= 0 and int(code) <= 8 else None
 
-def fetch(usaf: str, wban: str, year: int) -> pd.DataFrame:
+@cache(60*60*24, 'pickle')
+def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
     if not usaf:
         return pd.DataFrame()
 
@@ -41,7 +39,7 @@ def fetch(usaf: str, wban: str, year: int) -> pd.DataFrame:
 
     try:
         df = pd.read_fwf(
-            f'{settings.noaa_isd_lite_endpoint}/{year}/{filename}',
+            f'{ISD_LITE_ENDPOINT}/{year}/{filename}',
             parse_dates={"time": [0, 1, 2, 3]},
             na_values=["-9999", -9999],
             header=None,
@@ -77,11 +75,11 @@ def fetch(usaf: str, wban: str, year: int) -> pd.DataFrame:
     except:
         return pd.DataFrame()
 
-def handler(station: Station, start: datetime, end: datetime):
+def fetch(station: Station, start: datetime, end: datetime):
     """
     """
     years = range(start.year, end.year + 1)
-    data = map(lambda i: fetch(*i), ((
+    data = map(lambda i: get_df(*i), ((
         station["identifiers"]["usaf"] if "usaf" in station["identifiers"] else None,
         station["identifiers"]["wban"] if "wban" in station["identifiers"] else None,
         year
