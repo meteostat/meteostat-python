@@ -8,6 +8,14 @@ This is the development branch for Meteostat 2.0.0.
 poetry run python3 examples/test.py
 ```
 
+## Auto Formatting
+
+TODO: Use dev dep
+
+```sh
+poetry run black .
+```
+
 ## Config
 
 ### Using Environment Variables

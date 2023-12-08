@@ -13,7 +13,7 @@ from meteostat.types import Station
 from meteostat.utils.cache import cache
 from meteostat.utils.units import ms_to_kmh, percentage_to_okta
 
-FTP_SERVER = 'ftp.ncdc.noaa.gov'
+FTP_SERVER = "ftp.ncdc.noaa.gov"
 # Column names
 NAMES = {
     "MM/DD/YYYY": "time",
@@ -28,6 +28,7 @@ NAMES = {
     "WSFG": "wpgt",
     "ACMC": "cldc",
 }
+
 
 def connect_to_ftp():
     """
@@ -200,7 +201,8 @@ def dly_to_df(ftp, station_id):
 
     return df_all
 
-@cache(60*60*24, 'pickle')
+
+@cache(60 * 60 * 24, "pickle")
 def get_df(station: str) -> pd.DataFrame:
     ftp = connect_to_ftp()
     df = dly_to_df(ftp, station)
@@ -226,8 +228,11 @@ def get_df(station: str) -> pd.DataFrame:
 
     return df.set_index("time")
 
-def fetch(station: Station, _start: datetime, _end: datetime):
-    ghcn_id = station['identifiers']['ghcn'] if 'ghcn' in station["identifiers"] else None
+
+def fetch(station: Station, _start, _end, _parameters):
+    ghcn_id = (
+        station["identifiers"]["ghcn"] if "ghcn" in station["identifiers"] else None
+    )
     if not ghcn_id:
         return pd.DataFrame()
     return get_df(ghcn_id)

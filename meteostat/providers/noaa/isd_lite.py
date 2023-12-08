@@ -6,7 +6,7 @@ from meteostat.utils.cache import cache
 from meteostat.types import Station
 from meteostat.utils.units import ms_to_kmh, temp_dwpt_to_rhum
 
-ISD_LITE_ENDPOINT = 'https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/'
+ISD_LITE_ENDPOINT = "https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/"
 # Column ranges
 COLSPECS = [
     (0, 4),
@@ -24,13 +24,15 @@ COLSPECS = [
 # Column names
 NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "cldc", "prcp"]
 
+
 def map_sky_code(code: Union[int, str]) -> Union[int, None]:
     """
     Only accept okta
     """
     return int(code) if not isnan(code) and int(code) >= 0 and int(code) <= 8 else None
 
-@cache(60*60*24, 'pickle')
+
+@cache(60 * 60 * 24, "pickle")
 def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
     if not usaf:
         return pd.DataFrame()
@@ -39,12 +41,12 @@ def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
 
     try:
         df = pd.read_fwf(
-            f'{ISD_LITE_ENDPOINT}/{year}/{filename}',
+            f"{ISD_LITE_ENDPOINT}/{year}/{filename}",
             parse_dates={"time": [0, 1, 2, 3]},
             na_values=["-9999", -9999],
             header=None,
             colspecs=COLSPECS,
-            compression='gzip'
+            compression="gzip",
         )
 
         # Rename columns
@@ -75,14 +77,24 @@ def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
     except:
         return pd.DataFrame()
 
-def fetch(station: Station, start: datetime, end: datetime):
-    """
-    """
+
+def fetch(station: Station, start: datetime, end: datetime, _parameters):
+    """ """
     years = range(start.year, end.year + 1)
-    data = map(lambda i: get_df(*i), ((
-        station["identifiers"]["usaf"] if "usaf" in station["identifiers"] else None,
-        station["identifiers"]["wban"] if "wban" in station["identifiers"] else None,
-        year
-    ) for year in years))
+    data = map(
+        lambda i: get_df(*i),
+        (
+            (
+                station["identifiers"]["usaf"]
+                if "usaf" in station["identifiers"]
+                else None,
+                station["identifiers"]["wban"]
+                if "wban" in station["identifiers"]
+                else None,
+                year,
+            )
+            for year in years
+        ),
+    )
 
     return pd.concat(data)

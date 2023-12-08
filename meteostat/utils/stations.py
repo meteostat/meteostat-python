@@ -1,32 +1,5 @@
-from functools import wraps
-
 import numpy as np
-import meteostat as ms
-from meteostat.types import Station
 
-
-def get_meta_data(stations: list[str] | str) -> list[Station]:
-    return list(map(ms.stations.meta, [stations] if isinstance(stations, str) else stations))
-
-
-def use_meta():
-    """
-    A simple decorator which converts a station ID into a full-blown
-    Station object.
-    """    
-    def decorator(func):
-
-        wraps(func)
-        def wrapper(*args, **kwargs):
-            if len(args) > 0 and isinstance(args[0], str):
-                station = ms.stations.meta(args[0])
-                args[0] = station
-                return func(*args, **kwargs)
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 def get_distance(lat1, lon1, lat2, lon2) -> float:
     """

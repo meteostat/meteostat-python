@@ -11,6 +11,7 @@ from ftplib import FTP
 from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
+from meteostat.enumerations import Parameter
 from meteostat.types import Station
 from meteostat.utils.cache import cache
 from meteostat.utils.units import ms_to_kmh, pres_to_msl
@@ -34,11 +35,13 @@ NAMES = {
     "TNK": "tmin",
 }
 
+
 def dateparser(value):
     """
     Custom Pandas date parser
     """
     return datetime.strptime(value, "%Y%m%d")
+
 
 def find_file(ftp: FTP, mode: str, needle: str):
     """
@@ -56,17 +59,18 @@ def find_file(ftp: FTP, mode: str, needle: str):
 
     return match
 
-@cache(60*60*24, 'pickle')
+
+@cache(60 * 60 * 24, "pickle")
 def get_df(station: str, elevation: int, mode: str) -> pd.DataFrame:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
     ftp = get_ftp_connection()
-    remote_file = find_file(ftp, mode, f'_{station}_')
+    remote_file = find_file(ftp, mode, f"_{station}_")
 
     if remote_file is None:
         return pd.DataFrame()
-    
+
     buffer = BytesIO()
     ftp.retrbinary("RETR " + remote_file, buffer.write)
 
@@ -83,11 +87,11 @@ def get_df(station: str, elevation: int, mode: str) -> pd.DataFrame:
     df: pd.DataFrame = pd.read_csv(
         raw,
         sep=r"\s*;\s*",
-        date_format='%Y%m%d',
+        date_format="%Y%m%d",
         na_values=["-999", -999],
         usecols=USECOLS,
         parse_dates=PARSE_DATES,
-        engine='python'
+        engine="python",
     )
 
     # Rename columns
@@ -109,16 +113,25 @@ def get_df(station: str, elevation: int, mode: str) -> pd.DataFrame:
 
     return df
 
-def fetch(station: Station, start: datetime, end: datetime):
+
+def fetch(
+    station: Station, start: datetime, end: datetime, parameters: list[Parameter]
+):
     if not "national" in station["identifiers"]:
         return pd.DataFrame()
 
-    modes = [m for m in [
-        "historical" if abs((start - datetime.now()).days) > 120 else None,
-        "recent" if abs((end - datetime.now()).days) < 120 else None
-    ] if m is not None] # can be "recent" and/or "historical"
+    modes = [
+        m
+        for m in [
+            "historical" if abs((start - datetime.now()).days) > 120 else None,
+            "recent" if abs((end - datetime.now()).days) < 120 else None,
+        ]
+        if m is not None
+    ]  # can be "recent" and/or "historical"
 
-    data = [get_df(station["identifiers"]["national"], station["elevation"], mode) for mode in modes]
+    data = [
+        get_df(station["identifiers"]["national"], station["elevation"], mode)
+        for mode in modes
+    ]
 
     return pd.concat(data)
-

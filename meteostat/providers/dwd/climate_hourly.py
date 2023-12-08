@@ -11,6 +11,7 @@ from ftplib import FTP
 from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
+from meteostat import Parameter
 from meteostat.types import Station
 from meteostat.utils.cache import cache
 from meteostat.utils.units import jcm2_to_wm2, ms_to_kmh
@@ -84,8 +85,9 @@ PARAMETERS = {
         "names": {"FG_LBERG": "srad"},
         "convert": {"srad": jcm2_to_wm2},
         "historical_only": True,
-    }
+    },
 }
+
 
 def find_file(ftp: FTP, path: str, needle: str):
     """
@@ -103,7 +105,8 @@ def find_file(ftp: FTP, path: str, needle: str):
 
     return match
 
-@cache(60*60*24, 'pickle')
+
+@cache(60 * 60 * 24, "pickle")
 def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
@@ -114,7 +117,7 @@ def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
 
     if remote_file is None:
         return pd.DataFrame()
-    
+
     buffer = BytesIO()
     ftp.retrbinary("RETR " + remote_file, buffer.write)
     # Unzip file
@@ -133,9 +136,7 @@ def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
         na_values="-999",
         usecols=parameter["usecols"],
         parse_dates=parameter["parse_dates"],
-        encoding=parameter["encoding"]
-        if "encoding" in parameter
-        else None,
+        encoding=parameter["encoding"] if "encoding" in parameter else None,
     )
     # Rename columns
     df = df.rename(columns=lambda x: x.strip())
@@ -150,20 +151,39 @@ def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
 
     return df
 
-def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.DataFrame:
-    data = [get_df(parameter, mode, station["identifiers"]["national"]) for mode in modes]
-    return pd.concat(data)
 
-def fetch(station: Station, start: datetime, end: datetime):
+def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.DataFrame:
+    data = [
+        get_df(parameter, mode, station["identifiers"]["national"]) for mode in modes
+    ]
+    df = pd.concat(data)
+    return df.loc[~df.index.duplicated(keep="first")]
+
+
+def fetch(
+    station: Station, start: datetime, end: datetime, parameters: list[Parameter]
+):
     if not "national" in station["identifiers"]:
         return pd.DataFrame()
 
-    modes = [m for m in [
-        "historical" if abs((start - datetime.now()).days) > 120 else None,
-        "recent" if abs((end - datetime.now()).days) < 120 else None
-    ] if m is not None] # can be "recent" and/or "historical"
+    modes = [
+        m
+        for m in [
+            "historical" if abs((start - datetime.now()).days) > 120 else None,
+            "recent" if abs((end - datetime.now()).days) < 120 else None,
+        ]
+        if m is not None
+    ]  # can be "recent" and/or "historical"
 
-    columns = map(lambda args: get_parameter(*args), ((parameter, modes, station) for parameter in PARAMETERS))
+    parameters = [p.value for p in parameters]
+    columns = map(
+        lambda args: get_parameter(*args),
+        (
+            (parameter, modes, station)
+            for parameter in {
+                key: PARAMETERS[key] for key in parameters if key in PARAMETERS
+            }
+        ),
+    )
 
     return pd.concat(columns, axis=1)
-

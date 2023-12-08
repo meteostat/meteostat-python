@@ -1,49 +1,73 @@
-from typing import Literal, Optional
+from typing import Optional
 from datetime import datetime
-
-import pandas as pd
-from meteostat import Parameter, Provider, Granularity, stations
+from meteostat import Parameter, Provider, Granularity
 from meteostat.core.logger import logger
-from meteostat.core.providers import providers as providers_service
-from meteostat.types import Station
-from meteostat.utils.parameters import validate_parameters
-from meteostat.utils.time import parse_time
+from meteostat.core.loader import (
+    validate_parameters,
+    load_stations,
+    parse_time,
+    load_data,
+)
+from meteostat.enumerations import Granularity
 from .timeseries import Timeseries
 
 SUPPORTED_PARAMETERS = [
     Parameter.TEMP,
+    Parameter.DWPT,
     Parameter.PRCP,
-    Parameter.RHUM
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.WPGT,
+    Parameter.RHUM,
+    Parameter.PRES,
+    Parameter.SNOW,
+    Parameter.TSUN,
+    Parameter.COCO,
 ]
+
 
 def hourly(
     station: list[str] | str,
-    start: str | datetime,
-    end: str | datetime = None,
-    parameters: Optional[list[Parameter]] = None,
-    providers: Optional[list[Provider]] = None,
-    lite = True
+    start: str | datetime | None = None,
+    end: str | datetime | None = None,
+    timezone: str | None = None,
+    parameters: list[Parameter] = [
+        Parameter.TEMP,
+        Parameter.PRCP,
+        Parameter.WSPD,
+        Parameter.WDIR,
+        Parameter.RHUM,
+        Parameter.PRES,
+    ],
+    providers: Optional[list[Provider]] = [Provider.COMPOSITE_HOURLY],
+    lite=True,
+    max_station_count=None,
 ):
     """
     Retrieve hourly time series data
     """
-    logger.info(f'timeseries.hourly called for {len(station) if isinstance(station, list) else 1} station(s)')
+    logger.info(
+        f"timeseries.hourly called for {len(station) if isinstance(station, list) else 1} station(s)"
+    )
     # Raise exception if request includes unsupported parameter(s)
     validate_parameters(SUPPORTED_PARAMETERS, parameters)
     # Get meta data for all station IDs
-    station: list[Station | None] = list(map(stations.meta, [station] if isinstance(station, str) else station))
+    stations = load_stations(station)
     # Parse start & end time
-    start = parse_time(start)
-    end = parse_time(end, start)
+    start = parse_time(start, timezone)
+    end = parse_time(end, timezone, is_end=True)
     # Gather data
-    data = []
-    for s in station:
-        for provider in providers:
-            df = providers_service.call_provider(provider, s, start, end)
-            df = pd.concat([df], keys=[s['id']], names=['station'])
-            df['source'] = provider.value
-            df.set_index(['source'], append=True, inplace=True)
-            data.append(df)
-    df = pd.concat(data)
+    res = load_data(
+        Granularity.HOURLY,
+        providers,
+        parameters,
+        stations,
+        start,
+        end,
+        lite,
+        max_station_count,
+    )
     # Return Timerseries
-    return Timeseries(Granularity.HOURLY, station, df, 24)
+    return Timeseries(
+        Granularity.HOURLY, res["stations"], res["df"], start, end, timezone
+    )
