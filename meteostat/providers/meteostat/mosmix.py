@@ -3,48 +3,42 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
+from urllib.error import HTTPError
 import pandas as pd
 from meteostat import Parameter
+from meteostat.core.logger import logger
 from meteostat.types import Station
 
 
-ENDPOINT = "https://raw.meteostat.net/mosmix/{station}.csv.gz"
-COLUMNS = [
-    'time',
-    Parameter.TEMP.value,
-    Parameter.RHUM.value,
-    Parameter.PRCP.value,
-    Parameter.WDIR.value,
-    Parameter.WSPD.value,
-    Parameter.WPGT.value,
-    Parameter.PRES.value,
-    Parameter.TSUN.value,
-    Parameter.SGHI.value,
-    Parameter.CLDC.value,
-    Parameter.VSBY.value,
-    Parameter.COCO.value
-]
+ENDPOINT = "https://raw.meteostat.net/mosmix/{year}/{station}.csv.gz"
 
 
 #@cache(60 * 60 * 24, "pickle")
-def get_df(station_id: str) -> pd.DataFrame:
+def get_df(station_id: str, year: int) -> pd.DataFrame:
     """
     Get CSV file from Meteostat and convert to DataFrame
     """
-    df = pd.read_csv(
-        ENDPOINT.format(station=station_id),
-        sep=",",
-        header=None,
-        parse_dates=[[0, 1]],
-        compression='gzip'
-    )
+    file_url = ENDPOINT.format(station=station_id, year=str(year))
+    try:
+        df = pd.read_csv(
+            file_url,
+            sep=",",
+            parse_dates=[[0, 1]],
+            compression='gzip'
+        )
 
-    df.columns = COLUMNS
-
-    return df.set_index("time")
+        return df.rename(columns={ 'date_hour': 'time' }).set_index("time")
+    except HTTPError as error:
+        if error.status == 404:
+            logger.info(f"File not found: {file_url}")
+        else:
+            logger.error(f"Couldn't load {file_url} (status: {error.status})")
+        return pd.DataFrame()
 
 
 def fetch(
-    station: Station, _start: datetime, _end: datetime, _parameters: list[Parameter]
+    station: Station, start: datetime, end: datetime, _parameters: list[Parameter]
 ):
-    return get_df(station["id"])
+    years = range(start.year, end.year + 1)
+    data = [get_df(station["id"], year) for year in years]
+    return pd.concat(data) if len(data) else pd.DataFrame()
