@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Union
 from numpy import isnan
 import pandas as pd
-from meteostat.utils.cache import cache
+from meteostat.utils.decorators import cache
 from meteostat.types import Station
 from meteostat.utils.units import ms_to_kmh, temp_dwpt_to_rhum
 

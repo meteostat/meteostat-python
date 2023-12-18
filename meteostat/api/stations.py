@@ -1,7 +1,7 @@
 import pandas as pd
 from requests import get, HTTPError, Timeout
 from meteostat import settings
-from meteostat.utils.cache import cache
+from meteostat.utils.decorators import cache
 from meteostat.types import Station
 from meteostat.utils.stations import get_distance
 

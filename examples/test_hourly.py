@@ -13,4 +13,5 @@ ts = ms.hourly(
     lite=False,
 )
 
+
 print(ts.fetch(squash=False, fill=True))

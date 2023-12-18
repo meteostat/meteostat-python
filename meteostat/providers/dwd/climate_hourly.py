@@ -13,7 +13,7 @@ from zipfile import ZipFile
 import pandas as pd
 from meteostat import Parameter
 from meteostat.types import Station
-from meteostat.utils.cache import cache
+from meteostat.utils.decorators import cache
 from meteostat.utils.units import jcm2_to_wm2, ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
 from meteostat.providers.dwd.shared import get_ftp_connection

@@ -13,4 +13,4 @@ ts = ms.daily(
     providers=[ms.Provider.NOAA_GHCND],
 )
 
-ts.fetch(squash=False, fill=True)
+print(ts.fetch(squash=False, fill=True))

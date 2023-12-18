@@ -15,12 +15,13 @@ __appname__ = "meteostat"
 __version__ = "2.0.0"
 
 from meteostat.core.settings import settings
+from meteostat.core.cache import purge as purge_cache
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.data import stations
-from meteostat.data.hourly import hourly
-from meteostat.data.daily import daily
-from meteostat.utils.cache import purge_cache
+from meteostat.api import stations
+from meteostat.api.hourly import hourly
+from meteostat.api.daily import daily
 from meteostat import types
+from meteostat import units
 
 __all__ = [
     "settings",
@@ -31,5 +32,6 @@ __all__ = [
     "hourly",
     "daily",
     "types",
+    "units",
     "purge_cache",
 ]

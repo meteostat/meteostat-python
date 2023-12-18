@@ -34,10 +34,3 @@ def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
         return wrapper
 
     return decorator
-
-
-def purge_cache(max_age: int | None = None) -> None:
-    """
-    Remove stale files from disk cache
-    """
-    purge(max_age)

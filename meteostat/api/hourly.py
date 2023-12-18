@@ -1,14 +1,12 @@
 from typing import Optional
 from datetime import datetime
 from meteostat import Parameter, Provider, Granularity
+from meteostat.api.stations import meta
 from meteostat.core.logger import logger
-from meteostat.core.loader import (
-    validate_parameters,
-    load_stations,
-    parse_time,
-    load_data,
-)
+from meteostat.core.loader import load_data
 from meteostat.enumerations import Granularity
+from meteostat.utils.parsers import parse_time
+from meteostat.utils.validators import validate_parameters
 from .timeseries import Timeseries
 
 SUPPORTED_PARAMETERS = [
@@ -52,7 +50,7 @@ def hourly(
     # Raise exception if request includes unsupported parameter(s)
     validate_parameters(SUPPORTED_PARAMETERS, parameters)
     # Get meta data for all station IDs
-    stations = load_stations(station)
+    stations = list(map(meta, [station] if isinstance(station, str) else station))
     # Parse start & end time
     start = parse_time(start, timezone)
     end = parse_time(end, timezone, is_end=True)

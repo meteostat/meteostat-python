@@ -10,7 +10,7 @@ from numpy import nan
 import pandas as pd
 from meteostat.types import Station
 
-from meteostat.utils.cache import cache
+from meteostat.utils.decorators import cache
 from meteostat.utils.units import ms_to_kmh, percentage_to_okta
 
 FTP_SERVER = "ftp.ncdc.noaa.gov"

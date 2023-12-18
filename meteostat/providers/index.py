@@ -76,10 +76,10 @@ PROVIDERS: list[types.Provider] = [
             Parameter.SDHI,
             Parameter.CLDC,
             Parameter.VSBY,
-            Parameter.COCO
+            Parameter.COCO,
         ],
         "start": datetime(2015, 8, 7, 17, 0, 0),
-        "module": "meteostat.providers.meteostat.synop"
+        "module": "meteostat.providers.meteostat.synop",
     },
     {
         "id": Provider.METAR,
@@ -92,10 +92,10 @@ PROVIDERS: list[types.Provider] = [
             Parameter.WDIR,
             Parameter.WSPD,
             Parameter.PRES,
-            Parameter.COCO
+            Parameter.COCO,
         ],
         "start": datetime(2015, 8, 7, 17, 0, 0),
-        "module": "meteostat.providers.meteostat.metar"
+        "module": "meteostat.providers.meteostat.metar",
     },
     {
         "id": Provider.MOSMIX,
@@ -114,9 +114,9 @@ PROVIDERS: list[types.Provider] = [
             Parameter.SGHI,
             Parameter.CLDC,
             Parameter.VSBY,
-            Parameter.COCO
+            Parameter.COCO,
         ],
         "start": datetime(2015, 8, 7, 17, 0, 0),
-        "module": "meteostat.providers.meteostat.mosmix"
-    }
+        "module": "meteostat.providers.meteostat.mosmix",
+    },
 ]
