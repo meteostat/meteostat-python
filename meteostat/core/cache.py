@@ -6,7 +6,7 @@ import json
 import os
 from os.path import exists
 from hashlib import md5
-from meteostat import settings
+from meteostat.settings import settings
 from meteostat.core.logger import logger
 import pandas as pd
 from time import time
@@ -88,7 +88,12 @@ def get_cache_path(uid: str, filetype: str):
 
 
 def is_stale(path: str, ttl: int) -> bool:
-    return True if time() - os.path.getmtime(path) > ttl else False
+    return (
+        True
+        if time() - os.path.getmtime(path)
+        > min([max([ttl, settings.cache_ttl_min]), settings.cache_ttl_max])
+        else False
+    )
 
 
 def from_func(func, args, kwargs, ttl: int, format: str) -> pd.DataFrame | dict | list:
@@ -117,12 +122,14 @@ def from_func(func, args, kwargs, ttl: int, format: str) -> pd.DataFrame | dict 
     return result
 
 
-def purge(max_age: int | None = None) -> None:
+def purge(ttl: int | None = None) -> None:
     """
     Remove stale files from disk cache
     """
-    if max_age is None:
-        max_age = settings.cache_max_age
+    if ttl is None:
+        ttl = settings.cache_ttl_max
+
+    logger.info(f"Removing cached files older than {ttl} seconds")
 
     cache_dir = settings.cache_dir
 
@@ -133,7 +140,7 @@ def purge(max_age: int | None = None) -> None:
         for file in os.listdir(cache_dir):
             # Get full path
             path = os.path.join(cache_dir, file)
-            # Check if file is older than max_age
-            if now - os.path.getmtime(path) > max_age and os.path.isfile(path):
+            # Check if file is older than TTL
+            if now - os.path.getmtime(path) > ttl and os.path.isfile(path):
                 # Delete file
                 os.remove(path)

@@ -8,19 +8,19 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from enum import Enum
+from enum import StrEnum, IntEnum
 
 
-class Granularity(Enum):
+class Granularity(StrEnum):
     """
-    The different levels of data granularity
+    The different levels of time series granularity
     """
 
     HOURLY = "hourly"
     DAILY = "daily"
 
 
-class Parameter(Enum):
+class Parameter(StrEnum):
     """
     The different meteorological parameters supported by Meteostat
     """
@@ -47,9 +47,9 @@ class Parameter(Enum):
     COCO = "coco"  # Hourly
 
 
-class Provider(Enum):
+class Provider(StrEnum):
     """
-    The default providers supported by Meteostat
+    Providers supported by Meteostat
     """
 
     NOAA_GHCND = "noaa_ghcnd"
@@ -59,11 +59,12 @@ class Provider(Enum):
     SYNOP = "synop"
     METAR = "metar"
     MOSMIX = "mosmix"
-    COMPOSITE_HOURLY = "composite_hourly"
-    COMPOSITE_DAILY = "composite_daily"
+
+    HOURLY = "hourly"
+    DAILY = "daily"
 
 
-class Priority(Enum):
+class Priority(IntEnum):
     HIGHEST = 5
     HIGH = 4
     MEDIUM = 3

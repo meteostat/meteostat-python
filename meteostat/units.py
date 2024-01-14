@@ -6,8 +6,6 @@ Convert a Pandas Series to any meteorological data unit
 The code is licensed under the MIT license.
 """
 
-from numpy import NaN, isnan
-
 
 def to_fahrenheit(value):
     """
@@ -62,7 +60,7 @@ def to_direction(value):
     Convert degrees to wind direction
     """
 
-    wdir = NaN
+    wdir = None
 
     if (337 <= value <= 360) or value <= 23:
         wdir = "N"
@@ -89,8 +87,8 @@ def to_condition(value):
     Convert Meteostat condition code to descriptive string
     """
 
-    if isnan(value) or value < 1 or value > 27:
-        return NaN
+    if not value or value < 1 or value > 27:
+        return None
 
     return [
         "Clear",
@@ -121,27 +119,3 @@ def to_condition(value):
         "Heavy Thunderstorm",
         "Storm",
     ][int(value) - 1]
-
-
-IMPERIAL = {
-    "temp": to_fahrenheit,
-    "tavg": to_fahrenheit,
-    "tmin": to_fahrenheit,
-    "tmax": to_fahrenheit,
-    "dwpt": to_fahrenheit,
-    "prcp": to_inches,
-    "snow": to_inches,
-    "wspd": to_miles_per_hour,
-    "wpgt": to_miles_per_hour,
-    "distance": to_feet,
-}
-
-SCIENTIFIC = {
-    "temp": to_kelvin,
-    "tavg": to_kelvin,
-    "tmin": to_kelvin,
-    "tmax": to_kelvin,
-    "dwpt": to_kelvin,
-    "wspd": to_meters_per_second,
-    "wpgt": to_meters_per_second,
-}

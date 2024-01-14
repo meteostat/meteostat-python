@@ -12,9 +12,9 @@ from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
 from meteostat import Parameter
-from meteostat.types import Station
+from meteostat.typing import Station
 from meteostat.utils.decorators import cache
-from meteostat.utils.units import jcm2_to_wm2, ms_to_kmh
+from meteostat.utils.converters import jcm2_to_wm2, ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
 from meteostat.providers.dwd.shared import get_ftp_connection
 
@@ -175,7 +175,6 @@ def fetch(
         if m is not None
     ]  # can be "recent" and/or "historical"
 
-    parameters = [p.value for p in parameters]
     columns = map(
         lambda args: get_parameter(*args),
         (

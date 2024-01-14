@@ -14,24 +14,25 @@ The code is licensed under the MIT license.
 __appname__ = "meteostat"
 __version__ = "2.0.0"
 
-from meteostat.core.settings import settings
+from meteostat.settings import settings
 from meteostat.core.cache import purge as purge_cache
-from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.api import stations
-from meteostat.api.hourly import hourly
-from meteostat.api.daily import daily
-from meteostat import types
-from meteostat import units
+from meteostat.enumerations import Parameter, Provider
+from meteostat.point import Point
+from meteostat.concat import concat
+from meteostat.timeseries.hourly import hourly
+from meteostat.timeseries.daily import daily
+from meteostat import stations, units, interpolate
 
 __all__ = [
     "settings",
     "Parameter",
     "Provider",
-    "Granularity",
+    "Point",
     "stations",
     "hourly",
     "daily",
-    "types",
+    "concat",
     "units",
+    "interpolate",
     "purge_cache",
 ]

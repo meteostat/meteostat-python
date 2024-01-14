@@ -6,6 +6,7 @@ The code is licensed under the MIT license.
 """
 
 import math
+from typing import Optional
 from numpy import isnan
 
 
@@ -38,20 +39,14 @@ def temp_dwpt_to_rhum(row: dict):
     )
 
 
-def pres_to_msl(row: dict, altitude: int = None, temp: str = "tavg"):
+def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = "tavg"):
     """
     # Convert local air pressure to MSL
     """
     try:
         return (
             None
-            if (
-                isnan(row["pres"])
-                or isnan(row[temp])
-                or isnan(altitude)
-                or altitude is None
-                or row["pres"] == -999
-            )
+            if (not row["pres"] or not row[temp] or not altitude or row["pres"] == -999)
             else round(
                 row["pres"]
                 * math.pow(

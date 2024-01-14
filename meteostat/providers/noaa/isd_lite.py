@@ -3,11 +3,10 @@ from typing import Union
 from numpy import isnan
 import pandas as pd
 from meteostat.utils.decorators import cache
-from meteostat.types import Station
-from meteostat.utils.units import ms_to_kmh, temp_dwpt_to_rhum
+from meteostat.typing import Station
+from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum
 
 ISD_LITE_ENDPOINT = "https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/"
-# Column ranges
 COLSPECS = [
     (0, 4),
     (5, 7),
@@ -21,8 +20,7 @@ COLSPECS = [
     (43, 49),
     (49, 55),
 ]
-# Column names
-NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "cldc", "prcp"]
+COLUMN_NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "cldc", "prcp"]
 
 
 def map_sky_code(code: Union[int, str]) -> Union[int, None]:
@@ -50,7 +48,7 @@ def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
         )
 
         # Rename columns
-        df.columns = NAMES
+        df.columns = COLUMN_NAMES
 
         # Adapt columns
         df["temp"] = df["temp"].div(10)

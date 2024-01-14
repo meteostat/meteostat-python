@@ -8,16 +8,18 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The cod is licensed under the MIT license.
 """
 
-from typing import List
 from datetime import datetime
 from importlib import import_module
 from itertools import chain
+from typing import Optional, Tuple
 import pandas as pd
-from meteostat import Provider, types
+from meteostat import Provider
+from meteostat.core.logger import logger
 from meteostat.core.providers import filter_providers
-from meteostat.api.timeseries import Timeseries
+from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
-from meteostat.utils.mutations import filter_parameters, filter_time
+from meteostat.typing import DateTimeInput, Station
+from meteostat.utils.filters import filter_parameters, filter_time
 
 
 def fetch_data(provider_module, *args) -> pd.DataFrame:
@@ -29,83 +31,103 @@ def fetch_data(provider_module, *args) -> pd.DataFrame:
     return df
 
 
-def call_providers(
-    granularity: Granularity,
-    parameters: List[Parameter],
-    providers: List[Provider],
-    station: types.Station,
-    start: datetime,
-    end: datetime,
-    lite: bool,
-    max_station_count: int | None,
-) -> List[pd.DataFrame]:
+def stations_to_df(stations: list[Station]) -> pd.DataFrame | None:
     """
-    Call providers to fetch data for a station
+    Convert list of weather stations to DataFrame
     """
-    station_data = []
-    for provider in filter_providers(
-        granularity, parameters, providers, station["country"], start, end
-    ):
-        df = fetch_data(
-            provider["module"],
-            station,
-            start if start else provider["start"],
-            end if end else (provider.get("end", datetime.now())),
-            parameters,
+    return (
+        pd.DataFrame.from_records(
+            [
+                {
+                    "id": station["id"],
+                    "name": station["name"]["en"],
+                    "country": station["country"],
+                    "latitude": station["location"]["latitude"],
+                    "longitude": station["location"]["longitude"],
+                    "elevation": station["location"]["elevation"],
+                    "timezone": station["timezone"],
+                }
+                for station in stations
+            ],
+            index="id",
         )
-        df = pd.concat([df], keys=[station["id"]], names=["station"])
-        df["source"] = provider["id"].value
-        df.set_index(["source"], append=True, inplace=True)
-        df = filter_parameters(df, parameters)
-        df = filter_time(df, start, end)
-        df = df.dropna(how="all")
-        station_data.append(df)
-        if (
-            lite
-            and Timeseries(
-                Granularity.HOURLY, [station], pd.concat(station_data), start, end
-            ).coverage()
-            == 1
-        ):
-            break
-        if max_station_count and len(station_data) == max_station_count:
-            break
-    return station_data
+        if len(stations)
+        else []
+    )
 
 
-def load_data(
+def load_ts(
     granularity: Granularity,
-    providers: List[Provider],
-    parameters: List[Parameter],
-    stations: List[types.Station],
-    start: datetime | None = None,
-    end: datetime | None = None,
+    providers: Tuple[Provider, ...],
+    parameters: Tuple[Parameter, ...],
+    stations: Tuple[Station, ...],
+    start: Optional[datetime] = None,
+    end: Optional[datetime] = None,
+    timezone: Optional[str] = None,
     lite: bool = True,
-    max_station_count: int | None = None,
-) -> types.LoaderResponse:
+) -> TimeSeries:
     """
-    Load meteorological data from different providers
+    Load meteorological time series data from different providers
     """
-    data = []
-    included_stations = []
+    logger.info(f"{granularity} time series requested for {len(stations)} station(s)")
 
+    # Collect data
+    fragments = []
+    included_stations: list[Station] = []
+
+    # Go through all weather stations
     for station in stations:
-        station_data = call_providers(
-            granularity,
-            parameters,
-            providers,
-            station,
-            start,
-            end,
-            lite,
-            max_station_count,
-        )
-        if station_data:
-            data.append(station_data)
+        # Collect data for current weather station
+        station_fragments = []
+        # Go through all applicable providers
+        for provider in filter_providers(
+            granularity, parameters, providers, station["country"], start, end
+        ):
+            try:
+                # Fetch DataFrame for given provider
+                df = fetch_data(
+                    provider["module"],
+                    station,
+                    start if start else provider["start"],
+                    end if end else (provider.get("end", datetime.now())),
+                    parameters,
+                )
+                # Add current station ID to DataFrame
+                df = pd.concat([df], keys=[station["id"]], names=["station"])
+                # Add source index column to DataFrame
+                df["source"] = provider["id"]
+                df.set_index(["source"], append=True, inplace=True)
+                # Filter DataFrame for requested parameters and time range
+                df = filter_parameters(df, parameters)
+                df = filter_time(df, start, end)
+                # Drop empty rows
+                df = df.dropna(how="all")
+                # Save DataFrame
+                station_fragments.append(df)
+                # Exit loop if request is satisfied
+                if (
+                    lite
+                    and TimeSeries(
+                        Granularity.HOURLY,
+                        [station],
+                        pd.concat(station_fragments),
+                        start,
+                        end,
+                    ).completeness()
+                    == 1
+                ):
+                    break
+            except Exception as error:
+                logger.error(error)
+        # Save weather station & corresponding weather data
+        if station_fragments:
+            fragments.append(station_fragments)
             included_stations.append(station)
-        if max_station_count and len(data) == max_station_count:
-            break
 
-    df = pd.concat(chain.from_iterable(data)) if data else pd.DataFrame()
+    # Merge data in a single DataFrame
+    df = pd.concat(chain.from_iterable(fragments)) if fragments else pd.DataFrame()
 
-    return types.LoaderResponse({"stations": included_stations, "df": df})
+    # Return final time series
+    return TimeSeries(
+        granularity, stations_to_df(included_stations), df, start, end, timezone
+    )

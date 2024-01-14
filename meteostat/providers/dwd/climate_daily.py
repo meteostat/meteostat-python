@@ -12,9 +12,9 @@ from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
 from meteostat.enumerations import Parameter
-from meteostat.types import Station
+from meteostat.typing import Station
 from meteostat.utils.decorators import cache
-from meteostat.utils.units import ms_to_kmh, pres_to_msl
+from meteostat.utils.converters import ms_to_kmh, pres_to_msl
 from meteostat.providers.dwd.shared import get_ftp_connection
 
 

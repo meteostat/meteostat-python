@@ -3,19 +3,17 @@ Process GHCND data
 
 The code is licensed under the MIT license.
 """
-from datetime import datetime
 from io import StringIO
 from ftplib import FTP
 from numpy import nan
 import pandas as pd
-from meteostat.types import Station
-
+from meteostat import settings
+from meteostat.typing import Station
 from meteostat.utils.decorators import cache
-from meteostat.utils.units import ms_to_kmh, percentage_to_okta
+from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
 
 FTP_SERVER = "ftp.ncdc.noaa.gov"
-# Column names
-NAMES = {
+COLUMN_NAMES = {
     "MM/DD/YYYY": "time",
     "TMAX": "tmax",
     "TMIN": "tmin",
@@ -207,14 +205,14 @@ def get_df(station: str) -> pd.DataFrame:
     ftp = connect_to_ftp()
     df = dly_to_df(ftp, station)
     # Filter relevant columns
-    df = df.drop(columns=[col for col in df if col not in NAMES.keys()])
+    df = df.drop(columns=[col for col in df if col not in COLUMN_NAMES.keys()])
     # Add missing columns
-    for col in list(NAMES.keys())[1:]:
+    for col in list(COLUMN_NAMES.keys())[1:]:
         if col not in df.columns:
             df[col] = nan
 
     # Rename columns
-    df = df.reset_index().rename(columns=NAMES)
+    df = df.reset_index().rename(columns=COLUMN_NAMES)
 
     # Adapt columns
     df["time"] = pd.to_datetime(df["time"])

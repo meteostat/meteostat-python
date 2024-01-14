@@ -1,9 +1,9 @@
 from datetime import datetime
-from meteostat import types
+from meteostat import typing
 from meteostat.enumerations import Granularity, Parameter, Provider, Priority
 
 
-PROVIDERS: list[types.Provider] = [
+PROVIDERS: list[typing.Provider] = [
     {
         "id": Provider.DWD_CLIMATE_HOURLY,
         "name": "DWD Climate Hourly",

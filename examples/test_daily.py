@@ -1,3 +1,4 @@
+from datetime import date
 import logging
 import meteostat as ms
 
@@ -7,10 +8,10 @@ logging.basicConfig(level=logging.INFO)
 
 ts = ms.daily(
     "10637",
-    "2020-01-01",
-    "2020-01-31",
-    parameters=[ms.Parameter.TAVG],
-    providers=[ms.Provider.NOAA_GHCND],
+    date(2020, 1, 1),
+    date(2020, 1, 31),
+    parameters=(ms.Parameter.TAVG,),
+    providers=(ms.Provider.NOAA_GHCND,),
 )
 
 print(ts.fetch(squash=False, fill=True))

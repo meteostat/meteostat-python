@@ -6,14 +6,15 @@ from datetime import datetime
 from urllib.error import HTTPError
 import pandas as pd
 from meteostat import Parameter
+from meteostat.utils.decorators import cache
 from meteostat.core.logger import logger
-from meteostat.types import Station
+from meteostat.typing import Station
 
 
 ENDPOINT = "https://raw.meteostat.net/synop/{year}/{station}.csv.gz"
 
 
-# @cache(60 * 60 * 24, "pickle")
+@cache(60 * 60 * 24, "pickle")
 def get_df(station_id: str, year: int) -> pd.DataFrame:
     """
     Get CSV file from Meteostat and convert to DataFrame

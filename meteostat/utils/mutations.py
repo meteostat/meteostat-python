@@ -1,44 +1,27 @@
+"""
+DataFrame mutations
+
+Meteorological data provided by Meteostat (https://dev.meteostat.net)
+under the terms of the Creative Commons Attribution-NonCommercial
+4.0 International Public License.
+
+The code is licensed under the MIT license.
+"""
+
 from datetime import datetime
-from typing import Union
+import numpy as np
 import pandas as pd
 from meteostat.core.providers import get_provider
-from meteostat.enumerations import Parameter
+from meteostat.enumerations import Parameter, Priority
 
 
-def filter_time(
-    df: pd.DataFrame,
-    start: Union[datetime, None] = None,
-    end: Union[datetime, None] = None,
-) -> pd.DataFrame:
-    """
-    Filter time series data based on start and end date
-    """
-
-    # Get time index
-    time = df.index.get_level_values("time")
-
-    # Filter & return
-    return df.loc[(time >= start) & (time <= end)] if start and end else df
-
-
-def filter_parameters(df: pd.DataFrame, parameters: list[Parameter]) -> pd.DataFrame:
-    parameters = [parameter.value for parameter in parameters]
-    # Remove obsolete columns
-    [
-        df.drop(col, axis=1, inplace=True) if col not in parameters else None
-        for col in df.columns
-    ]
-    # Add missing columns
-    for col in parameters:
-        if col not in df:
-            df[col] = None
-    return df
+def _get_provider_prio(id: str) -> Priority:
+    provider = get_provider(id)
+    return provider["priority"] if provider else Priority.LOWEST
 
 
 def squash_df(df: pd.DataFrame) -> pd.DataFrame:
-    df["source_prio"] = df.index.get_level_values("source").map(
-        lambda s: get_provider(s)["priority"].value
-    )
+    df["source_prio"] = df.index.get_level_values("source").map(_get_provider_prio)
 
     return (
         df.sort_values(by="source_prio", ascending=False)
@@ -74,5 +57,30 @@ def localize(df: pd.DataFrame, timezone: str) -> pd.DataFrame:
     """
     Convert time data to any time zone
     """
-
     return df.tz_localize("UTC", level="time").tz_convert(timezone, level="time")
+
+
+def apply_lapse_rate(
+    df: pd.DataFrame,
+    target_elevation: int,
+    columns: list[Parameter] = [
+        Parameter.TEMP,
+        Parameter.DWPT,
+        Parameter.TAVG,
+        Parameter.TMIN,
+        Parameter.TMAX,
+    ],
+) -> pd.DataFrame:
+    """
+    Calculate approximate temperature at target elevation
+    """
+    # Standard lapse rate in degrees Celsius per meter
+    LAPSE_RATE = 0.0065
+
+    for col in columns:
+        if col in df.columns:
+            df.loc[df[col] != np.NaN, col] = round(
+                df[col] + (LAPSE_RATE * (df["elevation"] - target_elevation)), 1
+            )
+
+    return df
