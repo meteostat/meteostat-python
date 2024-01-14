@@ -130,7 +130,9 @@ def fetch(
     ]  # can be "recent" and/or "historical"
 
     data = [
-        get_df(station["identifiers"]["national"], station["elevation"], mode)
+        get_df(
+            station["identifiers"]["national"], station["location"]["elevation"], mode
+        )
         for mode in modes
     ]
 

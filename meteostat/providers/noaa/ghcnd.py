@@ -7,7 +7,6 @@ from io import StringIO
 from ftplib import FTP
 from numpy import nan
 import pandas as pd
-from meteostat import settings
 from meteostat.typing import Station
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
@@ -38,7 +37,7 @@ def connect_to_ftp():
     return ftp
 
 
-def get_flags(string: str):
+def get_flags(string):
     """
     Get flags, replacing empty flags with '_' for clarity (' S ' becomes '_S_')
     """

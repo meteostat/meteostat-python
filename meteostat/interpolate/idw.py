@@ -12,6 +12,9 @@ def idw(ts: TimeSeries, point: Point, lapse_rate=False) -> pd.DataFrame:
     """
     # Fetch filled DataFrame
     df = ts.fetch(fill=True)
+    # Return if DataFrame is missing
+    if df is None:
+        return None
     df = df.join(ts.stations, on="station")
     print(df)
     exit()

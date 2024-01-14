@@ -12,6 +12,9 @@ def idw(ts: TimeSeries, point: Point, lapse_rate=False) -> pd.DataFrame:
     """
     # Fetch filled DataFrame
     df = ts.fetch(fill=True)
+    # Return if DataFrame is missing
+    if df is None:
+        return None
     # Get DataFrame of weather stations
     stations = stations_to_df(ts.stations)
     df = df.join(stations, on="station")

@@ -12,6 +12,9 @@ def nearest(ts: TimeSeries, point: Point, lapse_rate=False) -> pd.DataFrame:
     """
     # Fetch filled DataFrame
     df = ts.fetch(fill=True)
+    # Return if DataFrame is missing
+    if df is None:
+        return None
     # Apply lapse rate
     if lapse_rate and point.elevation:
         # Add station elevation column

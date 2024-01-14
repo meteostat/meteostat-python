@@ -107,11 +107,10 @@ def find_file(ftp: FTP, path: str, needle: str):
 
 
 @cache(60 * 60 * 24, "pickle")
-def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
+def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
-    parameter = PARAMETERS[parameter]
     ftp = get_ftp_connection()
     remote_file = find_file(ftp, f'{parameter["dir"]}/{mode}', station_id)
 
@@ -154,7 +153,8 @@ def get_df(parameter: str, mode: str, station_id: str) -> pd.DataFrame:
 
 def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.DataFrame:
     data = [
-        get_df(parameter, mode, station["identifiers"]["national"]) for mode in modes
+        get_df(PARAMETERS[parameter], mode, station["identifiers"]["national"])
+        for mode in modes
     ]
     df = pd.concat(data)
     return df.loc[~df.index.duplicated(keep="first")]
@@ -164,7 +164,7 @@ def fetch(
     station: Station, start: datetime, end: datetime, parameters: list[Parameter]
 ):
     if not "national" in station["identifiers"]:
-        return pd.DataFrame()
+        return None
 
     modes = [
         m

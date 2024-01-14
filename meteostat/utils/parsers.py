@@ -22,7 +22,7 @@ def parse_station(
 ) -> Tuple[Station, ...]:
     data = []
 
-    for s in tuple(station):
+    for s in (station,) if isinstance(station, str) else tuple(station):
         meta = stations.meta(s)
         if meta is None:
             raise ValueError(f'Weather station with ID "{s}" could not be found')
