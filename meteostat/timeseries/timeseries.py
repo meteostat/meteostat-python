@@ -11,10 +11,9 @@ from copy import copy
 from datetime import datetime
 from math import floor
 from statistics import mean
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Tuple
 import pandas as pd
 from meteostat.enumerations import Parameter, Granularity
-from meteostat.typing import SequenceInput
 from meteostat.utils.helpers import get_freq
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
@@ -69,7 +68,7 @@ class TimeSeries:
     def apply(
         self,
         func: Callable,
-        parameter: Optional[SequenceInput[Parameter | str] | Parameter | str] = None,
+        parameter: Optional[Tuple[Parameter | str, ...] | Parameter | str] = None,
     ):
         """
         Apply a function to the whole time series or specific parameter(s)
@@ -78,10 +77,9 @@ class TimeSeries:
 
         # Apply function
         if parameter:
-            parameter = (
+            for p in (
                 [parameter] if isinstance(parameter, (Parameter, str)) else parameter
-            )
-            for p in parameter:
+            ):
                 if p in temp._df.columns:
                     temp._df[p] = temp._df[p].apply(func)
         else:

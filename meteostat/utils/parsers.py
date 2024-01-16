@@ -14,12 +14,12 @@ import pandas as pd
 import pytz
 from meteostat import Parameter, stations
 from meteostat.enumerations import Provider
-from meteostat.typing import Station
+from meteostat.typing import StationDict
 
 
 def parse_station(
     station: str | Tuple[str, ...] | pd.Index | pd.Series,
-) -> Tuple[Station, ...]:
+) -> Tuple[StationDict, ...]:
     data = []
 
     for s in (station,) if isinstance(station, str) else tuple(station):

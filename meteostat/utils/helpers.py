@@ -12,7 +12,7 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 from meteostat.enumerations import Granularity
-from meteostat.typing import Station
+from meteostat.typing import StationDict
 
 
 def get_freq(granularity: Granularity) -> str:
@@ -22,7 +22,7 @@ def get_freq(granularity: Granularity) -> str:
     return "1H" if granularity is Granularity.HOURLY else "1D"
 
 
-def stations_to_df(stations: Tuple[Station]) -> pd.DataFrame:
+def stations_to_df(stations: Tuple[StationDict]) -> pd.DataFrame:
     """
     TODO: Rename to join_station_details and provide drop_station_details, move to mutations
 

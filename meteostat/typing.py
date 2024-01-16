@@ -1,32 +1,26 @@
-from datetime import datetime, date
+from datetime import datetime
 from enum import Enum
-from typing import List, NotRequired, Tuple, TypeVar, TypedDict, Union, Optional
-from meteostat.enumerations import Priority, Granularity
+from typing import NotRequired, Tuple, TypedDict, Optional
+from meteostat.enumerations import Priority, Granularity, Parameter
 
 
-T = TypeVar("T")
-SequenceInput = Union[Tuple[T, ...], List[T], T]
-
-DateTimeInput = Optional[Union[datetime, date]]
-
-
-class Location(TypedDict):
+class LocationDict(TypedDict):
     latitude: float
     longitude: float
     elevation: int
 
 
-class Station(TypedDict):
+class StationDict(TypedDict):
     id: str
     name: dict[str, str]
     country: str
     region: str
     identifiers: dict[str, str]
-    location: Location
+    location: LocationDict
     timezone: str
 
 
-class Provider(TypedDict):
+class ProviderDict(TypedDict):
     id: Enum
     name: str
     granularity: Granularity
@@ -37,3 +31,10 @@ class Provider(TypedDict):
     parameters: list[Enum]
     license: NotRequired[str]
     module: str
+
+
+class QueryDict(TypedDict):
+    station: StationDict
+    start: datetime
+    end: datetime
+    parameters: Tuple[Parameter, ...]

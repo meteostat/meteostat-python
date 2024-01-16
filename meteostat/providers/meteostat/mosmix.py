@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 import pandas as pd
 from meteostat import Parameter
 from meteostat.core.logger import logger
-from meteostat.typing import Station
+from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 
 
@@ -32,9 +32,7 @@ def get_df(station_id: str, year: int) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def fetch(
-    station: Station, start: datetime, end: datetime, _parameters: list[Parameter]
-):
-    years = range(start.year, end.year + 1)
-    data = [get_df(station["id"], year) for year in years]
+def fetch(query: QueryDict):
+    years = range(query["start"].year, query["end"].year + 1)
+    data = [get_df(query["station"]["id"], year) for year in years]
     return pd.concat(data) if len(data) else pd.DataFrame()

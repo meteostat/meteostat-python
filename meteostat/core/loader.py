@@ -18,20 +18,20 @@ from meteostat.core.logger import logger
 from meteostat.core.providers import filter_providers
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
-from meteostat.typing import DateTimeInput, Station
+from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.filters import filter_parameters, filter_time
 
 
-def fetch_data(provider_module, *args) -> pd.DataFrame:
+def fetch_data(provider_module, query: QueryDict) -> pd.DataFrame:
     """
     Fetch data from a given provider module
     """
     module = import_module(provider_module)
-    df = module.fetch(*args)
+    df = module.fetch(query)
     return df
 
 
-def stations_to_df(stations: list[Station]) -> pd.DataFrame | None:
+def stations_to_df(stations: list[StationDict]) -> pd.DataFrame | None:
     """
     Convert list of weather stations to DataFrame
     """
@@ -60,7 +60,7 @@ def load_ts(
     granularity: Granularity,
     providers: Tuple[Provider, ...],
     parameters: Tuple[Parameter, ...],
-    stations: Tuple[Station, ...],
+    stations: Tuple[StationDict, ...],
     start: Optional[datetime] = None,
     end: Optional[datetime] = None,
     timezone: Optional[str] = None,
@@ -73,7 +73,7 @@ def load_ts(
 
     # Collect data
     fragments = []
-    included_stations: list[Station] = []
+    included_stations: list[StationDict] = []
 
     # Go through all weather stations
     for station in stations:
@@ -85,13 +85,15 @@ def load_ts(
         ):
             try:
                 # Fetch DataFrame for given provider
-                df = fetch_data(
-                    provider["module"],
-                    station,
-                    start if start else provider["start"],
-                    end if end else (provider.get("end", datetime.now())),
-                    parameters,
+                query = QueryDict(
+                    {
+                        "station": station,
+                        "start": start if start else provider["start"],
+                        "end": end if end else (provider.get("end", datetime.now())),  # type: ignore
+                        "parameters": parameters,
+                    }
                 )
+                df = fetch_data(provider["module"], query)
                 # Add current station ID to DataFrame
                 df = pd.concat([df], keys=[station["id"]], names=["station"])
                 # Add source index column to DataFrame

@@ -1,5 +1,6 @@
+from typing import Optional
 from meteostat.stations.database import query
-from meteostat.typing import Station
+from meteostat.typing import StationDict
 
 
 def _get_station(id: str) -> dict:
@@ -45,7 +46,7 @@ def _get_identifers(id: str) -> dict:
     return {identifier["key"]: identifier["value"] for identifier in identifiers}
 
 
-def meta(id: str) -> Station | None:
+def meta(id: str) -> Optional[StationDict]:
     """
     Get meta data for a specific weather station
     """

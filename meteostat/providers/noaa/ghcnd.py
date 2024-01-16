@@ -7,7 +7,7 @@ from io import StringIO
 from ftplib import FTP
 from numpy import nan
 import pandas as pd
-from meteostat.typing import Station
+from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
 
@@ -226,9 +226,11 @@ def get_df(station: str) -> pd.DataFrame:
     return df.set_index("time")
 
 
-def fetch(station: Station, _start, _end, _parameters):
+def fetch(query: QueryDict):
     ghcn_id = (
-        station["identifiers"]["ghcn"] if "ghcn" in station["identifiers"] else None
+        query["station"]["identifiers"]["ghcn"]
+        if "ghcn" in query["station"]["identifiers"]
+        else None
     )
     if not ghcn_id:
         return pd.DataFrame()

@@ -12,7 +12,6 @@ from datetime import datetime
 from typing import Set, Tuple, Union
 import pandas as pd
 from meteostat.enumerations import Parameter
-from meteostat.typing import SequenceInput
 
 
 def filter_time(

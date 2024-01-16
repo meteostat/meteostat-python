@@ -3,7 +3,7 @@ from typing import Union
 from numpy import isnan
 import pandas as pd
 from meteostat.utils.decorators import cache
-from meteostat.typing import Station
+from meteostat.typing import QueryDict
 from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum
 
 ISD_LITE_ENDPOINT = "https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/"
@@ -76,18 +76,18 @@ def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def fetch(station: Station, start: datetime, end: datetime, _parameters):
+def fetch(query: QueryDict):
     """ """
-    years = range(start.year, end.year + 1)
+    years = range(query["start"].year, query["end"].year + 1)
     data = map(
         lambda i: get_df(*i),
         (
             (
-                station["identifiers"]["usaf"]
-                if "usaf" in station["identifiers"]
+                query["station"]["identifiers"]["usaf"]
+                if "usaf" in query["station"]["identifiers"]
                 else None,
-                station["identifiers"]["wban"]
-                if "wban" in station["identifiers"]
+                query["station"]["identifiers"]["wban"]
+                if "wban" in query["station"]["identifiers"]
                 else None,
                 year,
             )

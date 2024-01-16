@@ -11,8 +11,7 @@ from ftplib import FTP
 from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
-from meteostat import Parameter
-from meteostat.typing import Station
+from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import jcm2_to_wm2, ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
@@ -151,7 +150,9 @@ def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
     return df
 
 
-def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.DataFrame:
+def get_parameter(
+    parameter: str, modes: list[str], station: StationDict
+) -> pd.DataFrame:
     data = [
         get_df(PARAMETERS[parameter], mode, station["identifiers"]["national"])
         for mode in modes
@@ -160,17 +161,15 @@ def get_parameter(parameter: str, modes: list[str], station: Station) -> pd.Data
     return df.loc[~df.index.duplicated(keep="first")]
 
 
-def fetch(
-    station: Station, start: datetime, end: datetime, parameters: list[Parameter]
-):
-    if not "national" in station["identifiers"]:
+def fetch(query: QueryDict):
+    if not "national" in query["station"]["identifiers"]:
         return None
 
     modes = [
         m
         for m in [
-            "historical" if abs((start - datetime.now()).days) > 120 else None,
-            "recent" if abs((end - datetime.now()).days) < 120 else None,
+            "historical" if abs((query["start"] - datetime.now()).days) > 120 else None,
+            "recent" if abs((query["end"] - datetime.now()).days) < 120 else None,
         ]
         if m is not None
     ]  # can be "recent" and/or "historical"
@@ -178,9 +177,9 @@ def fetch(
     columns = map(
         lambda args: get_parameter(*args),
         (
-            (parameter, modes, station)
+            (parameter, modes, query["station"])
             for parameter in {
-                key: PARAMETERS[key] for key in parameters if key in PARAMETERS
+                key: PARAMETERS[key] for key in query["parameters"] if key in PARAMETERS
             }
         ),
     )

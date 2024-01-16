@@ -11,8 +11,7 @@ from ftplib import FTP
 from io import BytesIO
 from zipfile import ZipFile
 import pandas as pd
-from meteostat.enumerations import Parameter
-from meteostat.typing import Station
+from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, pres_to_msl
 from meteostat.providers.dwd.shared import get_ftp_connection
@@ -114,24 +113,24 @@ def get_df(station: str, elevation: int, mode: str) -> pd.DataFrame:
     return df
 
 
-def fetch(
-    station: Station, start: datetime, end: datetime, parameters: list[Parameter]
-):
-    if not "national" in station["identifiers"]:
+def fetch(query: QueryDict):
+    if not "national" in query["station"]["identifiers"]:
         return pd.DataFrame()
 
     modes = [
         m
         for m in [
-            "historical" if abs((start - datetime.now()).days) > 120 else None,
-            "recent" if abs((end - datetime.now()).days) < 120 else None,
+            "historical" if abs((query["start"] - datetime.now()).days) > 120 else None,
+            "recent" if abs((query["end"] - datetime.now()).days) < 120 else None,
         ]
         if m is not None
     ]  # can be "recent" and/or "historical"
 
     data = [
         get_df(
-            station["identifiers"]["national"], station["location"]["elevation"], mode
+            query["station"]["identifiers"]["national"],
+            query["station"]["location"]["elevation"],
+            mode,
         )
         for mode in modes
     ]

@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Iterator, Optional, Set, Tuple, TypeGuard
-from meteostat import Provider, typing
+from meteostat import Provider
+from meteostat.typing import ProviderDict
 from meteostat.enumerations import Parameter, Granularity
 from meteostat.providers.index import PROVIDERS
 
 
-def get_provider(id: str) -> typing.Provider | None:
+def get_provider(id: str) -> ProviderDict | None:
     """
     Get a provider by its ID
     """
@@ -22,12 +23,12 @@ def filter_providers(
     country: str,
     start: Optional[datetime],
     end: Optional[datetime],
-) -> Iterator[typing.Provider]:
+) -> Iterator[ProviderDict]:
     """
     Get a filtered list of providers
     """
 
-    def _filter(provider: typing.Provider) -> TypeGuard[Provider]:
+    def _filter(provider: ProviderDict) -> TypeGuard[Provider]:
         if provider["granularity"] is not granularity:
             return False
         if set(provider["parameters"]).isdisjoint(parameters):

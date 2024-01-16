@@ -1,9 +1,10 @@
 from datetime import datetime
-from meteostat import typing
+from typing import Tuple
+from meteostat.typing import ProviderDict
 from meteostat.enumerations import Granularity, Parameter, Provider, Priority
 
 
-PROVIDERS: list[typing.Provider] = [
+PROVIDERS: Tuple[ProviderDict, ...] = (
     {
         "id": Provider.DWD_CLIMATE_HOURLY,
         "name": "DWD Climate Hourly",
@@ -119,4 +120,4 @@ PROVIDERS: list[typing.Provider] = [
         "start": datetime(2015, 8, 7, 17, 0, 0),
         "module": "meteostat.providers.meteostat.mosmix",
     },
-]
+)
