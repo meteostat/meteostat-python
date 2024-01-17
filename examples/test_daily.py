@@ -11,7 +11,7 @@ ts = ms.daily(
     date(2020, 1, 1),
     date(2020, 1, 31),
     parameters=(ms.Parameter.TAVG,),
-    providers=(ms.Provider.NOAA_GHCND,),
+    providers=(ms.Provider.GHCND,),
 )
 
 print(ts.fetch(squash=False, fill=True))

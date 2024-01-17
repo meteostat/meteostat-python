@@ -9,8 +9,10 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
+from typing import Callable, Dict, List, NotRequired, Optional, Tuple, TypedDict
 from zipfile import ZipFile
 import pandas as pd
+from meteostat.core.logger import logger
 from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import jcm2_to_wm2, ms_to_kmh
@@ -18,58 +20,62 @@ from meteostat.providers.dwd.shared import get_condicode
 from meteostat.providers.dwd.shared import get_ftp_connection
 
 
+class ParameterDefinition(TypedDict):
+    dir: str
+    usecols: List[int]
+    parse_dates: Dict[str, List[int]]
+    names: Dict[str, str]
+    convert: NotRequired[Dict[str, Callable]]
+    encoding: NotRequired[str]
+    historical_only: NotRequired[bool]
+
+
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/hourly/"
-PARAMETERS = {
-    "prcp": {
+PARAMETERS: Tuple[ParameterDefinition, ...] = (
+    {
         "dir": "precipitation",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
         "names": {"R1": "prcp"},
-        "convert": {},
     },
-    "temp": {
+    {
         "dir": "air_temperature",
         "usecols": [1, 3, 4],
         "parse_dates": {"time": [0]},
         "names": {"TT_TU": "temp", "RF_TU": "rhum"},
-        "convert": {},
     },
-    "wind": {
+    {
         "dir": "wind",
         "usecols": [1, 3, 4],
         "parse_dates": {"time": [0]},
         "names": {"F": "wspd", "D": "wdir"},
         "convert": {"wspd": ms_to_kmh},
     },
-    "pres": {
+    {
         "dir": "pressure",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
         "names": {"P": "pres"},
-        "convert": {},
     },
-    "tsun": {
+    {
         "dir": "sun",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
         "names": {"SD_SO": "tsun"},
-        "convert": {},
     },
-    "cloud": {
+    {
         "dir": "cloudiness",
         "usecols": [1, 4],
         "parse_dates": {"time": [0]},
         "names": {"V_N": "cldc"},
-        "convert": {},
     },
-    "visb": {
+    {
         "dir": "visibility",
         "usecols": [1, 4],
         "parse_dates": {"time": [0]},
         "names": {"V_VV": "vsby"},
-        "convert": {},
     },
-    "coco": {
+    {
         "dir": "weather_phenomena",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
@@ -77,7 +83,7 @@ PARAMETERS = {
         "convert": {"coco": get_condicode},
         "encoding": "latin-1",
     },
-    "srad": {
+    {
         "dir": "solar",
         "usecols": [1, 5],
         "parse_dates": {"time": [0]},
@@ -85,7 +91,7 @@ PARAMETERS = {
         "convert": {"srad": jcm2_to_wm2},
         "historical_only": True,
     },
-}
+)
 
 
 def find_file(ftp: FTP, path: str, needle: str):
@@ -106,7 +112,9 @@ def find_file(ftp: FTP, path: str, needle: str):
 
 
 @cache(60 * 60 * 24, "pickle")
-def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
+def get_df(
+    parameter: ParameterDefinition, mode: str, station_id: str
+) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
@@ -114,7 +122,7 @@ def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
     remote_file = find_file(ftp, f'{parameter["dir"]}/{mode}', station_id)
 
     if remote_file is None:
-        return pd.DataFrame()
+        return None
 
     buffer = BytesIO()
     ftp.retrbinary("RETR " + remote_file, buffer.write)
@@ -130,8 +138,9 @@ def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
     df: pd.DataFrame = pd.read_csv(
         raw,
         sep=";",
+        skipinitialspace=True,
         date_format="%Y%m%d%H",
-        na_values="-999",
+        na_values=[-999, "-999"],
         usecols=parameter["usecols"],
         parse_dates=parameter["parse_dates"],
         encoding=parameter["encoding"] if "encoding" in parameter else None,
@@ -140,8 +149,9 @@ def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
     df = df.rename(columns=lambda x: x.strip())
     df = df.rename(columns=parameter["names"])
     # Convert column data
-    for col, func in parameter["convert"].items():
-        df[col] = df[col].apply(func)
+    if "convert" in parameter:
+        for col, func in parameter["convert"].items():
+            df[col] = df[col].apply(func)
     # Set index
     df = df.set_index("time")
     # Round decimals
@@ -151,14 +161,20 @@ def get_df(parameter: dict, mode: str, station_id: str) -> pd.DataFrame:
 
 
 def get_parameter(
-    parameter: str, modes: list[str], station: StationDict
-) -> pd.DataFrame:
-    data = [
-        get_df(PARAMETERS[parameter], mode, station["identifiers"]["national"])
-        for mode in modes
-    ]
-    df = pd.concat(data)
-    return df.loc[~df.index.duplicated(keep="first")]
+    parameter: ParameterDefinition, modes: list[str], station: StationDict
+) -> Optional[pd.DataFrame]:
+    try:
+        data = [
+            get_df(parameter, mode, station["identifiers"]["national"])
+            for mode in modes
+        ]
+        if all(d is None for d in data):
+            return None
+        df = pd.concat(data)
+        return df.loc[~df.index.duplicated(keep="first")]
+    except Exception as error:
+        logger.error(error)
+        return None
 
 
 def fetch(query: QueryDict):
@@ -178,9 +194,11 @@ def fetch(query: QueryDict):
         lambda args: get_parameter(*args),
         (
             (parameter, modes, query["station"])
-            for parameter in {
-                key: PARAMETERS[key] for key in query["parameters"] if key in PARAMETERS
-            }
+            for parameter in [
+                param
+                for param in PARAMETERS
+                if not set(query["parameters"]).isdisjoint(param["names"].values())
+            ]
         ),
     )
 

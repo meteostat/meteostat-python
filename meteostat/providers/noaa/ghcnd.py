@@ -1,10 +1,14 @@
 """
 Process GHCND data
 
+This code is based on an implementation by
+Aaron Penne (https://github.com/aaronpenne).
+
 The code is licensed under the MIT license.
 """
 from io import StringIO
 from ftplib import FTP
+from typing import Optional
 from numpy import nan
 import pandas as pd
 from meteostat.typing import QueryDict
@@ -107,26 +111,11 @@ def dly_to_df(ftp, station_id):
 
     # File params
     num_chars_line = 269
-    num_chars_metadata = 21
-
-    element_list = [
-        "TMAX",
-        "TMIN",
-        "TAVG",
-        "PRCP",
-        "SNWD",
-        "AWDR",
-        "AWND",
-        "TSUN",
-        "WSFG",
-        "ACMC",
-    ]
 
     # Read through entire StringIO stream (the .dly file)
     # and collect the data
     all_dicts = {}
     element_flag = {}
-    prev_year = "0000"
     index = 0
 
     while True:
@@ -134,7 +123,7 @@ def dly_to_df(ftp, station_id):
 
         # Read metadata for each line
         # (one month of data for a particular element per line)
-        id_station = stream.read(11)
+        _id_station = stream.read(11)
         year = stream.read(4)
         month = stream.read(2)
         day = 0
@@ -152,7 +141,7 @@ def dly_to_df(ftp, station_id):
             # current row
             if day == 1:
                 try:
-                    first_hit = element_flag[element]
+                    _first_hit = element_flag[element]
                     pass
                 except BaseException:
                     element_flag[element] = 1
@@ -226,12 +215,12 @@ def get_df(station: str) -> pd.DataFrame:
     return df.set_index("time")
 
 
-def fetch(query: QueryDict):
+def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     ghcn_id = (
         query["station"]["identifiers"]["ghcn"]
         if "ghcn" in query["station"]["identifiers"]
         else None
     )
     if not ghcn_id:
-        return pd.DataFrame()
+        return None
     return get_df(ghcn_id)

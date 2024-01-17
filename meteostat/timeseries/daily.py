@@ -34,7 +34,7 @@ SUPPORTED_PARAMETERS = (
     Parameter.TSUN,
 )
 
-SUPPORTED_PROVIDERS = (Provider.DAILY, Provider.DWD_CLIMATE_DAILY, Provider.NOAA_GHCND)
+SUPPORTED_PROVIDERS = (Provider.BULK_DAILY, Provider.DWD_DAILY, Provider.GHCND)
 
 DEFAULT_PARAMETERS = (
     Parameter.TAVG,
@@ -52,7 +52,7 @@ def daily(
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     parameters: Tuple[Parameter | str, ...] = DEFAULT_PARAMETERS,
-    providers: Tuple[Provider | str, ...] = (Provider.HOURLY,),
+    providers: Tuple[Provider | str, ...] = (Provider.BULK_HOURLY,),
     lite=True,
 ):
     """

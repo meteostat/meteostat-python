@@ -11,7 +11,8 @@ The code is licensed under the MIT license.
 from typing import Tuple
 import numpy as np
 import pandas as pd
-from meteostat.enumerations import Granularity
+from meteostat.core.providers import get_provider
+from meteostat.enumerations import Granularity, Priority
 from meteostat.typing import StationDict
 
 
@@ -61,3 +62,8 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
     arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
     return round(radius * arch_sin)
+
+
+def get_provider_prio(id: str) -> Priority:
+    provider = get_provider(id)
+    return provider["priority"] if provider else Priority.LOWEST

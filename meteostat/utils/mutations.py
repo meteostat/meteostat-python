@@ -11,17 +11,12 @@ The code is licensed under the MIT license.
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from meteostat.core.providers import get_provider
-from meteostat.enumerations import Parameter, Priority
-
-
-def _get_provider_prio(id: str) -> Priority:
-    provider = get_provider(id)
-    return provider["priority"] if provider else Priority.LOWEST
+from meteostat.enumerations import Parameter
+from meteostat.utils.helpers import get_provider_prio
 
 
 def squash_df(df: pd.DataFrame) -> pd.DataFrame:
-    df["source_prio"] = df.index.get_level_values("source").map(_get_provider_prio)
+    df["source_prio"] = df.index.get_level_values("source").map(get_provider_prio)
 
     return (
         df.sort_values(by="source_prio", ascending=False)

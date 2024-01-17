@@ -1,7 +1,8 @@
-from datetime import datetime
-from typing import Union
+from typing import Optional, Union
+from urllib.error import HTTPError
 from numpy import isnan
 import pandas as pd
+from meteostat.core.logger import logger
 from meteostat.utils.decorators import cache
 from meteostat.typing import QueryDict
 from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum
@@ -23,7 +24,7 @@ COLSPECS = [
 COLUMN_NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "cldc", "prcp"]
 
 
-def map_sky_code(code: Union[int, str]) -> Union[int, None]:
+def map_sky_code(code: Union[int, str]) -> Optional[int]:
     """
     Only accept okta
     """
@@ -31,9 +32,9 @@ def map_sky_code(code: Union[int, str]) -> Union[int, None]:
 
 
 @cache(60 * 60 * 24, "pickle")
-def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
+def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
     if not usaf:
-        return pd.DataFrame()
+        return None
 
     filename = f"{usaf}-{wban if wban else '99999'}-{year}.gz"
 
@@ -72,27 +73,39 @@ def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame:
         # Round decimals
         return df.round(1)
 
-    except:
-        return pd.DataFrame()
+    except HTTPError as error:
+        if error.status == 404:
+            logger.info(f"ISD Lite file not found: {filename}")
+        else:
+            logger.error(
+                f"Couldn't load ISD Lite file {filename} (status: {error.status})"
+            )
+        return None
+
+    except Exception as error:
+        logger.error(error)
+        return None
 
 
-def fetch(query: QueryDict):
+def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     """ """
     years = range(query["start"].year, query["end"].year + 1)
-    data = map(
-        lambda i: get_df(*i),
-        (
+    data = tuple(
+        map(
+            lambda i: get_df(*i),
             (
-                query["station"]["identifiers"]["usaf"]
-                if "usaf" in query["station"]["identifiers"]
-                else None,
-                query["station"]["identifiers"]["wban"]
-                if "wban" in query["station"]["identifiers"]
-                else None,
-                year,
-            )
-            for year in years
-        ),
+                (
+                    query["station"]["identifiers"]["usaf"]
+                    if "usaf" in query["station"]["identifiers"]
+                    else None,
+                    query["station"]["identifiers"]["wban"]
+                    if "wban" in query["station"]["identifiers"]
+                    else None,
+                    year,
+                )
+                for year in years
+            ),
+        )
     )
 
-    return pd.concat(data)
+    return pd.concat(data) if len(data) and not all(d is None for d in data) else None

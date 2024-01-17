@@ -6,7 +6,7 @@ from meteostat.enumerations import Granularity, Parameter, Provider, Priority
 
 PROVIDERS: Tuple[ProviderDict, ...] = (
     {
-        "id": Provider.DWD_CLIMATE_HOURLY,
+        "id": Provider.DWD_HOURLY,
         "name": "DWD Climate Hourly",
         "granularity": Granularity.HOURLY,
         "priority": Priority.HIGHEST,
@@ -14,10 +14,10 @@ PROVIDERS: Tuple[ProviderDict, ...] = (
         "parameters": [Parameter.TEMP, Parameter.PRCP, Parameter.WDIR],
         "start": datetime(1939, 1, 1, 0, 0, 0),
         "license": "https://www.dwd.de/DE/service/copyright/copyright_node.html",
-        "module": "meteostat.providers.dwd.climate_hourly",
+        "module": "meteostat.providers.dwd.hourly",
     },
     {
-        "id": Provider.DWD_CLIMATE_DAILY,
+        "id": Provider.DWD_DAILY,
         "name": "DWD Climate Daily",
         "granularity": Granularity.DAILY,
         "priority": Priority.HIGHEST,
@@ -25,10 +25,10 @@ PROVIDERS: Tuple[ProviderDict, ...] = (
         "parameters": [Parameter.TEMP, Parameter.PRCP, Parameter.WDIR],
         "start": datetime(1781, 1, 1, 0, 0, 0),
         "license": "https://www.dwd.de/DE/service/copyright/copyright_node.html",
-        "module": "meteostat.providers.dwd.climate_daily",
+        "module": "meteostat.providers.dwd.daily",
     },
     {
-        "id": Provider.NOAA_ISD_LITE,
+        "id": Provider.ISD_LITE,
         "name": "NOAA ISD Lite",
         "granularity": Granularity.HOURLY,
         "priority": Priority.HIGH,
@@ -37,7 +37,7 @@ PROVIDERS: Tuple[ProviderDict, ...] = (
         "module": "meteostat.providers.noaa.isd_lite",
     },
     {
-        "id": Provider.NOAA_GHCND,
+        "id": Provider.GHCND,
         "name": "NOAA GHCN Daily",
         "granularity": Granularity.DAILY,
         "priority": Priority.HIGH,

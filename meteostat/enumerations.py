@@ -52,16 +52,16 @@ class Provider(StrEnum):
     Providers supported by Meteostat
     """
 
-    NOAA_GHCND = "noaa_ghcnd"
-    NOAA_ISD_LITE = "noaa_isd_lite"
-    DWD_CLIMATE_HOURLY = "dwd_climate_hourly"
-    DWD_CLIMATE_DAILY = "dwd_climate_daily"
+    ISD_LITE = "isd_lite"
+    GHCND = "ghcnd"
+    DWD_HOURLY = "dwd_hourly"
+    DWD_DAILY = "dwd_daily"
     SYNOP = "synop"
     METAR = "metar"
     MOSMIX = "mosmix"
 
-    HOURLY = "hourly"
-    DAILY = "daily"
+    BULK_HOURLY = "bulk_hourly"
+    BULK_DAILY = "bulk_daily"
 
 
 class Priority(IntEnum):

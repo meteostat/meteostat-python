@@ -35,12 +35,12 @@ SUPPORTED_PARAMETERS = (
 )
 
 SUPPORTED_PROVIDERS = (
-    Provider.HOURLY,
+    Provider.BULK_HOURLY,
     Provider.SYNOP,
     Provider.METAR,
     Provider.MOSMIX,
-    Provider.NOAA_ISD_LITE,
-    Provider.DWD_CLIMATE_HOURLY,
+    Provider.ISD_LITE,
+    Provider.DWD_HOURLY,
 )
 
 DEFAULT_PARAMETERS = (
@@ -59,7 +59,7 @@ def hourly(
     end: Optional[Union[datetime, date]] = None,
     timezone: Optional[str] = None,
     parameters: Tuple[Parameter | str, ...] = DEFAULT_PARAMETERS,
-    providers: Tuple[Provider | str, ...] = (Provider.HOURLY,),
+    providers: Tuple[Provider | str, ...] = (Provider.BULK_HOURLY,),
     lite=True,
 ):
     """

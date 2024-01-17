@@ -1,7 +1,7 @@
 """
 A global cache which provides utilities for caching data on the local file system
 """
-from typing import Any
+from typing import Any, Optional
 import json
 import os
 from os.path import exists
@@ -12,18 +12,19 @@ import pandas as pd
 from time import time
 
 
-def write_pickle(path: str, df: pd.DataFrame) -> None:
+def write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
     """
     Persist a DataFrame in Pickle format
     """
-    df.to_pickle(path)
+    pd.DataFrame().to_pickle(path) if df is None else df.to_pickle(path)
 
 
-def read_pickle(path) -> pd.DataFrame:
+def read_pickle(path) -> Optional[pd.DataFrame]:
     """
     Read a pickle file into a DataFrame
     """
-    return pd.read_pickle(path)
+    df: pd.DataFrame = pd.read_pickle(path)
+    return None if df.empty else df
 
 
 def write_json(path: str, data: dict | list) -> None:

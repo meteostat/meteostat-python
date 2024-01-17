@@ -9,6 +9,7 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
+from typing import Optional
 from zipfile import ZipFile
 import pandas as pd
 from meteostat.typing import QueryDict
@@ -60,7 +61,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
 
 
 @cache(60 * 60 * 24, "pickle")
-def get_df(station: str, elevation: int, mode: str) -> pd.DataFrame:
+def get_df(station: str, elevation: int, mode: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
@@ -68,10 +69,12 @@ def get_df(station: str, elevation: int, mode: str) -> pd.DataFrame:
     remote_file = find_file(ftp, mode, f"_{station}_")
 
     if remote_file is None:
-        return pd.DataFrame()
+        return None
 
     buffer = BytesIO()
     ftp.retrbinary("RETR " + remote_file, buffer.write)
+
+    ftp.close()
 
     # Unzip file
     with ZipFile(buffer, "r") as zipped:

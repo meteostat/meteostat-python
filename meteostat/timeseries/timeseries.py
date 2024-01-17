@@ -14,7 +14,7 @@ from statistics import mean
 from typing import Any, Callable, Optional, Tuple
 import pandas as pd
 from meteostat.enumerations import Parameter, Granularity
-from meteostat.utils.helpers import get_freq
+from meteostat.utils.helpers import get_freq, get_provider_prio
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
 
@@ -53,8 +53,18 @@ class TimeSeries:
         """
         return len(self._df)
 
+    def __str__(self) -> str:
+        return self._df.__str__() if self._df is not None else "Empty time series"
+
     @property
-    def expected_row_count(self) -> int:
+    def empty(self) -> bool:
+        """
+        Is the time series empty?
+        """
+        return True if self._df is None else self._df.empty
+
+    @property
+    def target_length(self) -> int:
         """
         Expected number of non-NaN values
         """
@@ -64,6 +74,22 @@ class TimeSeries:
             if self.granularity is Granularity.DAILY
             else floor(diff.total_seconds() / 3600) + 1
         ) * len(self.stations)
+
+    @property
+    def sourcemap(self) -> Optional[pd.DataFrame]:
+        """
+        Get a DataFrame of squashed source strings
+        """
+        df = copy(self._df)
+
+        df["source_prio"] = df.index.get_level_values("source").map(get_provider_prio)
+
+        return (
+            df.sort_values(by="source_prio", ascending=False)
+            .groupby(["station", "time"])
+            .agg(lambda s: pd.Series.first_valid_index(s)[2])
+            .drop("source_prio", axis=1)
+        )
 
     def apply(
         self,
@@ -149,7 +175,7 @@ class TimeSeries:
 
         if parameter:
             return round(
-                self.count(parameter) / self.expected_row_count,
+                self.count(parameter) / self.target_length,
                 2,
             )
 

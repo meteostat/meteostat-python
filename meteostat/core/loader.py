@@ -22,7 +22,7 @@ from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.filters import filter_parameters, filter_time
 
 
-def fetch_data(provider_module, query: QueryDict) -> pd.DataFrame:
+def fetch_data(provider_module, query: QueryDict) -> Optional[pd.DataFrame]:
     """
     Fetch data from a given provider module
     """
@@ -94,6 +94,9 @@ def load_ts(
                     }
                 )
                 df = fetch_data(provider["module"], query)
+                # Continue if no data was returned
+                if df is None:
+                    continue
                 # Add current station ID to DataFrame
                 df = pd.concat([df], keys=[station["id"]], names=["station"])
                 # Add source index column to DataFrame

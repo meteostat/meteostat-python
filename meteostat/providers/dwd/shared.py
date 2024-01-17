@@ -3,7 +3,6 @@ from ftplib import FTP
 
 
 DWD_FTP_SERVER = "opendata.dwd.de"
-dwd_ftp_connection = None
 
 
 def get_ftp_connection() -> FTP:
