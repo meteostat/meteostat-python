@@ -11,7 +11,7 @@ The cod is licensed under the MIT license.
 from datetime import datetime
 from importlib import import_module
 from itertools import chain
-from typing import Optional, Tuple
+from typing import List, Optional
 import pandas as pd
 from meteostat import Provider
 from meteostat.core.logger import logger
@@ -20,6 +20,7 @@ from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
 from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.filters import filter_parameters, filter_time
+from meteostat.utils.helpers import get_intersection
 
 
 def fetch_data(provider_module, query: QueryDict) -> Optional[pd.DataFrame]:
@@ -31,7 +32,7 @@ def fetch_data(provider_module, query: QueryDict) -> Optional[pd.DataFrame]:
     return df
 
 
-def stations_to_df(stations: list[StationDict]) -> pd.DataFrame | None:
+def stations_to_df(stations: List[StationDict]) -> pd.DataFrame | None:
     """
     Convert list of weather stations to DataFrame
     """
@@ -58,9 +59,9 @@ def stations_to_df(stations: list[StationDict]) -> pd.DataFrame | None:
 
 def load_ts(
     granularity: Granularity,
-    providers: Tuple[Provider, ...],
-    parameters: Tuple[Parameter, ...],
-    stations: Tuple[StationDict, ...],
+    providers: List[Provider],
+    parameters: List[Parameter],
+    stations: List[StationDict],
     start: Optional[datetime] = None,
     end: Optional[datetime] = None,
     timezone: Optional[str] = None,
@@ -134,5 +135,5 @@ def load_ts(
 
     # Return final time series
     return TimeSeries(
-        granularity, stations_to_df(included_stations), df, start, end, timezone
+        granularity, stations_to_df(included_stations), df[get_intersection(parameters, df.columns.to_list())], start, end, timezone
     )

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterator, Optional, Set, Tuple, TypeGuard
+from typing import Iterator, List, Optional, TypeGuard
 from meteostat import Provider
 from meteostat.typing import ProviderDict
 from meteostat.enumerations import Parameter, Granularity
@@ -18,8 +18,8 @@ def get_provider(id: str) -> ProviderDict | None:
 
 def filter_providers(
     granularity: Granularity,
-    parameters: Tuple[Parameter, ...],
-    providers: Tuple[Provider, ...],
+    parameters: List[Parameter],
+    providers: List[Provider],
     country: str,
     start: Optional[datetime],
     end: Optional[datetime],

@@ -31,7 +31,7 @@ class ParameterDefinition(TypedDict):
 
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/hourly/"
-PARAMETERS: Tuple[ParameterDefinition, ...] = (
+PARAMETERS: List[ParameterDefinition] = [
     {
         "dir": "precipitation",
         "usecols": [1, 3],
@@ -91,7 +91,7 @@ PARAMETERS: Tuple[ParameterDefinition, ...] = (
         "convert": {"srad": jcm2_to_wm2},
         "historical_only": True,
     },
-)
+]
 
 
 def find_file(ftp: FTP, path: str, needle: str):

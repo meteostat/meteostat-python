@@ -36,7 +36,7 @@ class Parameter(StrEnum):
     WPGT = "wpgt"  # Hourly, daily
     RHUM = "rhum"  # Hourly, daily (avg)
     PRES = "pres"  # Hourly, daily (avg)
-    SNWD = "snow"  # Hourly, daily (max)
+    SNWD = "snwd"  # Hourly, daily (max)
     SNOW = "snow"  # Hourly, daily (max)
     TSUN = "tsun"  # Hourly, daily
     SGHI = "sghi"  # Hourly, daily

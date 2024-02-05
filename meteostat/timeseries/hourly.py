@@ -8,7 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from typing import Tuple, Union, Optional
+from typing import List, Union, Optional
 from datetime import datetime, date
 import pandas as pd
 from meteostat.core.loader import load_ts
@@ -20,46 +20,53 @@ from meteostat.utils.parsers import (
     parse_time,
 )
 
-SUPPORTED_PARAMETERS = (
+SUPPORTED_PARAMETERS = [
     Parameter.TEMP,
     Parameter.DWPT,
+    Parameter.RHUM,
     Parameter.PRCP,
+    Parameter.SNWD,
+    Parameter.SNOW,
     Parameter.WDIR,
     Parameter.WSPD,
     Parameter.WPGT,
-    Parameter.RHUM,
     Parameter.PRES,
-    Parameter.SNOW,
     Parameter.TSUN,
+    Parameter.CLDC,
     Parameter.COCO,
-)
+]
 
-SUPPORTED_PROVIDERS = (
+SUPPORTED_PROVIDERS = [
     Provider.BULK_HOURLY,
     Provider.SYNOP,
     Provider.METAR,
     Provider.MOSMIX,
     Provider.ISD_LITE,
     Provider.DWD_HOURLY,
-)
+]
 
-DEFAULT_PARAMETERS = (
+DEFAULT_PARAMETERS = [
     Parameter.TEMP,
-    Parameter.PRCP,
-    Parameter.WSPD,
-    Parameter.WDIR,
     Parameter.RHUM,
+    Parameter.PRCP,
+    Parameter.SNWD,
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.WPGT,
     Parameter.PRES,
-)
+    Parameter.TSUN,
+    Parameter.CLDC,
+    Parameter.COCO,
+]
 
 
 def hourly(
-    station: str | Tuple[str, ...] | pd.Index | pd.Series,
+    station: str | List[str] | pd.Index | pd.Series,
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     timezone: Optional[str] = None,
-    parameters: Tuple[Parameter | str, ...] = DEFAULT_PARAMETERS,
-    providers: Tuple[Provider | str, ...] = (Provider.BULK_HOURLY,),
+    parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
+    providers: List[Provider | str] = (Provider.BULK_HOURLY,),
     lite=True,
 ):
     """

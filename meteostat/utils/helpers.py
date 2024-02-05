@@ -8,7 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from typing import Tuple
+from typing import Any, Iterable, List, Tuple
 import numpy as np
 import pandas as pd
 from meteostat.core.providers import get_provider
@@ -67,3 +67,19 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
 def get_provider_prio(id: str) -> Priority:
     provider = get_provider(id)
     return provider["priority"] if provider else Priority.LOWEST
+
+
+def get_index(obj: Iterable, index: int, default = None) -> Any:
+    try:
+        return obj[index]
+    except TypeError:
+        return default
+    
+def get_intersection(list1, list2) -> List[Any]:
+    set1 = set(list1)
+    set2 = set(list2)
+    intersection_set = set1.intersection(set2)
+    
+    intersection_list = [item for item in list1 if item in intersection_set]
+    
+    return intersection_list

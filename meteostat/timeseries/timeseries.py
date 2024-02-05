@@ -14,7 +14,7 @@ from statistics import mean
 from typing import Any, Callable, Optional, Tuple
 import pandas as pd
 from meteostat.enumerations import Parameter, Granularity
-from meteostat.utils.helpers import get_freq, get_provider_prio
+from meteostat.utils.helpers import get_freq, get_index, get_provider_prio
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
 
@@ -80,6 +80,9 @@ class TimeSeries:
         """
         Get a DataFrame of squashed source strings
         """
+        if len(self) == 0:
+            return None
+
         df = copy(self._df)
 
         df["source_prio"] = df.index.get_level_values("source").map(get_provider_prio)
@@ -87,8 +90,9 @@ class TimeSeries:
         return (
             df.sort_values(by="source_prio", ascending=False)
             .groupby(["station", "time"])
-            .agg(lambda s: pd.Series.first_valid_index(s)[2])
+            .agg(lambda s: get_index(pd.Series.first_valid_index(s), 2))
             .drop("source_prio", axis=1)
+            .convert_dtypes()
         )
 
     def apply(
@@ -136,7 +140,12 @@ class TimeSeries:
 
         return temp
 
-    def fetch(self, squash=True, fill=False) -> Optional[pd.DataFrame]:
+    def fetch(
+        self,
+        squash=True,
+        fill=False,
+        sources=False
+    ) -> Optional[pd.DataFrame]:
         """
         Force specific granularity on the time series
         """
@@ -148,13 +157,17 @@ class TimeSeries:
         if squash:
             df = squash_df(df)
 
+        if squash and sources:
+            sourcemap = self.sourcemap
+            df = df.join(sourcemap, rsuffix='_source')
+
         if fill:
             df = fill_df(df, self.start, self.end, get_freq(self.granularity))
 
         if self.timezone:
             df = localize(df, self.timezone)
 
-        return df.sort_index()
+        return df.sort_index().convert_dtypes()
 
     def count(self, parameter: Parameter | str) -> int:
         """

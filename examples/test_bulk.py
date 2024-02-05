@@ -3,7 +3,7 @@ import meteostat as ms
 
 
 START = date(2023, 1, 1)
-END = date.today()
+END = date(2022, 12, 31) #date.today()
 PROVIDERS = (
     ms.Provider.SYNOP,
     ms.Provider.METAR,
@@ -14,7 +14,7 @@ PROVIDERS = (
 
 ms.settings.cache_enable = False
 
-ts = ms.hourly("10635", start=START, end=END, providers=PROVIDERS)
+ts = ms.hourly("71627", end=END, providers=PROVIDERS)
 
 df = ts.fetch()
 

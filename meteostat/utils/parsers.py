@@ -8,7 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The cod is licensed under the MIT license.
 """
 
-from typing import Tuple
+from typing import List
 import datetime
 import pandas as pd
 import pytz
@@ -18,31 +18,29 @@ from meteostat.typing import StationDict
 
 
 def parse_station(
-    station: str | Tuple[str, ...] | pd.Index | pd.Series,
-) -> Tuple[StationDict, ...]:
+    station: str | List[str] | pd.Index | pd.Series,
+) -> List[StationDict]:
     data = []
 
-    for s in (station,) if isinstance(station, str) else tuple(station):
+    for s in [station] if isinstance(station, str) else list(station):
         meta = stations.meta(s)
         if meta is None:
             raise ValueError(f'Weather station with ID "{s}" could not be found')
         data.append(meta)
 
-    return tuple(data)
+    return data
 
 
 def parse_providers(
-    requested: Tuple[Provider | str, ...], supported: Tuple[Provider, ...]
-) -> Tuple[Provider, ...]:
+    requested: List[Provider | str], supported: List[Provider]
+) -> List[Provider]:
     """
     Raise exception if a requested provider is not supported
     """
     # Convert providers to set
-    providers = set(
-        map(lambda p: p if isinstance(p, Provider) else Provider[p], requested)
-    )
+    providers = list(map(lambda p: p if isinstance(p, Provider) else Provider[p], requested))
     # Get difference between providers and supported providers
-    diff = providers.difference(supported)
+    diff = set(providers).difference(supported)
     # Log warning
     if len(diff):
         raise ValueError(
@@ -51,21 +49,19 @@ def parse_providers(
         }"""
         )
     # Return intersection
-    return tuple(providers)
+    return providers
 
 
 def parse_parameters(
-    requested: Tuple[Parameter | str, ...], supported: Tuple[Parameter, ...]
-) -> Tuple[Parameter, ...]:
+    requested: List[Parameter | str], supported: List[Parameter]
+) -> List[Parameter]:
     """
     Raise exception if a requested parameter is not supported
     """
     # Convert parameters to set
-    parameters = set(
-        map(lambda p: p if isinstance(p, Parameter) else Parameter[p], requested)
-    )
+    parameters = list(map(lambda p: p if isinstance(p, Parameter) else Parameter[p], requested))
     # Get difference between parameters and supported parameters
-    diff = parameters.difference(supported)
+    diff = set(parameters).difference(supported)
     # Log warning
     if len(diff):
         raise ValueError(
@@ -74,7 +70,7 @@ def parse_parameters(
         }"""
         )
     # Return intersection
-    return tuple(parameters)
+    return parameters
 
 
 def parse_time(
@@ -90,7 +86,7 @@ def parse_time(
     if not value:
         return None
 
-    if isinstance(value, datetime.date):
+    if not isinstance(value, datetime.datetime):
         parsed = datetime.datetime.combine(
             value,
             datetime.datetime.max.time() if is_end else datetime.datetime.min.time(),

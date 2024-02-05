@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from datetime import date, datetime
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Union
 
 import pandas as pd
 from meteostat.core.loader import load_ts
@@ -21,22 +21,22 @@ from meteostat.utils.parsers import (
     parse_time,
 )
 
-SUPPORTED_PARAMETERS = (
+SUPPORTED_PARAMETERS = [
     Parameter.TAVG,
     Parameter.TMIN,
     Parameter.TMAX,
     Parameter.PRCP,
+    Parameter.SNOW,
     Parameter.WDIR,
     Parameter.WSPD,
     Parameter.WPGT,
     Parameter.PRES,
-    Parameter.SNOW,
     Parameter.TSUN,
-)
+]
 
-SUPPORTED_PROVIDERS = (Provider.BULK_DAILY, Provider.DWD_DAILY, Provider.GHCND)
+SUPPORTED_PROVIDERS = [Provider.BULK_DAILY, Provider.DWD_DAILY, Provider.GHCND]
 
-DEFAULT_PARAMETERS = (
+DEFAULT_PARAMETERS = [
     Parameter.TAVG,
     Parameter.TMIN,
     Parameter.TMAX,
@@ -44,15 +44,15 @@ DEFAULT_PARAMETERS = (
     Parameter.WSPD,
     Parameter.WDIR,
     Parameter.PRES,
-)
+]
 
 
 def daily(
-    station: str | Tuple[str, ...] | pd.Index | pd.Series,
+    station: str | List[str] | pd.Index | pd.Series,
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
-    parameters: Tuple[Parameter | str, ...] = DEFAULT_PARAMETERS,
-    providers: Tuple[Provider | str, ...] = (Provider.BULK_HOURLY,),
+    parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
+    providers: List[Provider | str] = (Provider.BULK_HOURLY,),
     lite=True,
 ):
     """

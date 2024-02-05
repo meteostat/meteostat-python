@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import NotRequired, Tuple, TypedDict, Optional
+from typing import List, NotRequired, TypedDict, Optional
 from meteostat.enumerations import Priority, Granularity, Parameter
 
 
@@ -37,4 +37,4 @@ class QueryDict(TypedDict):
     station: StationDict
     start: datetime
     end: datetime
-    parameters: Tuple[Parameter, ...]
+    parameters: List[Parameter]
