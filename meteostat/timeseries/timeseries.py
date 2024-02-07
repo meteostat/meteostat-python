@@ -26,32 +26,34 @@ class TimeSeries:
 
     granularity: Granularity
     stations: pd.DataFrame
-    start: datetime
-    end: datetime
-    timezone: Optional[str]
-    _df = pd.DataFrame()
+    start: Optional[datetime] = None
+    end: Optional[datetime] = None
+    timezone: Optional[str] = None
+
+    _df: Optional[pd.DataFrame] = None
 
     def __init__(
         self,
         granularity: Granularity,
         stations: pd.DataFrame,
-        df: pd.DataFrame,
+        df: Optional[pd.DataFrame],
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
     ) -> None:
         self.granularity = granularity
         self.stations = stations
-        self._df = df
-        self.start = start if start else df.index.get_level_values("time").min()
-        self.end = end if end else df.index.get_level_values("time").max()
+        if df is not None and not df.empty:
+            self._df = df
+            self.start = start if start else df.index.get_level_values("time").min()
+            self.end = end if end else df.index.get_level_values("time").max()
         self.timezone = timezone
 
     def __len__(self) -> int:
         """
         Return number of rows in DataFrame
         """
-        return len(self._df)
+        return len(self._df) if self._df is not None else 0
 
     def __str__(self) -> str:
         return self._df.__str__() if self._df is not None else "Empty time series"
@@ -68,7 +70,11 @@ class TimeSeries:
         """
         Expected number of non-NaN values
         """
+        if not self.start or not self.end:
+            return 0
+    
         diff = self.end - self.start
+
         return (
             diff.days + 1
             if self.granularity is Granularity.DAILY
@@ -80,7 +86,7 @@ class TimeSeries:
         """
         Get a DataFrame of squashed source strings
         """
-        if len(self) == 0:
+        if self._df is None:
             return None
 
         df = copy(self._df)
@@ -105,7 +111,6 @@ class TimeSeries:
         """
         temp = copy(self)
 
-        # Apply function
         if parameter:
             for p in (
                 [parameter] if isinstance(parameter, (Parameter, str)) else parameter
@@ -151,7 +156,7 @@ class TimeSeries:
         """
         df = copy(self._df)
 
-        if len(self) == 0:
+        if df is None:
             return None
 
         if squash:
@@ -173,6 +178,9 @@ class TimeSeries:
         """
         Get number of non-NaN values for a specific parameter
         """
+        if self._df is None:
+            return 0
+    
         return self._df[
             parameter if isinstance(parameter, Parameter) else parameter
         ].count()

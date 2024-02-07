@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
-from typing import Callable, Dict, List, NotRequired, Optional, Tuple, TypedDict
+from typing import Callable, Dict, List, NotRequired, Optional, TypedDict
 from zipfile import ZipFile
 import pandas as pd
 from meteostat.core.logger import logger

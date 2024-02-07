@@ -14,7 +14,7 @@ PROVIDERS = (
 
 ms.settings.cache_enable = False
 
-ts = ms.hourly("71627", end=END, providers=PROVIDERS)
+ts = ms.hourly("00TG6", providers=PROVIDERS)
 
 df = ts.fetch()
 
