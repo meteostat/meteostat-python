@@ -2,16 +2,18 @@ from datetime import datetime, date
 import logging
 import meteostat as ms
 
+ms.settings.cache_enable = False
+
 ts = ms.hourly(
     ("10637"),
-    datetime(2022, 1, 1, 11),
-    datetime(2022, 1, 1, 12),
+    datetime(2023, 1, 1, 11),
+    datetime(2023, 1, 1, 12),
     parameters=(ms.Parameter.TEMP,),
-    providers=(ms.Provider.SYNOP, ms.Provider.METAR),
+    providers=(ms.Provider.MODEL,ms.Provider.METAR, ms.Provider.SYNOP),
     lite=False
 )
 
-print(ts.sourcemap)
+print(ts.fetch(squash=False))
 exit()
 
 # logging.basicConfig(level=logging.INFO)

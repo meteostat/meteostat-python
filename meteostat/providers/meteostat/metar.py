@@ -20,15 +20,16 @@ def get_df(station_id: str, year: int) -> Optional[pd.DataFrame]:
     """
     file_url = ENDPOINT.format(station=station_id, year=str(year))
     try:
-        df = pd.read_csv(file_url, sep=",", parse_dates=[[0, 1]], compression="gzip")
-        return df.rename(columns={"date_hour": "time"}).set_index("time")
+        df = pd.read_csv(file_url, sep=",", compression="gzip")
+
+        time_cols = df.columns[0:4]
+        df['time'] = pd.to_datetime(df[time_cols])
+
+        return df.drop(time_cols, axis=1).set_index("time")
     except HTTPError as error:
-        if error.status == 404:
-            logger.info(f"METAR file not found: {file_url}")
-        else:
-            logger.error(
-                f"Couldn't load METAR file {file_url} (status: {error.status})"
-            )
+        logger.warn(
+            f"Couldn't load METAR file {file_url} (status: {error.status})"
+        )
         return None
     except Exception as error:
         logger.error(error)

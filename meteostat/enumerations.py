@@ -58,7 +58,7 @@ class Provider(StrEnum):
     DWD_DAILY = "dwd_daily"
     SYNOP = "synop"
     METAR = "metar"
-    MOSMIX = "mosmix"
+    MODEL = "model"
 
     BULK_HOURLY = "bulk_hourly"
     BULK_DAILY = "bulk_daily"

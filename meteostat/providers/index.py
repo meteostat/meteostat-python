@@ -99,8 +99,8 @@ PROVIDERS: List[ProviderDict] = [
         "module": "meteostat.providers.meteostat.metar",
     },
     {
-        "id": Provider.MOSMIX,
-        "name": "Meteostat MOSMIX",
+        "id": Provider.MODEL,
+        "name": "Meteostat Model",
         "granularity": Granularity.HOURLY,
         "priority": Priority.LOWEST,
         "parameters": [
@@ -112,12 +112,10 @@ PROVIDERS: List[ProviderDict] = [
             Parameter.WPGT,
             Parameter.PRES,
             Parameter.TSUN,
-            Parameter.SGHI,
             Parameter.CLDC,
-            Parameter.VSBY,
             Parameter.COCO,
         ],
         "start": datetime(2015, 8, 7, 17, 0, 0),
-        "module": "meteostat.providers.meteostat.mosmix",
+        "module": "meteostat.providers.meteostat.model",
     },
 ]

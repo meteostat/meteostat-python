@@ -40,7 +40,7 @@ SUPPORTED_PROVIDERS = [
     Provider.BULK_HOURLY,
     Provider.SYNOP,
     Provider.METAR,
-    Provider.MOSMIX,
+    Provider.MODEL,
     Provider.ISD_LITE,
     Provider.DWD_HOURLY,
 ]
