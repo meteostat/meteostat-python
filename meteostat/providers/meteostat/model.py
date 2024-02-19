@@ -27,9 +27,7 @@ def get_df(station_id: str, year: int) -> Optional[pd.DataFrame]:
 
         return df.drop(time_cols, axis=1).set_index("time")
     except HTTPError as error:
-        logger.warn(
-            f"Couldn't load Meteostat model file {file_url} (status: {error.status})"
-        )
+        logger.info(f"Couldn't load MODEL file {file_url} (status: {error.status})")
         return None
     except Exception as error:
         logger.error(error)

@@ -138,10 +138,13 @@ def load_ts(
 
     # Convert columns to correct data type
     dtypes = {p["id"].value: p["dtype"] for p in [get_parameter(p) for p in parameters]}
-    for col, dtype in dtypes.items():
-        if dtype == 'Int64':
+    for col, dtype in dtypes.copy().items():
+        if col not in df:
+            del dtypes[col]
+            continue
+        if dtype == "Int64":
             df[col] = pd.to_numeric(df[col]).round(0)
-    df = df.astype(dtypes)
+    df = df.astype(dtypes, errors="ignore")
 
     # Return final time series
     return TimeSeries(
