@@ -167,7 +167,7 @@ class TimeSeries:
         if self.timezone:
             df = localize(df, self.timezone)
 
-        return df.sort_index().convert_dtypes()
+        return df.sort_index()
 
     def count(self, parameter: Parameter | str) -> int:
         """

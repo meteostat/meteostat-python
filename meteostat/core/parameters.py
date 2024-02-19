@@ -8,35 +8,35 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.TEMP,
         "name": "Air Temperature",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "mean",
         "granularities": [{"granularity": Granularity.HOURLY, "default": True}],
     },
     {
         "id": Parameter.TAVG,
         "name": "Average Air Temperature",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "mean",
         "granularities": [{"granularity": Granularity.DAILY, "default": True}],
     },
     {
         "id": Parameter.TMIN,
         "name": "Minimum Air Temperature",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "min",
         "granularities": [{"granularity": Granularity.DAILY, "default": True}],
     },
     {
         "id": Parameter.TMAX,
         "name": "Maximum Air Temperature",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "max",
         "granularities": [{"granularity": Granularity.DAILY, "default": True}],
     },
     {
         "id": Parameter.RHUM,
         "name": "Relative Humidity",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": "mean",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -46,7 +46,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.DWPT,
         "name": "Dew Point Temperature",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "mean",
         "granularities": [
             {"granularity": Granularity.HOURLY},
@@ -56,7 +56,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.PRCP,
         "name": "Precipitation",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "sum",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -66,7 +66,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.SNOW,
         "name": "Snowfall",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": "sum",
         "granularities": [
             {
@@ -80,7 +80,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.SNWD,
         "name": "Snow Depth",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": "max",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -90,7 +90,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.WDIR,
         "name": "Wind Direction",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": degree_mean,
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -100,7 +100,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.WSPD,
         "name": "Wind Speed",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "mean",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -110,7 +110,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.WPGT,
         "name": "Wind Peak Gust",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "max",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -120,7 +120,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.PRES,
         "name": "Sea-Level Air Pressure",
-        "dtype": float,
+        "dtype": "Float64",
         "aggregation": "mean",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -130,7 +130,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.TSUN,
         "name": "Sunshine Duration",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": "sum",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -140,7 +140,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.CLDC,
         "name": "Cloud Cover",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": "mean",
         "granularities": [
             {"granularity": Granularity.HOURLY, "default": True},
@@ -150,7 +150,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.VSBY,
         "name": "Visibility",
-        "dtype": int,
+        "dtype": "Int64",
         "aggregation": "mean",
         "granularities": [
             {
@@ -164,7 +164,7 @@ PARAMETERS: List[ParameterDict] = [
     {
         "id": Parameter.COCO,
         "name": "Weather Condition Code",
-        "dtype": int,
+        "dtype": "Int64",
         "granularities": [{"granularity": Granularity.HOURLY, "default": True}],
     },
 ]
