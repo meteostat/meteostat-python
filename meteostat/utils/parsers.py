@@ -38,7 +38,9 @@ def parse_providers(
     Raise exception if a requested provider is not supported
     """
     # Convert providers to set
-    providers = list(map(lambda p: p if isinstance(p, Provider) else Provider[p], requested))
+    providers = list(
+        map(lambda p: p if isinstance(p, Provider) else Provider[p], requested)
+    )
     # Get difference between providers and supported providers
     diff = set(providers).difference(supported)
     # Log warning
@@ -59,7 +61,9 @@ def parse_parameters(
     Raise exception if a requested parameter is not supported
     """
     # Convert parameters to set
-    parameters = list(map(lambda p: p if isinstance(p, Parameter) else Parameter[p], requested))
+    parameters = list(
+        map(lambda p: p if isinstance(p, Parameter) else Parameter[p], requested)
+    )
     # Get difference between parameters and supported parameters
     diff = set(parameters).difference(supported)
     # Log warning

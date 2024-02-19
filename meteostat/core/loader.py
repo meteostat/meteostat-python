@@ -15,7 +15,7 @@ from typing import List, Optional
 import pandas as pd
 from meteostat import Provider
 from meteostat.core.logger import logger
-from meteostat.core.providers import filter_providers
+from meteostat.core.meta import filter_providers, get_parameter
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
 from meteostat.typing import QueryDict, StationDict
@@ -133,7 +133,17 @@ def load_ts(
     # Merge data in a single DataFrame
     df = pd.concat(chain.from_iterable(fragments)) if fragments else pd.DataFrame()
 
+    # Only included requested coplumns
+    df = df[get_intersection(parameters, df.columns.to_list())]
+
+    # Convert columns to correct data type
+    dtypes = {p["id"].value: p["dtype"] for p in [get_parameter(p) for p in parameters]}
+    for col, dtype in dtypes.items():
+        if dtype == int:
+            df[col] = df[col].round(0)
+    df = df.astype(dtypes)
+
     # Return final time series
     return TimeSeries(
-        granularity, stations_to_df(included_stations), df[get_intersection(parameters, df.columns.to_list())], start, end, timezone
+        granularity, stations_to_df(included_stations), df, start, end, timezone
     )

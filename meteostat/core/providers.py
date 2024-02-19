@@ -1,51 +1,121 @@
 from datetime import datetime
-from typing import Iterator, List, Optional, TypeGuard
-from meteostat import Provider
+from typing import List
 from meteostat.typing import ProviderDict
-from meteostat.enumerations import Parameter, Granularity
-from meteostat.providers.index import PROVIDERS
+from meteostat.enumerations import Granularity, Parameter, Provider, Priority
 
 
-def get_provider(id: str) -> ProviderDict | None:
-    """
-    Get a provider by its ID
-    """
-    return next(
-        (provider for provider in PROVIDERS if provider["id"] == id),
-        None,
-    )
-
-
-def filter_providers(
-    granularity: Granularity,
-    parameters: List[Parameter],
-    providers: List[Provider],
-    country: str,
-    start: Optional[datetime],
-    end: Optional[datetime],
-) -> Iterator[ProviderDict]:
-    """
-    Get a filtered list of providers
-    """
-
-    def _filter(provider: ProviderDict) -> TypeGuard[Provider]:
-        if provider["granularity"] is not granularity:
-            return False
-        if set(provider["parameters"]).isdisjoint(parameters):
-            return False
-        if provider["id"] not in providers:
-            return False
-        if "countries" in provider and country not in provider["countries"]:
-            return False
-        if end and end < provider["start"]:
-            return False
-        if (
-            "end" in provider
-            and provider["end"] is not None
-            and start is not None
-            and start > provider["end"]
-        ):
-            return False
-        return True
-
-    return filter(_filter, PROVIDERS)
+PROVIDERS: List[ProviderDict] = [
+    {
+        "id": Provider.DWD_HOURLY,
+        "name": "DWD Climate Hourly",
+        "granularity": Granularity.HOURLY,
+        "priority": Priority.HIGHEST,
+        "countries": ["DE"],
+        "parameters": [Parameter.TEMP, Parameter.PRCP, Parameter.WDIR],
+        "start": datetime(1939, 1, 1, 0, 0, 0),
+        "license": "https://www.dwd.de/DE/service/copyright/copyright_node.html",
+        "module": "meteostat.providers.dwd.hourly",
+    },
+    {
+        "id": Provider.DWD_DAILY,
+        "name": "DWD Climate Daily",
+        "granularity": Granularity.DAILY,
+        "priority": Priority.HIGHEST,
+        "countries": ["DE"],
+        "parameters": [Parameter.TEMP, Parameter.PRCP, Parameter.WDIR],
+        "start": datetime(1781, 1, 1, 0, 0, 0),
+        "license": "https://www.dwd.de/DE/service/copyright/copyright_node.html",
+        "module": "meteostat.providers.dwd.daily",
+    },
+    {
+        "id": Provider.ISD_LITE,
+        "name": "NOAA ISD Lite",
+        "granularity": Granularity.HOURLY,
+        "priority": Priority.HIGH,
+        "parameters": [Parameter.TEMP, Parameter.PRCP, Parameter.WDIR],
+        "start": datetime(1931, 1, 1, 0, 0, 0),
+        "module": "meteostat.providers.noaa.isd_lite",
+    },
+    {
+        "id": Provider.GHCND,
+        "name": "NOAA GHCN Daily",
+        "granularity": Granularity.DAILY,
+        "priority": Priority.HIGH,
+        "parameters": [
+            Parameter.TAVG,
+            Parameter.TMIN,
+            Parameter.TMAX,
+            Parameter.PRCP,
+            Parameter.SNOW,
+            Parameter.WSPD,
+            Parameter.WDIR,
+            Parameter.WPGT,
+            Parameter.TSUN,
+            Parameter.CLDC,
+        ],
+        "start": datetime(1931, 1, 1, 0, 0, 0),
+        "module": "meteostat.providers.noaa.ghcnd",
+    },
+    {
+        "id": Provider.SYNOP,
+        "name": "Meteostat SYNOP",
+        "granularity": Granularity.HOURLY,
+        "priority": Priority.MEDIUM,
+        "parameters": [
+            Parameter.TEMP,
+            Parameter.RHUM,
+            Parameter.PRCP,
+            Parameter.SNOW,
+            Parameter.SNWD,
+            Parameter.WDIR,
+            Parameter.WSPD,
+            Parameter.WPGT,
+            Parameter.PRES,
+            Parameter.TSUN,
+            Parameter.SGHI,
+            Parameter.SDNI,
+            Parameter.SDHI,
+            Parameter.CLDC,
+            Parameter.VSBY,
+            Parameter.COCO,
+        ],
+        "start": datetime(2015, 8, 7, 17, 0, 0),
+        "module": "meteostat.providers.meteostat.synop",
+    },
+    {
+        "id": Provider.METAR,
+        "name": "Meteostat METAR",
+        "granularity": Granularity.HOURLY,
+        "priority": Priority.LOW,
+        "parameters": [
+            Parameter.TEMP,
+            Parameter.RHUM,
+            Parameter.WDIR,
+            Parameter.WSPD,
+            Parameter.PRES,
+            Parameter.COCO,
+        ],
+        "start": datetime(2015, 8, 7, 17, 0, 0),
+        "module": "meteostat.providers.meteostat.metar",
+    },
+    {
+        "id": Provider.MODEL,
+        "name": "Meteostat Model",
+        "granularity": Granularity.HOURLY,
+        "priority": Priority.LOWEST,
+        "parameters": [
+            Parameter.TEMP,
+            Parameter.RHUM,
+            Parameter.PRCP,
+            Parameter.WDIR,
+            Parameter.WSPD,
+            Parameter.WPGT,
+            Parameter.PRES,
+            Parameter.TSUN,
+            Parameter.CLDC,
+            Parameter.COCO,
+        ],
+        "start": datetime(2015, 8, 7, 17, 0, 0),
+        "module": "meteostat.providers.meteostat.model",
+    },
+]

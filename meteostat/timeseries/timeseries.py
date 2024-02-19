@@ -72,7 +72,7 @@ class TimeSeries:
         """
         if not self.start or not self.end:
             return 0
-    
+
         diff = self.end - self.start
 
         return (
@@ -145,12 +145,7 @@ class TimeSeries:
 
         return temp
 
-    def fetch(
-        self,
-        squash=True,
-        fill=False,
-        sources=False
-    ) -> Optional[pd.DataFrame]:
+    def fetch(self, squash=True, fill=False, sources=False) -> Optional[pd.DataFrame]:
         """
         Force specific granularity on the time series
         """
@@ -164,7 +159,7 @@ class TimeSeries:
 
         if squash and sources:
             sourcemap = self.sourcemap
-            df = df.join(sourcemap, rsuffix='_source')
+            df = df.join(sourcemap, rsuffix="_source")
 
         if fill:
             df = fill_df(df, self.start, self.end, get_freq(self.granularity))
@@ -180,7 +175,7 @@ class TimeSeries:
         """
         if self._df is None:
             return 0
-    
+
         return self._df[
             parameter if isinstance(parameter, Parameter) else parameter
         ].count()

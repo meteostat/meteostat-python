@@ -23,13 +23,11 @@ def get_df(station_id: str, year: int) -> Optional[pd.DataFrame]:
         df = pd.read_csv(file_url, sep=",", compression="gzip")
 
         time_cols = df.columns[0:4]
-        df['time'] = pd.to_datetime(df[time_cols])
+        df["time"] = pd.to_datetime(df[time_cols])
 
         return df.drop(time_cols, axis=1).set_index("time")
     except HTTPError as error:
-        logger.warn(
-            f"Couldn't load METAR file {file_url} (status: {error.status})"
-        )
+        logger.warn(f"Couldn't load METAR file {file_url} (status: {error.status})")
         return None
     except Exception as error:
         logger.error(error)

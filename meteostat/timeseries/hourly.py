@@ -13,6 +13,7 @@ from datetime import datetime, date
 import pandas as pd
 from meteostat.core.loader import load_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
+from meteostat.core.meta import get_parameters, get_providers
 from meteostat.utils.parsers import (
     parse_parameters,
     parse_providers,
@@ -20,44 +21,10 @@ from meteostat.utils.parsers import (
     parse_time,
 )
 
-SUPPORTED_PARAMETERS = [
-    Parameter.TEMP,
-    Parameter.DWPT,
-    Parameter.RHUM,
-    Parameter.PRCP,
-    Parameter.SNWD,
-    Parameter.SNOW,
-    Parameter.WDIR,
-    Parameter.WSPD,
-    Parameter.WPGT,
-    Parameter.PRES,
-    Parameter.TSUN,
-    Parameter.CLDC,
-    Parameter.COCO,
-]
 
-SUPPORTED_PROVIDERS = [
-    Provider.BULK_HOURLY,
-    Provider.SYNOP,
-    Provider.METAR,
-    Provider.MODEL,
-    Provider.ISD_LITE,
-    Provider.DWD_HOURLY,
-]
-
-DEFAULT_PARAMETERS = [
-    Parameter.TEMP,
-    Parameter.RHUM,
-    Parameter.PRCP,
-    Parameter.SNWD,
-    Parameter.WDIR,
-    Parameter.WSPD,
-    Parameter.WPGT,
-    Parameter.PRES,
-    Parameter.TSUN,
-    Parameter.CLDC,
-    Parameter.COCO,
-]
+SUPPORTED_PROVIDERS = get_providers(Granularity.HOURLY)
+SUPPORTED_PARAMETERS = get_parameters(Granularity.HOURLY)
+DEFAULT_PARAMETERS = get_parameters(Granularity.HOURLY, True)
 
 
 def hourly(
@@ -66,7 +33,7 @@ def hourly(
     end: Optional[Union[datetime, date]] = None,
     timezone: Optional[str] = None,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = (Provider.BULK_HOURLY,),
+    providers: List[Provider | str] = [Provider.BULK_HOURLY],
     lite=True,
 ):
     """

@@ -14,6 +14,7 @@ from typing import List, Optional, Union
 import pandas as pd
 from meteostat.core.loader import load_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
+from meteostat.core.meta import get_parameters, get_providers
 from meteostat.utils.parsers import (
     parse_parameters,
     parse_providers,
@@ -21,30 +22,10 @@ from meteostat.utils.parsers import (
     parse_time,
 )
 
-SUPPORTED_PARAMETERS = [
-    Parameter.TAVG,
-    Parameter.TMIN,
-    Parameter.TMAX,
-    Parameter.PRCP,
-    Parameter.SNOW,
-    Parameter.WDIR,
-    Parameter.WSPD,
-    Parameter.WPGT,
-    Parameter.PRES,
-    Parameter.TSUN,
-]
 
-SUPPORTED_PROVIDERS = [Provider.BULK_DAILY, Provider.DWD_DAILY, Provider.GHCND]
-
-DEFAULT_PARAMETERS = [
-    Parameter.TAVG,
-    Parameter.TMIN,
-    Parameter.TMAX,
-    Parameter.PRCP,
-    Parameter.WSPD,
-    Parameter.WDIR,
-    Parameter.PRES,
-]
+SUPPORTED_PROVIDERS = get_providers(Granularity.DAILY)
+SUPPORTED_PARAMETERS = get_parameters(Granularity.DAILY)
+DEFAULT_PARAMETERS = get_parameters(Granularity.DAILY, True)
 
 
 def daily(
@@ -52,7 +33,7 @@ def daily(
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = (Provider.BULK_HOURLY,),
+    providers: List[Provider | str] = [Provider.BULK_HOURLY],
     lite=True,
 ):
     """

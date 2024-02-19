@@ -8,9 +8,9 @@ ts = ms.hourly(
     ("10637"),
     datetime(2023, 1, 1, 11),
     datetime(2023, 1, 1, 12),
-    parameters=(ms.Parameter.TEMP,),
-    providers=(ms.Provider.MODEL,ms.Provider.METAR, ms.Provider.SYNOP),
-    lite=False
+    parameters=(ms.Parameter.TEMP, ms.Parameter.RHUM),
+    providers=(ms.Provider.MODEL, ms.Provider.METAR, ms.Provider.SYNOP),
+    lite=False,
 )
 
 print(ts.fetch(squash=False))
