@@ -2,6 +2,13 @@ from datetime import datetime, date
 import logging
 import meteostat as ms
 
+inv = ms.stations.inventory('10637')
+print(inv)
+
+station = ms.stations.meta('10637')
+print(station)
+exit()
+
 # ms.settings.cache_enable = False
 
 ts = ms.hourly(

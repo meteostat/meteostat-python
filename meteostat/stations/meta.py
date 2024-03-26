@@ -1,5 +1,5 @@
 from typing import Optional
-from meteostat.stations.database import query
+from meteostat.stations.database import query_stations
 from meteostat.typing import StationDict
 
 
@@ -7,7 +7,7 @@ def _get_station(id: str) -> dict:
     """
     Get key meta data for a weather station by ID
     """
-    return query(
+    return query_stations(
         """
         SELECT
             `id`,
@@ -30,7 +30,7 @@ def _get_names(id: str) -> dict:
     """
     Get dict of weather station names in different languages by station ID
     """
-    names = query(
+    names = query_stations(
         f"SELECT `language`, `name` FROM `names` WHERE `station` LIKE ?", params=(id,)
     ).to_dict("records")
     return {name["language"]: name["name"] for name in names}
@@ -40,7 +40,7 @@ def _get_identifers(id: str) -> dict:
     """
     Get dict of weather station identifers by station ID
     """
-    identifiers = query(
+    identifiers = query_stations(
         f"SELECT `key`, `value` FROM `identifiers` WHERE `station` LIKE ?", params=(id,)
     ).to_dict("records")
     return {identifier["key"]: identifier["value"] for identifier in identifiers}

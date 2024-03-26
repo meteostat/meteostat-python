@@ -17,12 +17,9 @@ class Settings:
     cache_ttl_min = 0  # Minimum cache TTL
     cache_autoclean = True  # Automatically remove stale files from cache?
     request_timeout = 5  # Timeout for HTTP requests
-    station_db_ttl = 60 * 60 * 24 * 7  # TTL for the stations.db file (default: 7 days)
-    station_db_mirrors = [
-        "https://meta.meteostat.net/stations.db",
-        "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/stations.db",
-        "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db",
-    ]  # Mirrors of the stations.db file
+    stations_db_ttl = 60 * 60 * 24 * 7  # TTL for the stations.db file (default: 7 days)
+    inventory_db_ttl = 60 * 60 * 24 * 7  # TTL for the stations.db file (default: 7 days)
+    ms_data_host="https://bulk.meteostat.net"
 
     @classmethod
     def set_value(cls, key: str, value: Any) -> None:

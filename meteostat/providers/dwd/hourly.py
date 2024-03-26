@@ -113,11 +113,13 @@ def find_file(ftp: FTP, path: str, needle: str):
 
 @cache(60 * 60 * 24, "pickle")
 def get_df(
-    parameter: ParameterDefinition, mode: str, station_id: str
+    parameter_dir: str, mode: str, station_id: str
 ) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
+    parameter = next(param for param in PARAMETERS if param["dir"] == parameter_dir)
+
     ftp = get_ftp_connection()
     remote_file = find_file(ftp, f'{parameter["dir"]}/{mode}', station_id)
 
@@ -161,11 +163,11 @@ def get_df(
 
 
 def get_parameter(
-    parameter: ParameterDefinition, modes: list[str], station: StationDict
+    parameter_dir: str, modes: list[str], station: StationDict
 ) -> Optional[pd.DataFrame]:
     try:
         data = [
-            get_df(parameter, mode, station["identifiers"]["national"])
+            get_df(parameter_dir, mode, station["identifiers"]["national"])
             for mode in modes
         ]
         if all(d is None for d in data):
@@ -193,7 +195,7 @@ def fetch(query: QueryDict):
     columns = map(
         lambda args: get_parameter(*args),
         (
-            (parameter, modes, query["station"])
+            (parameter["dir"], modes, query["station"])
             for parameter in [
                 param
                 for param in PARAMETERS

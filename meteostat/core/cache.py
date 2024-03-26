@@ -12,6 +12,14 @@ import pandas as pd
 from time import time
 
 
+def create_cache_dir() -> None:
+    """
+    Create the cache directory if it doesn't exist
+    """
+    if not os.path.exists(settings.cache_dir):
+        os.makedirs(settings.cache_dir)
+
+
 def write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
     """
     Persist a DataFrame in Pickle format
@@ -64,8 +72,9 @@ def persist(path: str, data: pd.DataFrame | dict | list, type: str) -> None:
     """
     Persist any given data under a specific path
     """
-    if not os.path.exists(settings.cache_dir):
-        os.makedirs(settings.cache_dir)
+    # Create cache directory if it doesn't exist
+    create_cache_dir()
+    # Save data locally
     if type == "json":
         write_json(path, data)
     else:

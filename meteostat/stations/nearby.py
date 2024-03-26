@@ -1,12 +1,12 @@
 from meteostat.point import Point
-from meteostat.stations.database import query
+from meteostat.stations.database import query_stations
 
 
 def nearby(point: Point, radius=50000, limit=100) -> list[str] | None:
     """
     Get a list of weather station IDs ordered by distance
     """
-    return query(
+    return query_stations(
         """
         SELECT
             `id`,
