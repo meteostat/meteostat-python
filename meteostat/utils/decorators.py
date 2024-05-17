@@ -37,7 +37,7 @@ def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
                 func,
                 args,
                 kwargs,
-                ttl if isinstance(ttl, int) else ttl(args, kwargs),
+                ttl if isinstance(ttl, int) else ttl(*args, **kwargs),
                 format,
             )
 

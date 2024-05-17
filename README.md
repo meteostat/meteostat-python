@@ -16,6 +16,16 @@ TODO: Use dev dep
 poetry run black .
 ```
 
+## Logging
+
+You can change the default log level, format etc. using the `logging` package:
+
+```py
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(filename)s:%(lineno)s] %(message)s')
+```
+
 ## Config
 
 ### Using Environment Variables

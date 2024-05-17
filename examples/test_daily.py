@@ -1,6 +1,20 @@
-from datetime import date
+from datetime import date, datetime
 import logging
 import meteostat as ms
+
+logging.basicConfig(
+    level=logging.INFO, format="%(levelname)s [%(filename)s:%(lineno)s] %(message)s"
+)
+ms.settings.bulk_load_sources = True
+
+ts = ms.daily(
+    "10637",
+    datetime(2024, 1, 1, 0),
+    datetime(2024, 1, 31, 23),
+    providers=[ms.Provider.BULK_DAILY_DERIVED],
+)
+print(ts)
+exit()
 
 # ms.purge_cache(0)
 

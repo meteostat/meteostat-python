@@ -13,7 +13,6 @@ from datetime import datetime, date
 import pandas as pd
 from meteostat.core.loader import load_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.core.meta import get_parameters, get_providers
 from meteostat.utils.parsers import (
     parse_parameters,
     parse_providers,
@@ -22,9 +21,43 @@ from meteostat.utils.parsers import (
 )
 
 
-SUPPORTED_PROVIDERS = get_providers(Granularity.HOURLY)
-SUPPORTED_PARAMETERS = get_parameters(Granularity.HOURLY)
-DEFAULT_PARAMETERS = get_parameters(Granularity.HOURLY, True)
+SUPPORTED_PROVIDERS = [
+    Provider.DWD_HOURLY,
+    Provider.ISD_LITE,
+    Provider.SYNOP,
+    Provider.METAR,
+    Provider.MODEL,
+    Provider.BULK_HOURLY,
+]
+SUPPORTED_PARAMETERS = [
+    Parameter.TEMP,
+    Parameter.DWPT,
+    Parameter.RHUM,
+    Parameter.PRCP,
+    Parameter.SNOW,
+    Parameter.SNWD,
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.WPGT,
+    Parameter.PRES,
+    Parameter.TSUN,
+    Parameter.CLDC,
+    Parameter.VSBY,
+    Parameter.COCO,
+]
+DEFAULT_PARAMETERS = [
+    Parameter.TEMP,
+    Parameter.RHUM,
+    Parameter.PRCP,
+    Parameter.SNWD,
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.WPGT,
+    Parameter.PRES,
+    Parameter.TSUN,
+    Parameter.CLDC,
+    Parameter.COCO,
+]
 
 
 def hourly(

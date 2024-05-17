@@ -1,40 +1,13 @@
+"""
+TDOD: Keep in loader or utils
+"""
+
 from datetime import datetime
 from typing import Iterator, List, Optional, TypeGuard
 from meteostat import Provider
-from meteostat.core.parameters import PARAMETERS
 from meteostat.core.providers import PROVIDERS
-from meteostat.typing import ParameterDict, ProviderDict
+from meteostat.typing import ProviderDict
 from meteostat.enumerations import Parameter, Granularity
-
-
-def get_parameters(granularity: Granularity, default=False) -> List[Parameter]:
-    """
-    Get available parameters by granularity
-    """
-    return list(
-        map(
-            lambda p: p["id"],
-            filter(
-                lambda p: granularity
-                in [
-                    g["granularity"]
-                    for g in p["granularities"]
-                    if default == False or "default" in g and g["default"] == True
-                ],
-                PARAMETERS,
-            ),
-        )
-    )
-
-
-def get_parameter(id: Parameter) -> Optional[ParameterDict]:
-    """
-    Get a parameter by its ID
-    """
-    return next(
-        (parameter for parameter in PARAMETERS if parameter["id"] == id),
-        None,
-    )
 
 
 def get_providers(granularity: Granularity) -> List[Provider]:

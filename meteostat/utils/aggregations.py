@@ -12,4 +12,4 @@ def degree_mean(data: pd.Series) -> float:
 
     rads = np.deg2rad(data)
     sums = np.arctan2(np.sum(np.sin(rads)), np.sum(np.cos(rads)))
-    return (np.rad2deg(sums) + 360) % 360
+    return round((np.rad2deg(sums) + 360) % 360)

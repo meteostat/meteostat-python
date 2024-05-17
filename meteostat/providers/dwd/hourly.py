@@ -112,9 +112,7 @@ def find_file(ftp: FTP, path: str, needle: str):
 
 
 @cache(60 * 60 * 24, "pickle")
-def get_df(
-    parameter_dir: str, mode: str, station_id: str
-) -> Optional[pd.DataFrame]:
+def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """

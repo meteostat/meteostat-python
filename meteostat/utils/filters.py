@@ -27,7 +27,14 @@ def filter_time(
     time = df.index.get_level_values("time")
 
     # Filter & return
-    return df.loc[(time >= start) & (time <= end)] if start and end else df
+    try:
+        return df.loc[(time >= start) & (time <= end)] if start and end else df
+    except TypeError:
+        return (
+            df.loc[(time >= start.date()) & (time <= end.date())]
+            if start and end
+            else df
+        )
 
 
 def filter_parameters(

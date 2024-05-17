@@ -62,6 +62,7 @@ class Provider(StrEnum):
 
     BULK_HOURLY = "bulk_hourly"
     BULK_DAILY = "bulk_daily"
+    BULK_DAILY_DERIVED = "bulk_daily_derived"
 
 
 class Priority(IntEnum):

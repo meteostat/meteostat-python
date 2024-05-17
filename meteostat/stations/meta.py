@@ -1,70 +1,23 @@
-from typing import Optional
-from meteostat.stations.database import query_stations
+from requests import get, HTTPError, Timeout
+from meteostat import settings
 from meteostat.typing import StationDict
+from meteostat.utils.decorators import cache
 
 
-def _get_station(id: str) -> dict:
-    """
-    Get key meta data for a weather station by ID
-    """
-    return query_stations(
-        """
-        SELECT
-            `id`,
-            `country`,
-            `region`,
-            `latitude`,
-            `longitude`,
-            `elevation`,
-            `timezone`
-        FROM
-            `stations`
-        WHERE
-            `id` LIKE ?
-        """,
-        params=(id,),
-    ).to_dict("records")[0]
-
-
-def _get_names(id: str) -> dict:
-    """
-    Get dict of weather station names in different languages by station ID
-    """
-    names = query_stations(
-        f"SELECT `language`, `name` FROM `names` WHERE `station` LIKE ?", params=(id,)
-    ).to_dict("records")
-    return {name["language"]: name["name"] for name in names}
-
-
-def _get_identifers(id: str) -> dict:
-    """
-    Get dict of weather station identifers by station ID
-    """
-    identifiers = query_stations(
-        f"SELECT `key`, `value` FROM `identifiers` WHERE `station` LIKE ?", params=(id,)
-    ).to_dict("records")
-    return {identifier["key"]: identifier["value"] for identifier in identifiers}
-
-
-def meta(id: str) -> Optional[StationDict]:
+@cache(60 * 60 * 24 * 7)
+def meta(id: str) -> StationDict | None:
     """
     Get meta data for a specific weather station
     """
-    try:
-        station = _get_station(id)
-
-        return {
-            "id": station["id"],
-            "name": _get_names(id),
-            "country": station["country"],
-            "region": station["region"],
-            "identifiers": _get_identifers(id),
-            "location": {
-                "latitude": station["latitude"],
-                "longitude": station["longitude"],
-                "elevation": station["elevation"],
-            },
-            "timezone": station["timezone"],
-        }
-    except IndexError:
-        return None
+    # Get all meta data mirrors
+    mirrors = settings.station_mirrors
+    # Get meta data for weather station
+    for mirror in mirrors:
+        try:
+            with get(mirror.format(id=id)) as res:
+                if res.status_code == 200:
+                    return res.json()
+        except (HTTPError, Timeout):
+            continue
+    # If meta data could not be found, return None
+    return None

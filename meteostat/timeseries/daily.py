@@ -2,7 +2,7 @@
 Daily time series data
 
 Meteorological data provided by Meteostat (https://dev.meteostat.net)
-under the terms of the Creative Commons Attribution-NonCommercial
+under the terms of the Creative Commons Attribution
 4.0 International Public License.
 
 The code is licensed under the MIT license.
@@ -14,7 +14,6 @@ from typing import List, Optional, Union
 import pandas as pd
 from meteostat.core.loader import load_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.core.meta import get_parameters, get_providers
 from meteostat.utils.parsers import (
     parse_parameters,
     parse_providers,
@@ -23,9 +22,40 @@ from meteostat.utils.parsers import (
 )
 
 
-SUPPORTED_PROVIDERS = get_providers(Granularity.DAILY)
-SUPPORTED_PARAMETERS = get_parameters(Granularity.DAILY)
-DEFAULT_PARAMETERS = get_parameters(Granularity.DAILY, True)
+SUPPORTED_PROVIDERS = [
+    Provider.DWD_DAILY,
+    Provider.GHCND,
+    Provider.BULK_DAILY_DERIVED,
+    Provider.BULK_DAILY,
+]
+SUPPORTED_PARAMETERS = [
+    Parameter.TAVG,
+    Parameter.TMIN,
+    Parameter.TMAX,
+    Parameter.DWPT,
+    Parameter.RHUM,
+    Parameter.PRCP,
+    Parameter.SNOW,
+    Parameter.SNWD,
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.WPGT,
+    Parameter.PRES,
+    Parameter.TSUN,
+    Parameter.CLDC,
+    Parameter.VSBY,
+]
+DEFAULT_PARAMETERS = [
+    Parameter.TAVG,
+    Parameter.TMIN,
+    Parameter.TMAX,
+    Parameter.PRCP,
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.WPGT,
+    Parameter.PRES,
+    Parameter.TSUN,
+]
 
 
 def daily(
@@ -39,7 +69,6 @@ def daily(
     """
     Retrieve daily time series data
     """
-    # Gather data
     return load_ts(
         Granularity.DAILY,
         parse_providers(providers, SUPPORTED_PROVIDERS),

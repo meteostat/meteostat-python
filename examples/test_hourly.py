@@ -2,14 +2,17 @@ from datetime import datetime, date
 import logging
 import meteostat as ms
 
-inv = ms.stations.inventory('10637')
-print(inv)
+# ms.settings.bulk_load_sources = True
 
-station = ms.stations.meta('10637')
-print(station)
+logging.basicConfig(level=logging.INFO)
+ms.settings.bulk_load_sources = True
+ts = ms.hourly("10637", datetime(2024, 1, 1, 0), datetime(2024, 1, 31, 23))
+
+print(ts.sourcemap)
 exit()
 
-# ms.settings.cache_enable = False
+print(ms.stations.nearby(50, 8, 20000))
+exit()
 
 ts = ms.hourly(
     ("10637"),
@@ -19,8 +22,6 @@ ts = ms.hourly(
         ms.Provider.SYNOP,
         ms.Provider.METAR,
         ms.Provider.MODEL,
-        ms.Provider.ISD_LITE,
-        ms.Provider.DWD_HOURLY,
     ],
     lite=False,
 )

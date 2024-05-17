@@ -79,3 +79,18 @@ def apply_lapse_rate(
             )
 
     return df
+
+
+def reshape_by_source(df: pd.DataFrame, sources: pd.DataFrame) -> pd.DataFrame:
+    df_melted = df.reset_index().melt(id_vars="time").set_index(["time", "variable"])
+    sources_melted = (
+        sources.reset_index().melt(id_vars="time").set_index(["time", "variable"])
+    )
+    df_joined = df_melted.join(sources_melted, rsuffix="_source").reset_index()
+    df_joined = df_joined.dropna(subset=["value"]).pivot(
+        index=["time", "value_source"], columns="variable"
+    )
+    df_joined.index = df_joined.index.rename(["time", "source"])
+    df_joined.columns = df_joined.columns.droplevel(level=0)
+    df_joined.columns.name = None
+    return df_joined

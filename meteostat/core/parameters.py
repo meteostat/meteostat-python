@@ -1,170 +1,41 @@
-from typing import List
-from meteostat.typing import ParameterDict
-from meteostat.enumerations import Granularity, Parameter
-from meteostat.utils.aggregations import degree_mean
+from meteostat.enumerations import Parameter
 
+PARAMETER_DTYPES = {
+    Parameter.TEMP: "Float64",
+    Parameter.TAVG: "Float64",
+    Parameter.TMIN: "Float64",
+    Parameter.TMAX: "Float64",
+    Parameter.RHUM: "Int64",
+    Parameter.DWPT: "Float64",
+    Parameter.PRCP: "Float64",
+    Parameter.SNOW: "Int64",
+    Parameter.SNWD: "Int64",
+    Parameter.WDIR: "Int64",
+    Parameter.WSPD: "Float64",
+    Parameter.WPGT: "Float64",
+    Parameter.PRES: "Float64",
+    Parameter.TSUN: "Int64",
+    Parameter.CLDC: "Int64",
+    Parameter.VSBY: "Int64",
+    Parameter.COCO: "Int64",
+}
 
-PARAMETERS: List[ParameterDict] = [
-    {
-        "id": Parameter.TEMP,
-        "name": "Air Temperature",
-        "dtype": "Float64",
-        "aggregation": "mean",
-        "granularities": [{"granularity": Granularity.HOURLY, "default": True}],
-    },
-    {
-        "id": Parameter.TAVG,
-        "name": "Average Air Temperature",
-        "dtype": "Float64",
-        "aggregation": "mean",
-        "granularities": [{"granularity": Granularity.DAILY, "default": True}],
-    },
-    {
-        "id": Parameter.TMIN,
-        "name": "Minimum Air Temperature",
-        "dtype": "Float64",
-        "aggregation": "min",
-        "granularities": [{"granularity": Granularity.DAILY, "default": True}],
-    },
-    {
-        "id": Parameter.TMAX,
-        "name": "Maximum Air Temperature",
-        "dtype": "Float64",
-        "aggregation": "max",
-        "granularities": [{"granularity": Granularity.DAILY, "default": True}],
-    },
-    {
-        "id": Parameter.RHUM,
-        "name": "Relative Humidity",
-        "dtype": "Int64",
-        "aggregation": "mean",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY},
-        ],
-    },
-    {
-        "id": Parameter.DWPT,
-        "name": "Dew Point Temperature",
-        "dtype": "Float64",
-        "aggregation": "mean",
-        "granularities": [
-            {"granularity": Granularity.HOURLY},
-            {"granularity": Granularity.DAILY},
-        ],
-    },
-    {
-        "id": Parameter.PRCP,
-        "name": "Precipitation",
-        "dtype": "Float64",
-        "aggregation": "sum",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.SNOW,
-        "name": "Snowfall",
-        "dtype": "Int64",
-        "aggregation": "sum",
-        "granularities": [
-            {
-                "granularity": Granularity.HOURLY,
-            },
-            {
-                "granularity": Granularity.DAILY,
-            },
-        ],
-    },
-    {
-        "id": Parameter.SNWD,
-        "name": "Snow Depth",
-        "dtype": "Int64",
-        "aggregation": "max",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.WDIR,
-        "name": "Wind Direction",
-        "dtype": "Int64",
-        "aggregation": degree_mean,
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.WSPD,
-        "name": "Wind Speed",
-        "dtype": "Float64",
-        "aggregation": "mean",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.WPGT,
-        "name": "Wind Peak Gust",
-        "dtype": "Float64",
-        "aggregation": "max",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.PRES,
-        "name": "Sea-Level Air Pressure",
-        "dtype": "Float64",
-        "aggregation": "mean",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.TSUN,
-        "name": "Sunshine Duration",
-        "dtype": "Int64",
-        "aggregation": "sum",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.CLDC,
-        "name": "Cloud Cover",
-        "dtype": "Int64",
-        "aggregation": "mean",
-        "granularities": [
-            {"granularity": Granularity.HOURLY, "default": True},
-            {"granularity": Granularity.DAILY, "default": True},
-        ],
-    },
-    {
-        "id": Parameter.VSBY,
-        "name": "Visibility",
-        "dtype": "Int64",
-        "aggregation": "mean",
-        "granularities": [
-            {
-                "granularity": Granularity.HOURLY,
-            },
-            {
-                "granularity": Granularity.DAILY,
-            },
-        ],
-    },
-    {
-        "id": Parameter.COCO,
-        "name": "Weather Condition Code",
-        "dtype": "Int64",
-        "granularities": [{"granularity": Granularity.HOURLY, "default": True}],
-    },
-]
+PARAMETER_DESCRIPTIONS = {
+    Parameter.TEMP: "Air Temperature",
+    Parameter.TAVG: "Average Air Temperature",
+    Parameter.TMIN: "Minimum Air Temperature",
+    Parameter.TMAX: "Maximum Air Temperature",
+    Parameter.RHUM: "Relative Humidity",
+    Parameter.DWPT: "Dew Point Temperature",
+    Parameter.PRCP: "Precipitation",
+    Parameter.SNOW: "Snowfall",
+    Parameter.SNWD: "Snow Depth",
+    Parameter.WDIR: "Wind Direction",
+    Parameter.WSPD: "Wind Speed",
+    Parameter.WPGT: "Peak Wind Gust",
+    Parameter.PRES: "Sea-Level Air Pressure",
+    Parameter.TSUN: "Sunshine Duration",
+    Parameter.CLDC: "Cloud Cover",
+    Parameter.VSBY: "Visibility",
+    Parameter.COCO: "Weather Condition Code",
+}

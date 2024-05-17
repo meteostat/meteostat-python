@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, Union
 from urllib.error import HTTPError
 from numpy import isnan
@@ -31,7 +32,18 @@ def map_sky_code(code: Union[int, str]) -> Optional[int]:
     return int(code) if not isnan(code) and int(code) >= 0 and int(code) <= 8 else None
 
 
-@cache(60 * 60 * 24, "pickle")
+def get_ttl(_usaf: str, _wban: str, year: int) -> int:
+    """
+    Get TTL based on year
+
+    Current + previous year = one day
+    Else = 30 days
+    """
+    current_year = datetime.now().year
+    return 60 * 60 * 24 if current_year - year < 2 else 60 * 60 * 24 * 30
+
+
+@cache(get_ttl, "pickle")
 def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
     if not usaf:
         return None

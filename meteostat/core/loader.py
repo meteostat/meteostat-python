@@ -15,7 +15,8 @@ from typing import List, Optional
 import pandas as pd
 from meteostat import Provider
 from meteostat.core.logger import logger
-from meteostat.core.meta import filter_providers, get_parameter
+from meteostat.core.meta import filter_providers
+from meteostat.core.parameters import PARAMETER_DTYPES
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
 from meteostat.typing import QueryDict, StationDict
@@ -101,8 +102,9 @@ def load_ts(
                 # Add current station ID to DataFrame
                 df = pd.concat([df], keys=[station["id"]], names=["station"])
                 # Add source index column to DataFrame
-                df["source"] = provider["id"]
-                df.set_index(["source"], append=True, inplace=True)
+                if not "source" in df.index.names:
+                    df["source"] = provider["id"]
+                    df.set_index(["source"], append=True, inplace=True)
                 # Filter DataFrame for requested parameters and time range
                 df = filter_parameters(df, parameters)
                 df = filter_time(df, start, end)
@@ -137,7 +139,7 @@ def load_ts(
     df = df[get_intersection(parameters, df.columns.to_list())]
 
     # Convert columns to correct data type
-    dtypes = {p["id"].value: p["dtype"] for p in [get_parameter(p) for p in parameters]}
+    dtypes = {p.value: PARAMETER_DTYPES[p] for p in parameters}
     for col, dtype in dtypes.copy().items():
         if col not in df:
             del dtypes[col]
