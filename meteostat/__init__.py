@@ -15,10 +15,9 @@ __appname__ = "meteostat"
 __version__ = "2.0.0"
 
 from meteostat.settings import settings
-from meteostat.core.cache import purge as purge_cache
+from meteostat.cache import purge as purge_cache
 from meteostat.enumerations import Parameter, Provider
 from meteostat.point import Point
-from meteostat.concat import concat
 from meteostat.timeseries.hourly import hourly
 from meteostat.timeseries.daily import daily
 from meteostat import stations, units, interpolate
@@ -31,7 +30,6 @@ __all__ = [
     "stations",
     "hourly",
     "daily",
-    "concat",
     "units",
     "interpolate",
     "purge_cache",

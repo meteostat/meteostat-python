@@ -14,13 +14,12 @@ from itertools import chain
 from typing import List, Optional
 import pandas as pd
 from meteostat import Provider
-from meteostat.core.logger import logger
-from meteostat.core.meta import filter_providers
-from meteostat.core.parameters import PARAMETER_DTYPES
+from meteostat.logger import logger
+from meteostat.model import PARAMETER_DTYPES
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
 from meteostat.typing import QueryDict, StationDict
-from meteostat.utils.filters import filter_parameters, filter_time
+from meteostat.utils.filters import filter_parameters, filter_providers, filter_time
 from meteostat.utils.helpers import get_intersection
 
 
@@ -58,7 +57,7 @@ def stations_to_df(stations: List[StationDict]) -> pd.DataFrame | None:
     )
 
 
-def load_ts(
+def fetch_ts(
     granularity: Granularity,
     providers: List[Provider],
     parameters: List[Parameter],

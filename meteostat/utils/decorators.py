@@ -11,8 +11,8 @@ The code is licensed under the MIT license.
 from functools import wraps
 from typing import Callable, Any
 from meteostat import settings
-from meteostat.core.cache import from_func, purge
-from meteostat.core.logger import logger
+from meteostat.cache import from_func, purge
+from meteostat.logger import logger
 
 
 def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):

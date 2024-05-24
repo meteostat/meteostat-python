@@ -12,7 +12,7 @@ from datetime import date, datetime
 from typing import List, Optional, Union
 
 import pandas as pd
-from meteostat.core.loader import load_ts
+from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.utils.parsers import (
     parse_parameters,
@@ -69,7 +69,7 @@ def daily(
     """
     Retrieve daily time series data
     """
-    return load_ts(
+    return fetch_ts(
         Granularity.DAILY,
         parse_providers(providers, SUPPORTED_PROVIDERS),
         parse_parameters(parameters, SUPPORTED_PARAMETERS),

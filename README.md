@@ -26,6 +26,20 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(filename)s:%(lineno)s] %(message)s')
 ```
 
+## Testing
+
+Run the following command for unit tests:
+
+```sh
+poetry run pytest tests/unit
+```
+
+Run the following command for E2E tests:
+
+```sh
+poetry run pytest tests/e2e
+```
+
 ## Config
 
 ### Using Environment Variables

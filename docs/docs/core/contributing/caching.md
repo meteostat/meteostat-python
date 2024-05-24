@@ -1,4 +1,4 @@
-# Cache
+# Caching
 
 All function which load and/or parse data should be annotated with the `cache` decorator.
 

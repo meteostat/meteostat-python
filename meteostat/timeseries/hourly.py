@@ -11,7 +11,7 @@ The code is licensed under the MIT license.
 from typing import List, Union, Optional
 from datetime import datetime, date
 import pandas as pd
-from meteostat.core.loader import load_ts
+from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.utils.parsers import (
     parse_parameters,
@@ -72,7 +72,7 @@ def hourly(
     """
     Retrieve hourly time series data
     """
-    return load_ts(
+    return fetch_ts(
         Granularity.HOURLY,
         parse_providers(providers, SUPPORTED_PROVIDERS),
         parse_parameters(parameters, SUPPORTED_PARAMETERS),

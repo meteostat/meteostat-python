@@ -7,7 +7,7 @@ from typing import Optional
 from urllib.error import HTTPError
 import pandas as pd
 from meteostat.utils.decorators import cache
-from meteostat.core.logger import logger
+from meteostat.logger import logger
 from meteostat.typing import QueryDict
 
 
@@ -23,6 +23,7 @@ def get_ttl(_station: str, year: int) -> int:
     """
     current_year = datetime.now().year
     return 60 * 60 * 24 if current_year - year < 2 else 60 * 60 * 24 * 30
+
 
 @cache(get_ttl, "pickle")
 def get_df(station: str, year: int) -> Optional[pd.DataFrame]:

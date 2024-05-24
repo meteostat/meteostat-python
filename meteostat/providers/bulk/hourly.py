@@ -7,7 +7,7 @@ from typing import Optional
 from urllib.error import HTTPError
 import pandas as pd
 from meteostat.settings import settings
-from meteostat.core.logger import logger
+from meteostat.logger import logger
 from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.mutations import reshape_by_source

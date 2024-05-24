@@ -3,7 +3,7 @@ from typing import Optional, Union
 from urllib.error import HTTPError
 from numpy import isnan
 import pandas as pd
-from meteostat.core.logger import logger
+from meteostat.logger import logger
 from meteostat.utils.decorators import cache
 from meteostat.typing import QueryDict
 from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum

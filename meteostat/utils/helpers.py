@@ -8,12 +8,12 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from typing import Any, Iterable, List, Tuple
+from typing import Any, Iterable, List, Optional, Tuple
 import numpy as np
 import pandas as pd
-from meteostat.core.meta import get_provider
-from meteostat.enumerations import Granularity, Priority
-from meteostat.typing import StationDict
+from meteostat.enumerations import Granularity, Priority, Provider
+from meteostat.model import PROVIDERS
+from meteostat.typing import ProviderDict, StationDict
 
 
 def get_freq(granularity: Granularity) -> str:
@@ -62,6 +62,28 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
     arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
     return round(radius * arch_sin)
+
+
+def get_providers(granularity: Granularity) -> List[Provider]:
+    """
+    Get available providers by granularity
+    """
+    return list(
+        map(
+            lambda p: p["id"],
+            filter(lambda p: p["granularity"] == granularity, PROVIDERS),
+        )
+    )
+
+
+def get_provider(id: str) -> Optional[ProviderDict]:
+    """
+    Get a provider by its ID
+    """
+    return next(
+        (provider for provider in PROVIDERS if provider["id"] == id),
+        None,
+    )
 
 
 def get_provider_prio(id: str) -> Priority:

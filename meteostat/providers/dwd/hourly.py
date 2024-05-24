@@ -12,7 +12,7 @@ from io import BytesIO
 from typing import Callable, Dict, List, NotRequired, Optional, TypedDict
 from zipfile import ZipFile
 import pandas as pd
-from meteostat.core.logger import logger
+from meteostat.logger import logger
 from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import jcm2_to_wm2, ms_to_kmh

@@ -7,7 +7,7 @@ import os
 from os.path import exists
 from hashlib import md5
 from meteostat.settings import settings
-from meteostat.core.logger import logger
+from meteostat.logger import logger
 import pandas as pd
 from time import time
 
