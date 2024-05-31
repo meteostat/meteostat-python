@@ -5,7 +5,6 @@ from meteostat.settings import settings
 from meteostat.enumerations import Parameter, Provider
 from meteostat.timeseries.hourly import hourly
 from meteostat.typing import QueryDict
-from meteostat.utils.aggregations import degree_mean
 from meteostat.utils.mutations import reshape_by_source
 
 
@@ -18,7 +17,6 @@ PARAMETER_AGGS = {
     Parameter.DWPT: (Parameter.DWPT, "mean"),
     Parameter.PRCP: (Parameter.PRCP, "sum"),
     Parameter.SNWD: (Parameter.SNWD, "max"),
-    Parameter.WDIR: (Parameter.WDIR, degree_mean),
     Parameter.WSPD: (Parameter.WSPD, "mean"),
     Parameter.WPGT: (Parameter.WPGT, "max"),
     Parameter.PRES: (Parameter.PRES, "mean"),

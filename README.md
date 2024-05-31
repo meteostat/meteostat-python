@@ -34,10 +34,16 @@ Run the following command for unit tests:
 poetry run pytest tests/unit
 ```
 
-Run the following command for E2E tests:
+Run the following command for integration tests:
 
 ```sh
-poetry run pytest tests/e2e
+poetry run pytest tests/integration
+```
+
+Run the following command for provider tests (involves network requests):
+
+```sh
+poetry run pytest tests/provider
 ```
 
 ## Config
