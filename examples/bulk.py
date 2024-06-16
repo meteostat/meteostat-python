@@ -7,7 +7,7 @@ END = date(2022, 12, 31)  # date.today()
 PROVIDERS = (
     ms.Provider.SYNOP,
     ms.Provider.METAR,
-    # ms.Provider.MOSMIX,
+    # ms.Provider.MODEL,
     # ms.Provider.ISD_LITE,
     # ms.Provider.DWD_HOURLY,
 )

@@ -2,7 +2,12 @@ from datetime import datetime, date
 import logging
 import meteostat as ms
 
-ts = ms.hourly("10637", datetime(2023, 2, 1, 3), datetime(2023, 2, 1, 21), providers=[ms.Provider.METAR, ms.Provider.MODEL])
+ts = ms.hourly(
+    "10637",
+    datetime(2023, 2, 1, 3),
+    datetime(2023, 2, 1, 21),
+    providers=[ms.Provider.METAR, ms.Provider.MODEL],
+)
 print(ts.sourcemap)
 exit()
 

@@ -46,10 +46,6 @@ class Settings:
     def load_env(cls, prefix="MS") -> None:
         """
         Import configuration from environment variables
-
-        Use the MS_ prefix for the variables to be recognized by Meteostat
-
-        The variable's value is parsed as JSON
         """
         prefix = f"{prefix}_" if prefix else None
         for key, value in os.environ.items():
