@@ -163,8 +163,8 @@ class Normals(MeteoData):
                     else df
                 )
 
-        # None -> NaN
-        temp._data = temp._data.fillna(np.NaN)
+        # None -> nan
+        temp._data = temp._data.fillna(np.nan)
 
         # Return class instance
         return temp

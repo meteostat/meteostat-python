@@ -123,7 +123,7 @@ class TimeSeries(MeteoData):
                 (pd.isna(self._data[f"{col_name}_flag"]))
                 | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
                 col_name,
-            ] = np.NaN
+            ] = np.nan
 
         # Conditionally, remove flags from DataFrame
         if not self._flags:
@@ -131,7 +131,7 @@ class TimeSeries(MeteoData):
                 map(lambda col_name: f"{col_name}_flag", columns), axis=1, inplace=True
             )
 
-        # Drop NaN-only rows
+        # Drop nan-only rows
         self._data.dropna(how="all", subset=columns, inplace=True)
 
     def _init_time_series(
