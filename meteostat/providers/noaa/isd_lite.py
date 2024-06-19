@@ -49,6 +49,7 @@ def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
         return None
 
     filename = f"{usaf}-{wban if wban else '99999'}-{year}.gz"
+    print(f"{ISD_LITE_ENDPOINT}/{year}/{filename}")
 
     try:
         df = pd.read_fwf(

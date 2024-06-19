@@ -1,10 +1,13 @@
 from datetime import datetime
 from meteostat import settings
-from meteostat.providers.bulk.hourly import fetch
+from meteostat.providers.meteostat.synop import fetch
 from meteostat.typing import QueryDict
 
 
-def test_bulk_hourly():
+def test_meteostat_synop():
+    """
+    It should load SYNOP data from Meteostat
+    """
     settings.cache_enable = False
 
     query: QueryDict = {

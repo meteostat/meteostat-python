@@ -1,10 +1,13 @@
 from datetime import datetime
 from meteostat import settings
-from meteostat.providers.bulk.hourly import fetch
+from meteostat.providers.meteostat.metar import fetch
 from meteostat.typing import QueryDict
 
 
-def test_bulk_hourly():
+def test_meteostat_metar():
+    """
+    It should load METAR data from Meteostat
+    """
     settings.cache_enable = False
 
     query: QueryDict = {
@@ -16,4 +19,4 @@ def test_bulk_hourly():
 
     assert len(df) > 1
     assert "temp" in df
-    assert "prcp" in df
+    assert "rhum" in df
