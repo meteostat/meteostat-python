@@ -27,7 +27,6 @@ def normalize(self):
     temp = copy(self)
 
     if temp._start and temp._end and temp.coverage() < 1:
-
         # Create result DataFrame
         result = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
 

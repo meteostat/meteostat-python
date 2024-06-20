@@ -93,7 +93,6 @@ class Daily(TimeSeries):
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
-
         # Initialize time series
         self._init_time_series(loc, start, end, model, flags)
 
