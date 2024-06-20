@@ -6,7 +6,7 @@ Convert a Pandas Series to any meteorological data unit
 The code is licensed under the MIT license.
 """
 
-from numpy import NaN, isnan
+from numpy import nan, isnan
 
 
 def fahrenheit(value):
@@ -62,7 +62,7 @@ def direction(value):
     Convert degrees to wind direction
     """
 
-    wdir = NaN
+    wdir = nan
 
     if (337 <= value <= 360) or value <= 23:
         wdir = "N"
@@ -90,7 +90,7 @@ def condition(value):
     """
 
     if isnan(value) or value < 1 or value > 27:
-        return NaN
+        return nan
 
     return [
         "Clear",

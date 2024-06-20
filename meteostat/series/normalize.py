@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from copy import copy
-from numpy import NaN
+from numpy import nan
 import pandas as pd
 import pytz
 from meteostat.core.warn import warn
@@ -56,7 +56,7 @@ def normalize(self):
             # Add columns
             for column in temp._columns[temp._first_met_col :]:
                 # Add column to DataFrame
-                df[column] = NaN
+                df[column] = nan
 
             result = pd.concat([result, df], axis=0)
 
@@ -70,8 +70,8 @@ def normalize(self):
             .first()
         )
 
-        # None -> NaN
-        temp._data = temp._data.fillna(NaN)
+        # None -> nan
+        temp._data = temp._data.fillna(nan)
 
     # Return class instance
     return temp

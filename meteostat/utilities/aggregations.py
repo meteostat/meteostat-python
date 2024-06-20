@@ -19,7 +19,7 @@ def weighted_average(step: pd.DataFrame) -> pd.DataFrame:
 
     data = np.ma.masked_array(step, np.isnan(step))
     data = np.ma.average(data, axis=0, weights=data[:, -2])
-    data = data.filled(np.NaN)
+    data = data.filled(np.nan)
 
     return pd.DataFrame(data=[data], columns=step.columns)
 
@@ -30,7 +30,7 @@ def degree_mean(data: pd.Series) -> float:
     """
 
     if data.isnull().all():
-        return np.NaN
+        return np.nan
 
     rads = np.deg2rad(data)
     sums = np.arctan2(np.sum(np.sin(rads)), np.sum(np.cos(rads)))

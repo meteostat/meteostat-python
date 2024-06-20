@@ -52,7 +52,7 @@ def adjust_temp(df: pd.DataFrame, alt: int):
     # Adjust values for all temperature-like data
     for col_name in temp_like:
         if col_name in df.columns:
-            df.loc[df[col_name] != np.NaN, col_name] = df[col_name] + (
+            df.loc[df[col_name] != np.nan, col_name] = df[col_name] + (
                 temp_diff * ((df["elevation"] - alt) / 100)
             )
 
