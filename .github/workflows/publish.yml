@@ -22,5 +22,5 @@ jobs:
       - name: Check using Twine
         run: twine check dist/*
       - name: Upload to PyPI
-        run: twine upload -u meteostat -p ${{ secrets.PYPI_PASSWORD }} dist/*
+        run: twine upload -u ${{ env.PYPI_USER }} -p ${{ secrets.PYPI_PASSWORD }} dist/*
 
