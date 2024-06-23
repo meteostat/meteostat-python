@@ -57,7 +57,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         )
     # Adjust DataFrame and add index
     df = df.round(1)
-    df.index = df.index.date
+    df.index = pd.to_datetime(df.index.date)
     df["station"] = query["station"]["id"]
     df.index.name = "time"
     # Update data sources if desired

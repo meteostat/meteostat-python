@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from typing import Iterator, List, Optional, Tuple, TypeGuard, Union
+from typing import Iterator, List, Optional, TypeGuard, Union
 import pandas as pd
 from meteostat.enumerations import Granularity, Parameter, Provider
 from meteostat.model import PROVIDERS
@@ -40,7 +40,7 @@ def filter_time(
 
 
 def filter_parameters(
-    df: pd.DataFrame, parameters: Tuple[Parameter, ...]
+    df: pd.DataFrame, parameters: List[Parameter]
 ) -> pd.DataFrame:
     """
     Filter DataFrame based on requested parameters

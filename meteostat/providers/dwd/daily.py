@@ -36,13 +36,6 @@ NAMES = {
 }
 
 
-def dateparser(value):
-    """
-    Custom Pandas date parser
-    """
-    return datetime.strptime(value, "%Y%m%d")
-
-
 def find_file(ftp: FTP, mode: str, needle: str):
     """
     Find file in directory
@@ -138,4 +131,6 @@ def fetch(query: QueryDict):
         for mode in modes
     ]
 
-    return pd.concat(data)
+    df = pd.concat(data)
+
+    return df.loc[~df.index.duplicated(keep="first")]
