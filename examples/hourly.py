@@ -2,13 +2,21 @@ from datetime import datetime, date
 import logging
 import meteostat as ms
 
-ts = ms.hourly(
-    "10637",
-    datetime(2023, 2, 1, 3),
-    datetime(2023, 2, 1, 21),
-    providers=[ms.Provider.METAR, ms.Provider.MODEL],
+# ts = ms.hourly(
+#     "10637",
+#     datetime(2023, 2, 1, 0),
+#     datetime(2023, 2, 1, 23, 59, 59),
+#     providers=[ms.Provider.BULK_HOURLY],
+#     timezone='Europe/Berlin'
+# )
+ts_d = ms.daily(
+    "10730",
+    date(2019, 2, 1),
+    date(2019, 2, 28),
+    providers=[ms.Provider.BULK_DAILY_DERIVED],
 )
-print(ts.sourcemap)
+# print(ts.fetch().mean().round(1))
+print(ts_d.fetch().head(28))
 exit()
 
 # ms.settings.bulk_load_sources = True

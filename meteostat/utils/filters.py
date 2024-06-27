@@ -39,9 +39,7 @@ def filter_time(
         )
 
 
-def filter_parameters(
-    df: pd.DataFrame, parameters: List[Parameter]
-) -> pd.DataFrame:
+def filter_parameters(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
     """
     Filter DataFrame based on requested parameters
     """

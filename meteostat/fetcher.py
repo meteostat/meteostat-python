@@ -81,12 +81,14 @@ def stations_to_df(stations: List[StationDict]) -> pd.DataFrame | None:
     )
 
 
-def concat_fragments(fragments: List[pd.DataFrame], parameters: List[Parameter]) -> pd.DataFrame:
+def concat_fragments(
+    fragments: List[pd.DataFrame], parameters: List[Parameter]
+) -> pd.DataFrame:
     """
     Concatenate multiple fragments into a single DataFrame
     """
     df = pd.concat(
-        [df.dropna(how='all', axis=1) if not df.empty else None for df in fragments]
+        [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
     )
     return filter_parameters(df, parameters)
 
@@ -173,7 +175,11 @@ def fetch_ts(
             included_stations.append(station)
 
     # Merge data in a single DataFrame
-    df = concat_fragments(chain.from_iterable(fragments), parameters) if fragments else pd.DataFrame()
+    df = (
+        concat_fragments(chain.from_iterable(fragments), parameters)
+        if fragments
+        else pd.DataFrame()
+    )
     # Only included requested coplumns
     df = df[get_intersection(parameters, df.columns.to_list())]
     # Set data types

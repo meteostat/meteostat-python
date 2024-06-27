@@ -16,12 +16,11 @@ PROVIDERS = [
     ms.Provider.DWD_DAILY,
 ]
 
-ts = ms.daily('10637', start=START, end=END, providers=PROVIDERS, lite=False)
+ts = ms.daily("10637", start=START, end=END, providers=PROVIDERS, lite=False)
 
 print(ts.fetch())
 print(ts.sourcemap)
 exit()
-
 
 
 # START = date(2023, 1, 1)
