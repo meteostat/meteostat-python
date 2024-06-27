@@ -1,8 +1,6 @@
 import numpy as np
-import pandas as pd
-from requests import HTTPError, Timeout
-from meteostat import settings
-from meteostat.utils.decorators import cache
+
+from meteostat.stations.index import index
 
 
 def get_distance(lat1, lon1, lat2, lon2) -> float:
@@ -26,23 +24,13 @@ def get_distance(lat1, lon1, lat2, lon2) -> float:
     return round(radius * arch_sin)
 
 
-@cache(60 * 60 * 24, "pickle")
-def _get_locations() -> pd.DataFrame | None:
-    for mirror in settings.location_mirrors:
-        try:
-            return pd.read_csv(mirror, compression="gzip", index_col="id")
-        except (HTTPError, Timeout):
-            continue
-    return None
-
-
 def nearby(
     latitude: float, longitude: float, radius: float = None, limit: int = None
 ) -> list[str] | None:
     """
     Get a list of weather station IDs ordered by distance
     """
-    df = _get_locations()
+    df = index()
 
     if df is None:
         return None
