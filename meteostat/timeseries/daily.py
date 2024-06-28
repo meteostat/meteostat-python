@@ -48,7 +48,6 @@ DEFAULT_PARAMETERS = [
     Parameter.TAVG,
     Parameter.TMIN,
     Parameter.TMAX,
-    Parameter.DWPT,
     Parameter.RHUM,
     Parameter.PRCP,
     Parameter.SNWD,
