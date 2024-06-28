@@ -87,10 +87,13 @@ def concat_fragments(
     """
     Concatenate multiple fragments into a single DataFrame
     """
-    df = pd.concat(
-        [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
-    )
-    return filter_parameters(df, parameters)
+    try:
+        df = pd.concat(
+            [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
+        )
+        return filter_parameters(df, parameters)
+    except ValueError:
+        return pd.DataFrame()
 
 
 def fetch_ts(
