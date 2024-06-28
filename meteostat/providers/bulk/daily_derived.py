@@ -104,7 +104,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
                 df_sources[key] = df_sources[value[0]]
         # Remove duplicates
         df_sources = df_sources.groupby(pd.Grouper(level="time", freq="1D")).agg(
-            lambda x: "|".join(set(x))
+            lambda x: "|".join(set(str(item) for item in x if pd.notna(item)))
         )
         df = reshape_by_source(df, df_sources)
     # Return final DataFrame
