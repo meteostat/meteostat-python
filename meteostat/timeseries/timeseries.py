@@ -14,7 +14,7 @@ from statistics import mean
 from typing import Any, Callable, Optional, Tuple
 import pandas as pd
 from meteostat.enumerations import Parameter, Granularity
-from meteostat.utils.helpers import get_freq, get_index, get_provider_prio
+from meteostat.utils.helpers import get_freq, get_index, get_provider_priority
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
 
@@ -91,7 +91,9 @@ class TimeSeries:
 
         df = copy(self._df)
 
-        df["source_prio"] = df.index.get_level_values("source").map(get_provider_prio)
+        df["source_prio"] = df.index.get_level_values("source").map(
+            get_provider_priority(self.granularity)
+        )
 
         return (
             df.sort_values(by="source_prio", ascending=False)
@@ -155,7 +157,7 @@ class TimeSeries:
             return None
 
         if squash:
-            df = squash_df(df)
+            df = squash_df(df, self.granularity)
 
         if squash and sources:
             sourcemap = self.sourcemap

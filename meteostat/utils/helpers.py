@@ -86,9 +86,20 @@ def get_provider(id: str) -> Optional[ProviderDict]:
     )
 
 
-def get_provider_prio(id: str) -> Priority:
-    provider = get_provider(id)
-    return provider["priority"] if provider else Priority.LOWEST
+def get_provider_priority(granularity: Granularity) -> Priority:
+    """
+    A factory function for getting the provider priority
+    """
+
+    def _get_prio(id: str):
+        provider = get_provider(id)
+        return (
+            Priority.LOWEST
+            if not provider or provider["granularity"] != granularity
+            else provider["priority"]
+        )
+
+    return _get_prio
 
 
 def get_index(obj: Iterable, index: int, default=None) -> Any:
