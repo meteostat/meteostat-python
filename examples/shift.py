@@ -18,7 +18,7 @@ df1 = pd.DataFrame(
     index=pd.MultiIndex.from_arrays(
         [
             [10637] * 5,
-            pd.date_range("2024-01-01", periods=5, freq="H"),
+            pd.date_range("2024-01-01", periods=5, freq="h"),
             ["bulk_hourly"] * 5,
         ],
         names=["station", "time", "source"],
@@ -40,7 +40,7 @@ df2 = pd.DataFrame(
         "cldc": ["dwd_hourly", "dwd_hourly", "dwd_hourly", "dwd_hourly", "dwd_hourly"],
         "coco": ["dwd_hourly", "synop", "dwd_hourly", "synop", "dwd_hourly"],
     },
-    index=pd.date_range("2024-01-01", periods=5, freq="H"),
+    index=pd.date_range("2024-01-01", periods=5, freq="h"),
 )
 
 # Reshape df1 to long format

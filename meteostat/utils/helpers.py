@@ -20,7 +20,7 @@ def get_freq(granularity: Granularity) -> str:
     """
     Convert granularity to frequency
     """
-    return "1H" if granularity is Granularity.HOURLY else "1D"
+    return "1h" if granularity is Granularity.HOURLY else "1D"
 
 
 def stations_to_df(stations: Tuple[StationDict]) -> pd.DataFrame:
