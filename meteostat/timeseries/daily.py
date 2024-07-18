@@ -64,7 +64,7 @@ def daily(
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = [Provider.BULK_HOURLY],
+    providers: List[Provider | str] = [Provider.BULK_DAILY],
     lite=True,
 ):
     """

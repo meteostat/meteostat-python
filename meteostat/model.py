@@ -66,6 +66,27 @@ PROVIDERS: List[ProviderDict] = [
         "module": "meteostat.providers.bulk.hourly",
     },
     {
+        "id": Provider.BULK_DAILY,
+        "name": "Daily Bulk Data",
+        "granularity": Granularity.DAILY,
+        "priority": Priority.LOWEST,
+        "parameters": [
+            Parameter.TAVG,
+            Parameter.TMIN,
+            Parameter.TMAX,
+            Parameter.RHUM,
+            Parameter.PRCP,
+            Parameter.SNWD,
+            Parameter.WSPD,
+            Parameter.WPGT,
+            Parameter.PRES,
+            Parameter.TSUN,
+            Parameter.CLDC
+        ],
+        "start": datetime(1899, 1, 1, 0, 0, 0),
+        "module": "meteostat.providers.bulk.daily",
+    },
+    {
         "id": Provider.BULK_DAILY_DERIVED,
         "name": "Derived Daily Bulk Data",
         "granularity": Granularity.DAILY,

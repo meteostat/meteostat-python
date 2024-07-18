@@ -8,10 +8,10 @@ logging.basicConfig(
 ms.settings.bulk_load_sources = True
 
 ts = ms.daily(
-    "10637",
-    datetime(2024, 1, 1, 0),
-    datetime(2024, 1, 31, 23),
-    providers=[ms.Provider.BULK_DAILY_DERIVED],
+    "01001",
+    datetime(2020, 1, 5),
+    datetime(2020, 1, 10),
+    providers=[ms.Provider.BULK_DAILY],
 )
 print(ts)
 exit()
