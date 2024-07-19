@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+import itertools
 from typing import Any, Iterable, List, Optional, Tuple
 import numpy as np
 import pandas as pd
@@ -117,3 +118,12 @@ def get_intersection(list1, list2) -> List[Any]:
     intersection_list = [item for item in list1 if item in intersection_set]
 
     return intersection_list
+
+
+def aggregate_sources(series: pd.Series) -> str:
+    """
+    Concatenate multiple data sources into a unique source string
+    """
+    sources = [str(item) for item in series if pd.notna(item)]
+    flat_sources = set(itertools.chain(*[source.split() for source in sources]))
+    return " ".join(flat_sources)

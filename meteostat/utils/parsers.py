@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The cod is licensed under the MIT license.
 """
 
+import calendar
 from typing import List
 import datetime
 import pandas as pd
@@ -103,3 +104,17 @@ def parse_time(
         parsed = parsed.astimezone(tz).astimezone(pytz.utc).replace(tzinfo=None)
 
     return parsed
+
+
+def parse_month(
+    value: datetime.date | datetime.datetime | None, is_end: bool = False
+) -> datetime.date | None:
+    """
+    Convert a given date/time input to the first or last day of the month respectively
+    """
+    if not value:
+        return None
+
+    last_day = calendar.monthrange(value.year, value.month)[1]
+
+    return datetime.date(value.year, value.month, last_day if is_end else 1)

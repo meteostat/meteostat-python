@@ -6,6 +6,7 @@ from meteostat.settings import settings
 from meteostat.enumerations import Parameter, Provider
 from meteostat.timeseries.hourly import hourly
 from meteostat.typing import QueryDict
+from meteostat.utils.helpers import aggregate_sources
 from meteostat.utils.mutations import reshape_by_source
 
 
@@ -13,7 +14,7 @@ def daily_mean(group: pd.Series):
     """
     Calculate the daily mean from a series of hourly data
     """
-    if group.count() < 21:
+    if group.isna().sum() > 3:
         return np.nan
     return group.interpolate(axis=0).mean()
 
@@ -22,7 +23,7 @@ def daily_min(group: pd.Series):
     """
     Calculate the daily minimum from a series of hourly data
     """
-    if group.count() < 24:
+    if group.isna().sum() > 0:
         return np.nan
     return group.min()
 
@@ -31,7 +32,7 @@ def daily_max(group: pd.Series):
     """
     Calculate the daily maximum from a series of hourly data
     """
-    if group.count() < 24:
+    if group.isna().sum() > 0:
         return np.nan
     return group.max()
 
@@ -40,7 +41,7 @@ def daily_sum(group: pd.Series):
     """
     Calculate the daily sum from a series of hourly data
     """
-    if group.count() < 24:
+    if group.isna().sum() > 0:
         return np.nan
     return group.sum()
 
@@ -104,7 +105,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
                 df_sources[key] = df_sources[value[0]]
         # Remove duplicates
         df_sources = df_sources.groupby(pd.Grouper(level="time", freq="1D")).agg(
-            lambda x: " ".join(set(str(item) for item in x if pd.notna(item)))
+            aggregate_sources
         )
         df = reshape_by_source(df, df_sources)
     # Return final DataFrame

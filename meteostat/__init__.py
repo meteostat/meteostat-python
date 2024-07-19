@@ -20,6 +20,7 @@ from meteostat.enumerations import Parameter, Provider
 from meteostat.point import Point
 from meteostat.timeseries.hourly import hourly
 from meteostat.timeseries.daily import daily
+from meteostat.timeseries.monthly import monthly
 from meteostat import stations, units, interpolate
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "stations",
     "hourly",
     "daily",
+    "monthly",
     "units",
     "interpolate",
     "purge_cache",

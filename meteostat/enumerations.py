@@ -18,6 +18,7 @@ class Granularity(StrEnum):
 
     HOURLY = "hourly"
     DAILY = "daily"
+    MONTHLY = "monthly"
 
 
 class Parameter(StrEnum):
@@ -63,6 +64,8 @@ class Provider(StrEnum):
     BULK_HOURLY = "bulk_hourly"
     BULK_DAILY = "bulk_daily"
     BULK_DAILY_DERIVED = "bulk_daily_derived"
+    BULK_MONTHLY = "bulk_monthly"
+    BULK_MONTHLY_DERIVED = "bulk_monthly_derived"
 
 
 class Priority(IntEnum):

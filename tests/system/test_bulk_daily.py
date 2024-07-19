@@ -3,11 +3,7 @@ import meteostat as ms
 
 START = date(date.today().year - 3, 1, 1)
 END = date.today()
-PROVIDERS = [
-    ms.Provider.GHCND,
-    ms.Provider.DWD_DAILY,
-    ms.Provider.BULK_DAILY_DERIVED
-]
+PROVIDERS = [ms.Provider.GHCND, ms.Provider.DWD_DAILY, ms.Provider.BULK_DAILY_DERIVED]
 
 
 def test_bulk_daily():
