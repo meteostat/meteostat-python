@@ -69,7 +69,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     df.index = pd.to_datetime(df.index.date)
     df.index.name = "time"
     # Update data sources if desired
-    if settings.bulk_load_sources:
+    if settings["bulk_load_sources"]:
         df_sources = ts_daily.sourcemap
         # Remove duplicates
         df_sources = df_sources.groupby(pd.Grouper(level="time", freq="MS")).agg(

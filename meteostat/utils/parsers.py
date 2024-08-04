@@ -9,13 +9,13 @@ The cod is licensed under the MIT license.
 """
 
 import calendar
-from typing import List
+from typing import Iterator, List
 import datetime
 import pandas as pd
 import pytz
-from meteostat import Parameter, stations
+import meteostat as ms
 from meteostat.enumerations import Provider
-from meteostat.typing import StationDict
+from meteostat.typing import ProviderDict, StationDict
 
 
 def parse_station(
@@ -24,7 +24,7 @@ def parse_station(
     data = []
 
     for s in [station] if isinstance(station, str) else list(station):
-        meta = stations.meta(s)
+        meta = ms.station(s)
         if meta is None:
             raise ValueError(f'Weather station with ID "{s}" could not be found')
         data.append(meta)
@@ -33,8 +33,8 @@ def parse_station(
 
 
 def parse_providers(
-    requested: List[Provider | str], supported: List[Provider]
-) -> List[Provider]:
+    requested: List[Provider | str], supported: List[ProviderDict]
+) -> Iterator[ProviderDict]:
     """
     Raise exception if a requested provider is not supported
     """
@@ -43,7 +43,7 @@ def parse_providers(
         map(lambda p: p if isinstance(p, Provider) else Provider[p], requested)
     )
     # Get difference between providers and supported providers
-    diff = set(providers).difference(supported)
+    diff = set(providers).difference([provider['id'] for provider in supported])
     # Log warning
     if len(diff):
         raise ValueError(
@@ -52,18 +52,18 @@ def parse_providers(
         }"""
         )
     # Return intersection
-    return providers
+    return filter(lambda provider: provider["id"] in requested, supported)
 
 
 def parse_parameters(
-    requested: List[Parameter | str], supported: List[Parameter]
-) -> List[Parameter]:
+    requested: List[ms.Parameter | str], supported: List[ms.Parameter]
+) -> List[ms.Parameter]:
     """
     Raise exception if a requested parameter is not supported
     """
     # Convert parameters to set
     parameters = list(
-        map(lambda p: p if isinstance(p, Parameter) else Parameter[p], requested)
+        map(lambda p: p if isinstance(p, ms.Parameter) else ms.Parameter[p], requested)
     )
     # Get difference between parameters and supported parameters
     diff = set(parameters).difference(supported)

@@ -8,7 +8,7 @@ def test_meteostat_metar():
     """
     It should load METAR data from Meteostat
     """
-    settings.cache_enable = False
+    settings["cache_enable"] = False
 
     query: QueryDict = {
         "start": datetime(2020, 2, 1, 15),

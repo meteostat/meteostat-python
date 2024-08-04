@@ -12,7 +12,6 @@ from datetime import datetime
 from typing import Iterator, List, Optional, TypeGuard, Union
 import pandas as pd
 from meteostat.enumerations import Granularity, Parameter, Provider
-from meteostat.model import PROVIDERS
 from meteostat.typing import ProviderDict
 
 
@@ -58,7 +57,7 @@ def filter_parameters(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataF
 def filter_providers(
     granularity: Granularity,
     parameters: List[Parameter],
-    providers: List[Provider],
+    providers: Iterator[ProviderDict],
     country: str,
     start: Optional[datetime],
     end: Optional[datetime],
@@ -72,19 +71,17 @@ def filter_providers(
             return False
         if set(provider["parameters"]).isdisjoint(parameters):
             return False
-        if provider["id"] not in providers:
-            return False
         if "countries" in provider and country not in provider["countries"]:
             return False
-        if end and end < provider["start"]:
+        if end and end < datetime.combine(provider["start"], datetime.min.time()):
             return False
         if (
             "end" in provider
             and provider["end"] is not None
             and start is not None
-            and start > provider["end"]
+            and start > datetime.combine(provider["end"], datetime.max.time())
         ):
             return False
         return True
 
-    return filter(_filter, PROVIDERS)
+    return filter(_filter, providers)

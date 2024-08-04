@@ -7,7 +7,7 @@ PROVIDERS = [ms.Provider.GHCND, ms.Provider.DWD_DAILY, ms.Provider.BULK_DAILY_DE
 
 
 def test_bulk_daily():
-    ms.settings.cache_enable = False
+    ms.settings["cache_enable"] = False
 
     ts = ms.daily("01001", start=START, end=END, providers=PROVIDERS, lite=False)
 

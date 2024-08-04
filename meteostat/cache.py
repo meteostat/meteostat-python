@@ -16,8 +16,8 @@ def create_cache_dir() -> None:
     """
     Create the cache directory if it doesn't exist
     """
-    if not os.path.exists(settings.cache_dir):
-        os.makedirs(settings.cache_dir)
+    if not os.path.exists(settings["cache_dir"]):
+        os.makedirs(settings["cache_dir"])
 
 
 def write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
@@ -94,14 +94,14 @@ def get_cache_path(uid: str, filetype: str):
     """
     Get path of a cached file based on its uid and file type
     """
-    return settings.cache_dir + os.sep + f"{uid}.{filetype}"
+    return settings["cache_dir"] + os.sep + f"{uid}.{filetype}"
 
 
 def is_stale(path: str, ttl: int) -> bool:
     return (
         True
         if time() - os.path.getmtime(path)
-        > min([max([ttl, settings.cache_ttl_min]), settings.cache_ttl_max])
+        > min([max([ttl, settings["cache_ttl_min"]]), settings["cache_ttl_max"]])
         else False
     )
 
@@ -137,11 +137,11 @@ def purge(ttl: int | None = None) -> None:
     Remove stale files from disk cache
     """
     if ttl is None:
-        ttl = settings.cache_ttl_max
+        ttl = settings["cache_ttl_max"]
 
     logger.info(f"Removing cached files older than {ttl} seconds")
 
-    cache_dir = settings.cache_dir
+    cache_dir = settings["cache_dir"]
 
     if os.path.exists(cache_dir):
         # Get current time

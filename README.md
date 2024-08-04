@@ -40,6 +40,12 @@ Run the following command for integration tests:
 poetry run pytest tests/integration
 ```
 
+Run the following command for system tests (involves network requests):
+
+```sh
+poetry run pytest tests/system
+```
+
 Run the following command for provider tests (involves network requests):
 
 ```sh

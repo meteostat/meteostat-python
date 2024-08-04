@@ -13,7 +13,7 @@ PROVIDERS = [
 
 
 def test_bulk_hourly():
-    ms.settings.cache_enable = False
+    ms.settings["cache_enable"] = False
 
     ts = ms.hourly("10637", start=START, end=END, providers=PROVIDERS, lite=False)
 

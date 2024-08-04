@@ -11,9 +11,10 @@ from copy import copy
 from datetime import datetime
 from math import floor
 from statistics import mean
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 import pandas as pd
 from meteostat.enumerations import Parameter, Granularity
+from meteostat.typing import ProviderDict
 from meteostat.utils.helpers import get_freq, get_index, get_provider_priority
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
@@ -24,6 +25,7 @@ class TimeSeries:
     used across all granularities
     """
 
+    providers: List[ProviderDict]
     granularity: Granularity
     stations: pd.DataFrame
     start: Optional[datetime] = None
@@ -35,12 +37,14 @@ class TimeSeries:
     def __init__(
         self,
         granularity: Granularity,
+        providers: List[ProviderDict],
         stations: pd.DataFrame,
         df: Optional[pd.DataFrame],
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
     ) -> None:
+        self.providers = providers
         self.granularity = granularity
         self.stations = stations
         if df is not None and not df.empty:
@@ -92,7 +96,7 @@ class TimeSeries:
         df = copy(self._df)
 
         df["source_prio"] = df.index.get_level_values("source").map(
-            get_provider_priority(self.granularity)
+            get_provider_priority(self.providers)
         )
 
         return (
@@ -157,7 +161,7 @@ class TimeSeries:
             return None
 
         if squash:
-            df = squash_df(df, self.granularity)
+            df = squash_df(df, self.providers)
 
         if squash and sources:
             sourcemap = self.sourcemap

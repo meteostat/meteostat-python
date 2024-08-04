@@ -19,10 +19,10 @@ ts_d = ms.daily(
 print(ts_d.fetch().head(28))
 exit()
 
-# ms.settings.bulk_load_sources = True
+# ms.settings["bulk_load_sources"] = True
 
 logging.basicConfig(level=logging.INFO)
-ms.settings.bulk_load_sources = True
+ms.settings["bulk_load_sources"] = True
 ts = ms.hourly("10637", datetime(2024, 1, 1, 0), datetime(2024, 1, 31, 23))
 
 print(ts.sourcemap)

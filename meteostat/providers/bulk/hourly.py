@@ -92,7 +92,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         else None
     )
     # Update data sources if desired
-    if settings.bulk_load_sources:
+    if settings["bulk_load_sources"]:
         df_sources_yearly = [
             get_source_df(query["station"]["id"], year) for year in years
         ]

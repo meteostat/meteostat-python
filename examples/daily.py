@@ -5,7 +5,7 @@ import meteostat as ms
 logging.basicConfig(
     level=logging.INFO, format="%(levelname)s [%(filename)s:%(lineno)s] %(message)s"
 )
-ms.settings.bulk_load_sources = True
+ms.settings["bulk_load_sources"] = True
 
 ts = ms.daily(
     "01001",

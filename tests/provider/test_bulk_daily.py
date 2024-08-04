@@ -5,7 +5,7 @@ from meteostat.typing import QueryDict
 
 
 def test_bulk_daily():
-    settings.cache_enable = False
+    settings["cache_enable"] = False
 
     query: QueryDict = {
         "start": datetime(2020, 2, 1, 15),

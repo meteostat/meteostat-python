@@ -57,6 +57,7 @@ class Provider(StrEnum):
     GHCND = "ghcnd"
     DWD_HOURLY = "dwd_hourly"
     DWD_DAILY = "dwd_daily"
+    DWD_MONTHLY = "dwd_monthly"
     SYNOP = "synop"
     METAR = "metar"
     MODEL = "model"

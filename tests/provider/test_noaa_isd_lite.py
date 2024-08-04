@@ -8,7 +8,7 @@ def test_noaa_isd_lite():
     """
     It should load data from NOAA ISD Lite
     """
-    settings.cache_enable = False
+    settings["cache_enable"] = False
 
     query: QueryDict = {
         "start": datetime(2022, 2, 1, 15),

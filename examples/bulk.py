@@ -33,7 +33,7 @@ exit()
 #     # ms.Provider.DWD_HOURLY,
 # )
 
-# ms.settings.cache_enable = False
+# ms.settings["cache_enable"] = False
 
 # ts = ms.hourly("10635", start=START, providers=PROVIDERS)
 

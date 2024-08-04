@@ -8,7 +8,7 @@ def test_dwd_daily():
     """
     It should load data from DWD Open Data (daily)
     """
-    settings.cache_enable = False
+    settings["cache_enable"] = False
 
     query: QueryDict = {
         "start": datetime(2000, 2, 1, 15),

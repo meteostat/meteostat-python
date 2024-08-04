@@ -8,7 +8,7 @@ def test_noaa_ghcnd():
     """
     It should load data from NOAA GHCND
     """
-    settings.cache_enable = False
+    settings["cache_enable"] = False
 
     query: QueryDict = {
         "start": datetime(2021, 2, 1, 15),

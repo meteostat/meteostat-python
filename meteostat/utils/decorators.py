@@ -26,9 +26,9 @@ def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if settings.cache_autoclean:
+            if settings["cache_autoclean"]:
                 purge()
-            if not settings.cache_enable:
+            if not settings["cache_enable"]:
                 logger.info(
                     f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                 )

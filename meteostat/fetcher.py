@@ -13,12 +13,11 @@ from importlib import import_module
 from itertools import chain
 from typing import List, Optional
 import pandas as pd
-from meteostat import Provider
 from meteostat.logger import logger
 from meteostat.model import PARAMETER_DTYPES
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
-from meteostat.typing import QueryDict, StationDict
+from meteostat.typing import ProviderDict, QueryDict, StationDict
 from meteostat.utils.filters import filter_parameters, filter_providers, filter_time
 from meteostat.utils.helpers import get_intersection
 
@@ -98,7 +97,7 @@ def concat_fragments(
 
 def fetch_ts(
     granularity: Granularity,
-    providers: List[Provider],
+    providers: List[ProviderDict],
     parameters: List[Parameter],
     stations: List[StationDict],
     start: Optional[datetime] = None,
@@ -111,10 +110,9 @@ def fetch_ts(
     """
     logger.info(f"{granularity} time series requested for {len(stations)} station(s)")
 
-    fragments = []  # DataFrame fragments across all weather stations and providers
-    included_stations: list[
-        StationDict
-    ] = []  # List of weather stations which returned data
+    fragments = []
+    included_stations: list[StationDict] = []
+    included_providers: list[ProviderDict] = []
 
     # Go through all weather stations
     for station in stations:
@@ -155,11 +153,15 @@ def fetch_ts(
                 # Save DataFrame
                 station_fragments.append(df)
 
+                # Add provider to list of included providers
+                included_providers.append(provider)
+
                 # Exit loop if request is satisfied
                 if (
                     lite
                     and TimeSeries(
                         Granularity.HOURLY,
+                        included_providers,
                         [station],
                         concat_fragments(station_fragments, parameters),
                         start,
@@ -190,5 +192,5 @@ def fetch_ts(
 
     # Return final time series
     return TimeSeries(
-        granularity, stations_to_df(included_stations), df, start, end, timezone
+        granularity, included_providers, stations_to_df(included_stations), df, start, end, timezone
     )

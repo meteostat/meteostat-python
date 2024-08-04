@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Callable, List, NotRequired, TypedDict, Optional
+from typing import List, NotRequired, TypedDict, Optional
 from meteostat.enumerations import Priority, Granularity, Parameter, Provider
 
 
@@ -29,21 +29,7 @@ class ProviderDict(TypedDict):
     end: NotRequired[Optional[datetime]]
     countries: NotRequired[list[str]]
     parameters: list[Enum]
-    license: NotRequired[str]
     module: str
-
-
-class ParameterGranularityDict(TypedDict):
-    granularity: Granularity
-    default: NotRequired[bool]
-
-
-class ParameterDict(TypedDict):
-    id: Parameter
-    name: str
-    dtype: type
-    aggregation: NotRequired[str | Callable]
-    granularities: List[ParameterGranularityDict]
 
 
 class QueryDict(TypedDict):
@@ -51,3 +37,14 @@ class QueryDict(TypedDict):
     start: datetime
     end: datetime
     parameters: List[Parameter]
+
+
+class SettingsDict(TypedDict):
+    cache_enable: bool
+    cache_dir: str
+    cache_ttl_max: int
+    cache_ttl_min: int
+    cache_autoclean: bool
+    station_mirrors: List[str]
+    location_mirrors: List[str]
+    bulk_load_sources: bool

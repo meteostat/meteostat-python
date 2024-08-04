@@ -9,11 +9,10 @@ The code is licensed under the MIT license.
 """
 
 import itertools
-from typing import Any, Iterable, List, Optional, Tuple
+from typing import Any, Iterable, List, Tuple
 import numpy as np
 import pandas as pd
-from meteostat.enumerations import Granularity, Priority, Provider
-from meteostat.model import PROVIDERS
+from meteostat.enumerations import Granularity, Priority
 from meteostat.typing import ProviderDict, StationDict
 
 
@@ -64,41 +63,14 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
 
     return round(radius * arch_sin)
 
-
-def get_providers(granularity: Granularity) -> List[Provider]:
-    """
-    Get available providers by granularity
-    """
-    return list(
-        map(
-            lambda p: p["id"],
-            filter(lambda p: p["granularity"] == granularity, PROVIDERS),
-        )
-    )
-
-
-def get_provider(id: str) -> Optional[ProviderDict]:
-    """
-    Get a provider by its ID
-    """
-    return next(
-        (provider for provider in PROVIDERS if provider["id"] == id),
-        None,
-    )
-
-
-def get_provider_priority(granularity: Granularity) -> Priority:
+def get_provider_priority(providers: List[ProviderDict]) -> Priority:
     """
     A factory function for getting the provider priority
     """
 
     def _get_prio(id: str):
-        provider = get_provider(id)
-        return (
-            Priority.LOWEST
-            if not provider or provider["granularity"] != granularity
-            else provider["priority"]
-        )
+        provider = next((provider for provider in providers if provider["id"] == id),None)
+        return Priority.LOWEST if not provider else provider["priority"]
 
     return _get_prio
 

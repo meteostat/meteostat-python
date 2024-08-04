@@ -9,15 +9,17 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
+from typing import List
 import numpy as np
 import pandas as pd
-from meteostat.enumerations import Granularity, Parameter
+from meteostat.enumerations import Parameter
+from meteostat.typing import ProviderDict
 from meteostat.utils.helpers import get_provider_priority
 
 
-def squash_df(df: pd.DataFrame, granularity: Granularity) -> pd.DataFrame:
+def squash_df(df: pd.DataFrame, providers: List[ProviderDict]) -> pd.DataFrame:
     df["source_prio"] = df.index.get_level_values("source").map(
-        get_provider_priority(granularity)
+        get_provider_priority(providers)
     )
 
     return (

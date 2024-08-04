@@ -8,7 +8,7 @@ def test_meteostat_synop():
     """
     It should load SYNOP data from Meteostat
     """
-    settings.cache_enable = False
+    settings["cache_enable"] = False
 
     query: QueryDict = {
         "start": datetime(2020, 2, 1, 15),
