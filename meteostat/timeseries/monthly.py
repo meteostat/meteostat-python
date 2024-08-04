@@ -14,7 +14,11 @@ from typing import List, Optional, Union
 import pandas as pd
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.model import PROVIDER_BULK_MONTHLY, PROVIDER_BULK_MONTHLY_DERIVED, PROVIDER_DWD_MONTHLY
+from meteostat.model import (
+    PROVIDER_BULK_MONTHLY,
+    PROVIDER_BULK_MONTHLY_DERIVED,
+    PROVIDER_DWD_MONTHLY,
+)
 from meteostat.utils.parsers import (
     parse_month,
     parse_parameters,

@@ -192,5 +192,11 @@ def fetch_ts(
 
     # Return final time series
     return TimeSeries(
-        granularity, included_providers, stations_to_df(included_stations), df, start, end, timezone
+        granularity,
+        included_providers,
+        stations_to_df(included_stations),
+        df,
+        start,
+        end,
+        timezone,
     )

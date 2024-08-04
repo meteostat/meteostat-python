@@ -23,7 +23,7 @@ MODULE_PATH = "meteostat.cache"
 settings: SettingsDict = {
     "cache_dir": "meteostat/cache",
     "cache_ttl_min": 10,
-    "cache_ttl_max": 100
+    "cache_ttl_max": 100,
 }
 
 
@@ -206,7 +206,9 @@ def test_is_stale(mocker):
     mocker.patch("time.time", return_value=2000)
     mocker.patch(f"{MODULE_PATH}.settings", settings)
 
-    expected_ttl = min(max(test_ttl, settings["cache_ttl_min"]), settings["cache_ttl_max"])
+    expected_ttl = min(
+        max(test_ttl, settings["cache_ttl_min"]), settings["cache_ttl_max"]
+    )
 
     assert is_stale(test_path, test_ttl) == (2000 - 1000 > expected_ttl)
 

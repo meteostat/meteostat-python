@@ -63,13 +63,16 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
 
     return round(radius * arch_sin)
 
+
 def get_provider_priority(providers: List[ProviderDict]) -> Priority:
     """
     A factory function for getting the provider priority
     """
 
     def _get_prio(id: str):
-        provider = next((provider for provider in providers if provider["id"] == id),None)
+        provider = next(
+            (provider for provider in providers if provider["id"] == id), None
+        )
         return Priority.LOWEST if not provider else provider["priority"]
 
     return _get_prio

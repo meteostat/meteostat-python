@@ -14,7 +14,12 @@ from typing import List, Optional, Union
 import pandas as pd
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.model import PROVIDER_BULK_DAILY, PROVIDER_BULK_DAILY_DERIVED, PROVIDER_DWD_DAILY, PROVIDER_GHCND
+from meteostat.model import (
+    PROVIDER_BULK_DAILY,
+    PROVIDER_BULK_DAILY_DERIVED,
+    PROVIDER_DWD_DAILY,
+    PROVIDER_GHCND,
+)
 from meteostat.utils.parsers import (
     parse_parameters,
     parse_providers,

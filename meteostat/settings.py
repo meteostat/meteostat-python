@@ -18,8 +18,9 @@ settings: SettingsDict = {
         "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/locations.csv.gz",
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/locations.csv.gz",
     ],
-    "bulk_load_sources": False
+    "bulk_load_sources": False,
 }
+
 
 def env(prefix="MS") -> None:
     """

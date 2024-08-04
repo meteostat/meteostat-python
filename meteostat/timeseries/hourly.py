@@ -13,7 +13,14 @@ from datetime import datetime, date
 import pandas as pd
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.model import PROVIDER_BULK_HOURLY, PROVIDER_DWD_HOURLY, PROVIDER_ISD_LITE, PROVIDER_METAR, PROVIDER_MODEL, PROVIDER_SYNOP
+from meteostat.model import (
+    PROVIDER_BULK_HOURLY,
+    PROVIDER_DWD_HOURLY,
+    PROVIDER_ISD_LITE,
+    PROVIDER_METAR,
+    PROVIDER_MODEL,
+    PROVIDER_SYNOP,
+)
 from meteostat.utils.parsers import (
     parse_parameters,
     parse_providers,

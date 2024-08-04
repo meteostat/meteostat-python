@@ -43,7 +43,7 @@ def parse_providers(
         map(lambda p: p if isinstance(p, Provider) else Provider[p], requested)
     )
     # Get difference between providers and supported providers
-    diff = set(providers).difference([provider['id'] for provider in supported])
+    diff = set(providers).difference([provider["id"] for provider in supported])
     # Log warning
     if len(diff):
         raise ValueError(
