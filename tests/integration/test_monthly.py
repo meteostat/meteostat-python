@@ -4,6 +4,45 @@ import os
 import pandas as pd
 import meteostat as ms
 
+def test_monthly(mocker):
+    """
+    It uses daily data to aggregate monthly averages
+    """
+    mock_fetch = mocker.patch("meteostat.providers.bulk.monthly.fetch")
+
+    mock_fetch.return_value = pd.read_pickle(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..",
+            "fixtures",
+            "df_monthly.pickle",
+        )
+    )
+    ts = ms.monthly(
+        "01001",
+        date(2022, 1, 1),
+        date(2022, 12, 31),
+    )
+    df = ts.fetch()
+
+    assert len(df) == 12
+    assert df.iloc[0]["tavg"] == -3.4
+
+
+def test_monthly_none(mocker):
+    """
+    It returns None if daily data provider returns an empty DataFrame
+    """
+    mock_fetch = mocker.patch("meteostat.providers.bulk.monthly.fetch")
+    mock_fetch.return_value = pd.DataFrame()
+    ts = ms.monthly(
+        "01001",
+        date(2022, 1, 1),
+        date(2022, 12, 31),
+    )
+    assert ts.fetch() is None
+
+
 
 def test_monthly_derived(mocker):
     """
