@@ -42,6 +42,25 @@ PARAMETER_DESCRIPTIONS = {
     Parameter.COCO: "Weather Condition Code",
 }
 
+PARAMETER_DECIMALS = {
+    Parameter.TEMP: 1,
+    Parameter.TAVG: 1,
+    Parameter.TMIN: 1,
+    Parameter.TMAX: 1,
+    Parameter.RHUM: 0,
+    Parameter.DWPT: 1,
+    Parameter.PRCP: 1,
+    Parameter.SNOW: 0,
+    Parameter.SNWD: 0,
+    Parameter.WDIR: 0,
+    Parameter.WSPD: 1,
+    Parameter.WPGT: 1,
+    Parameter.PRES: 1,
+    Parameter.TSUN: 0,
+    Parameter.CLDC: 0,
+    Parameter.VSBY: 0,   
+}
+
 PROVIDER_BULK_HOURLY = ProviderDict(
     id=Provider.BULK_HOURLY,
     granularity=Granularity.HOURLY,

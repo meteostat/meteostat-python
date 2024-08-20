@@ -118,3 +118,6 @@ def parse_month(
     last_day = calendar.monthrange(value.year, value.month)[1]
 
     return datetime.date(value.year, value.month, last_day if is_end else 1)
+
+def parse_year(year: int, is_end: bool = False) -> datetime.date:
+    return datetime.date(year, 12, 31) if is_end else datetime.date(year, 1, 1)

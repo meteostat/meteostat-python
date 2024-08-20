@@ -19,6 +19,7 @@ class Granularity(StrEnum):
     HOURLY = "hourly"
     DAILY = "daily"
     MONTHLY = "monthly"
+    NORMALS = "normals"
 
 
 class Parameter(StrEnum):

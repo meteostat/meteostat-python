@@ -24,6 +24,7 @@ from meteostat.point import Point
 from meteostat.timeseries.hourly import hourly
 from meteostat.timeseries.daily import daily
 from meteostat.timeseries.monthly import monthly
+from meteostat.timeseries.normals import normals
 from meteostat import units, interpolate
 
 __all__ = [
@@ -38,6 +39,7 @@ __all__ = [
     "hourly",
     "daily",
     "monthly",
+    "normals",
     "units",
     "interpolate",
     "purge_cache",
