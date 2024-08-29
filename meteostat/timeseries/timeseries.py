@@ -60,6 +60,9 @@ class TimeSeries:
         return len(self._df) if self._df is not None else 0
 
     def __str__(self) -> str:
+        """
+        Return a stringified version of the DataFrame
+        """
         return self._df.__str__() if self._df is not None else "Empty time series"
 
     @property
@@ -99,13 +102,18 @@ class TimeSeries:
             get_provider_priority(self.providers)
         )
 
-        return (
+        df = (
             df.sort_values(by="source_prio", ascending=False)
             .groupby(["station", "time"])
             .agg(lambda s: get_index(pd.Series.first_valid_index(s), 2))
             .drop("source_prio", axis=1)
             .convert_dtypes()
         )
+
+        if self.granularity is Granularity.NORMALS:
+            df = df.rename_axis(index={'time': 'month'})
+        
+        return df
 
     def apply(
         self,
@@ -172,6 +180,9 @@ class TimeSeries:
 
         if self.timezone:
             df = localize(df, self.timezone)
+
+        if self.granularity is Granularity.NORMALS:
+            df = df.rename_axis(index={'time': 'month'})
 
         return df.sort_index()
 
