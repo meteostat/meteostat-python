@@ -18,6 +18,7 @@ from meteostat.model import (
     PROVIDER_BULK_MONTHLY,
     PROVIDER_BULK_MONTHLY_DERIVED,
     PROVIDER_DWD_MONTHLY,
+    PROVIDER_ECCC_MONTHLY,
 )
 from meteostat.utils.parsers import (
     parse_month,
@@ -30,11 +31,14 @@ from meteostat.utils.parsers import (
 
 SUPPORTED_PROVIDERS = [
     PROVIDER_DWD_MONTHLY,
+    PROVIDER_ECCC_MONTHLY,
     PROVIDER_BULK_MONTHLY,
     PROVIDER_BULK_MONTHLY_DERIVED,
 ]
 SUPPORTED_PARAMETERS = [
     Parameter.TAVG,
+    Parameter.TAMN,
+    Parameter.TAMX,
     Parameter.TMIN,
     Parameter.TMAX,
     Parameter.PRCP,
@@ -43,6 +47,8 @@ SUPPORTED_PARAMETERS = [
 ]
 DEFAULT_PARAMETERS = [
     Parameter.TAVG,
+    Parameter.TAMN,
+    Parameter.TAMX,
     Parameter.TMIN,
     Parameter.TMAX,
     Parameter.PRCP,

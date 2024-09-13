@@ -12,23 +12,26 @@ from io import BytesIO
 from typing import Optional
 from zipfile import ZipFile
 import pandas as pd
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
-from meteostat.utils.converters import ms_to_kmh, pres_to_msl
+from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_ftp_connection
 
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/monthly/kl/"
-USECOLS = [1, 4, 5, 6, 7, 10, 12, 14]  # CSV cols which should be read
+USECOLS = [1, 4, 5, 6, 7, 9, 10, 11, 12, 14]  # CSV cols which should be read
 PARSE_DATES = {"time": [0]}  # Which columns should be parsed as dates?
 NAMES = {
-    "MO_N": "cldc",
-    "MO_TT": "tavg",
-    "MO_TX": "tmax",
-    "MO_TN": "tmin",
-    "MX_FX": "wpgt",
-    "MO_SD_S": "tsun",
-    "MO_RR": "prcp",
+    "MO_N": Parameter.CLDC,
+    "MO_TT": Parameter.TAVG,
+    "MO_TX": Parameter.TAMX,
+    "MO_TN": Parameter.TAMN,
+    "MX_TX": Parameter.TMAX,
+    "MX_TN": Parameter.TMIN,
+    "MX_FX": Parameter.WPGT,
+    "MO_SD_S": Parameter.TSUN,
+    "MO_RR": Parameter.PRCP,
 }
 
 
@@ -49,7 +52,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
     return match
 
 
-@cache(60 * 60 * 24 * 7, "pickle")
+@cache(TTL.WEEK, "pickle")
 def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame

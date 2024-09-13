@@ -19,6 +19,8 @@ settings: SettingsDict = {
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/locations.csv.gz",
     ],
     "bulk_load_sources": False,
+    "point_radius": 50000,
+    "point_stations": 4,
 }
 
 

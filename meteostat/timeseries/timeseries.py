@@ -111,8 +111,8 @@ class TimeSeries:
         )
 
         if self.granularity is Granularity.NORMALS:
-            df = df.rename_axis(index={'time': 'month'})
-        
+            df = df.rename_axis(index={"time": "month"})
+
         return df
 
     def apply(
@@ -182,7 +182,7 @@ class TimeSeries:
             df = localize(df, self.timezone)
 
         if self.granularity is Granularity.NORMALS:
-            df = df.rename_axis(index={'time': 'month'})
+            df = df.rename_axis(index={"time": "month"})
 
         return df.sort_index()
 

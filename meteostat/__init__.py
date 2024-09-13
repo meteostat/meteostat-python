@@ -25,6 +25,7 @@ from meteostat.timeseries.hourly import hourly
 from meteostat.timeseries.daily import daily
 from meteostat.timeseries.monthly import monthly
 from meteostat.timeseries.normals import normals
+from meteostat.concat import concat
 from meteostat import units, interpolate
 
 __all__ = [
@@ -43,4 +44,5 @@ __all__ = [
     "units",
     "interpolate",
     "purge_cache",
+    "concat",
 ]

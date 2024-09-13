@@ -27,9 +27,11 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     try:
         df = pd.read_csv(file_url, sep=",", compression="gzip")
         time_cols = df.columns[0:2]
-        df['date'] = df['year'].astype(str) + '-' + df['month'].astype(str).str.zfill(2) + '-01'
-        df["time"] = pd.to_datetime(df['date'])
-        return df.drop(time_cols, axis=1).drop('date', axis=1).set_index("time")
+        df["date"] = (
+            df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2) + "-01"
+        )
+        df["time"] = pd.to_datetime(df["date"])
+        return df.drop(time_cols, axis=1).drop("date", axis=1).set_index("time")
 
     except HTTPError as error:
         logger.info(
@@ -52,9 +54,11 @@ def get_source_df(station: str) -> Optional[pd.DataFrame]:
     try:
         df = pd.read_csv(file_url, sep=",", compression="gzip")
         time_cols = df.columns[0:2]
-        df['date'] = df['year'].astype(str) + '-' + df['month'].astype(str).str.zfill(2) + '-01'
-        df["time"] = pd.to_datetime(df['date'])
-        return df.drop(time_cols, axis=1).drop('date', axis=1).set_index("time")
+        df["date"] = (
+            df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2) + "-01"
+        )
+        df["time"] = pd.to_datetime(df["date"])
+        return df.drop(time_cols, axis=1).drop("date", axis=1).set_index("time")
 
     except HTTPError as error:
         logger.info(

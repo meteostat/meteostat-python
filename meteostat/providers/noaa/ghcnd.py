@@ -11,6 +11,7 @@ from ftplib import FTP
 from typing import Optional
 from numpy import nan
 import pandas as pd
+from meteostat.enumerations import TTL
 from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
@@ -188,7 +189,7 @@ def dly_to_df(ftp, station_id):
     return df_all
 
 
-@cache(60 * 60 * 24, "pickle")
+@cache(TTL.DAY, "pickle")
 def get_df(station: str) -> pd.DataFrame:
     ftp = connect_to_ftp()
     df = dly_to_df(ftp, station)

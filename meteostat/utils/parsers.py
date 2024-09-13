@@ -19,11 +19,19 @@ from meteostat.typing import ProviderDict, StationDict
 
 
 def parse_station(
-    station: str | List[str] | pd.Index | pd.Series,
+    station: str | StationDict | List[str | StationDict] | pd.Index | pd.Series,
 ) -> List[StationDict]:
+    """
+    Parse one or multiple station(s) or a geo point
+    """
+    if isinstance(station, dict):
+        return [station]
+
     data = []
 
     for s in [station] if isinstance(station, str) else list(station):
+        if isinstance(s, dict):
+            data.append(s)
         meta = ms.station(s)
         if meta is None:
             raise ValueError(f'Weather station with ID "{s}" could not be found')
@@ -118,6 +126,7 @@ def parse_month(
     last_day = calendar.monthrange(value.year, value.month)[1]
 
     return datetime.date(value.year, value.month, last_day if is_end else 1)
+
 
 def parse_year(year: int, is_end: bool = False) -> datetime.date:
     return datetime.date(year, 12, 31) if is_end else datetime.date(year, 1, 1)

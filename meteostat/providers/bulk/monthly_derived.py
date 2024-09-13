@@ -29,9 +29,29 @@ def monthly_sum(group: pd.Series):
     return group.sum()
 
 
+def monthly_min(group: pd.Series):
+    """
+    Calculate the absolute minimum from a series of daily data
+    """
+    if group.isna().sum() > 0:
+        return np.nan
+    return group.interpolate(axis=0).min()
+
+
+def monthly_max(group: pd.Series):
+    """
+    Calculate the absolute maximum from a series of daily data
+    """
+    if group.isna().sum() > 0:
+        return np.nan
+    return group.interpolate(axis=0).max()
+
+
 # Available parameters with source column and aggregation method
 PARAMETER_AGGS = {
     Parameter.TAVG: monthly_mean,
+    Parameter.TAMN: monthly_min,
+    Parameter.TAMX: monthly_max,
     Parameter.TMIN: monthly_mean,
     Parameter.TMAX: monthly_mean,
     Parameter.PRCP: monthly_sum,

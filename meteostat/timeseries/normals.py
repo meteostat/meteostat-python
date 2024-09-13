@@ -22,17 +22,19 @@ from meteostat.utils.parsers import (
     parse_year,
 )
 
+
 def normals(
     station: str | List[str] | pd.Index | pd.Series,
     start: int = 1961,
     end: int = 1990,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
     providers: List[Provider | str] = [Provider.BULK_MONTHLY],
-    max_missing: int = 3
+    max_missing: int = 3,
 ):
     """
     Retrieve climate normals data
     """
+
     def _mean(group: pd.Series):
         """
         Calculate the monthly mean from multiple years of monthly data
@@ -40,35 +42,30 @@ def normals(
         if group.isna().sum() > max_missing:
             return np.nan
         return group.mean()
-    
+
     ts = monthly(
-        station,
-        parse_year(start),
-        parse_year(end, True),
-        parameters,
-        providers
+        station, parse_year(start), parse_year(end, True), parameters, providers
     )
 
     df = ts.fetch()
     sources = ts.sourcemap
 
-    df['month'] = df.index.get_level_values('time').month
-    sources['month'] = df.index.get_level_values('time').month
-    
+    df["month"] = df.index.get_level_values("time").month
+    sources["month"] = df.index.get_level_values("time").month
 
-    df = df.groupby(['station', 'month']).agg(_mean)
-    sources = sources.groupby(['station', 'month']).agg(aggregate_sources)
+    df = df.groupby(["station", "month"]).agg(_mean)
+    sources = sources.groupby(["station", "month"]).agg(aggregate_sources)
 
     for col in df.columns:
         if col in PARAMETER_DECIMALS:
             df[col] = df[col].round(PARAMETER_DECIMALS[col])
 
-    df = df.rename_axis(index={'month': 'time'})
-    sources = sources.rename_axis(index={'month': 'time'})
+    df = df.rename_axis(index={"month": "time"})
+    sources = sources.rename_axis(index={"month": "time"})
 
     df_fragments = []
 
-    for s in df.index.get_level_values('station').unique():
+    for s in df.index.get_level_values("station").unique():
         fragment = reshape_by_source(df.loc[s], sources.loc[s])
         fragment = pd.concat([fragment], keys=[s], names=["station"])
         df_fragments.append(fragment)

@@ -3,6 +3,7 @@ from typing import Optional, Union
 from urllib.error import HTTPError
 from numpy import isnan
 import pandas as pd
+from meteostat.enumerations import TTL
 from meteostat.logger import logger
 from meteostat.utils.decorators import cache
 from meteostat.typing import QueryDict
@@ -40,7 +41,7 @@ def get_ttl(_usaf: str, _wban: str, year: int) -> int:
     Else = 30 days
     """
     current_year = datetime.now().year
-    return 60 * 60 * 24 if current_year - year < 2 else 60 * 60 * 24 * 30
+    return TTL.DAY if current_year - year < 2 else TTL.MONTH
 
 
 @cache(get_ttl, "pickle")

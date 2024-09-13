@@ -27,26 +27,29 @@ class Parameter(StrEnum):
     The different meteorological parameters supported by Meteostat
     """
 
-    TEMP = "temp"  # Hourly
-    TAVG = "tavg"  # Daily
-    TMIN = "tmin"  # Daily
-    TMAX = "tmax"  # Daily
-    DWPT = "dwpt"  # Hourly
-    PRCP = "prcp"  # Hourly, daily
-    WDIR = "wdir"  # Hourly, daily
-    WSPD = "wspd"  # Hourly, daily (avg)
-    WPGT = "wpgt"  # Hourly, daily
-    RHUM = "rhum"  # Hourly, daily (avg)
-    PRES = "pres"  # Hourly, daily (avg)
-    SNWD = "snwd"  # Hourly, daily (max)
-    SNOW = "snow"  # Hourly, daily (max)
-    TSUN = "tsun"  # Hourly, daily
-    SGHI = "sghi"  # Hourly, daily
-    SDNI = "sdni"  # Hourly, daily
-    SDHI = "sdhi"  # Hourly, daily
-    CLDC = "cldc"  # Hourl, daily
-    VSBY = "vsby"  # Hourly, daily
-    COCO = "coco"  # Hourly
+    TEMP = "temp"  # Air temperature at time of observation
+    TAVG = "tavg"  # Average air temperature
+    TMIN = "tmin"  # Absolute minimum air temperature
+    TMAX = "tmax"  # Absolute maximum air temperature
+    TAMN = "tamn"  # Average minimum air temperature
+    TAMX = "tamx"  # Average maximum air temperature
+    DWPT = "dwpt"  # Dew point (aggregation: mean)
+    PRCP = "prcp"  # Precipitation (aggregation: sum)
+    PDAY = "pday"  # Days with precipitation equal to or greater than 1 millimeter
+    WDIR = "wdir"  # Wind direction at observation time
+    WSPD = "wspd"  # Wind speed (aggregation: mean)
+    WPGT = "wpgt"  # Peak wind gust (aggregation: max)
+    RHUM = "rhum"  # Relative humidity (aggregation: mean)
+    PRES = "pres"  # Air pressure at MSL (aggregation: mean)
+    SNWD = "snwd"  # Snow depth on ground
+    SNOW = "snow"  # Snowfall (aggregation: sum)
+    TSUN = "tsun"  # Sunshine duration (aggregation: sum)
+    SGHI = "sghi"  # TBD
+    SDNI = "sdni"  # TBD
+    SDHI = "sdhi"  # TBD
+    CLDC = "cldc"  # Cloud cover (aggregation: mean)
+    VSBY = "vsby"  # Visibility (aggregation: mean)
+    COCO = "coco"  # Weather condition code at time of observation
 
 
 class Provider(StrEnum):
@@ -59,6 +62,10 @@ class Provider(StrEnum):
     DWD_HOURLY = "dwd_hourly"
     DWD_DAILY = "dwd_daily"
     DWD_MONTHLY = "dwd_monthly"
+    ECCC_HOURLY = "eccc_hourly"
+    ECCC_DAILY = "eccc_daily"
+    ECCC_MONTHLY = "eccc_monthly"
+    METNO_FORECAST = "metno_forecast"
     SYNOP = "synop"
     METAR = "metar"
     MODEL = "model"
@@ -71,8 +78,23 @@ class Provider(StrEnum):
 
 
 class Priority(IntEnum):
+    """
+    Provider priorities
+    """
+
     HIGHEST = 5
     HIGH = 4
     MEDIUM = 3
     LOW = 2
     LOWEST = 1
+
+
+class TTL(IntEnum):
+    """
+    Cache TTLs
+    """
+
+    HOUR = 60 * 60
+    DAY = 60 * 60 * 24
+    WEEK = 60 * 60 * 24 * 7
+    MONTH = 60 * 60 * 24 * 30

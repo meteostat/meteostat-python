@@ -7,9 +7,12 @@ PARAMETER_DTYPES = {
     Parameter.TAVG: "Float64",
     Parameter.TMIN: "Float64",
     Parameter.TMAX: "Float64",
+    Parameter.TAMN: "Float64",
+    Parameter.TAMX: "Float64",
     Parameter.RHUM: "Int64",
     Parameter.DWPT: "Float64",
     Parameter.PRCP: "Float64",
+    Parameter.PDAY: "Int64",
     Parameter.SNOW: "Int64",
     Parameter.SNWD: "Int64",
     Parameter.WDIR: "Int64",
@@ -47,9 +50,12 @@ PARAMETER_DECIMALS = {
     Parameter.TAVG: 1,
     Parameter.TMIN: 1,
     Parameter.TMAX: 1,
+    Parameter.TAMN: 1,
+    Parameter.TAMX: 1,
     Parameter.RHUM: 0,
     Parameter.DWPT: 1,
     Parameter.PRCP: 1,
+    Parameter.PDAY: 0,
     Parameter.SNOW: 0,
     Parameter.SNWD: 0,
     Parameter.WDIR: 0,
@@ -58,7 +64,7 @@ PARAMETER_DECIMALS = {
     Parameter.PRES: 1,
     Parameter.TSUN: 0,
     Parameter.CLDC: 0,
-    Parameter.VSBY: 0,   
+    Parameter.VSBY: 0,
 }
 
 PROVIDER_BULK_HOURLY = ProviderDict(
@@ -186,6 +192,58 @@ PROVIDER_DWD_MONTHLY = ProviderDict(
     module="meteostat.providers.dwd.monthly",
 )
 
+PROVIDER_ECCC_HOURLY = ProviderDict(
+    id=Provider.ECCC_HOURLY,
+    granularity=Granularity.HOURLY,
+    priority=Priority.HIGHEST,
+    countries=["CA"],
+    parameters=[
+        Parameter.TEMP,
+        Parameter.RHUM,
+        Parameter.PRCP,
+        Parameter.WDIR,
+        Parameter.WSPD,
+        Parameter.VSBY,
+    ],
+    start=date(1939, 1, 1),
+    module="meteostat.providers.eccc.hourly",
+)
+
+PROVIDER_ECCC_DAILY = ProviderDict(
+    id=Provider.ECCC_DAILY,
+    granularity=Granularity.DAILY,
+    priority=Priority.HIGHEST,
+    countries=["CA"],
+    parameters=[
+        Parameter.TAVG,
+        Parameter.TMIN,
+        Parameter.TMAX,
+        Parameter.PRCP,
+        Parameter.SNOW,
+        Parameter.SNWD,
+        Parameter.WPGT,
+    ],
+    start=date(1939, 1, 1),
+    module="meteostat.providers.eccc.daily",
+)
+
+PROVIDER_ECCC_MONTHLY = ProviderDict(
+    id=Provider.ECCC_MONTHLY,
+    granularity=Granularity.MONTHLY,
+    priority=Priority.HIGHEST,
+    countries=["CA"],
+    parameters=[
+        Parameter.TAVG,
+        Parameter.TMIN,
+        Parameter.TMAX,
+        Parameter.PRCP,
+        Parameter.PDAY,
+        Parameter.SNOW,
+    ],
+    start=date(1939, 1, 1),
+    module="meteostat.providers.eccc.monthly",
+)
+
 PROVIDER_ISD_LITE = ProviderDict(
     id=Provider.ISD_LITE,
     granularity=Granularity.HOURLY,
@@ -275,4 +333,23 @@ PROVIDER_MODEL = ProviderDict(
     ],
     start=date(2015, 8, 7),
     module="meteostat.providers.meteostat.model",
+)
+
+PROVIDER_METNO_FORECAST = ProviderDict(
+    id=Provider.METNO_FORECAST,
+    granularity=Granularity.HOURLY,
+    priority=Priority.LOWEST,
+    parameters=[
+        Parameter.TEMP,
+        Parameter.RHUM,
+        Parameter.PRCP,
+        Parameter.WDIR,
+        Parameter.WSPD,
+        Parameter.WPGT,
+        Parameter.PRES,
+        Parameter.CLDC,
+        Parameter.COCO,
+    ],
+    start=date.today(),
+    module="meteostat.providers.metno.forecast",
 )

@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import meteostat as ms
 
+
 def test_monthly(mocker):
     """
     It uses daily data to aggregate monthly averages
@@ -41,7 +42,6 @@ def test_monthly_none(mocker):
         date(2022, 12, 31),
     )
     assert ts.fetch() is None
-
 
 
 def test_monthly_derived(mocker):

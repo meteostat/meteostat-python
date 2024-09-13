@@ -18,6 +18,7 @@ from meteostat.model import (
     PROVIDER_BULK_DAILY,
     PROVIDER_BULK_DAILY_DERIVED,
     PROVIDER_DWD_DAILY,
+    PROVIDER_ECCC_DAILY,
     PROVIDER_GHCND,
 )
 from meteostat.utils.parsers import (
@@ -30,6 +31,7 @@ from meteostat.utils.parsers import (
 
 SUPPORTED_PROVIDERS = [
     PROVIDER_DWD_DAILY,
+    PROVIDER_ECCC_DAILY,
     PROVIDER_GHCND,
     PROVIDER_BULK_DAILY_DERIVED,
     PROVIDER_BULK_DAILY,

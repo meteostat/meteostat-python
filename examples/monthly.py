@@ -1,5 +1,7 @@
 from datetime import date
 import logging
+
+from matplotlib import pyplot as plt
 import meteostat as ms
 
 logging.basicConfig(
@@ -9,9 +11,11 @@ logging.basicConfig(
 ms.settings["bulk_load_sources"] = True
 
 ts = ms.monthly(
-    "01001",
-    date(2022, 1, 1),
-    date(2022, 12, 31),
+    "10637",
+    date(2023, 1, 1),
+    date(2023, 12, 31),
+    providers=[ms.Provider.DWD_MONTHLY],
 )
 
-print(ts.fetch(squash=False))
+ts.fetch()[["tmin", "tmax", "tamn", "tamx"]].plot()
+plt.show()

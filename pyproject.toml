@@ -23,6 +23,10 @@ types-requests = "^2.31.0.20240106"
 types-pytz = "^2023.3.1.1"
 pytest-mock = "^3.14.0"
 
+
+[tool.poetry.group.extras.dependencies]
+matplotlib = "^3.9.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

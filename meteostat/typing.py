@@ -48,3 +48,5 @@ class SettingsDict(TypedDict):
     station_mirrors: List[str]
     location_mirrors: List[str]
     bulk_load_sources: bool
+    point_radius: int
+    point_stations: int
