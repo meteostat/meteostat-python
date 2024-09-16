@@ -70,11 +70,11 @@ class Provider(StrEnum):
     METAR = "metar"
     MODEL = "model"
 
-    BULK_HOURLY = "bulk_hourly"
-    BULK_DAILY = "bulk_daily"
-    BULK_DAILY_DERIVED = "bulk_daily_derived"
-    BULK_MONTHLY = "bulk_monthly"
-    BULK_MONTHLY_DERIVED = "bulk_monthly_derived"
+    HOURLY = "hourly"
+    DAILY = "daily"
+    DAILY_DERIVED = "daily_derived"
+    MONTHLY = "monthly"
+    MONTHLY_DERIVED = "monthly_derived"
 
 
 class Priority(IntEnum):

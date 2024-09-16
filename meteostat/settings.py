@@ -18,7 +18,7 @@ settings: SettingsDict = {
         "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/locations.csv.gz",
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/locations.csv.gz",
     ],
-    "bulk_load_sources": False,
+    "load_sources": False,
     "point_radius": 50000,
     "point_stations": 4,
 }

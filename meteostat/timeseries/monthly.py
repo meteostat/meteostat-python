@@ -15,8 +15,8 @@ import pandas as pd
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.model import (
-    PROVIDER_BULK_MONTHLY,
-    PROVIDER_BULK_MONTHLY_DERIVED,
+    PROVIDER_MONTHLY,
+    PROVIDER_MONTHLY_DERIVED,
     PROVIDER_DWD_MONTHLY,
     PROVIDER_ECCC_MONTHLY,
 )
@@ -32,8 +32,8 @@ from meteostat.utils.parsers import (
 SUPPORTED_PROVIDERS = [
     PROVIDER_DWD_MONTHLY,
     PROVIDER_ECCC_MONTHLY,
-    PROVIDER_BULK_MONTHLY,
-    PROVIDER_BULK_MONTHLY_DERIVED,
+    PROVIDER_MONTHLY,
+    PROVIDER_MONTHLY_DERIVED,
 ]
 SUPPORTED_PARAMETERS = [
     Parameter.TAVG,
@@ -62,7 +62,7 @@ def monthly(
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = [Provider.BULK_MONTHLY],
+    providers: List[Provider | str] = [Provider.MONTHLY],
     lite=True,
 ):
     """

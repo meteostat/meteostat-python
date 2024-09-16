@@ -28,7 +28,7 @@ def normals(
     start: int = 1961,
     end: int = 1990,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = [Provider.BULK_MONTHLY],
+    providers: List[Provider | str] = [Provider.MONTHLY],
     max_missing: int = 3,
 ):
     """

@@ -9,7 +9,7 @@ def test_hourly(mocker):
     """
     It returns a filtered DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.hourly.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.hourly.fetch")
 
     mock_fetch.return_value = pd.read_pickle(
         os.path.join(
@@ -30,7 +30,7 @@ def test_hourly_timezone(mocker):
     """
     It should consider the timezone when filtering the DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.hourly.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.hourly.fetch")
 
     mock_fetch.return_value = pd.read_pickle(
         os.path.join(
@@ -56,7 +56,7 @@ def test_hourly_none(mocker):
     """
     It returns None if provider returns an empty DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.hourly.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.hourly.fetch")
     mock_fetch.return_value = pd.DataFrame()
     ts = ms.hourly("10637", datetime(2024, 1, 1, 15), datetime(2024, 1, 1, 17))
     assert ts.fetch() is None

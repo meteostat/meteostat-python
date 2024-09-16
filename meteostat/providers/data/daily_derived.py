@@ -65,8 +65,8 @@ PARAMETER_AGGS = {
 
 def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     """
-    Fetch hourly weather data from Meteostat's bulk interface and
-    aggregate to daily granularity
+    Fetch hourly weather data from Meteostat's central data
+    repository and aggregate to daily granularity
     """
     # Get all source columns
     source_cols = list(
@@ -78,7 +78,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         query["start"],
         query["end"],
         parameters=source_cols,
-        providers=[Provider.BULK_HOURLY],
+        providers=[Provider.HOURLY],
         timezone=query["station"]["timezone"],
     )
     df_hourly = ts_hourly.fetch(fill=True)
@@ -97,7 +97,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     df.index = pd.to_datetime(df.index.date)
     df.index.name = "time"
     # Update data sources if desired
-    if settings["bulk_load_sources"]:
+    if settings["load_sources"]:
         df_sources = ts_hourly.sourcemap
         # Add missing columns
         for key, value in PARAMETER_AGGS.items():

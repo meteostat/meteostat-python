@@ -8,14 +8,15 @@ logging.basicConfig(
     level=logging.INFO, format="%(levelname)s [%(filename)s:%(lineno)s] %(message)s"
 )
 
-ms.settings["bulk_load_sources"] = True
+# ms.settings["load_sources"] = True
 
 ts = ms.monthly(
     "10637",
-    date(2023, 1, 1),
-    date(2023, 12, 31),
-    providers=[ms.Provider.DWD_MONTHLY],
+    date(2022, 1, 1),
+    date(2022, 12, 31),
+    providers=[ms.Provider.MONTHLY_DERIVED],
 )
 
-ts.fetch()[["tmin", "tmax", "tamn", "tamx"]].plot()
+print(ts.fetch())
+exit()
 plt.show()

@@ -16,7 +16,7 @@ from meteostat.settings import settings
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.model import (
-    PROVIDER_BULK_HOURLY,
+    PROVIDER_HOURLY,
     PROVIDER_DWD_HOURLY,
     PROVIDER_ECCC_HOURLY,
     PROVIDER_ISD_LITE,
@@ -44,7 +44,7 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_SYNOP,
     PROVIDER_METAR,
     PROVIDER_MODEL,
-    PROVIDER_BULK_HOURLY,
+    PROVIDER_HOURLY,
     PROVIDER_METNO_FORECAST,
 ]
 SUPPORTED_PARAMETERS = [
@@ -84,7 +84,7 @@ def hourly(
     end: Optional[Union[datetime, date]] = None,
     timezone: Optional[str] = None,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = [Provider.BULK_HOURLY],
+    providers: List[Provider | str] = [Provider.HOURLY],
     lite=True,
 ):
     """

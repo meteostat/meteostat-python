@@ -3,10 +3,10 @@ import meteostat as ms
 
 START = date(date.today().year - 3, 1, 1)
 END = date.today()
-PROVIDERS = [ms.Provider.GHCND, ms.Provider.DWD_DAILY, ms.Provider.BULK_DAILY_DERIVED]
+PROVIDERS = [ms.Provider.GHCND, ms.Provider.DWD_DAILY, ms.Provider.DAILY_DERIVED]
 
 
-def test_bulk_daily():
+def test_data_daily():
     ms.settings["cache_enable"] = False
 
     ts = ms.daily("01001", start=START, end=END, providers=PROVIDERS, lite=False)

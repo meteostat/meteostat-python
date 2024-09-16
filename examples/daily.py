@@ -5,13 +5,13 @@ import meteostat as ms
 logging.basicConfig(
     level=logging.INFO, format="%(levelname)s [%(filename)s:%(lineno)s] %(message)s"
 )
-ms.settings["bulk_load_sources"] = True
+ms.settings["load_sources"] = True
 
 ts = ms.daily(
     "01001",
     datetime(2020, 1, 5),
     datetime(2020, 1, 10),
-    providers=[ms.Provider.BULK_DAILY],
+    providers=[ms.Provider.DAILY],
 )
 print(ts)
 exit()

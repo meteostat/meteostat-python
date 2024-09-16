@@ -9,7 +9,7 @@ def test_daily(mocker):
     """
     It returns a filtered DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.daily.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.daily.fetch")
 
     mock_fetch.return_value = pd.read_pickle(
         os.path.join(
@@ -30,7 +30,7 @@ def test_daily_none(mocker):
     """
     It returns None if provider returns an empty DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.daily.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.daily.fetch")
     mock_fetch.return_value = pd.DataFrame()
     ts = ms.daily("10637", datetime(2024, 1, 1), datetime(2024, 1, 5))
     assert ts.fetch() is None

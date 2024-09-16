@@ -9,7 +9,7 @@ def test_monthly(mocker):
     """
     It uses daily data to aggregate monthly averages
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.monthly.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.monthly.fetch")
 
     mock_fetch.return_value = pd.read_pickle(
         os.path.join(
@@ -34,7 +34,7 @@ def test_monthly_none(mocker):
     """
     It returns None if daily data provider returns an empty DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.monthly.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.monthly.fetch")
     mock_fetch.return_value = pd.DataFrame()
     ts = ms.monthly(
         "01001",
@@ -48,7 +48,7 @@ def test_monthly_derived(mocker):
     """
     It uses daily data to aggregate monthly averages
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.daily.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.daily.fetch")
 
     mock_fetch.return_value = pd.read_pickle(
         os.path.join(
@@ -62,7 +62,7 @@ def test_monthly_derived(mocker):
         "10637",
         date(2022, 1, 1),
         date(2022, 12, 31),
-        providers=[ms.Provider.BULK_MONTHLY_DERIVED],
+        providers=[ms.Provider.MONTHLY_DERIVED],
     )
     df = ts.fetch()
 
@@ -74,12 +74,12 @@ def test_monthly_derived_none(mocker):
     """
     It returns None if daily data provider returns an empty DataFrame
     """
-    mock_fetch = mocker.patch("meteostat.providers.bulk.daily.fetch")
+    mock_fetch = mocker.patch("meteostat.providers.data.daily.fetch")
     mock_fetch.return_value = pd.DataFrame()
     ts = ms.monthly(
         "10637",
         date(2022, 1, 1),
         date(2022, 12, 31),
-        providers=[ms.Provider.BULK_MONTHLY_DERIVED],
+        providers=[ms.Provider.MONTHLY_DERIVED],
     )
     assert ts.fetch() is None

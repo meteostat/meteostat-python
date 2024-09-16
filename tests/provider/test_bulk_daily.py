@@ -1,10 +1,10 @@
 from datetime import datetime
 from meteostat import settings
-from meteostat.providers.bulk.daily import fetch
+from meteostat.providers.data.daily import fetch
 from meteostat.typing import QueryDict
 
 
-def test_bulk_daily():
+def test_data_daily():
     settings["cache_enable"] = False
 
     query: QueryDict = {

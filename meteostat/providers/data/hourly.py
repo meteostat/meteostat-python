@@ -13,7 +13,7 @@ from meteostat.utils.decorators import cache
 from meteostat.utils.mutations import reshape_by_source
 
 
-ENDPOINT = "https://bulk.meteostat.net/daily/{year}/{station}"
+ENDPOINT = "https://bulk.meteostat.net/hourly/{year}/{station}"
 ENDPOINT_DATA = f"{ENDPOINT}.csv.gz"
 ENDPOINT_MAP = f"{ENDPOINT}.map.csv.gz"
 
@@ -38,13 +38,13 @@ def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
 
     try:
         df = pd.read_csv(file_url, sep=",", compression="gzip")
-        time_cols = df.columns[0:3]
+        time_cols = df.columns[0:4]
         df["time"] = pd.to_datetime(df[time_cols])
         return df.drop(time_cols, axis=1).set_index("time")
 
     except HTTPError as error:
         logger.info(
-            f"Couldn't load daily data file {file_url} (status: {error.status})"
+            f"Couldn't load hourly data file {file_url} (status: {error.status})"
         )
         return None
 
@@ -62,13 +62,13 @@ def get_source_df(station: str, year: int) -> Optional[pd.DataFrame]:
 
     try:
         df = pd.read_csv(file_url, sep=",", compression="gzip")
-        time_cols = df.columns[0:3]
+        time_cols = df.columns[0:4]
         df["time"] = pd.to_datetime(df[time_cols])
         return df.drop(time_cols, axis=1).set_index("time")
 
     except HTTPError as error:
         logger.info(
-            f"Couldn't load daily source map file {file_url} (status: {error.status})"
+            f"Couldn't load hourly source map file {file_url} (status: {error.status})"
         )
         return None
 
@@ -79,7 +79,7 @@ def get_source_df(station: str, year: int) -> Optional[pd.DataFrame]:
 
 def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     """
-    Fetch daily weather data from Meteostat's bulk interface
+    Fetch hourly weather data from Meteostat's central data repository
     """
     # Get a list of relevant years
     years = range(query["start"].year, query["end"].year + 1)
@@ -92,7 +92,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         else None
     )
     # Update data sources if desired
-    if settings["bulk_load_sources"]:
+    if settings["load_sources"]:
         df_sources_yearly = [
             get_source_df(query["station"]["id"], year) for year in years
         ]

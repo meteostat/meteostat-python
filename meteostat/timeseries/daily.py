@@ -15,8 +15,8 @@ import pandas as pd
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.model import (
-    PROVIDER_BULK_DAILY,
-    PROVIDER_BULK_DAILY_DERIVED,
+    PROVIDER_DAILY,
+    PROVIDER_DAILY_DERIVED,
     PROVIDER_DWD_DAILY,
     PROVIDER_ECCC_DAILY,
     PROVIDER_GHCND,
@@ -33,8 +33,8 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_DWD_DAILY,
     PROVIDER_ECCC_DAILY,
     PROVIDER_GHCND,
-    PROVIDER_BULK_DAILY_DERIVED,
-    PROVIDER_BULK_DAILY,
+    PROVIDER_DAILY_DERIVED,
+    PROVIDER_DAILY,
 ]
 SUPPORTED_PARAMETERS = [
     Parameter.TAVG,
@@ -72,7 +72,7 @@ def daily(
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = [Provider.BULK_DAILY],
+    providers: List[Provider | str] = [Provider.DAILY],
     lite=True,
 ):
     """

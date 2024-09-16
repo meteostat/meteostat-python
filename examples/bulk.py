@@ -11,7 +11,7 @@ END = date.today()
 Define included providers (should be all available providers)
 """
 PROVIDERS = [
-    ms.Provider.BULK_DAILY_DERIVED,
+    ms.Provider.DAILY_DERIVED,
     ms.Provider.GHCND,
     ms.Provider.DWD_DAILY,
 ]

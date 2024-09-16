@@ -47,6 +47,6 @@ class SettingsDict(TypedDict):
     cache_autoclean: bool
     station_mirrors: List[str]
     location_mirrors: List[str]
-    bulk_load_sources: bool
+    load_sources: bool
     point_radius: int
     point_stations: int

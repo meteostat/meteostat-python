@@ -67,8 +67,8 @@ PARAMETER_DECIMALS = {
     Parameter.VSBY: 0,
 }
 
-PROVIDER_BULK_HOURLY = ProviderDict(
-    id=Provider.BULK_HOURLY,
+PROVIDER_HOURLY = ProviderDict(
+    id=Provider.HOURLY,
     granularity=Granularity.HOURLY,
     priority=Priority.LOWEST,
     parameters=[
@@ -85,11 +85,11 @@ PROVIDER_BULK_HOURLY = ProviderDict(
         Parameter.COCO,
     ],
     start=date(1931, 1, 1),
-    module="meteostat.providers.bulk.hourly",
+    module="meteostat.providers.data.hourly",
 )
 
-PROVIDER_BULK_DAILY = ProviderDict(
-    id=Provider.BULK_DAILY,
+PROVIDER_DAILY = ProviderDict(
+    id=Provider.DAILY,
     granularity=Granularity.DAILY,
     priority=Priority.LOWEST,
     parameters=[
@@ -106,11 +106,11 @@ PROVIDER_BULK_DAILY = ProviderDict(
         Parameter.CLDC,
     ],
     start=date(1899, 1, 1),
-    module="meteostat.providers.bulk.daily",
+    module="meteostat.providers.data.daily",
 )
 
-PROVIDER_BULK_DAILY_DERIVED = ProviderDict(
-    id=Provider.BULK_DAILY_DERIVED,
+PROVIDER_DAILY_DERIVED = ProviderDict(
+    id=Provider.DAILY_DERIVED,
     granularity=Granularity.DAILY,
     priority=Priority.LOWEST,
     parameters=[
@@ -127,11 +127,11 @@ PROVIDER_BULK_DAILY_DERIVED = ProviderDict(
         Parameter.CLDC,
     ],
     start=date(1931, 1, 1),
-    module="meteostat.providers.bulk.daily_derived",
+    module="meteostat.providers.data.daily_derived",
 )
 
-PROVIDER_BULK_MONTHLY = ProviderDict(
-    id=Provider.BULK_MONTHLY,
+PROVIDER_MONTHLY = ProviderDict(
+    id=Provider.MONTHLY,
     granularity=Granularity.MONTHLY,
     priority=Priority.LOWEST,
     parameters=[
@@ -143,11 +143,11 @@ PROVIDER_BULK_MONTHLY = ProviderDict(
         Parameter.TSUN,
     ],
     start=date(1899, 1, 1),
-    module="meteostat.providers.bulk.monthly",
+    module="meteostat.providers.data.monthly",
 )
 
-PROVIDER_BULK_MONTHLY_DERIVED = ProviderDict(
-    id=Provider.BULK_MONTHLY_DERIVED,
+PROVIDER_MONTHLY_DERIVED = ProviderDict(
+    id=Provider.MONTHLY_DERIVED,
     granularity=Granularity.MONTHLY,
     priority=Priority.LOWEST,
     parameters=[
@@ -159,7 +159,7 @@ PROVIDER_BULK_MONTHLY_DERIVED = ProviderDict(
         Parameter.TSUN,
     ],
     start=date(1899, 1, 1),
-    module="meteostat.providers.bulk.monthly_derived",
+    module="meteostat.providers.data.monthly_derived",
 )
 
 PROVIDER_DWD_HOURLY = ProviderDict(

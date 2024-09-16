@@ -73,12 +73,12 @@ def get_source_df(station: str) -> Optional[pd.DataFrame]:
 
 def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     """
-    Fetch daily weather data from Meteostat's bulk interface
+    Fetch daily weather data from Meteostat's central data repository
     """
     # Concatenate into a single DataFrame
     df = get_df(query["station"]["id"])
     # Update data sources if desired
-    if settings["bulk_load_sources"]:
+    if settings["load_sources"]:
         df_sources = get_source_df(query["station"]["id"])
         df = reshape_by_source(df, df_sources)
     return df
