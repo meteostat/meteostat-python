@@ -65,6 +65,10 @@ def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
     df["time"] = pd.to_datetime(df["time"])
     df = df.set_index(["time"])
 
+    # Convert data units
+    df[Parameter.WDIR] = df[Parameter.WDIR] * 10  # Wind direction is provided 10's deg
+    df[Parameter.VSBY] = df[Parameter.VSBY] * 1000  # Visibility is provided in kilometres
+
     return df
 
 

@@ -9,6 +9,7 @@ PROVIDERS = [
     ms.Provider.MODEL,
     ms.Provider.ISD_LITE,
     ms.Provider.DWD_HOURLY,
+    ms.Provider.ECCC_HOURLY
 ]
 
 
