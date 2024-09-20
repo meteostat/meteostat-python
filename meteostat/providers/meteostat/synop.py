@@ -12,7 +12,7 @@ from meteostat.logger import logger
 from meteostat.typing import QueryDict
 
 
-ENDPOINT = "https://data.meteostat.net/raw/synop/{year}/{station}.csv.gz"
+ENDPOINT = "https://raw.meteostat.net/synop/{year}/{station}.csv.gz"
 
 
 def get_ttl(_station: str, year: int) -> int:
