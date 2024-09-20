@@ -12,7 +12,7 @@ from meteostat.utils.decorators import cache
 from meteostat.utils.mutations import reshape_by_source
 
 
-ENDPOINT = "https://bulk.meteostat.net/monthly/{station}"
+ENDPOINT = "https://data.meteostat.net/monthly/{station}"
 ENDPOINT_DATA = f"{ENDPOINT}.csv.gz"
 ENDPOINT_MAP = f"{ENDPOINT}.map.csv.gz"
 

@@ -10,17 +10,10 @@ settings: SettingsDict = {
     "cache_ttl_max": 60 * 60 * 24 * 30,
     "cache_ttl_min": 0,
     "cache_autoclean": True,
-    "station_mirrors": [
-        "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/stations/{id}.json",
-        "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json",
-    ],
-    "location_mirrors": [
-        "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/locations.csv.gz",
-        "https://raw.githubusercontent.com/meteostat/weather-stations/master/locations.csv.gz",
-    ],
     "load_sources": False,
     "point_radius": 50000,
     "point_stations": 4,
+    "proxies": None
 }
 
 

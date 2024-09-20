@@ -3,7 +3,12 @@ import meteostat as ms
 
 START = date(date.today().year - 3, 1, 1)
 END = date.today()
-PROVIDERS = [ms.Provider.GHCND, ms.Provider.DWD_DAILY, ms.Provider.DAILY_DERIVED, ms.Provider.ECCC_DAILY]
+PROVIDERS = [
+    ms.Provider.GHCND,
+    ms.Provider.DWD_DAILY,
+    ms.Provider.DAILY_DERIVED,
+    ms.Provider.ECCC_DAILY,
+]
 
 
 def test_data_daily():
