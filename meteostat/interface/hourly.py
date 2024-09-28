@@ -41,18 +41,30 @@ class Hourly(TimeSeries):
     # Default frequency
     _freq: str = "1H"
 
+    # Source mappings
+    _source_mappings: dict = {
+        "metar": "D",
+        "model": "E",
+        "isd_lite": "B",
+        "synop": "C",
+        "dwd_hourly": "A",
+        "eccc_hourly": "A"
+    }
+
     # Flag which represents model data
     _model_flag = "E"
 
     # Raw data columns
     _columns: list = [
-        "date",
+        "year",
+        "month",
+        "day",
         "hour",
         "temp",
         "dwpt",
         "rhum",
         "prcp",
-        "snow",
+        ("snwd", "snow"),
         "wdir",
         "wspd",
         "wpgt",
@@ -62,7 +74,7 @@ class Hourly(TimeSeries):
     ]
 
     # Index of first meteorological column
-    _first_met_col = 2
+    _first_met_col = 4
 
     # Data types
     _types: dict = {
@@ -80,7 +92,7 @@ class Hourly(TimeSeries):
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0, 1]}
+    _parse_dates: dict = {"time": [0, 1, 2, 3]}
 
     # Default aggregation functions
     aggregations: dict = {

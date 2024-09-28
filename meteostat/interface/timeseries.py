@@ -29,6 +29,9 @@ class TimeSeries(MeteoData):
     used across all time series classes
     """
 
+    # Base URL of the Meteostat bulk data interface
+    endpoint: str = "https://data.meteostat.net/"
+
     # The list of origin weather Stations
     _origin_stations: Union[pd.Index, None] = None
 
@@ -139,8 +142,8 @@ class TimeSeries(MeteoData):
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        model = True,  # Include model data?
+        flags = False,  # Load source flags?
     ) -> None:
         """
         Common initialization for all time series, regardless
