@@ -22,6 +22,16 @@ class Granularity(StrEnum):
     NORMALS = "normals"
 
 
+class Frequency(StrEnum):
+    """
+    The different levels of time series frequency
+    """
+
+    HOURLY = "H"
+    DAILY = "D"
+    MONTHLY = "M"
+
+
 class Parameter(StrEnum):
     """
     The different meteorological parameters supported by Meteostat
@@ -58,17 +68,17 @@ class Provider(StrEnum):
     """
 
     ISD_LITE = "isd_lite"
+    METAR = "metar"
     GHCND = "ghcnd"
     DWD_HOURLY = "dwd_hourly"
+    DWD_POI = "dwd_poi"
+    DWD_MOSMIX = "dwd_mosmix"
     DWD_DAILY = "dwd_daily"
     DWD_MONTHLY = "dwd_monthly"
     ECCC_HOURLY = "eccc_hourly"
     ECCC_DAILY = "eccc_daily"
     ECCC_MONTHLY = "eccc_monthly"
     METNO_FORECAST = "metno_forecast"
-    SYNOP = "synop"
-    METAR = "metar"
-    MODEL = "model"
 
     HOURLY = "hourly"
     DAILY = "daily"

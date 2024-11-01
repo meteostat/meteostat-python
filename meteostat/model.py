@@ -1,6 +1,9 @@
-from datetime import date
+from datetime import date, timedelta
 from meteostat.typing import ProviderDict
 from meteostat.enumerations import Granularity, Parameter, Provider, Priority
+
+
+# Parameters
 
 PARAMETER_DTYPES = {
     Parameter.TEMP: "Float64",
@@ -66,6 +69,9 @@ PARAMETER_DECIMALS = {
     Parameter.CLDC: 0,
     Parameter.VSBY: 0,
 }
+
+
+# Providers
 
 PROVIDER_HOURLY = ProviderDict(
     id=Provider.HOURLY,
@@ -172,6 +178,48 @@ PROVIDER_DWD_HOURLY = ProviderDict(
     module="meteostat.providers.dwd.hourly",
 )
 
+PROVIDER_DWD_POI = ProviderDict(
+    id=Provider.DWD_POI,
+    granularity=Granularity.HOURLY,
+    priority=Priority.HIGH,
+    parameters=[
+        Parameter.CLDC,
+        Parameter.TEMP,
+        Parameter.VSBY,
+        Parameter.WSPD,
+        Parameter.WPGT,
+        Parameter.PRCP,
+        Parameter.RHUM,
+        Parameter.WDIR,
+        Parameter.PRES,
+        Parameter.TSUN,
+        Parameter.COCO,
+        Parameter.SNWD,
+    ],
+    start=date.today() - timedelta(days=1),
+    module="meteostat.providers.dwd.poi",
+)
+
+PROVIDER_DWD_MOSMIX = ProviderDict(
+    id=Provider.DWD_MOSMIX,
+    granularity=Granularity.HOURLY,
+    priority=Priority.LOWEST,
+    parameters=[
+        Parameter.TEMP,
+        Parameter.RHUM,
+        Parameter.PRCP,
+        Parameter.WDIR,
+        Parameter.WSPD,
+        Parameter.WPGT,
+        Parameter.PRES,
+        Parameter.TSUN,
+        Parameter.CLDC,
+        Parameter.COCO,
+    ],
+    start=date.today(),
+    module="meteostat.providers.dwd.mosmix",
+)
+
 PROVIDER_DWD_DAILY = ProviderDict(
     id=Provider.DWD_DAILY,
     granularity=Granularity.DAILY,
@@ -273,8 +321,46 @@ PROVIDER_GHCND = ProviderDict(
     module="meteostat.providers.noaa.ghcnd",
 )
 
+PROVIDER_METAR = ProviderDict(
+    id=Provider.METAR,
+    granularity=Granularity.HOURLY,
+    priority=Priority.LOW,
+    parameters=[
+        Parameter.TEMP,
+        Parameter.RHUM,
+        Parameter.WDIR,
+        Parameter.WSPD,
+        Parameter.PRES,
+        Parameter.COCO,
+    ],
+    start=date.today() - timedelta(days=1),
+    module="meteostat.providers.noaa.metar",
+)
+
+PROVIDER_METNO_FORECAST = ProviderDict(
+    id=Provider.METNO_FORECAST,
+    granularity=Granularity.HOURLY,
+    priority=Priority.LOWEST,
+    parameters=[
+        Parameter.TEMP,
+        Parameter.RHUM,
+        Parameter.PRCP,
+        Parameter.WDIR,
+        Parameter.WSPD,
+        Parameter.WPGT,
+        Parameter.PRES,
+        Parameter.CLDC,
+        Parameter.COCO,
+    ],
+    start=date.today(),
+    module="meteostat.providers.metno.forecast",
+)
+
+
+# Archived providers
+
 PROVIDER_SYNOP = ProviderDict(
-    id=Provider.SYNOP,
+    id="synop",
     granularity=Granularity.HOURLY,
     priority=Priority.MEDIUM,
     parameters=[
@@ -296,27 +382,10 @@ PROVIDER_SYNOP = ProviderDict(
         Parameter.COCO,
     ],
     start=date(2015, 8, 7),
-    module="meteostat.providers.meteostat.synop",
-)
-
-PROVIDER_METAR = ProviderDict(
-    id=Provider.METAR,
-    granularity=Granularity.HOURLY,
-    priority=Priority.LOW,
-    parameters=[
-        Parameter.TEMP,
-        Parameter.RHUM,
-        Parameter.WDIR,
-        Parameter.WSPD,
-        Parameter.PRES,
-        Parameter.COCO,
-    ],
-    start=date(2015, 8, 7),
-    module="meteostat.providers.meteostat.metar",
 )
 
 PROVIDER_MODEL = ProviderDict(
-    id=Provider.MODEL,
+    id="model",
     granularity=Granularity.HOURLY,
     priority=Priority.LOWEST,
     parameters=[
@@ -332,24 +401,29 @@ PROVIDER_MODEL = ProviderDict(
         Parameter.COCO,
     ],
     start=date(2015, 8, 7),
-    module="meteostat.providers.meteostat.model",
 )
 
-PROVIDER_METNO_FORECAST = ProviderDict(
-    id=Provider.METNO_FORECAST,
-    granularity=Granularity.HOURLY,
-    priority=Priority.LOWEST,
-    parameters=[
-        Parameter.TEMP,
-        Parameter.RHUM,
-        Parameter.PRCP,
-        Parameter.WDIR,
-        Parameter.WSPD,
-        Parameter.WPGT,
-        Parameter.PRES,
-        Parameter.CLDC,
-        Parameter.COCO,
-    ],
-    start=date.today(),
-    module="meteostat.providers.metno.forecast",
-)
+
+# All providers
+
+ALL_PROVIDERS = [
+    PROVIDER_HOURLY,
+    PROVIDER_DAILY,
+    PROVIDER_DAILY_DERIVED,
+    PROVIDER_MONTHLY,
+    PROVIDER_MONTHLY_DERIVED,
+    PROVIDER_DWD_HOURLY,
+    PROVIDER_DWD_POI,
+    PROVIDER_DWD_MOSMIX,
+    PROVIDER_DWD_DAILY,
+    PROVIDER_DWD_MONTHLY,
+    PROVIDER_ECCC_HOURLY,
+    PROVIDER_ECCC_DAILY,
+    PROVIDER_ECCC_MONTHLY,
+    PROVIDER_ISD_LITE,
+    PROVIDER_GHCND,
+    PROVIDER_METAR,
+    PROVIDER_METNO_FORECAST,
+    PROVIDER_SYNOP,
+    PROVIDER_MODEL,
+]

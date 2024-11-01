@@ -9,21 +9,19 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from typing import List
 import numpy as np
 import pandas as pd
-from meteostat.enumerations import Parameter
-from meteostat.typing import ProviderDict
+from meteostat.enumerations import Frequency, Parameter
 from meteostat.utils.helpers import get_provider_priority
 
 
-def squash_df(df: pd.DataFrame, providers: List[ProviderDict]) -> pd.DataFrame:
-    df["source_prio"] = df.index.get_level_values("source").map(
-        get_provider_priority(providers)
-    )
+def squash_df(df: pd.DataFrame) -> pd.DataFrame:
+    df["source_prio"] = df.index.get_level_values("source").map(get_provider_priority)
 
     return (
-        df.sort_values(by="source_prio", ascending=False)
+        df.groupby(level=["station", "time", "source"])
+        .last()
+        .sort_values(by="source_prio", ascending=False)
         .groupby(["station", "time"])
         .first()
         .drop("source_prio", axis=1)
@@ -98,3 +96,8 @@ def reshape_by_source(df: pd.DataFrame, sources: pd.DataFrame) -> pd.DataFrame:
     df_joined.columns = df_joined.columns.droplevel(level=0)
     df_joined.columns.name = None
     return df_joined
+
+
+def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
+    df.index = pd.to_datetime(df.index.get_level_values("time"))
+    return df.resample(freq).first()

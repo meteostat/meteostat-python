@@ -13,7 +13,8 @@ from typing import Any, Iterable, List, Tuple
 import numpy as np
 import pandas as pd
 from meteostat.enumerations import Granularity, Priority
-from meteostat.typing import ProviderDict, StationDict
+from meteostat.model import ALL_PROVIDERS
+from meteostat.typing import StationDict
 
 
 def get_freq(granularity: Granularity) -> str:
@@ -64,18 +65,15 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
     return round(radius * arch_sin)
 
 
-def get_provider_priority(providers: List[ProviderDict]) -> Priority:
+def get_provider_priority(id: str) -> Priority:
     """
     A factory function for getting the provider priority
     """
 
-    def _get_prio(id: str):
-        provider = next(
-            (provider for provider in providers if provider["id"] == id), None
-        )
-        return Priority.LOWEST if not provider else provider["priority"]
-
-    return _get_prio
+    provider = next(
+        (provider for provider in ALL_PROVIDERS if provider["id"] == id), None
+    )
+    return Priority.LOWEST if not provider else provider["priority"]
 
 
 def get_index(obj: Iterable, index: int, default=None) -> Any:

@@ -16,14 +16,14 @@ from meteostat.settings import settings
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.model import (
+    PROVIDER_DWD_MOSMIX,
+    PROVIDER_DWD_POI,
     PROVIDER_HOURLY,
     PROVIDER_DWD_HOURLY,
     PROVIDER_ECCC_HOURLY,
     PROVIDER_ISD_LITE,
     PROVIDER_METAR,
     PROVIDER_METNO_FORECAST,
-    PROVIDER_MODEL,
-    PROVIDER_SYNOP,
 )
 from meteostat.point import Point
 from meteostat.stations.nearby import nearby
@@ -39,11 +39,11 @@ from meteostat.utils.parsers import (
 
 SUPPORTED_PROVIDERS = [
     PROVIDER_DWD_HOURLY,
+    PROVIDER_DWD_POI,
+    PROVIDER_DWD_MOSMIX,
     PROVIDER_ECCC_HOURLY,
     PROVIDER_ISD_LITE,
-    PROVIDER_SYNOP,
     PROVIDER_METAR,
-    PROVIDER_MODEL,
     PROVIDER_HOURLY,
     PROVIDER_METNO_FORECAST,
 ]

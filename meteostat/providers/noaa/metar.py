@@ -1,0 +1,138 @@
+"""
+The code is licensed under the MIT license.
+"""
+
+from typing import Any, Optional
+import pandas as pd
+from metar import Metar
+from meteostat.enumerations import TTL, Frequency, Parameter
+from meteostat.typing import QueryDict
+from meteostat.utils.converters import temp_dwpt_to_rhum
+from meteostat.utils.decorators import cache
+from meteostat.utils.mutations import enforce_freq
+from meteostat.utils.network import get
+
+ENDPOINT = "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
+CLDC_MAP = {
+    "FEW": 2,  # 1-2 octas
+    "SCT": 4,  # 3-4 octas
+    "BKN": 6,  # 5-7 octas
+    "OVC": 8,  # 8 octas (fully overcast)
+}
+COCO_MAP = {
+    "RA": 8,
+    "SHRA": 17,
+    "DZ": 7,
+    "DZRA": 7,
+    "FZRA": 10,
+    "FZDZ": 10,
+    "RASN": 12,
+    "SN": 15,
+    "SHSN": 21,
+    "SG": 12,
+    "IC": 12,
+    "PL": 24,
+    "GR": 24,
+    "GS": 24,
+    "FG": 5,
+    "BR": 5,
+    "MIFG": 5,
+    "BCFG": 5,
+    "HZ": 5,
+    "TS": 25,
+    "TSRA": 25,
+    "PO": 27,
+    "SQ": 27,
+    "FC": 27,
+    "SS": 27,
+    "DS": 27,
+}
+
+
+def safe_get(obj: Optional[Any]) -> Optional[Any]:
+    try:
+        return obj.value()
+    except AttributeError:
+        return None
+
+
+def get_cldc(report: Metar.Metar) -> Optional[int]:
+    """
+    Get cloud cover (octas) from METAR report
+    """
+    try:
+        cloud_cover = report.sky[0][0]
+        return CLDC_MAP.get(cloud_cover)
+    except IndexError:
+        return None
+
+
+def get_coco(report: Metar.Metar) -> Optional[int]:
+    """
+    Get weather condition code from METAR report
+    """
+    try:
+        condition_code = "".join(
+            [item for item in report.weather[0] if item is not None]
+        )
+        return COCO_MAP.get(condition_code)
+    except IndexError:
+        return None
+
+
+def map_data(record):
+    """
+    Map METAR data to Meteostat column names
+    """
+    try:
+        parsed_report = Metar.Metar(record)
+
+        return {
+            "time": parsed_report.time,
+            Parameter.TEMP: safe_get(parsed_report.temp),
+            Parameter.DWPT: safe_get(parsed_report.dewpt),
+            Parameter.PRCP: safe_get(parsed_report.precip_1hr),
+            Parameter.SNWD: safe_get(parsed_report.snowdepth),
+            Parameter.WDIR: safe_get(parsed_report.wind_dir),
+            Parameter.WSPD: safe_get(parsed_report.wind_speed),
+            Parameter.WPGT: safe_get(parsed_report.wind_gust),
+            Parameter.PRES: safe_get(parsed_report.press),
+            Parameter.VSBY: safe_get(parsed_report.vis),
+            Parameter.CLDC: get_cldc(parsed_report),
+            Parameter.COCO: get_coco(parsed_report),
+        }
+    except Metar.ParserError:
+        return None
+
+
+@cache(TTL.HOUR, "pickle")
+def get_df(station: str) -> Optional[pd.DataFrame]:
+    """
+    Get CSV file from Meteostat and convert to DataFrame
+    """
+    url = ENDPOINT.format(station=station)
+
+    response = get(url)
+
+    # Raise an exception if the request was unsuccessful
+    response.raise_for_status()
+
+    # Parse the JSON content into a DataFrame
+    data = response.text.splitlines()
+
+    # Create DataFrame
+    df = pd.DataFrame([item for item in map(map_data, data) if item is not None])
+
+    # Add RHUM column
+    df[Parameter.RHUM] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
+    df[Parameter.RHUM] = df[Parameter.RHUM].round()
+
+    # Set time index
+    df = df.set_index(["time"])
+
+    return enforce_freq(df, Frequency.HOURLY)
+
+
+def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
+    if "icao" in query["station"]["identifiers"]:
+        return get_df(query["station"]["identifiers"]["icao"])

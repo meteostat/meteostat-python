@@ -21,7 +21,7 @@ class StationDict(TypedDict):
 
 
 class ProviderDict(TypedDict):
-    id: Provider
+    id: Provider | str
     name: str
     granularity: Granularity
     priority: Priority
@@ -29,7 +29,7 @@ class ProviderDict(TypedDict):
     end: NotRequired[Optional[datetime]]
     countries: NotRequired[list[str]]
     parameters: list[Enum]
-    module: str
+    module: NotRequired[Optional[str]]
 
 
 class QueryDict(TypedDict):

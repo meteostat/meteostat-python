@@ -13,7 +13,7 @@ settings: SettingsDict = {
     "load_sources": False,
     "point_radius": 50000,
     "point_stations": 4,
-    "proxies": None
+    "proxies": None,
 }
 
 

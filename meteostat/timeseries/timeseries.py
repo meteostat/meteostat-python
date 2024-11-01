@@ -99,7 +99,7 @@ class TimeSeries:
         df = copy(self._df)
 
         df["source_prio"] = df.index.get_level_values("source").map(
-            get_provider_priority(self.providers)
+            get_provider_priority
         )
 
         df = (
@@ -169,7 +169,7 @@ class TimeSeries:
             return None
 
         if squash:
-            df = squash_df(df, self.providers)
+            df = squash_df(df)
 
         if squash and sources:
             sourcemap = self.sourcemap
