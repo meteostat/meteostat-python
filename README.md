@@ -23,7 +23,7 @@ You can change the default log level, format etc. using the `logging` package:
 ```py
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(filename)s:%(lineno)s] %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(filename)s:%(lineno)d - %(message)s')
 ```
 
 ## Testing
