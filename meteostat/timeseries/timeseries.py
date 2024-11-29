@@ -13,9 +13,11 @@ from math import floor
 from statistics import mean
 from typing import Any, Callable, List, Optional, Tuple
 import pandas as pd
+from pulire import Schema
 from meteostat.enumerations import Parameter, Granularity
+from meteostat.timeseries.sourcemap import SourceMap
 from meteostat.typing import ProviderDict
-from meteostat.utils.helpers import get_freq, get_index, get_provider_priority
+from meteostat.utils.helpers import get_freq
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
 
@@ -25,9 +27,11 @@ class TimeSeries:
     used across all granularities
     """
 
-    providers: List[ProviderDict]
     granularity: Granularity
+    schema: Schema
+    providers: List[ProviderDict]
     stations: pd.DataFrame
+    sources: SourceMap
     start: Optional[datetime] = None
     end: Optional[datetime] = None
     timezone: Optional[str] = None
@@ -37,6 +41,7 @@ class TimeSeries:
     def __init__(
         self,
         granularity: Granularity,
+        schema: Schema,
         providers: List[ProviderDict],
         stations: pd.DataFrame,
         df: Optional[pd.DataFrame],
@@ -44,9 +49,11 @@ class TimeSeries:
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
     ) -> None:
-        self.providers = providers
         self.granularity = granularity
+        self.schema = schema
+        self.providers = providers
         self.stations = stations
+        self.sources = SourceMap(df)
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -87,33 +94,6 @@ class TimeSeries:
             if self.granularity is Granularity.DAILY
             else floor(diff.total_seconds() / 3600) + 1
         ) * len(self.stations)
-
-    @property
-    def sourcemap(self) -> Optional[pd.DataFrame]:
-        """
-        Get a DataFrame of squashed source strings
-        """
-        if self._df is None:
-            return None
-
-        df = copy(self._df)
-
-        df["source_prio"] = df.index.get_level_values("source").map(
-            get_provider_priority
-        )
-
-        df = (
-            df.sort_values(by="source_prio", ascending=False)
-            .groupby(["station", "time"])
-            .agg(lambda s: get_index(pd.Series.first_valid_index(s), 2))
-            .drop("source_prio", axis=1)
-            .convert_dtypes()
-        )
-
-        if self.granularity is Granularity.NORMALS:
-            df = df.rename_axis(index={"time": "month"})
-
-        return df
 
     def apply(
         self,
@@ -159,7 +139,9 @@ class TimeSeries:
 
         return temp
 
-    def fetch(self, squash=True, fill=False, sources=False) -> Optional[pd.DataFrame]:
+    def fetch(
+        self, squash=True, fill=False, sources=False, clean=True
+    ) -> Optional[pd.DataFrame]:
         """
         Force specific granularity on the time series
         """
@@ -171,18 +153,17 @@ class TimeSeries:
         if squash:
             df = squash_df(df)
 
+        if clean:
+            df = self.schema.clean(df)
+
         if squash and sources:
-            sourcemap = self.sourcemap
-            df = df.join(sourcemap, rsuffix="_source")
+            df = df.join(self.sources.fetch(), rsuffix="_source")
 
         if fill:
             df = fill_df(df, self.start, self.end, get_freq(self.granularity))
 
         if self.timezone:
             df = localize(df, self.timezone)
-
-        if self.granularity is Granularity.NORMALS:
-            df = df.rename_axis(index={"time": "month"})
 
         return df.sort_index()
 

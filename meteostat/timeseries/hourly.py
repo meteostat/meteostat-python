@@ -12,6 +12,7 @@ from typing import List, Union, Optional
 from datetime import datetime, date
 import pandas as pd
 from meteostat.concat import concat
+from meteostat.schema import HOURLY_SCHEMA
 from meteostat.settings import settings
 from meteostat.fetcher import fetch_ts
 from meteostat.enumerations import Parameter, Provider, Granularity
@@ -30,7 +31,7 @@ from meteostat.stations.nearby import nearby
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.typing import StationDict
 from meteostat.utils.parsers import (
-    parse_parameters,
+    get_schema,
     parse_providers,
     parse_station,
     parse_time,
@@ -46,22 +47,6 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_METAR,
     PROVIDER_HOURLY,
     PROVIDER_METNO_FORECAST,
-]
-SUPPORTED_PARAMETERS = [
-    Parameter.TEMP,
-    Parameter.DWPT,
-    Parameter.RHUM,
-    Parameter.PRCP,
-    Parameter.SNOW,
-    Parameter.SNWD,
-    Parameter.WDIR,
-    Parameter.WSPD,
-    Parameter.WPGT,
-    Parameter.PRES,
-    Parameter.TSUN,
-    Parameter.CLDC,
-    Parameter.VSBY,
-    Parameter.COCO,
 ]
 DEFAULT_PARAMETERS = [
     Parameter.TEMP,
@@ -83,19 +68,21 @@ def hourly(
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     timezone: Optional[str] = None,
-    parameters: List[Parameter | str] = DEFAULT_PARAMETERS,
-    providers: List[Provider | str] = [Provider.HOURLY],
+    parameters: List[Parameter] = DEFAULT_PARAMETERS,
+    providers: List[Provider] = [Provider.HOURLY],
     lite=True,
 ):
     """
     Retrieve hourly time series data
     """
 
+    schema = get_schema(HOURLY_SCHEMA, parameters)
+
     def _fetch(s) -> TimeSeries:
         return fetch_ts(
             Granularity.HOURLY,
             parse_providers(providers, SUPPORTED_PROVIDERS),
-            parse_parameters(parameters, SUPPORTED_PARAMETERS),
+            schema,
             parse_station(s),
             parse_time(start, timezone),
             parse_time(end, timezone, is_end=True),

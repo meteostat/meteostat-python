@@ -13,7 +13,7 @@ ts = ms.daily(
     datetime(2020, 1, 10),
     providers=[ms.Provider.DAILY],
 )
-print(ts)
+print(ts.fetch())
 exit()
 
 # ms.purge_cache(0)

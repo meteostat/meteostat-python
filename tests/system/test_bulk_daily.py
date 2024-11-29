@@ -17,7 +17,7 @@ def test_data_daily():
     ts = ms.daily("01001", start=START, end=END, providers=PROVIDERS, lite=False)
 
     df = ts.fetch()
-    sourcemap = ts.sourcemap
+    sourcemap = ts.sources.fetch()
 
     assert "tmin" in df
     assert "prcp" in df

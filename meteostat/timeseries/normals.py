@@ -13,12 +13,13 @@ from typing import List
 import numpy as np
 import pandas as pd
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.model import PARAMETER_DECIMALS
+from meteostat.schema import NORMALS_SCHEMA
 from meteostat.timeseries.monthly import DEFAULT_PARAMETERS, monthly
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.utils.helpers import aggregate_sources
 from meteostat.utils.mutations import reshape_by_source
 from meteostat.utils.parsers import (
+    get_schema,
     parse_year,
 )
 
@@ -35,6 +36,8 @@ def normals(
     Retrieve climate normals data
     """
 
+    schema = get_schema(NORMALS_SCHEMA, parameters)
+
     def _mean(group: pd.Series):
         """
         Calculate the monthly mean from multiple years of monthly data
@@ -48,7 +51,7 @@ def normals(
     )
 
     df = ts.fetch()
-    sources = ts.sourcemap
+    sources = ts.sources.fetch()
 
     df["month"] = df.index.get_level_values("time").month
     sources["month"] = df.index.get_level_values("time").month
@@ -56,12 +59,10 @@ def normals(
     df = df.groupby(["station", "month"]).agg(_mean)
     sources = sources.groupby(["station", "month"]).agg(aggregate_sources)
 
-    for col in df.columns:
-        if col in PARAMETER_DECIMALS:
-            df[col] = df[col].round(PARAMETER_DECIMALS[col])
-
     df = df.rename_axis(index={"month": "time"})
     sources = sources.rename_axis(index={"month": "time"})
+
+    df = schema.format(df)
 
     df_fragments = []
 
@@ -72,6 +73,7 @@ def normals(
 
     return TimeSeries(
         Granularity.NORMALS,
+        schema,
         ts.providers,
         ts.stations,
         pd.concat(df_fragments),

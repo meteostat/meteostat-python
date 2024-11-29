@@ -19,7 +19,7 @@ def test_daily_hourly():
     ts = ms.hourly("10637", start=START, end=END, providers=PROVIDERS, lite=False)
 
     df = ts.fetch()
-    sourcemap = ts.sourcemap
+    sourcemap = ts.sources.fetch()
 
     assert "temp" in df
     assert "prcp" in df

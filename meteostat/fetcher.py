@@ -13,13 +13,12 @@ from importlib import import_module
 from itertools import chain
 from typing import List, Optional
 import pandas as pd
+from pulire import Schema
 from meteostat.logger import logger
-from meteostat.model import PARAMETER_DTYPES
 from meteostat.timeseries.timeseries import TimeSeries
-from meteostat.enumerations import Granularity, Parameter
+from meteostat.enumerations import Granularity
 from meteostat.typing import ProviderDict, QueryDict, StationDict
-from meteostat.utils.filters import filter_parameters, filter_providers, filter_time
-from meteostat.utils.helpers import get_intersection
+from meteostat.utils.filters import filter_providers, filter_time
 
 
 def fetch_data(provider_module, query: QueryDict) -> Optional[pd.DataFrame]:
@@ -39,20 +38,6 @@ def add_source(df: pd.DataFrame, provider_id: str) -> pd.DataFrame:
         df["source"] = provider_id
         df.set_index(["source"], append=True, inplace=True)
     return df
-
-
-def set_dtypes(df: pd.DataFrame, parameters) -> pd.DataFrame:
-    """
-    Convert columns to correct data type
-    """
-    dtypes = {p.value: PARAMETER_DTYPES[p] for p in parameters}
-    for col, dtype in dtypes.copy().items():
-        if col not in df:
-            del dtypes[col]
-            continue
-        if dtype == "Int64":
-            df[col] = pd.to_numeric(df[col]).round(0)
-    return df.astype(dtypes, errors="ignore")
 
 
 def stations_to_df(stations: List[StationDict]) -> pd.DataFrame | None:
@@ -80,9 +65,7 @@ def stations_to_df(stations: List[StationDict]) -> pd.DataFrame | None:
     )
 
 
-def concat_fragments(
-    fragments: List[pd.DataFrame], parameters: List[Parameter]
-) -> pd.DataFrame:
+def concat_fragments(fragments: List[pd.DataFrame], schema: Schema) -> pd.DataFrame:
     """
     Concatenate multiple fragments into a single DataFrame
     """
@@ -90,7 +73,9 @@ def concat_fragments(
         df = pd.concat(
             [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
         )
-        return filter_parameters(df, parameters)
+        df = schema.purge(df)
+        df = schema.fill(df)
+        return df
     except ValueError:
         return pd.DataFrame()
 
@@ -98,7 +83,7 @@ def concat_fragments(
 def fetch_ts(
     granularity: Granularity,
     providers: List[ProviderDict],
-    parameters: List[Parameter],
+    schema: Schema,
     stations: List[StationDict],
     start: Optional[datetime] = None,
     end: Optional[datetime] = None,
@@ -120,7 +105,7 @@ def fetch_ts(
 
         # Go through all applicable providers
         for provider in filter_providers(
-            granularity, parameters, providers, station["country"], start, end
+            granularity, schema.names, providers, station["country"], start, end
         ):
             try:
                 # Fetch DataFrame for current provider
@@ -129,7 +114,7 @@ def fetch_ts(
                         "station": station,
                         "start": start if start else provider["start"],
                         "end": end if end else (provider.get("end", datetime.now())),  # type: ignore
-                        "parameters": parameters,
+                        "parameters": schema.names,
                     }
                 )
                 df = fetch_data(provider["module"], query)
@@ -161,9 +146,10 @@ def fetch_ts(
                     lite
                     and TimeSeries(
                         Granularity.HOURLY,
+                        schema,
                         included_providers,
                         [station],
-                        concat_fragments(station_fragments, parameters),
+                        concat_fragments(station_fragments, schema),
                         start,
                         end,
                     ).completeness()
@@ -181,18 +167,18 @@ def fetch_ts(
 
     # Merge data in a single DataFrame
     df = (
-        concat_fragments(chain.from_iterable(fragments), parameters)
+        concat_fragments(chain.from_iterable(fragments), schema)
         if fragments
         else pd.DataFrame()
     )
-    # Only included requested coplumns
-    df = df[get_intersection(parameters, df.columns.to_list())]
+
     # Set data types
-    df = set_dtypes(df, parameters)
+    df = schema.format(df)
 
     # Return final time series
     return TimeSeries(
         granularity,
+        schema,
         included_providers,
         stations_to_df(included_stations),
         df,

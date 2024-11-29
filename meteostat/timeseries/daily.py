@@ -21,8 +21,9 @@ from meteostat.model import (
     PROVIDER_ECCC_DAILY,
     PROVIDER_GHCND,
 )
+from meteostat.schema import DAILY_SCHEMA
 from meteostat.utils.parsers import (
-    parse_parameters,
+    get_schema,
     parse_providers,
     parse_station,
     parse_time,
@@ -35,22 +36,6 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_GHCND,
     PROVIDER_DAILY_DERIVED,
     PROVIDER_DAILY,
-]
-SUPPORTED_PARAMETERS = [
-    Parameter.TAVG,
-    Parameter.TMIN,
-    Parameter.TMAX,
-    Parameter.DWPT,
-    Parameter.RHUM,
-    Parameter.PRCP,
-    Parameter.SNOW,
-    Parameter.SNWD,
-    Parameter.WSPD,
-    Parameter.WPGT,
-    Parameter.PRES,
-    Parameter.TSUN,
-    Parameter.CLDC,
-    Parameter.VSBY,
 ]
 DEFAULT_PARAMETERS = [
     Parameter.TAVG,
@@ -78,10 +63,12 @@ def daily(
     """
     Retrieve daily time series data
     """
+    schema = get_schema(DAILY_SCHEMA, parameters)
+
     return fetch_ts(
         Granularity.DAILY,
         parse_providers(providers, SUPPORTED_PROVIDERS),
-        parse_parameters(parameters, SUPPORTED_PARAMETERS),
+        schema,
         parse_station(station),
         parse_time(start),
         parse_time(end, is_end=True),

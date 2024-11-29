@@ -1,0 +1,200 @@
+from pulire import Schema, Column, validators, formatters
+
+from meteostat.enumerations import Parameter
+
+HOURLY_SCHEMA = Schema(
+    [
+        Column(
+            Parameter.TEMP,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.DWPT,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.RHUM,
+            "Int64",
+            [validators.minimum(0), validators.maximum(100)],
+        ),
+        Column(
+            Parameter.PRCP,
+            "Float64",
+            [validators.minimum(0), validators.maximum(350), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.SNOW,
+            "Int64",
+            [validators.minimum(0), validators.maximum(50)],
+        ),
+        Column(
+            Parameter.SNWD,
+            "Int64",
+            [validators.minimum(0), validators.maximum(1200)],
+        ),
+        Column(
+            Parameter.WDIR,
+            "Int64",
+            [validators.minimum(0), validators.maximum(360)],
+        ),
+        Column(
+            Parameter.WSPD,
+            "Float64",
+            [validators.minimum(0), validators.maximum(250), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.WPGT,
+            "Float64",
+            [validators.minimum(0), validators.maximum(500), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.PRES,
+            "Float64",
+            [validators.minimum(850), validators.maximum(1090), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TSUN,
+            "Int64",
+            [validators.minimum(0), validators.maximum(60)],
+        ),
+        Column(
+            Parameter.CLDC,
+            "Int64",
+            [validators.minimum(0), validators.maximum(8)],
+        ),
+        Column(
+            Parameter.VSBY,
+            "Int64",
+            [validators.minimum(0)],
+        ),
+        Column(
+            Parameter.COCO,
+            "Int64",
+            [validators.minimum(0), validators.maximum(27)],
+        ),
+    ]
+)
+
+DAILY_SCHEMA = Schema(
+    [
+        Column(
+            Parameter.TAVG,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TMIN,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TMAX,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.DWPT,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.RHUM,
+            "Int64",
+            [validators.minimum(0), validators.maximum(100)],
+        ),
+        Column(
+            Parameter.PRCP,
+            "Float64",
+            [validators.minimum(0), validators.maximum(2000), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.SNOW,
+            "Int64",
+            [validators.minimum(0), validators.maximum(50), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.SNWD,
+            "Int64",
+            [validators.minimum(0), validators.maximum(200)],
+        ),
+        Column(
+            Parameter.WSPD,
+            "Float64",
+            [validators.minimum(0), validators.maximum(150), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.WPGT,
+            "Float64",
+            [validators.minimum(0), validators.maximum(500), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.PRES,
+            "Float64",
+            [validators.minimum(850), validators.maximum(1090), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TSUN,
+            "Int64",
+            [validators.minimum(0), validators.maximum(1440)],
+        ),
+        Column(
+            Parameter.CLDC,
+            "Int64",
+            [validators.minimum(0), validators.maximum(8)],
+        ),
+        Column(
+            Parameter.VSBY,
+            "Int64",
+            [validators.minimum(0)],
+        ),
+    ]
+)
+
+MONTHLY_SCHEMA = Schema(
+    [
+        Column(
+            Parameter.TAVG,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TAMN,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TAMX,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TMIN,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TMAX,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.PRCP,
+            "Float64",
+            [validators.minimum(0), validators.maximum(10000), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.PRES,
+            "Float64",
+            [validators.minimum(850), validators.maximum(1090), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TSUN,
+            "Int64",
+            [validators.minimum(0), validators.maximum(44640)],
+        ),
+    ]
+)
+
+NORMALS_SCHEMA = MONTHLY_SCHEMA

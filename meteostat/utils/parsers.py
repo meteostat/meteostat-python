@@ -12,6 +12,7 @@ import calendar
 from typing import Iterator, List
 import datetime
 import pandas as pd
+from pulire import Schema
 import pytz
 import meteostat as ms
 from meteostat.enumerations import Provider
@@ -41,7 +42,7 @@ def parse_station(
 
 
 def parse_providers(
-    requested: List[Provider | str], supported: List[ProviderDict]
+    requested: List[Provider], supported: List[ProviderDict]
 ) -> Iterator[ProviderDict]:
     """
     Raise exception if a requested provider is not supported
@@ -63,18 +64,12 @@ def parse_providers(
     return filter(lambda provider: provider["id"] in requested, supported)
 
 
-def parse_parameters(
-    requested: List[ms.Parameter | str], supported: List[ms.Parameter]
-) -> List[ms.Parameter]:
+def get_schema(root_schema: Schema, parameters: List[ms.Parameter]) -> Schema:
     """
-    Raise exception if a requested parameter is not supported
+    Raise exception if a requested parameter is not part of the schema
     """
-    # Convert parameters to set
-    parameters = list(
-        map(lambda p: p if isinstance(p, ms.Parameter) else ms.Parameter[p], requested)
-    )
-    # Get difference between parameters and supported parameters
-    diff = set(parameters).difference(supported)
+    # Get difference between requested parameters and root schema
+    diff = set(parameters).difference(root_schema.names)
     # Log warning
     if len(diff):
         raise ValueError(
@@ -83,7 +78,7 @@ def parse_parameters(
         }"""
         )
     # Return intersection
-    return parameters
+    return root_schema[parameters]
 
 
 def parse_time(

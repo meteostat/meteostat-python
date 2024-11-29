@@ -94,7 +94,7 @@ def test_hourly_multiple(mocker):
         providers=[ms.Provider.METAR, ms.Provider.MODEL, ms.Provider.SYNOP],
     )
     df = ts.fetch()
-    sources = ts.sourcemap
+    sources = ts.sources.fetch()
 
     assert len(df) == 19
     assert len(sources) == 19

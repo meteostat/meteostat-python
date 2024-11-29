@@ -98,7 +98,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     df.index.name = "time"
     # Update data sources if desired
     if settings["load_sources"]:
-        df_sources = ts_hourly.sourcemap
+        df_sources = ts_hourly.sources.fetch()
         # Add missing columns
         for key, value in PARAMETER_AGGS.items():
             if key in query["parameters"]:

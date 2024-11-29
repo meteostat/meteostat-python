@@ -20,9 +20,10 @@ from meteostat.model import (
     PROVIDER_DWD_MONTHLY,
     PROVIDER_ECCC_MONTHLY,
 )
+from meteostat.schema import MONTHLY_SCHEMA
 from meteostat.utils.parsers import (
+    get_schema,
     parse_month,
-    parse_parameters,
     parse_providers,
     parse_station,
     parse_time,
@@ -34,16 +35,6 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_ECCC_MONTHLY,
     PROVIDER_MONTHLY,
     PROVIDER_MONTHLY_DERIVED,
-]
-SUPPORTED_PARAMETERS = [
-    Parameter.TAVG,
-    Parameter.TAMN,
-    Parameter.TAMX,
-    Parameter.TMIN,
-    Parameter.TMAX,
-    Parameter.PRCP,
-    Parameter.PRES,
-    Parameter.TSUN,
 ]
 DEFAULT_PARAMETERS = [
     Parameter.TAVG,
@@ -68,10 +59,12 @@ def monthly(
     """
     Retrieve monthly time series data
     """
+    schema = get_schema(MONTHLY_SCHEMA, parameters)
+
     return fetch_ts(
         Granularity.MONTHLY,
         parse_providers(providers, SUPPORTED_PROVIDERS),
-        parse_parameters(parameters, SUPPORTED_PARAMETERS),
+        schema,
         parse_station(station),
         parse_time(parse_month(start)),
         parse_time(parse_month(end, is_end=True), is_end=True),
