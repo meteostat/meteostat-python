@@ -168,5 +168,5 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         return None
 
     except Exception as error:
-        logger.error(error)
+        logger.warning(error)
         return None

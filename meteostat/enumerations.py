@@ -86,6 +86,10 @@ class Provider(StrEnum):
     MONTHLY = "monthly"
     MONTHLY_DERIVED = "monthly_derived"
 
+    SYNOP = "synop"
+    METAR_LEGACY = "metar_legacy"
+    MODEL = "model"
+
 
 class Priority(IntEnum):
     """

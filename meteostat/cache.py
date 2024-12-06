@@ -118,7 +118,7 @@ def from_func(func, args, kwargs, ttl: int, format: str) -> pd.DataFrame | dict 
         else False
     )
 
-    logger.info(
+    logger.debug(
         f'{func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs} returns {format} and {"is" if isinstance(result, pd.DataFrame) or result else "is not"} served from cache'
     )
 
@@ -139,7 +139,7 @@ def purge(ttl: int | None = None) -> None:
     if ttl is None:
         ttl = settings["cache_ttl_max"]
 
-    logger.info(f"Removing cached files older than {ttl} seconds")
+    logger.debug(f"Removing cached files older than {ttl} seconds")
 
     cache_dir = settings["cache_dir"]
 

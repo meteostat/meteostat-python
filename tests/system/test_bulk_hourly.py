@@ -5,6 +5,7 @@ START = date(date.today().year - 3, 1, 1)
 END = date.today()
 PROVIDERS = [
     ms.Provider.SYNOP,
+    ms.Provider.DWD_POI,
     ms.Provider.METAR,
     ms.Provider.MODEL,
     ms.Provider.ISD_LITE,

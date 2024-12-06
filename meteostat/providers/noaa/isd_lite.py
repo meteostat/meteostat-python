@@ -90,13 +90,13 @@ def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
         if error.status == 404:
             logger.info(f"ISD Lite file not found: {filename}")
         else:
-            logger.error(
+            logger.warning(
                 f"Couldn't load ISD Lite file {filename} (status: {error.status})"
             )
         return None
 
     except Exception as error:
-        logger.error(error)
+        logger.warning(error)
         return None
 
 

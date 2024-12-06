@@ -91,16 +91,16 @@ def test_hourly_multiple(mocker):
         "10637",
         datetime(2023, 2, 1, 3),
         datetime(2023, 2, 1, 21),
-        providers=[ms.Provider.METAR, ms.Provider.MODEL, ms.Provider.SYNOP],
+        providers=[ms.Provider.METAR_LEGACY, ms.Provider.MODEL, ms.Provider.SYNOP],
     )
     df = ts.fetch()
     sources = ts.sources.fetch()
 
     assert len(df) == 19
     assert len(sources) == 19
-    assert "metar" in sources["temp"].values
+    assert "metar_legacy" in sources["temp"].values
     assert "model" not in sources["temp"].values
-    assert "metar" not in sources["prcp"].values
+    assert "metar_legacy" not in sources["prcp"].values
     assert "model" in sources["prcp"].values
     assert df["temp"].mean().round() == 7
     assert df["prcp"].sum().round() == 1

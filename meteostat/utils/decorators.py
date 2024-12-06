@@ -29,7 +29,7 @@ def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
             if settings["cache_autoclean"]:
                 purge()
             if not settings["cache_enable"]:
-                logger.info(
+                logger.debug(
                     f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                 )
                 return func(*args, **kwargs)

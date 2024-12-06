@@ -44,11 +44,15 @@ def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
         return None
 
     except Exception as error:
-        logger.error(error)
+        logger.warning(error)
         return None
 
 
 def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     years = range(query["start"].year, query["end"].year + 1)
     data = [get_df(query["station"]["id"], year) for year in years]
-    return pd.concat(data) if len(data) and not all(d is None for d in data) else None
+    df = pd.concat(data) if len(data) and not all(d is None for d in data) else None
+    if df is not None:
+        df["source"] = "metar"
+        df.set_index(["source"], append=True, inplace=True)
+    return df

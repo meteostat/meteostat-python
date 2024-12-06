@@ -289,7 +289,7 @@ PROVIDER_METNO_FORECAST = ProviderDict(
 # Archived providers
 
 PROVIDER_SYNOP = ProviderDict(
-    id="synop",
+    id=Provider.SYNOP,
     granularity=Granularity.HOURLY,
     priority=Priority.MEDIUM,
     parameters=[
@@ -311,10 +311,27 @@ PROVIDER_SYNOP = ProviderDict(
         Parameter.COCO,
     ],
     start=date(2015, 8, 7),
+    module="meteostat.providers.meteostat.synop",
+)
+
+PROVIDER_METAR_LEGACY = ProviderDict(
+    id=Provider.METAR_LEGACY,
+    granularity=Granularity.HOURLY,
+    priority=Priority.LOW,
+    parameters=[
+        Parameter.TEMP,
+        Parameter.RHUM,
+        Parameter.WDIR,
+        Parameter.WSPD,
+        Parameter.PRES,
+        Parameter.COCO,
+    ],
+    start=date(2015, 8, 7),
+    module="meteostat.providers.meteostat.metar",
 )
 
 PROVIDER_MODEL = ProviderDict(
-    id="model",
+    id=Provider.MODEL,
     granularity=Granularity.HOURLY,
     priority=Priority.LOWEST,
     parameters=[
@@ -330,6 +347,7 @@ PROVIDER_MODEL = ProviderDict(
         Parameter.COCO,
     ],
     start=date(2015, 8, 7),
+    module="meteostat.providers.meteostat.model",
 )
 
 
@@ -354,5 +372,6 @@ ALL_PROVIDERS = [
     PROVIDER_METAR,
     PROVIDER_METNO_FORECAST,
     PROVIDER_SYNOP,
+    PROVIDER_METAR_LEGACY,
     PROVIDER_MODEL,
 ]

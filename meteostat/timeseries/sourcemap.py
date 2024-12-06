@@ -24,7 +24,8 @@ class SourceMap:
         self,
         df: Optional[pd.DataFrame],
     ) -> None:
-        self._df = df
+        if not df.empty:
+            self._df = df
 
     def fetch(self) -> Optional[pd.DataFrame]:
         """

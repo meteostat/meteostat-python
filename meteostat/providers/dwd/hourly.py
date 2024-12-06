@@ -174,7 +174,7 @@ def get_parameter(
         df = pd.concat(data)
         return df.loc[~df.index.duplicated(keep="first")]
     except Exception as error:
-        logger.error(error)
+        logger.warning(error)
         return None
 
 

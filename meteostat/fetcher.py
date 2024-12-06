@@ -93,7 +93,7 @@ def fetch_ts(
     """
     Load meteorological time series data from different providers
     """
-    logger.info(f"{granularity} time series requested for {len(stations)} station(s)")
+    logger.debug(f"{granularity} time series requested for {len(stations)} station(s)")
 
     fragments = []
     included_stations: list[StationDict] = []

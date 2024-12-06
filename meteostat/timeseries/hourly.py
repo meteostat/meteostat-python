@@ -24,7 +24,10 @@ from meteostat.model import (
     PROVIDER_ECCC_HOURLY,
     PROVIDER_ISD_LITE,
     PROVIDER_METAR,
+    PROVIDER_METAR_LEGACY,
     PROVIDER_METNO_FORECAST,
+    PROVIDER_MODEL,
+    PROVIDER_SYNOP,
 )
 from meteostat.point import Point
 from meteostat.stations.nearby import nearby
@@ -47,6 +50,9 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_METAR,
     PROVIDER_HOURLY,
     PROVIDER_METNO_FORECAST,
+    PROVIDER_SYNOP,
+    PROVIDER_METAR_LEGACY,
+    PROVIDER_MODEL,
 ]
 DEFAULT_PARAMETERS = [
     Parameter.TEMP,

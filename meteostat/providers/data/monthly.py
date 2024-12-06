@@ -40,7 +40,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         return None
 
     except Exception as error:
-        logger.error(error)
+        logger.warning(error)
         return None
 
 
@@ -67,7 +67,7 @@ def get_source_df(station: str) -> Optional[pd.DataFrame]:
         return None
 
     except Exception as error:
-        logger.error(error)
+        logger.warning(error)
         return None
 
 
