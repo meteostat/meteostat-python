@@ -6,12 +6,12 @@ HOURLY_SCHEMA = Schema(
     [
         Column(
             Parameter.TEMP,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.DWPT,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
@@ -21,7 +21,7 @@ HOURLY_SCHEMA = Schema(
         ),
         Column(
             Parameter.PRCP,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(350), formatters.decimals(1)],
         ),
         Column(
@@ -41,17 +41,17 @@ HOURLY_SCHEMA = Schema(
         ),
         Column(
             Parameter.WSPD,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(250), formatters.decimals(1)],
         ),
         Column(
             Parameter.WPGT,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(500), formatters.decimals(1)],
         ),
         Column(
             Parameter.PRES,
-            "Float32",
+            "Float64",
             [validators.minimum(850), validators.maximum(1090), formatters.decimals(1)],
         ),
         Column(
@@ -81,22 +81,22 @@ DAILY_SCHEMA = Schema(
     [
         Column(
             Parameter.TAVG,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TMIN,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TMAX,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.DWPT,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
@@ -106,7 +106,7 @@ DAILY_SCHEMA = Schema(
         ),
         Column(
             Parameter.PRCP,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(2000), formatters.decimals(1)],
         ),
         Column(
@@ -121,17 +121,17 @@ DAILY_SCHEMA = Schema(
         ),
         Column(
             Parameter.WSPD,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(150), formatters.decimals(1)],
         ),
         Column(
             Parameter.WPGT,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(500), formatters.decimals(1)],
         ),
         Column(
             Parameter.PRES,
-            "Float32",
+            "Float64",
             [validators.minimum(850), validators.maximum(1090), formatters.decimals(1)],
         ),
         Column(
@@ -156,37 +156,37 @@ MONTHLY_SCHEMA = Schema(
     [
         Column(
             Parameter.TAVG,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TAMN,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TAMX,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TMIN,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TMAX,
-            "Float32",
+            "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.PRCP,
-            "Float32",
+            "Float64",
             [validators.minimum(0), validators.maximum(10000), formatters.decimals(1)],
         ),
         Column(
             Parameter.PRES,
-            "Float32",
+            "Float64",
             [validators.minimum(850), validators.maximum(1090), formatters.decimals(1)],
         ),
         Column(
