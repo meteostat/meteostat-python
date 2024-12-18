@@ -49,3 +49,4 @@ class SettingsDict(TypedDict):
     point_radius: int
     point_stations: int
     proxies: Optional[dict]
+    provider_metno_forecast_user_agent: Optional[str]

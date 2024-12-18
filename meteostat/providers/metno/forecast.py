@@ -4,6 +4,7 @@ from urllib.error import HTTPError
 import pandas as pd
 import requests
 
+from meteostat import settings
 from meteostat.enumerations import TTL, Parameter
 from meteostat.logger import logger
 from meteostat.typing import QueryDict
@@ -134,7 +135,13 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         elevation=query["station"]["location"]["elevation"],
     )
 
-    headers = {"User-Agent": "tbd info@example.com"}
+    user_agent = settings['provider_metno_user_agent']
+
+    if not user_agent:
+        logger.warning("MET Norway requires a unique user agent as per their terms of service. Please use the settings key 'provider_metno_user_agent' to specify your user agent. For now, this provider is skipped.")
+        return None
+
+    headers = {"User-Agent": user_agent}
 
     try:
         response = requests.get(file_url, headers=headers)

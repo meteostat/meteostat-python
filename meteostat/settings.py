@@ -14,6 +14,7 @@ settings: SettingsDict = {
     "point_radius": 50000,
     "point_stations": 4,
     "proxies": None,
+    "provider_metno_user_agent": None  # User-Agent required for MET Norway (https://api.met.no/doc/TermsOfService)
 }
 
 
