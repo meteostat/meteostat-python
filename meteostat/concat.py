@@ -3,8 +3,21 @@ from datetime import datetime
 from typing import List, Optional
 
 import pandas as pd
+from pulire import Schema
+from meteostat import schema as schemas
+from meteostat.enumerations import Granularity, Parameter
+from meteostat.fetcher import concat_fragments
 from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.typing import ProviderDict
+from meteostat.utils.parsers import get_schema
+
+def _get_schema(granularity: Granularity, parameters: List[Parameter]) -> Schema:
+    root_schema = getattr(schemas, f'{granularity.upper()}_SCHEMA')
+    return get_schema(root_schema, parameters)
+
+def _append_parameter(items: List[Parameter], new_item: Parameter) -> None:
+    if not any(item == new_item for item in items):
+        items.append(new_item)
 
 def _append_provider(items: List[ProviderDict], new_item: ProviderDict) -> None:
     if not any(item['id'] == new_item['id'] for item in items):
@@ -27,38 +40,42 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
     """
     Merge one or multiple Meteostat time series into a common one
     """
-    ts_base = objs[0]
+    ts = objs[0]
 
     if not all(
-        obj.granularity == ts_base.granularity
-        and obj.timezone == ts_base.timezone
+        obj.granularity == ts.granularity
+        and obj.timezone == ts.timezone
         for obj in objs[1:]
     ):
         raise ValueError(
             "Can't concatenate time series objects with divergent granularity or time zone"
         )
     
-    df = copy(ts_base._df)
-    stations = copy(ts_base.stations)
-    providers = copy(ts_base.providers)
-    start = copy(ts_base.start)
-    end = copy(ts_base.end)
+    parameters = ts.schema.names
+    stations = copy(ts.stations)
+    providers = copy(ts.providers)
+    start = copy(ts.start)
+    end = copy(ts.end)
 
     for obj in objs[1:]:
-        df = pd.concat([df, obj._df], verify_integrity=True)
         stations = pd.concat([stations, obj.stations]).drop_duplicates()
         start = _get_dt(start, obj.start)
         end = _get_dt(end, obj.end, False)
+        for parameter in obj.schema.names:
+            _append_parameter(parameters, parameter)
         for provider in obj.providers:
             _append_provider(providers, provider)
 
+    schema = _get_schema(ts.granularity, parameters)
+    df = concat_fragments([obj._df for obj in objs], schema)
+
     return TimeSeries(
-        ts_base.granularity,
-        ts_base.schema,
+        ts.granularity,
+        schema,
         providers,
         stations,
-        df,
+        schema.format(df),
         start,
         end,
-        ts_base.timezone
+        ts.timezone
     )

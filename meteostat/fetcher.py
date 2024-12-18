@@ -73,8 +73,8 @@ def concat_fragments(fragments: List[pd.DataFrame], schema: Schema) -> pd.DataFr
         df = pd.concat(
             [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
         )
-        df = schema.purge(df)
         df = schema.fill(df)
+        df = schema.purge(df)
         return df
     except ValueError:
         return pd.DataFrame()
