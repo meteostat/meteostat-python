@@ -5,7 +5,7 @@ from meteostat.enumerations import Granularity, Parameter, Provider, Priority
 PROVIDER_HOURLY = ProviderDict(
     id=Provider.HOURLY,
     granularity=Granularity.HOURLY,
-    priority=Priority.LOWEST,
+    priority=Priority.NONE,
     parameters=[
         Parameter.TEMP,
         Parameter.RHUM,
@@ -26,7 +26,7 @@ PROVIDER_HOURLY = ProviderDict(
 PROVIDER_DAILY = ProviderDict(
     id=Provider.DAILY,
     granularity=Granularity.DAILY,
-    priority=Priority.LOWEST,
+    priority=Priority.NONE,
     parameters=[
         Parameter.TAVG,
         Parameter.TMIN,
@@ -47,7 +47,7 @@ PROVIDER_DAILY = ProviderDict(
 PROVIDER_DAILY_DERIVED = ProviderDict(
     id=Provider.DAILY_DERIVED,
     granularity=Granularity.DAILY,
-    priority=Priority.LOWEST,
+    priority=Priority.NONE,
     parameters=[
         Parameter.TAVG,
         Parameter.TMIN,
@@ -68,7 +68,7 @@ PROVIDER_DAILY_DERIVED = ProviderDict(
 PROVIDER_MONTHLY = ProviderDict(
     id=Provider.MONTHLY,
     granularity=Granularity.MONTHLY,
-    priority=Priority.LOWEST,
+    priority=Priority.NONE,
     parameters=[
         Parameter.TAVG,
         Parameter.TMIN,
@@ -84,7 +84,7 @@ PROVIDER_MONTHLY = ProviderDict(
 PROVIDER_MONTHLY_DERIVED = ProviderDict(
     id=Provider.MONTHLY_DERIVED,
     granularity=Granularity.MONTHLY,
-    priority=Priority.LOWEST,
+    priority=Priority.NONE,
     parameters=[
         Parameter.TAVG,
         Parameter.TMIN,
@@ -269,7 +269,7 @@ PROVIDER_METAR = ProviderDict(
 PROVIDER_METNO_FORECAST = ProviderDict(
     id=Provider.METNO_FORECAST,
     granularity=Granularity.HOURLY,
-    priority=Priority.LOWEST,
+    priority=Priority.LOWEST - 1, # As DWD MOSMIX is more specific, this priority is lower
     parameters=[
         Parameter.TEMP,
         Parameter.RHUM,
@@ -317,7 +317,7 @@ PROVIDER_SYNOP = ProviderDict(
 PROVIDER_METAR_LEGACY = ProviderDict(
     id=Provider.METAR_LEGACY,
     granularity=Granularity.HOURLY,
-    priority=Priority.LOW,
+    priority=Priority.LOW - 1,
     parameters=[
         Parameter.TEMP,
         Parameter.RHUM,
@@ -333,7 +333,7 @@ PROVIDER_METAR_LEGACY = ProviderDict(
 PROVIDER_MODEL = ProviderDict(
     id=Provider.MODEL,
     granularity=Granularity.HOURLY,
-    priority=Priority.LOWEST,
+    priority=Priority.LOWEST - 2,
     parameters=[
         Parameter.TEMP,
         Parameter.RHUM,

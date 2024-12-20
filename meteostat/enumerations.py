@@ -96,11 +96,12 @@ class Priority(IntEnum):
     Provider priorities
     """
 
-    HIGHEST = 5
-    HIGH = 4
-    MEDIUM = 3
-    LOW = 2
-    LOWEST = 1
+    HIGHEST = 25
+    HIGH = 20
+    MEDIUM = 15
+    LOW = 10
+    LOWEST = 5
+    NONE = 0
 
 
 class TTL(IntEnum):
