@@ -269,7 +269,8 @@ PROVIDER_METAR = ProviderDict(
 PROVIDER_METNO_FORECAST = ProviderDict(
     id=Provider.METNO_FORECAST,
     granularity=Granularity.HOURLY,
-    priority=Priority.LOWEST - 1, # As DWD MOSMIX is more specific, this priority is lower
+    priority=Priority.LOWEST
+    - 1,  # As DWD MOSMIX is more specific, this priority is lower
     parameters=[
         Parameter.TEMP,
         Parameter.RHUM,

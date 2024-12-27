@@ -135,10 +135,12 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         elevation=query["station"]["location"]["elevation"],
     )
 
-    user_agent = settings['provider_metno_user_agent']
+    user_agent = settings["provider_metno_user_agent"]
 
     if not user_agent:
-        logger.warning("MET Norway requires a unique user agent as per their terms of service. Please use the settings key 'provider_metno_user_agent' to specify your user agent. For now, this provider is skipped.")
+        logger.warning(
+            "MET Norway requires a unique user agent as per their terms of service. Please use the settings key 'provider_metno_user_agent' to specify your user agent. For now, this provider is skipped."
+        )
         return None
 
     headers = {"User-Agent": user_agent}

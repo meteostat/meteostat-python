@@ -118,10 +118,20 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     response.raise_for_status()
 
     # Parse the JSON content into a DataFrame
-    data = response.text.splitlines()
+    data = [
+        item for item in map(map_data, response.text.splitlines()) if item is not None
+    ]
+
+    # Return None if no data is available
+    if not len(data):
+        return None
 
     # Create DataFrame
-    df = pd.DataFrame([item for item in map(map_data, data) if item is not None])
+    df = pd.DataFrame(data)
+
+    # Return None if DataFrame is empty
+    if df.empty:
+        return None
 
     # Add RHUM column
     df[Parameter.RHUM] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)

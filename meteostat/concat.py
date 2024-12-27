@@ -11,19 +11,25 @@ from meteostat.timeseries.timeseries import TimeSeries
 from meteostat.typing import ProviderDict
 from meteostat.utils.parsers import get_schema
 
+
 def _get_schema(granularity: Granularity, parameters: List[Parameter]) -> Schema:
-    root_schema = getattr(schemas, f'{granularity.upper()}_SCHEMA')
+    root_schema = getattr(schemas, f"{granularity.upper()}_SCHEMA")
     return get_schema(root_schema, parameters)
+
 
 def _append_parameter(items: List[Parameter], new_item: Parameter) -> None:
     if not any(item == new_item for item in items):
         items.append(new_item)
 
+
 def _append_provider(items: List[ProviderDict], new_item: ProviderDict) -> None:
-    if not any(item['id'] == new_item['id'] for item in items):
+    if not any(item["id"] == new_item["id"] for item in items):
         items.append(new_item)
 
-def _get_dt(dt_a: Optional[datetime], dt_b: Optional[datetime], start = True) -> Optional[datetime]:
+
+def _get_dt(
+    dt_a: Optional[datetime], dt_b: Optional[datetime], start=True
+) -> Optional[datetime]:
     """
     Return the earlier or later (depending on "start" argument) of two datetimes,
     considering None as 'no value'.
@@ -36,6 +42,7 @@ def _get_dt(dt_a: Optional[datetime], dt_b: Optional[datetime], start = True) ->
         return dt_a
     return min(dt_a, dt_b) if start else max(dt_a, dt_b)
 
+
 def concat(objs: List[TimeSeries]) -> TimeSeries:
     """
     Merge one or multiple Meteostat time series into a common one
@@ -43,14 +50,13 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
     ts = objs[0]
 
     if not all(
-        obj.granularity == ts.granularity
-        and obj.timezone == ts.timezone
+        obj.granularity == ts.granularity and obj.timezone == ts.timezone
         for obj in objs[1:]
     ):
         raise ValueError(
             "Can't concatenate time series objects with divergent granularity or time zone"
         )
-    
+
     parameters = ts.schema.names
     stations = copy(ts.stations)
     providers = copy(ts.providers)
@@ -77,5 +83,5 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
         schema.format(df),
         start,
         end,
-        ts.timezone
+        ts.timezone,
     )

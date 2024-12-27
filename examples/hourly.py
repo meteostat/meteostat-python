@@ -2,24 +2,24 @@ from datetime import datetime, date
 import logging
 import meteostat as ms
 
+ts_x = ms.hourly(
+    "01002", date(2024, 12, 26), date(2024, 12, 28), providers=[ms.Provider.METAR]
+)
+print(ts_x.fetch())
+exit()
+
 ts_a = ms.hourly(
-    '10635',
-    date(2024, 12, 17),
-    date(2024, 12, 17),
-    providers=[ms.Provider.DWD_POI]
+    "10635", date(2024, 12, 17), date(2024, 12, 17), providers=[ms.Provider.DWD_POI]
 )
 
 ts_b = ms.hourly(
-    '10635',
+    "10635",
     date(2024, 12, 1),
     date(2024, 12, 6),
 )
 
 ts_c = ms.hourly(
-    '10637',
-    date(2024, 12, 17),
-    date(2024, 12, 17),
-    providers=[ms.Provider.DWD_POI]
+    "10637", date(2024, 12, 17), date(2024, 12, 17), providers=[ms.Provider.DWD_POI]
 )
 
 ts = ms.concat([ts_a, ts_b, ts_c])
