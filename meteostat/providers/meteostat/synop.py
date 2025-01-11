@@ -12,7 +12,7 @@ from meteostat.logger import logger
 from meteostat.typing import QueryDict
 
 
-ENDPOINT = "https://raw.meteostat.net/synop/{year}/{station}.csv.gz"
+ENDPOINT = "https://bulk.meteostat.net/v2/raw/synop/{year}/{station}.csv.gz"
 
 
 def get_ttl(_station: str, year: int) -> int:
@@ -51,4 +51,8 @@ def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
 def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     years = range(query["start"].year, query["end"].year + 1)
     data = [get_df(query["station"]["id"], year) for year in years]
-    return pd.concat(data) if len(data) and not all(d is None for d in data) else None
+    df = pd.concat(data) if len(data) and not all(d is None for d in data) else None
+    if df is not None:
+        df["source"] = "zamg_hourly" if query["station"]["country"] == 'AT' else "dwd_poi"
+        df.set_index(["source"], append=True, inplace=True)
+    return df

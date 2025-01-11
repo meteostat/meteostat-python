@@ -12,7 +12,7 @@ from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 
 
-ENDPOINT = "https://raw.meteostat.net/metar/{year}/{station}.csv.gz"
+ENDPOINT = "https://bulk.meteostat.net/v2/raw/metar/{year}/{station}.csv.gz"
 
 
 def get_ttl(_station: str, year: int) -> int:
