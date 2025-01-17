@@ -17,7 +17,7 @@ from pulire import Schema
 from meteostat.enumerations import Parameter, Granularity
 from meteostat.timeseries.sourcemap import SourceMap
 from meteostat.typing import ProviderDict
-from meteostat.utils.helpers import get_freq, order_columns
+from meteostat.utils.helpers import get_freq, order_source_columns
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
 
@@ -158,7 +158,7 @@ class TimeSeries:
 
         if squash and sources:
             df = df.join(self.sources.fetch(), rsuffix="_source")
-            df = df[order_columns(df.columns)]
+            df = df[order_source_columns(df.columns)]
 
         if fill:
             df = fill_df(df, self.start, self.end, get_freq(self.granularity))
