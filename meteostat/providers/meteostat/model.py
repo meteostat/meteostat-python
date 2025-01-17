@@ -53,6 +53,10 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     data = [get_df(query["station"]["id"], year) for year in years]
     df = pd.concat(data) if len(data) and not all(d is None for d in data) else None
     if df is not None:
-        df["source"] = "dwd_mosmix" if "mosmix" in query["station"]["identifiers"] else "metno_forecast"
+        df["source"] = (
+            "dwd_mosmix"
+            if "mosmix" in query["station"]["identifiers"]
+            else "metno_forecast"
+        )
         df.set_index(["source"], append=True, inplace=True)
     return df

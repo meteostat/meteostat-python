@@ -45,7 +45,6 @@ class SettingsDict(TypedDict):
     cache_ttl_max: int
     cache_ttl_min: int
     cache_autoclean: bool
-    load_sources: bool
     point_radius: int
     point_stations: int
     proxies: Optional[dict]

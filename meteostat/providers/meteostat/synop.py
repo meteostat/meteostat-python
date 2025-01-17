@@ -53,6 +53,8 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     data = [get_df(query["station"]["id"], year) for year in years]
     df = pd.concat(data) if len(data) and not all(d is None for d in data) else None
     if df is not None:
-        df["source"] = "zamg_hourly" if query["station"]["country"] == 'AT' else "dwd_poi"
+        df["source"] = (
+            "zamg_hourly" if query["station"]["country"] == "AT" else "dwd_poi"
+        )
         df.set_index(["source"], append=True, inplace=True)
     return df

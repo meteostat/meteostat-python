@@ -112,12 +112,12 @@ DAILY_SCHEMA = Schema(
         Column(
             Parameter.SNOW,
             "Int64",
-            [validators.minimum(0), validators.maximum(50), formatters.decimals(1)],
+            [validators.minimum(0), validators.maximum(50)],
         ),
         Column(
             Parameter.SNWD,
             "UInt8",
-            [validators.minimum(0), validators.maximum(200)],
+            [validators.minimum(0), validators.maximum(1200)],
         ),
         Column(
             Parameter.WSPD,

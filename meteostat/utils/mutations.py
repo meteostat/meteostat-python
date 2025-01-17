@@ -83,19 +83,40 @@ def apply_lapse_rate(
     return df
 
 
-def reshape_by_source(df: pd.DataFrame, sources: pd.DataFrame) -> pd.DataFrame:
-    df_melted = df.reset_index().melt(id_vars="time").set_index(["time", "variable"])
-    sources_melted = (
-        sources.reset_index().melt(id_vars="time").set_index(["time", "variable"])
+def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Reshape a DataFrame so that the source columns are pivoted into
+    their own level of the index
+    """
+    # Extract value rows and source rows
+    value_rows = df.loc[:, ~df.columns.str.endswith("_source")]
+    source_rows = df.loc[:, df.columns.str.endswith("_source")]
+
+    # Melt both value_rows and source_rows
+    value_melted = value_rows.reset_index().melt(id_vars="time")
+    source_melted = source_rows.reset_index().melt(id_vars="time")
+
+    # Remove '_source' from the variable names in source_melted
+    source_melted["variable"] = source_melted["variable"].str.replace("_source", "")
+
+    # Merge the melted DataFrames
+    merged_df = pd.merge(
+        value_melted, source_melted, on=["time", "variable"], suffixes=("", "_source")
     )
-    df_joined = df_melted.join(sources_melted, rsuffix="_source").reset_index()
-    df_joined = df_joined.dropna(subset=["value"]).pivot(
-        index=["time", "value_source"], columns="variable"
+
+    # Drop rows with missing values
+    merged_df = merged_df.dropna(subset=["value"])
+
+    # Pivot the DataFrame
+    df_pivoted = merged_df.pivot(
+        index=["time", "value_source"], columns="variable", values="value"
     )
-    df_joined.index = df_joined.index.rename(["time", "source"])
-    df_joined.columns = df_joined.columns.droplevel(level=0)
-    df_joined.columns.name = None
-    return df_joined
+
+    # Flatten the MultiIndex
+    df_pivoted.index = df_pivoted.index.rename(["time", "source"])
+    df_pivoted.columns.name = None
+
+    return df_pivoted
 
 
 def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:

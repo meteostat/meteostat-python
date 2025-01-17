@@ -10,7 +10,6 @@ settings: SettingsDict = {
     "cache_ttl_max": 60 * 60 * 24 * 30,
     "cache_ttl_min": 0,
     "cache_autoclean": True,
-    "load_sources": False,
     "point_radius": 50000,
     "point_stations": 4,
     "proxies": None,

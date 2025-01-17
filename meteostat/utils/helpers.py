@@ -100,3 +100,17 @@ def aggregate_sources(series: pd.Series) -> str:
     sources = [str(item) for item in series if pd.notna(item)]
     flat_sources = set(itertools.chain(*[source.split() for source in sources]))
     return " ".join(flat_sources)
+
+
+def order_source_columns(columns: pd.Index) -> List[str]:
+    """
+    Order source columns
+    """
+    ordered_columns = []
+
+    for col in columns:
+        if not col.endswith("_source"):
+            ordered_columns.append(col)
+            ordered_columns.append(f"{col}_source")
+
+    return ordered_columns
