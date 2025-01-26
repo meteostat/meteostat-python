@@ -19,6 +19,7 @@ from meteostat.typing import ProviderDict
 from meteostat.utils.helpers import get_freq
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
+
 class TimeSeries:
     """
     TimeSeries class which provides features which are

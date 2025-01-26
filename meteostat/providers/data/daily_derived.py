@@ -87,21 +87,25 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     # If no hourly data is available, exit
     if df_hourly is None:
         return None
-    
+
     # Create daily aggregations
     df = pd.DataFrame()
     for parameter in query["parameters"]:
         [hourly_param_name, agg_func] = PARAMETER_AGGS[parameter]
         df[parameter] = (
-            df_hourly[hourly_param_name].groupby(pd.Grouper(level="time", freq="1D")).agg(agg_func)
+            df_hourly[hourly_param_name]
+            .groupby(pd.Grouper(level="time", freq="1D"))
+            .agg(agg_func)
         )
-        df[f'{parameter}_source'] = (
-            df_hourly[f'{hourly_param_name}_source'].groupby(pd.Grouper(level="time", freq="1D")).agg(aggregate_sources)
+        df[f"{parameter}_source"] = (
+            df_hourly[f"{hourly_param_name}_source"]
+            .groupby(pd.Grouper(level="time", freq="1D"))
+            .agg(aggregate_sources)
         )
 
     # Adjust DataFrame and add index
     df = df.round(1)
-    df.index = pd.to_datetime(df.index.date) 
+    df.index = pd.to_datetime(df.index.date)
     df.index.name = "time"
 
     # Return reshaped DataFrame

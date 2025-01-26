@@ -15,7 +15,7 @@ from meteostat.enumerations import Frequency, Parameter
 from meteostat.utils.helpers import get_source_priority, order_source_columns
 
 
-def squash_df(df: pd.DataFrame, sources = False) -> pd.DataFrame:
+def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
     """
     Squash a DataFrame based on the source priority
     """
@@ -29,7 +29,7 @@ def squash_df(df: pd.DataFrame, sources = False) -> pd.DataFrame:
     if sources:
         df = df.reset_index(level="source")
         for column in columns:
-            df[f'{column}_source'] = np.where(df[column].notna(), df['source'], np.nan)
+            df[f"{column}_source"] = np.where(df[column].notna(), df["source"], np.nan)
         df = df.set_index("source", append=True)
 
     # Get highest priority value/source for each station and time

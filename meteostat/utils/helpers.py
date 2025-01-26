@@ -74,6 +74,7 @@ def get_provider_priority(id: str) -> Priority:
     )
     return Priority.NONE if not provider else provider["priority"]
 
+
 def get_source_priority(source: str) -> Priority:
     """
     Get priority of a source string
@@ -82,7 +83,7 @@ def get_source_priority(source: str) -> Priority:
 
     if len(providers) == 1:
         return get_provider_priority(providers[0])
-    
+
     priorities = [get_provider_priority(provider) for provider in providers]
 
     return min(priorities)
