@@ -2,7 +2,6 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from meteostat.settings import settings
 from meteostat.enumerations import Parameter, Provider
 from meteostat.timeseries.hourly import hourly
 from meteostat.typing import QueryDict
@@ -72,6 +71,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     source_cols = list(
         dict.fromkeys([PARAMETER_AGGS[p][0] for p in query["parameters"]])
     )
+
     # Get hourly DataFrame
     ts_hourly = hourly(
         query["station"]["id"],
@@ -81,32 +81,28 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         providers=[Provider.HOURLY],
         timezone=query["station"]["timezone"],
     )
-    df_hourly = ts_hourly.fetch(fill=True)
+
+    df_hourly = ts_hourly.fetch(fill=True, sources=True)
+
     # If no hourly data is available, exit
     if df_hourly is None:
         return None
+    
     # Create daily aggregations
     df = pd.DataFrame()
     for parameter in query["parameters"]:
-        agg = PARAMETER_AGGS[parameter]
+        [hourly_param_name, agg_func] = PARAMETER_AGGS[parameter]
         df[parameter] = (
-            df_hourly[agg[0]].groupby(pd.Grouper(level="time", freq="1D")).agg(agg[1])
+            df_hourly[hourly_param_name].groupby(pd.Grouper(level="time", freq="1D")).agg(agg_func)
         )
+        df[f'{parameter}_source'] = (
+            df_hourly[f'{hourly_param_name}_source'].groupby(pd.Grouper(level="time", freq="1D")).agg(aggregate_sources)
+        )
+
     # Adjust DataFrame and add index
     df = df.round(1)
-    df.index = pd.to_datetime(df.index.date)
+    df.index = pd.to_datetime(df.index.date) 
     df.index.name = "time"
-    # Update data sources if desired
-    if settings["load_sources"]:
-        df_sources = ts_hourly.sources.fetch()
-        # Add missing columns
-        for key, value in PARAMETER_AGGS.items():
-            if key in query["parameters"]:
-                df_sources[key] = df_sources[value[0]]
-        # Remove duplicates
-        df_sources = df_sources.groupby(pd.Grouper(level="time", freq="1D")).agg(
-            aggregate_sources
-        )
-        df = reshape_by_source(df, df_sources)
-    # Return final DataFrame
-    return df
+
+    # Return reshaped DataFrame
+    return reshape_by_source(df)

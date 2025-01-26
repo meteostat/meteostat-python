@@ -67,13 +67,25 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
 
 def get_provider_priority(id: str) -> Priority:
     """
-    A factory function for getting the provider priority
+    Get priority of a provider by its ID
     """
-
     provider = next(
         (provider for provider in ALL_PROVIDERS if provider["id"] == id), None
     )
-    return Priority.LOWEST if not provider else provider["priority"]
+    return Priority.NONE if not provider else provider["priority"]
+
+def get_source_priority(source: str) -> Priority:
+    """
+    Get priority of a source string
+    """
+    providers = source.split(" ")
+
+    if len(providers) == 1:
+        return get_provider_priority(providers[0])
+    
+    priorities = [get_provider_priority(provider) for provider in providers]
+
+    return min(priorities)
 
 
 def get_index(obj: Iterable, index: int, default=None) -> Any:

@@ -157,8 +157,8 @@ def fetch_ts(
                 ):
                     break
 
-            except Exception as error:
-                logger.error(error)
+            except Exception:
+                logger.error(f'Could not fetch data for provider "{provider["id"]}"', exc_info=True)
 
         # Save weather station & corresponding weather data
         if len(station_fragments):
