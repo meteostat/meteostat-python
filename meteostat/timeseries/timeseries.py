@@ -15,11 +15,9 @@ from typing import Any, Callable, List, Optional, Tuple
 import pandas as pd
 from pulire import Schema
 from meteostat.enumerations import Parameter, Granularity
-from meteostat.timeseries.sourcemap import SourceMap
 from meteostat.typing import ProviderDict
-from meteostat.utils.helpers import get_freq, order_source_columns
+from meteostat.utils.helpers import get_freq
 from meteostat.utils.mutations import fill_df, localize, squash_df
-
 
 class TimeSeries:
     """
@@ -31,7 +29,6 @@ class TimeSeries:
     schema: Schema
     providers: List[ProviderDict]
     stations: pd.DataFrame
-    sources: SourceMap
     start: Optional[datetime] = None
     end: Optional[datetime] = None
     timezone: Optional[str] = None
@@ -53,7 +50,6 @@ class TimeSeries:
         self.schema = schema
         self.providers = providers
         self.stations = stations
-        self.sources = SourceMap(df)
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -151,14 +147,10 @@ class TimeSeries:
             return None
 
         if squash:
-            df = squash_df(df)
+            df = squash_df(df, sources=sources)
 
         if clean:
             df = self.schema.clean(df)
-
-        if squash and sources:
-            df = df.join(self.sources.fetch(), rsuffix="_source")
-            df = df[order_source_columns(df.columns)]
 
         if fill:
             df = fill_df(df, self.start, self.end, get_freq(self.granularity))

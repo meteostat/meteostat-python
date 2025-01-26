@@ -12,13 +12,28 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from meteostat.enumerations import Frequency, Parameter
-from meteostat.utils.helpers import get_provider_priority
+from meteostat.utils.helpers import get_provider_priority, order_source_columns
 
 
-def squash_df(df: pd.DataFrame) -> pd.DataFrame:
+def squash_df(df: pd.DataFrame, sources = False) -> pd.DataFrame:
+    """
+    Squash a DataFrame based on the source priority
+    """
+    # Capture the columns
+    columns = df.columns
+
+    # Add source priority column
     df["source_prio"] = df.index.get_level_values("source").map(get_provider_priority)
 
-    return (
+    # Shift source information to columns
+    if sources:
+        df = df.reset_index(level="source")
+        for column in columns:
+            df[f'{column}_source'] = np.where(df[column].notna(), df['source'], np.nan)
+        df = df.set_index("source", append=True)
+
+    # Get highest priority value/source for each station and time
+    df = (
         df.groupby(level=["station", "time", "source"])
         .last()
         .sort_values(by="source_prio", ascending=False)
@@ -26,6 +41,9 @@ def squash_df(df: pd.DataFrame) -> pd.DataFrame:
         .first()
         .drop("source_prio", axis=1)
     )
+
+    # Order columns and return squashed DataFrame
+    return df[order_source_columns(df.columns)] if sources else df
 
 
 def fill_df(
