@@ -65,17 +65,27 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
     return round(radius * arch_sin)
 
 
-def get_provider_priority(id: str) -> Priority:
+def get_provider_priority(id: str) -> int:
     """
     Get priority of a provider by its ID
     """
+    BASELINES = {
+        Granularity.HOURLY: 0,
+        Granularity.DAILY: 100,
+        Granularity.MONTHLY: 200,
+        Granularity.NORMALS: 300
+    }
+
     provider = next(
         (provider for provider in ALL_PROVIDERS if provider["id"] == id), None
     )
-    return Priority.NONE if not provider else provider["priority"]
+
+    baseline = BASELINES[provider["granularity"]]
+    
+    return int((Priority.NONE if not provider else provider["priority"]) + baseline)
 
 
-def get_source_priority(source: str) -> Priority:
+def get_source_priority(source: str) -> int:
     """
     Get priority of a source string
     """

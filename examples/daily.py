@@ -5,13 +5,12 @@ import meteostat as ms
 logging.basicConfig(
     level=logging.INFO, format="%(levelname)s [%(filename)s:%(lineno)s] %(message)s"
 )
-ms.settings["load_sources"] = True
 
 ts = ms.daily(
     "01001",
     datetime(2020, 1, 5),
     datetime(2020, 1, 10),
-    providers=[ms.Provider.DAILY],
+    providers=[ms.Provider.DAILY_DERIVED],
 )
 print(ts.fetch())
 exit()
