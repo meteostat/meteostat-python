@@ -9,6 +9,7 @@ The code is licensed under the MIT license.
 """
 
 import itertools
+from collections import Counter
 from typing import Any, Iterable, List, Tuple
 import numpy as np
 import pandas as pd
@@ -73,7 +74,7 @@ def get_provider_priority(id: str) -> int:
         Granularity.HOURLY: 0,
         Granularity.DAILY: 100,
         Granularity.MONTHLY: 200,
-        Granularity.NORMALS: 300
+        Granularity.NORMALS: 300,
     }
 
     provider = next(
@@ -81,7 +82,7 @@ def get_provider_priority(id: str) -> int:
     )
 
     baseline = BASELINES[provider["granularity"]]
-    
+
     return int((Priority.NONE if not provider else provider["priority"]) + baseline)
 
 
@@ -118,11 +119,21 @@ def get_intersection(list1, list2) -> List[Any]:
 
 def aggregate_sources(series: pd.Series) -> str:
     """
-    Concatenate multiple data sources into a unique source string
+    Concatenate multiple data sources into a unique source string,
+    ordered by the number of occurrences.
     """
+    # Extract sources and flatten them
     sources = [str(item) for item in series if pd.notna(item)]
-    flat_sources = set(itertools.chain(*[source.split() for source in sources]))
-    return " ".join(flat_sources)
+    flat_sources = list(itertools.chain(*[source.split() for source in sources]))
+
+    # Count occurrences of each source
+    source_counts = Counter(flat_sources)
+
+    # Sort sources by count in descending order
+    sorted_sources = sorted(source_counts, key=source_counts.get, reverse=True)
+
+    # Concatenate sorted sources into a unique source string
+    return " ".join(sorted_sources)
 
 
 def order_source_columns(columns: pd.Index) -> List[str]:
