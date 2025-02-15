@@ -38,10 +38,10 @@ SUPPORTED_PROVIDERS = [
 ]
 DEFAULT_PARAMETERS = [
     Parameter.TAVG,
-    Parameter.TAMN,
-    Parameter.TAMX,
     Parameter.TMIN,
     Parameter.TMAX,
+    Parameter.TXMN,
+    Parameter.TXMX,
     Parameter.PRCP,
     Parameter.PRES,
     Parameter.TSUN,

@@ -10,9 +10,9 @@ from meteostat.typing import QueryDict
 BATCH_LIMIT = 9000
 PROPERTIES = {
     "LOCAL_DATE": "time",
-    "MAX_TEMPERATURE": Parameter.TMAX,
+    "MAX_TEMPERATURE": Parameter.TXMX,
     "MEAN_TEMPERATURE": Parameter.TAVG,
-    "MIN_TEMPERATURE": Parameter.TMIN,
+    "MIN_TEMPERATURE": Parameter.TXMN,
     "TOTAL_PRECIPITATION": Parameter.PRCP,
     "DAYS_WITH_PRECIP_GE_1MM": Parameter.PDAY,
     "TOTAL_SNOWFALL": Parameter.SNOW,

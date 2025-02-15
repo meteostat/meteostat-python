@@ -2,7 +2,6 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from meteostat.settings import settings
 from meteostat.enumerations import Parameter, Provider
 from meteostat.timeseries.daily import daily
 from meteostat.typing import QueryDict
@@ -50,10 +49,10 @@ def monthly_max(group: pd.Series):
 # Available parameters with source column and aggregation method
 PARAMETER_AGGS = {
     Parameter.TAVG: (Parameter.TAVG, monthly_mean),
-    Parameter.TAMN: (Parameter.TMIN, monthly_mean),
-    Parameter.TAMX: (Parameter.TMAX, monthly_mean),
-    Parameter.TMIN: (Parameter.TMIN, monthly_min),
-    Parameter.TMAX: (Parameter.TMAX, monthly_max),
+    Parameter.TMIN: (Parameter.TMIN, monthly_mean),
+    Parameter.TMAX: (Parameter.TMAX, monthly_mean),
+    Parameter.TXMN: (Parameter.TMIN, monthly_min),
+    Parameter.TXMX: (Parameter.TMAX, monthly_max),
     Parameter.PRCP: (Parameter.PRCP, monthly_sum),
     Parameter.PRES: (Parameter.PRES, monthly_mean),
     Parameter.TSUN: (Parameter.TSUN, monthly_sum),
@@ -69,6 +68,7 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     source_cols = list(
         dict.fromkeys([PARAMETER_AGGS[p][0] for p in query["parameters"]])
     )
+
     # Get daily DataFrame
     ts_daily = daily(
         query["station"]["id"],
@@ -77,32 +77,30 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
         parameters=source_cols,
         providers=[Provider.DAILY],
     )
-    df_daily = ts_daily.fetch(fill=True)
+
+    df_daily = ts_daily.fetch(fill=True, sources=True)
+
     # If no daily data is available, exit
     if df_daily is None:
         return None
+
     # Create monthly aggregations
     df = pd.DataFrame()
     for parameter in query["parameters"]:
-        agg = PARAMETER_AGGS[parameter]
+        [daily_param_name, agg_func] = PARAMETER_AGGS[parameter]
         df[parameter] = (
-            df_daily[agg[0]].groupby(pd.Grouper(level="time", freq="MS")).agg(agg[1])
+            df_daily[daily_param_name].groupby(pd.Grouper(level="time", freq="MS")).agg(agg_func)
         )
+        df[f"{parameter}_source"] = (
+            df_daily[f"{daily_param_name}_source"]
+            .groupby(pd.Grouper(level="time", freq="MS"))
+            .agg(aggregate_sources)
+        )
+    
     # Adjust DataFrame and add index
     df = df.round(1)
     df.index = pd.to_datetime(df.index.date)
     df.index.name = "time"
-    # Update data sources if desired
-    if settings["load_sources"]:
-        df_sources = ts_daily.sources.fetch()
-        # Add missing columns
-        for key, value in PARAMETER_AGGS.items():
-            if key in query["parameters"]:
-                df_sources[key] = df_sources[value[0]]
-        # Remove duplicates
-        df_sources = df_sources.groupby(pd.Grouper(level="time", freq="MS")).agg(
-            aggregate_sources
-        )
-        df = reshape_by_source(df, df_sources)
+
     # Return final DataFrame
-    return df
+    return reshape_by_source(df)

@@ -160,22 +160,22 @@ MONTHLY_SCHEMA = Schema(
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
-            Parameter.TAMN,
-            "Float64",
-            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
-        ),
-        Column(
-            Parameter.TAMX,
-            "Float64",
-            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
-        ),
-        Column(
             Parameter.TMIN,
             "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
         Column(
             Parameter.TMAX,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TXMN,
+            "Float64",
+            [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
+        ),
+        Column(
+            Parameter.TXMX,
             "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),

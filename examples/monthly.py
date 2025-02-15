@@ -17,6 +17,6 @@ ts = ms.monthly(
     providers=[ms.Provider.MONTHLY_DERIVED],
 )
 
-print(ts.fetch())
+print(ts.fetch(sources=True))
 exit()
 plt.show()

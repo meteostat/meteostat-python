@@ -38,14 +38,14 @@ class Parameter(StrEnum):
     """
 
     TEMP = "temp"  # Air temperature at time of observation
-    TAVG = "tavg"  # Average air temperature
-    TMIN = "tmin"  # Absolute minimum air temperature
-    TMAX = "tmax"  # Absolute maximum air temperature
-    TAMN = "tamn"  # Average minimum air temperature
-    TAMX = "tamx"  # Average maximum air temperature
+    TAVG = "tavg"  # Average air temperature (aggregation: mean)
+    TMIN = "tmin"  # Daily minimum air temperature (aggregation: mean)
+    TMAX = "tmax"  # Daily maximum air temperature (aggregation: mean)
+    TXMN = "txmn"  # Extreme minimum air temperature (aggregation: min)
+    TXMX = "txmx"  # Extreme maximum air temperature (aggregation: max)
     DWPT = "dwpt"  # Dew point (aggregation: mean)
     PRCP = "prcp"  # Precipitation (aggregation: sum)
-    PDAY = "pday"  # Days with precipitation equal to or greater than 1 millimeter
+    PDAY = "pday"  # Days with precipitation equal to or greater than 1 millimeter (aggregation: sum)
     WDIR = "wdir"  # Wind direction at observation time
     WSPD = "wspd"  # Wind speed (aggregation: mean)
     WPGT = "wpgt"  # Peak wind gust (aggregation: max)
