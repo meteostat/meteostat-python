@@ -111,14 +111,17 @@ def fetch(query: QueryDict):
     if not "national" in query["station"]["identifiers"]:
         return pd.DataFrame()
 
-    modes = [
-        m
-        for m in [
-            "historical" if abs((query["start"] - datetime.now()).days) > 120 else None,
-            "recent" if abs((query["end"] - datetime.now()).days) < 120 else None,
-        ]
-        if m is not None
-    ]  # can be "recent" and/or "historical"
+    # Check which modes to consider for data fetching
+    #
+    # The dataset is divided into a versioned part with completed quality check ("historical"),
+    # and a part for which the quality check has not yet been completed ("recent").
+    #
+    # There is no definite answer as to when the quality check is completed. We're assuming a
+    # period of 3 years here. If the end date of the query is within this period, we will also
+    # consider the "recent" mode.
+    modes = ["historical"]
+    if abs((query["end"] - datetime.now()).days) < 3 * 365:
+        modes.append("recent")
 
     data = [
         get_df(

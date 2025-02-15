@@ -12,7 +12,7 @@ from io import BytesIO
 from typing import Optional
 from zipfile import ZipFile
 import pandas as pd
-from meteostat.enumerations import TTL
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, pres_to_msl
@@ -23,17 +23,17 @@ BASE_DIR = "/climate_environment/CDC/observations_germany/climate/daily/kl/"
 USECOLS = [1, 3, 4, 6, 8, 9, 10, 12, 13, 14, 15, 16]  # CSV cols which should be read
 PARSE_DATES = {"time": [0]}  # Which columns should be parsed as dates?
 NAMES = {
-    "FX": "wpgt",
-    "FM": "wspd",
-    "RSK": "prcp",
-    "SDK": "tsun",
-    "SHK_TAG": "snow",
-    "NM": "cldc",
-    "PM": "pres",
-    "TMK": "tavg",
-    "UPM": "rhum",
-    "TXK": "tmax",
-    "TNK": "tmin",
+    "FX": Parameter.WPGT,
+    "FM": Parameter.WSPD,
+    "RSK": Parameter.PRCP,
+    "SDK": Parameter.TSUN,
+    "SHK_TAG": Parameter.SNWD,
+    "NM": Parameter.CLDC,
+    "PM": Parameter.PRES,
+    "TMK": Parameter.TAVG,
+    "UPM": Parameter.RHUM,
+    "TXK": Parameter.TMAX,
+    "TNK": Parameter.TMIN,
 }
 
 
@@ -57,7 +57,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
 @cache(TTL.DAY, "pickle")
 def get_df(station: str, elevation: int, mode: str) -> Optional[pd.DataFrame]:
     """
-    Get a file from DWD FTP server and convert to Polars DataFrame
+    Get a file from DWD FTP server and convert to DataFrame
     """
     ftp = get_ftp_connection()
     remote_file = find_file(ftp, mode, f"_{station}_")
@@ -95,11 +95,11 @@ def get_df(station: str, elevation: int, mode: str) -> Optional[pd.DataFrame]:
     df = df.rename(columns=NAMES)
 
     # Convert data
-    df["snow"] = df["snow"] * 10
-    df["wpgt"] = df["wpgt"].apply(ms_to_kmh)
-    df["wspd"] = df["wspd"].apply(ms_to_kmh)
-    df["tsun"] = df["tsun"] * 60
-    df["pres"] = df.apply(lambda row: pres_to_msl(row, elevation), axis=1)
+    df[Parameter.SNWD] = df[Parameter.SNWD] * 10
+    df[Parameter.WPGT] = df[Parameter.WPGT].apply(ms_to_kmh)
+    df[Parameter.WSPD] = df[Parameter.WSPD].apply(ms_to_kmh)
+    df[Parameter.TSUN] = df[Parameter.TSUN] * 60
+    df[Parameter.PRES] = df.apply(lambda row: pres_to_msl(row, elevation), axis=1)
 
     # Set index
     df = df.set_index("time")
@@ -114,14 +114,17 @@ def fetch(query: QueryDict):
     if not "national" in query["station"]["identifiers"]:
         return pd.DataFrame()
 
-    modes = [
-        m
-        for m in [
-            "historical" if abs((query["start"] - datetime.now()).days) > 120 else None,
-            "recent" if abs((query["end"] - datetime.now()).days) < 120 else None,
-        ]
-        if m is not None
-    ]  # can be "recent" and/or "historical"
+    # Check which modes to consider for data fetching
+    #
+    # The dataset is divided into a versioned part with completed quality check ("historical"),
+    # and a part for which the quality check has not yet been completed ("recent").
+    #
+    # There is no definite answer as to when the quality check is completed. We're assuming a
+    # period of 3 years here. If the end date of the query is within this period, we will also
+    # consider the "recent" mode.
+    modes = ["historical"]
+    if abs((query["end"] - datetime.now()).days) < 3 * 365:
+        modes.append("recent")
 
     data = [
         get_df(

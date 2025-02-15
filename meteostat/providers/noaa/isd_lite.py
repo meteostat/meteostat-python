@@ -3,7 +3,7 @@ from typing import Optional, Union
 from urllib.error import HTTPError
 from numpy import isnan
 import pandas as pd
-from meteostat.enumerations import TTL
+from meteostat.enumerations import TTL, Parameter
 from meteostat.logger import logger
 from meteostat.utils.decorators import cache
 from meteostat.typing import QueryDict
@@ -23,7 +23,16 @@ COLSPECS = [
     (43, 49),
     (49, 55),
 ]
-COLUMN_NAMES = ["time", "temp", "dwpt", "pres", "wdir", "wspd", "cldc", "prcp"]
+COLUMN_NAMES = [
+    "time",
+    Parameter.TEMP,
+    Parameter.DWPT,
+    Parameter.PRES,
+    Parameter.WDIR,
+    Parameter.WSPD,
+    Parameter.CLDC,
+    Parameter.PRCP,
+]
 
 
 def map_sky_code(code: Union[int, str]) -> Optional[int]:
@@ -65,20 +74,20 @@ def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
         df.columns = COLUMN_NAMES
 
         # Adapt columns
-        df["temp"] = df["temp"].div(10)
-        df["dwpt"] = df["dwpt"].div(10)
-        df["pres"] = df["pres"].div(10)
-        df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
-        df["cldc"] = df["cldc"].apply(map_sky_code)
-        df["prcp"] = df["prcp"].div(10)
+        df[Parameter.TEMP] = df[Parameter.TEMP].div(10)
+        df[Parameter.DWPT] = df[Parameter.DWPT].div(10)
+        df[Parameter.PRES] = df[Parameter.PRES].div(10)
+        df[Parameter.WSPD] = df[Parameter.WSPD].div(10).apply(ms_to_kmh)
+        df[Parameter.CLDC] = df[Parameter.CLDC].apply(map_sky_code)
+        df[Parameter.PRCP] = df[Parameter.PRCP].div(10)
 
         # Calculate humidity data
         # pylint: disable=unnecessary-lambda
-        df["rhum"] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
+        df[Parameter.RHUM] = df.apply(lambda row: temp_dwpt_to_rhum(row), axis=1)
 
         # Drop dew point column
         # pylint: disable=no-member
-        df = df.drop("dwpt", axis=1)
+        df = df.drop(Parameter.DWPT, axis=1)
 
         # Set index
         df = df.set_index("time")

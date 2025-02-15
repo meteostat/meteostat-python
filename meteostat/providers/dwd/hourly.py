@@ -12,11 +12,11 @@ from io import BytesIO
 from typing import Callable, Dict, List, NotRequired, Optional, TypedDict
 from zipfile import ZipFile
 import pandas as pd
-from meteostat.enumerations import TTL
+from meteostat.enumerations import TTL, Parameter
 from meteostat.logger import logger
 from meteostat.typing import QueryDict, StationDict
 from meteostat.utils.decorators import cache
-from meteostat.utils.converters import jcm2_to_wm2, ms_to_kmh
+from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
 from meteostat.providers.dwd.shared import get_ftp_connection
 
@@ -37,61 +37,62 @@ PARAMETERS: List[ParameterDefinition] = [
         "dir": "precipitation",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
-        "names": {"R1": "prcp"},
+        "names": {"R1": Parameter.PRCP},
     },
     {
         "dir": "air_temperature",
         "usecols": [1, 3, 4],
         "parse_dates": {"time": [0]},
-        "names": {"TT_TU": "temp", "RF_TU": "rhum"},
+        "names": {"TT_TU": Parameter.TEMP, "RF_TU": Parameter.RHUM},
     },
     {
         "dir": "wind",
         "usecols": [1, 3, 4],
         "parse_dates": {"time": [0]},
-        "names": {"F": "wspd", "D": "wdir"},
+        "names": {"F": Parameter.WSPD, "D": Parameter.WDIR},
         "convert": {"wspd": ms_to_kmh},
     },
     {
         "dir": "pressure",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
-        "names": {"P": "pres"},
+        "names": {"P": Parameter.PRES},
     },
     {
         "dir": "sun",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
-        "names": {"SD_SO": "tsun"},
+        "names": {"SD_SO": Parameter.TSUN},
     },
     {
         "dir": "cloudiness",
         "usecols": [1, 4],
         "parse_dates": {"time": [0]},
-        "names": {"V_N": "cldc"},
+        "names": {"V_N": Parameter.CLDC},
     },
     {
         "dir": "visibility",
         "usecols": [1, 4],
         "parse_dates": {"time": [0]},
-        "names": {"V_VV": "vsby"},
+        "names": {"V_VV": Parameter.VSBY},
     },
     {
         "dir": "weather_phenomena",
         "usecols": [1, 3],
         "parse_dates": {"time": [0]},
-        "names": {"WW": "coco"},
+        "names": {"WW": Parameter.COCO},
         "convert": {"coco": get_condicode},
         "encoding": "latin-1",
     },
-    {
-        "dir": "solar",
-        "usecols": [1, 5],
-        "parse_dates": {"time": [0]},
-        "names": {"FG_LBERG": "srad"},
-        "convert": {"srad": jcm2_to_wm2},
-        "historical_only": True,
-    },
+    # TODO: Implement solar radiation
+    # {
+    #     "dir": "solar",
+    #     "usecols": [1, 5],
+    #     "parse_dates": {"time": [0]},
+    #     "names": {"FG_LBERG": "srad"},
+    #     "convert": {"srad": jcm2_to_wm2},
+    #     "historical_only": True,
+    # },
 ]
 
 
@@ -182,14 +183,17 @@ def fetch(query: QueryDict):
     if not "national" in query["station"]["identifiers"]:
         return None
 
-    modes = [
-        m
-        for m in [
-            "historical" if abs((query["start"] - datetime.now()).days) > 120 else None,
-            "recent" if abs((query["end"] - datetime.now()).days) < 120 else None,
-        ]
-        if m is not None
-    ]  # can be "recent" and/or "historical"
+    # Check which modes to consider for data fetching
+    #
+    # The dataset is divided into a versioned part with completed quality check ("historical"),
+    # and a part for which the quality check has not yet been completed ("recent").
+    #
+    # There is no definite answer as to when the quality check is completed. We're assuming a
+    # period of 3 years here. If the end date of the query is within this period, we will also
+    # consider the "recent" mode.
+    modes = ["historical"]
+    if abs((query["end"] - datetime.now()).days) < 3 * 365:
+        modes.append("recent")
 
     columns = map(
         lambda args: get_parameter(*args),
