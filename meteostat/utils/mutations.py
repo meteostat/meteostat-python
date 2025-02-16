@@ -81,7 +81,6 @@ def apply_lapse_rate(
     columns: list[Parameter] = [
         Parameter.TEMP,
         Parameter.DWPT,
-        Parameter.TAVG,
         Parameter.TMIN,
         Parameter.TMAX,
     ],

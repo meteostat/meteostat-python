@@ -9,6 +9,8 @@ import math
 from typing import Optional
 from numpy import isnan
 
+from meteostat.enumerations import Parameter
+
 
 def kelvin_to_celsius(value):
     """
@@ -39,16 +41,16 @@ def temp_dwpt_to_rhum(row: dict):
     )
 
 
-def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = "tavg"):
+def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = Parameter.TEMP):
     """
     # Convert local air pressure to MSL
     """
     try:
         return (
             None
-            if (not row["pres"] or not row[temp] or not altitude or row["pres"] == -999)
+            if (not row[Parameter.PRES] or not row[temp] or not altitude or row[Parameter.PRES] == -999)
             else round(
-                row["pres"]
+                row[Parameter.PRES]
                 * math.pow(
                     (
                         1

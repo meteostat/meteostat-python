@@ -37,8 +37,7 @@ class Parameter(StrEnum):
     The different meteorological parameters supported by Meteostat
     """
 
-    TEMP = "temp"  # Air temperature at time of observation
-    TAVG = "tavg"  # Average air temperature (aggregation: mean)
+    TEMP = "temp"  # Air temperature (aggregation: mean)
     TMIN = "tmin"  # Daily minimum air temperature (aggregation: mean)
     TMAX = "tmax"  # Daily maximum air temperature (aggregation: mean)
     TXMN = "txmn"  # Extreme minimum air temperature (aggregation: min)

@@ -7,10 +7,10 @@ logging.basicConfig(
 )
 
 ts = ms.daily(
-    "01001",
+    "10637",
     datetime(2020, 1, 5),
     datetime(2020, 1, 10),
-    providers=[ms.Provider.DAILY_DERIVED],
+    providers=[ms.Provider.GHCND],
 )
 print(ts.fetch())
 exit()
@@ -23,7 +23,7 @@ ts = ms.daily(
     "10637",
     date(2020, 1, 1),
     date(2020, 1, 31),
-    parameters=(ms.Parameter.TAVG,),
+    parameters=(ms.Parameter.TEMP,),
     providers=(ms.Provider.GHCND,),
 )
 

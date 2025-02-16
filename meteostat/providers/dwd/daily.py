@@ -30,7 +30,7 @@ NAMES = {
     "SHK_TAG": Parameter.SNWD,
     "NM": Parameter.CLDC,
     "PM": Parameter.PRES,
-    "TMK": Parameter.TAVG,
+    "TMK": Parameter.TEMP,
     "UPM": Parameter.RHUM,
     "TXK": Parameter.TMAX,
     "TNK": Parameter.TMIN,

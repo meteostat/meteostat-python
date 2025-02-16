@@ -3,7 +3,7 @@ import logging
 import meteostat as ms
 
 ts_x = ms.hourly(
-    "01002", date(2024, 12, 26), date(2024, 12, 28), providers=[ms.Provider.METAR]
+    "10637", date(2024, 12, 26), date(2024, 12, 28), providers=[ms.Provider.METAR]
 )
 print(ts_x.fetch())
 exit()

@@ -24,7 +24,7 @@ USECOLS = [1, 4, 5, 6, 7, 9, 10, 11, 12, 14]  # CSV cols which should be read
 PARSE_DATES = {"time": [0]}  # Which columns should be parsed as dates?
 NAMES = {
     "MO_N": Parameter.CLDC,
-    "MO_TT": Parameter.TAVG,
+    "MO_TT": Parameter.TEMP,
     "MO_TX": Parameter.TMAX,
     "MO_TN": Parameter.TMIN,
     "MX_TX": Parameter.TXMX,

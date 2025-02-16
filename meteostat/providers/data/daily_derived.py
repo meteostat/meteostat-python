@@ -47,7 +47,7 @@ def daily_sum(group: pd.Series):
 
 # Available parameters with source column and aggregation method
 PARAMETER_AGGS = {
-    Parameter.TAVG: (Parameter.TEMP, daily_mean),
+    Parameter.TEMP: (Parameter.TEMP, daily_mean),
     Parameter.TMIN: (Parameter.TEMP, daily_min),
     Parameter.TMAX: (Parameter.TEMP, daily_max),
     Parameter.RHUM: (Parameter.RHUM, daily_mean),

@@ -18,5 +18,5 @@ def test_noaa_ghcnd():
     df = fetch(query)
 
     assert len(df) > 1
-    assert "tavg" in df
+    assert "temp" in df
     assert "prcp" in df

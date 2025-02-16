@@ -28,7 +28,7 @@ PROVIDER_DAILY = ProviderDict(
     granularity=Granularity.DAILY,
     priority=Priority.NONE,
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.RHUM,
@@ -49,7 +49,7 @@ PROVIDER_DAILY_DERIVED = ProviderDict(
     granularity=Granularity.DAILY,
     priority=Priority.NONE,
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.PRCP,
@@ -70,7 +70,7 @@ PROVIDER_MONTHLY = ProviderDict(
     granularity=Granularity.MONTHLY,
     priority=Priority.NONE,
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.PRCP,
@@ -86,7 +86,7 @@ PROVIDER_MONTHLY_DERIVED = ProviderDict(
     granularity=Granularity.MONTHLY,
     priority=Priority.NONE,
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.PRCP,
@@ -165,7 +165,7 @@ PROVIDER_DWD_DAILY = ProviderDict(
     priority=Priority.HIGHEST,
     countries=["DE"],
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.RHUM,
@@ -186,7 +186,7 @@ PROVIDER_DWD_MONTHLY = ProviderDict(
     granularity=Granularity.MONTHLY,
     priority=Priority.HIGHEST,
     countries=["DE"],
-    parameters=[Parameter.TAVG, Parameter.TMIN, Parameter.TMAX, Parameter.PRCP],
+    parameters=[Parameter.TEMP, Parameter.TMIN, Parameter.TMAX, Parameter.PRCP],
     start=date(1851, 1, 1),
     module="meteostat.providers.dwd.monthly",
 )
@@ -214,7 +214,7 @@ PROVIDER_ECCC_DAILY = ProviderDict(
     priority=Priority.HIGHEST,
     countries=["CA"],
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.PRCP,
@@ -232,7 +232,7 @@ PROVIDER_ECCC_MONTHLY = ProviderDict(
     priority=Priority.HIGHEST,
     countries=["CA"],
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.PRCP,
@@ -266,7 +266,7 @@ PROVIDER_GHCND = ProviderDict(
     granularity=Granularity.DAILY,
     priority=Priority.HIGH,
     parameters=[
-        Parameter.TAVG,
+        Parameter.TEMP,
         Parameter.TMIN,
         Parameter.TMAX,
         Parameter.PRCP,

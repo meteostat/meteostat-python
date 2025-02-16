@@ -37,7 +37,7 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_MONTHLY_DERIVED,
 ]
 DEFAULT_PARAMETERS = [
-    Parameter.TAVG,
+    Parameter.TEMP,
     Parameter.TMIN,
     Parameter.TMAX,
     Parameter.TXMN,

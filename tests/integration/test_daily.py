@@ -23,7 +23,7 @@ def test_daily(mocker):
     df = ts.fetch()
 
     assert len(df) == 6
-    assert df.iloc[0]["tavg"] == 1.3
+    assert df.iloc[0]["temp"] == 1.3
 
 
 def test_daily_none(mocker):

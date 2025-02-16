@@ -27,7 +27,7 @@ def test_monthly(mocker):
     df = ts.fetch()
 
     assert len(df) == 12
-    assert df.iloc[0]["tavg"] == -3.4
+    assert df.iloc[0]["temp"] == -3.4
 
 
 def test_monthly_none(mocker):
@@ -67,7 +67,7 @@ def test_monthly_derived(mocker):
     df = ts.fetch()
 
     assert len(df) == 12
-    assert df.iloc[0]["tavg"] == 3.8
+    assert df.iloc[0]["temp"] == 3.8
 
 
 def test_monthly_derived_none(mocker):

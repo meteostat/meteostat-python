@@ -12,7 +12,7 @@ BATCH_LIMIT = 9000
 PROPERTIES = {
     "LOCAL_DATE": "time",
     "MAX_TEMPERATURE": Parameter.TMAX,
-    "MEAN_TEMPERATURE": Parameter.TAVG,
+    "MEAN_TEMPERATURE": Parameter.TEMP,
     "MIN_TEMPERATURE": Parameter.TMIN,
     "SPEED_MAX_GUST": Parameter.WPGT,
     "TOTAL_PRECIPITATION": Parameter.PRCP,

@@ -10,8 +10,7 @@ Meteostat uses abbreviations to describe meteorological parameters. A bold **yes
 
 | **Code** | **Description**         | **Hourly** | **Daily** |
 | :------- | :---------------------- | :--------- | :-------- |
-| TEMP     | Air Temperature         | **Yes**    |      No   |
-| TAVG     | Average Temperature     | No    |      **Yees**   |
+| TEMP     | Air Temperature         | **Yes**    |      **Yes**   |
 | TMIN     | Minimum Temperature     | No    |      **Yees**   |
 | TMAX     | Maximum Temperature     | No    |      **Yees**   |
 | DWPT     | Dew Point               | **Yes***    |      No   |

@@ -80,7 +80,7 @@ HOURLY_SCHEMA = Schema(
 DAILY_SCHEMA = Schema(
     [
         Column(
-            Parameter.TAVG,
+            Parameter.TEMP,
             "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),
@@ -155,7 +155,7 @@ DAILY_SCHEMA = Schema(
 MONTHLY_SCHEMA = Schema(
     [
         Column(
-            Parameter.TAVG,
+            Parameter.TEMP,
             "Float64",
             [validators.minimum(-100), validators.maximum(65), formatters.decimals(1)],
         ),

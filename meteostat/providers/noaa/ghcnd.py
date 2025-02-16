@@ -11,7 +11,7 @@ from ftplib import FTP
 from typing import Optional
 from numpy import nan
 import pandas as pd
-from meteostat.enumerations import TTL
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import QueryDict
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
@@ -19,16 +19,16 @@ from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
 FTP_SERVER = "ftp.ncdc.noaa.gov"
 COLUMN_NAMES = {
     "MM/DD/YYYY": "time",
-    "TMAX": "tmax",
-    "TMIN": "tmin",
-    "TAVG": "tavg",
-    "PRCP": "prcp",
-    "SNWD": "snow",
-    "AWDR": "wdir",
-    "AWND": "wspd",
-    "TSUN": "tsun",
-    "WSFG": "wpgt",
-    "ACMC": "cldc",
+    "TMAX": Parameter.TMAX,
+    "TMIN": Parameter.TMIN,
+    "TAVG": Parameter.TEMP,
+    "PRCP": Parameter.PRCP,
+    "SNWD": Parameter.SNWD,
+    "AWDR": Parameter.WDIR,
+    "AWND": Parameter.WSPD,
+    "TSUN": Parameter.TSUN,
+    "WSFG": Parameter.WPGT,
+    "ACMC": Parameter.CLDC,
 }
 
 
@@ -205,13 +205,14 @@ def get_df(station: str) -> pd.DataFrame:
 
     # Adapt columns
     df["time"] = pd.to_datetime(df["time"])
-    df["tavg"] = df["tavg"].div(10)
-    df["tmin"] = df["tmin"].div(10)
-    df["tmax"] = df["tmax"].div(10)
-    df["prcp"] = df["prcp"].div(10)
-    df["wspd"] = df["wspd"].div(10).apply(ms_to_kmh)
-    df["wpgt"] = df["wpgt"].div(10).apply(ms_to_kmh)
-    df["cldc"] = df["cldc"].apply(percentage_to_okta)
+    df[Parameter.TEMP] = df[Parameter.TEMP].div(10)
+    df[Parameter.TMIN] = df[Parameter.TMIN].div(10)
+    df[Parameter.TMAX] = df[Parameter.TMAX].div(10)
+    df[Parameter.PRCP] = df[Parameter.PRCP].div(10)
+    df[Parameter.SNWD] = df[Parameter.SNWD].div(10)
+    df[Parameter.WSPD] = df[Parameter.WSPD].div(10).apply(ms_to_kmh)
+    df[Parameter.WPGT] = df[Parameter.WPGT].div(10).apply(ms_to_kmh)
+    df[Parameter.CLDC] = df[Parameter.CLDC].apply(percentage_to_okta)
 
     return df.set_index("time")
 

@@ -48,7 +48,7 @@ def monthly_max(group: pd.Series):
 
 # Available parameters with source column and aggregation method
 PARAMETER_AGGS = {
-    Parameter.TAVG: (Parameter.TAVG, monthly_mean),
+    Parameter.TEMP: (Parameter.TEMP, monthly_mean),
     Parameter.TMIN: (Parameter.TMIN, monthly_mean),
     Parameter.TMAX: (Parameter.TMAX, monthly_mean),
     Parameter.TXMN: (Parameter.TMIN, monthly_min),

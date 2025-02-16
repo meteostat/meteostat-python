@@ -18,10 +18,10 @@ def test_dwd_daily():
             "identifiers": {"national": "01420"},
             "location": {"elevation": 111},
         },
-        "parameters": [Parameter.TAVG, Parameter.PRCP],
+        "parameters": [Parameter.TEMP, Parameter.PRCP],
     }
     df = fetch(query)
 
     assert len(df) > 1
-    assert "tavg" in df
+    assert "temp" in df
     assert "prcp" in df

@@ -38,7 +38,7 @@ SUPPORTED_PROVIDERS = [
     PROVIDER_DAILY,
 ]
 DEFAULT_PARAMETERS = [
-    Parameter.TAVG,
+    Parameter.TEMP,
     Parameter.TMIN,
     Parameter.TMAX,
     Parameter.RHUM,
