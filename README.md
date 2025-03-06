@@ -65,7 +65,7 @@ ts = ms.daily(stations, START, END)
 df = ms.interpolate(ts, POINT)
 
 # Plot line chart including average, minimum and maximum temperature
-data.plot(y=[ms.Parameter.TEMP, ms.Parameter.TMIN, ms.Parameter.TMAX])
+df.plot(y=[ms.Parameter.TEMP, ms.Parameter.TMIN, ms.Parameter.TMAX])
 plt.show()
 ```
 
