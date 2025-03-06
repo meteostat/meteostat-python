@@ -53,7 +53,7 @@ import matplotlib.pyplot as plt
 import meteostat as ms
 
 # Specify location and time range
-POINT = ms.Point(50.1155, 8.6842, 113)
+POINT = ms.Point(50.1155, 8.6842, 113)  # Try with your location
 START = date(2018, 1, 1)
 END = date(2018, 12, 31)
 
