@@ -45,27 +45,27 @@ pip install meteostat
 
 ## 🚀 Usage
 
-Let's plot 2018 temperature data for Vancouver, BC:
+Let's plot 2018 temperature data for Frankfurt, Germany:
 
 ```python
-# Import Meteostat library and dependencies
-from datetime import datetime
+from datetime import date
 import matplotlib.pyplot as plt
-from meteostat import Point, Daily
+import meteostat as ms
 
-# Set time period
-start = datetime(2018, 1, 1)
-end = datetime(2018, 12, 31)
+# Specify location and time range
+POINT = ms.Point(50.1155, 8.6842, 113)
+START = date(2018, 1, 1)
+END = date(2018, 12, 31)
 
-# Create Point for Vancouver, BC
-location = Point(49.2497, -123.1193, 70)
+# Get nearby weather stations
+stations = ms.nearby(POINT, limit=4)
 
-# Get daily data for 2018
-data = Daily(location, start, end)
-data = data.fetch()
+# Get daily data & perform interpolation
+ts = ms.daily(stations, START, END)
+df = ms.interpolate(ts, POINT)
 
 # Plot line chart including average, minimum and maximum temperature
-data.plot(y=['tavg', 'tmin', 'tmax'])
+data.plot(y=[ms.Parameter.TEMP, ms.Parameter.TMIN, ms.Parameter.TMAX])
 plt.show()
 ```
 
