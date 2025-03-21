@@ -8,14 +8,14 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The cod is licensed under the MIT license.
 """
 
-from itertools import chain
 from typing import List, Optional
 import pandas as pd
-from pulire import Schema
 from meteostat.api.timeseries import TimeSeries
 from meteostat.core.logger import logger
+from meteostat.core.parameters import parameter_service
 from meteostat.core.providers import provider_service
-from meteostat.enumerations import Grade, Provider
+from meteostat.core.schema import schema_service
+from meteostat.enumerations import Grade, Granularity, Parameter, Provider
 from meteostat.typing import Station, Request
 from meteostat.utils.filters import filter_time
 
@@ -37,7 +37,7 @@ class DataService:
         return df
 
     @staticmethod
-    def concat_fragments(fragments: List[pd.DataFrame], schema: Schema) -> pd.DataFrame:
+    def concat_fragments(fragments: List[pd.DataFrame], granularity: Granularity, parameters: List[Parameter]) -> pd.DataFrame:
         """
         Concatenate multiple fragments into a single DataFrame
         """
@@ -48,8 +48,8 @@ class DataService:
                     for df in fragments
                 ]
             )
-            df = schema.fill(df)
-            df = schema.purge(df)
+            df = schema_service.fill(df, parameters)
+            df = schema_service.purge(df, granularity)
             return df
         except ValueError:
             return pd.DataFrame()
@@ -113,13 +113,6 @@ class DataService:
         """
         excluded_providers = []
 
-        if req.commercial is True:
-            excluded_providers.extend(
-                provider.id
-                for provider in provider_service.providers
-                if provider.license and provider.license.commercial is False
-            )
-
         if req.model is False:
             excluded_providers.extend(
                 provider.id
@@ -149,6 +142,9 @@ class DataService:
             f"{req.granularity} time series requested for {len(req.stations)} station(s)"
         )
 
+        # Filter parameters
+        req.parameters = parameter_service.filter_parameters(req.granularity, req.parameters)
+
         fragments = []
         included_stations: list[Station] = []
 
@@ -162,18 +158,17 @@ class DataService:
 
         # Merge data in a single DataFrame
         df = (
-            self.concat_fragments(chain.from_iterable(fragments), req.schema)
+            self.concat_fragments(fragments, req.granularity, req.parameters)
             if fragments
             else pd.DataFrame()
         )
 
         # Set data types
-        df = req.schema.format(df)
+        df = schema_service.format(df, req.granularity)
 
         # Create time series
         ts = TimeSeries(
             req.granularity,
-            req.schema,
             included_stations,
             df,
             req.start,

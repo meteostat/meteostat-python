@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable, List, Optional
 
@@ -72,8 +72,12 @@ class ParameterSpec:
     granularity: Granularity  # The perameter's granularity
     dtype: str  # The parameter's data type
     unit: Optional[Unit] = None  # The parameter's data unit
-    formatters: List[Callable[[Series], Series]] = []  # The parameter's formatters
-    validators: List[Callable[[Series], Series]] = []  # The parameter's validators
+    formatters: List[Callable[[Series], Series]] = field(
+        default_factory=list
+    )  # The parameter's formatters
+    validators: List[Callable[[Series], Series]] = field(
+        default_factory=list
+    )  # The parameter's validators
 
 
 @dataclass
@@ -84,13 +88,12 @@ class Request:
 
     granularity: Granularity  # Query's time series granularity
     providers: List[ProviderSpec]  # Providers to query
-    schema: Schema  # Schema of the query's data
+    parameters: List[Parameter]  # Schema of the query's data
     stations: List[Station]  # Stations to query
     start: Optional[datetime] = None  # Start date of the query
     end: Optional[datetime] = None  # End date of the query
     timezone: Optional[str] = None  # Time zone of the query's data
     model: bool = True  # Include model data?
-    commercial: bool = False  # Only get data which can be used for commercial purposes?
 
 
 @dataclass

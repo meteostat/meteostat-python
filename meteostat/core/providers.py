@@ -4,6 +4,7 @@ from typing import List, Optional, TypeGuard
 
 import pandas as pd
 
+from meteostat.core.logger import logger
 from meteostat.enumerations import Granularity, Priority, Provider, Grade
 from meteostat.providers.index import DEFAULT_PROVIDERS
 from meteostat.typing import (
@@ -89,19 +90,16 @@ class ProviderService:
 
             # Filter out providers with diverging granularities
             if provider.granularity is not query.granularity:
+                logger.error(
+                    f"Provider '{provider_id}' does not support granularity '{query.granularity}'"
+                )
                 return False
 
             # Filter out providers with no overlap in parameters
-            if set(provider.parameters).isdisjoint(query.schema.names):
-                return False
-
-            # Filter out providers with non-commercial license
-            # if data is intended to be used commercially
-            if (
-                query.commercial is True
-                and provider.license
-                and provider.license.commercial is False
-            ):
+            if set(provider.parameters).isdisjoint(query.parameters):
+                logger.info(
+                    f"Provider '{provider_id}' does not support any requested parameter"
+                )
                 return False
 
             # Filter out providers with modeled data if non-model data has been requested
@@ -109,16 +107,25 @@ class ProviderService:
                 Grade.FORECAST,
                 Grade.ANALYSIS,
             ):
+                logger.info(
+                    f"Skipping provider '{provider_id}' as it only provides modeled data"
+                )
                 return False
 
             # Filter out providers which do not serve the station's country
             if provider.countries and station.country not in provider.countries:
+                logger.info(
+                    f"Skipping provider '{provider_id}' as it does not serve the station's country ('{station.country}')"
+                )
                 return False
 
             # Filter out providers which stopped providing data before the request's start date
             if query.end and query.end < datetime.combine(
                 provider.start, datetime.min.time()
             ):
+                logger.info(
+                    f"Skipping provider '{provider_id}' as it stopped providing data before the request's start date"
+                )
                 return False
 
             # Filter out providers which only started providing data after the request's end date
@@ -127,6 +134,9 @@ class ProviderService:
                 and query.start is not None
                 and query.start > datetime.combine(provider.end, datetime.max.time())
             ):
+                logger.info(
+                    f"Skipping provider '{provider_id}' as it only started providing data after the request's end date"
+                )
                 return False
 
             return True
@@ -140,42 +150,21 @@ class ProviderService:
         Fetch data from a given provider
         """
         provider = self.get_provider(provider_id)
+
+        if not provider:
+            return None
+    
         query = Query(
             station=station,
             start=req.start if req.start else provider.start,
             end=req.end if req.end else (provider.end or datetime.now()),
-            parameters=req.schema.names,
+            parameters=req.parameters,
         )
-
-        if not provider:
-            return None
 
         module = import_module(provider.module)
         df = module.fetch(query)
+        
         return df
-
-    @staticmethod
-    def parse_providers(
-        requested: List[Provider], supported: List[Provider]
-    ) -> List[Provider]:
-        """
-        Raise exception if a requested provider is not supported
-        """
-        # Convert providers to set
-        providers = list(
-            map(lambda p: p if isinstance(p, Provider) else Provider[p], requested)
-        )
-        # Get difference between providers and supported providers
-        diff = set(providers).difference(supported)
-        # Log warning
-        if len(diff):
-            raise ValueError(
-                f"""Tried to request data for unsupported provider(s): {
-                ", ".join([p for p in diff])
-            }"""
-            )
-        # Return intersection
-        return list(filter(lambda provider_id: provider_id in requested, supported))
 
 
 provider_service = ProviderService(providers=DEFAULT_PROVIDERS)

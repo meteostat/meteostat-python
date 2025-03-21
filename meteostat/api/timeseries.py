@@ -9,8 +9,8 @@ from math import floor
 from statistics import mean
 from typing import List, Optional
 import pandas as pd
-from pulire import Schema
 from meteostat.core.parameters import parameter_service
+from meteostat.core.schema import schema_service
 from meteostat.enumerations import Parameter, Granularity, Provider
 from meteostat.typing import License, Station
 from meteostat.utils.mutations import fill_df, localize, squash_df
@@ -28,13 +28,11 @@ class TimeSeries:
     end: Optional[datetime] = None
     timezone: Optional[str] = None
 
-    _schema: Schema
     _df: Optional[pd.DataFrame] = None
 
     def __init__(
         self,
         granularity: Granularity,
-        schema: Schema,
         stations: List[Station],
         df: Optional[pd.DataFrame],
         start: Optional[datetime] = None,
@@ -44,7 +42,6 @@ class TimeSeries:
         self.granularity = granularity
         self.stations = stations
         self.timezone = timezone
-        self._schema = schema
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -209,7 +206,7 @@ class TimeSeries:
             df = squash_df(df, sources=sources)
 
         if clean:
-            df = self._schema.clean(df)
+            df = schema_service.clean(df, self.granularity)
 
         if fill:
             df = fill_df(df, self.start, self.end, self.freq)
