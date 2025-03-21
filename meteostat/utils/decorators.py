@@ -10,9 +10,9 @@ The code is licensed under the MIT license.
 
 from functools import wraps
 from typing import Callable, Any
-from meteostat import settings
-from meteostat.cache import from_func, purge
-from meteostat.logger import logger
+from meteostat.configuration import config
+from meteostat.core.cache import from_func, purge
+from meteostat.core.logger import logger
 
 
 def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
@@ -26,9 +26,9 @@ def cache(ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if settings["cache_autoclean"]:
+            if config.cache_autoclean:
                 purge()
-            if not settings["cache_enable"]:
+            if not config.cache_enable:
                 logger.debug(
                     f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                 )

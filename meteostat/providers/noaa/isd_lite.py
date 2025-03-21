@@ -4,9 +4,9 @@ from urllib.error import HTTPError
 from numpy import isnan
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
-from meteostat.logger import logger
+from meteostat.core.logger import logger
 from meteostat.utils.decorators import cache
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum
 
 ISD_LITE_ENDPOINT = "https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/"
@@ -109,19 +109,19 @@ def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
         return None
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
+def fetch(query: Query) -> Optional[pd.DataFrame]:
     """ """
-    years = range(query["start"].year, query["end"].year + 1)
+    years = range(query.start.year, query.end.year + 1)
     data = tuple(
         map(
             lambda i: get_df(*i),
             (
                 (
-                    query["station"]["identifiers"]["usaf"]
-                    if "usaf" in query["station"]["identifiers"]
+                    query.station.identifiers["usaf"]
+                    if "usaf" in query.station.identifiers
                     else None,
-                    query["station"]["identifiers"]["wban"]
-                    if "wban" in query["station"]["identifiers"]
+                    query.station.identifiers["wban"]
+                    if "wban" in query.station.identifiers
                     else None,
                     year,
                 )

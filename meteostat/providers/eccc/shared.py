@@ -4,7 +4,7 @@ import requests
 
 from meteostat.enumerations import TTL
 from meteostat.utils.decorators import cache
-from meteostat.logger import logger
+from meteostat.core.logger import logger
 
 
 ENDPOINT = "https://api.weather.gc.ca"

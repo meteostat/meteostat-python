@@ -7,14 +7,14 @@ from lxml import etree
 import pandas as pd
 
 from meteostat.enumerations import Parameter
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 from meteostat.utils.converters import (
     kelvin_to_celsius,
     ms_to_kmh,
     percentage_to_okta,
     temp_dwpt_to_rhum,
 )
-from meteostat.utils.network import get
+from meteostat.core.network import get
 
 ENDPOINT = "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/{station}/kml/MOSMIX_L_LATEST_{station}.kmz"
 COCO_MAP = {
@@ -344,6 +344,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     return df
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
-    if "mosmix" in query["station"]["identifiers"]:
-        return get_df(query["station"]["identifiers"]["mosmix"])
+def fetch(query: Query) -> Optional[pd.DataFrame]:
+    if "mosmix" in query.station.identifiers:
+        return get_df(query.station.identifiers["mosmix"])

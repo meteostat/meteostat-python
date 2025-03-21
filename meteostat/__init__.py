@@ -14,26 +14,25 @@ The code is licensed under the MIT license.
 __appname__ = "meteostat"
 __version__ = "2.0.0"
 
-from meteostat.settings import settings, env
-from meteostat.cache import purge as purge_cache
+from meteostat.configuration import config
+from meteostat.core.cache import purge as purge_cache
 from meteostat.enumerations import Parameter, Provider
-from meteostat.stations.index import index
-from meteostat.stations.station import station
-from meteostat.stations.nearby import nearby
-from meteostat.point import Point
-from meteostat.timeseries.hourly import hourly
-from meteostat.timeseries.daily import daily
-from meteostat.timeseries.monthly import monthly
-from meteostat.timeseries.normals import normals
-from meteostat.concat import concat
+from meteostat.api.stations import stations, station, nearby
+from meteostat.api.point import Point
+from meteostat.api.hourly import hourly
+from meteostat.api.daily import daily
+from meteostat.api.monthly import monthly
+from meteostat.api.normals import normals
+from meteostat.api.concat import concat
+from meteostat.api.interpolate import interpolate
 from meteostat import units, interpolate
 
 __all__ = [
-    "settings",
+    "config",
     "env",
     "Parameter",
     "Provider",
-    "index",
+    "stations",
     "station",
     "nearby",
     "Point",
@@ -45,4 +44,5 @@ __all__ = [
     "interpolate",
     "purge_cache",
     "concat",
+    "interpolate",
 ]

@@ -12,7 +12,7 @@ from typing import Optional
 from numpy import nan
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
 
@@ -217,10 +217,10 @@ def get_df(station: str) -> pd.DataFrame:
     return df.set_index("time")
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
+def fetch(query: Query) -> Optional[pd.DataFrame]:
     ghcn_id = (
-        query["station"]["identifiers"]["ghcn"]
-        if "ghcn" in query["station"]["identifiers"]
+        query.station.identifiers["ghcn"]
+        if "ghcn" in query.station.identifiers
         else None
     )
     if not ghcn_id:

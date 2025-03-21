@@ -11,8 +11,9 @@ The code is licensed under the MIT license.
 from datetime import datetime
 import numpy as np
 import pandas as pd
+from meteostat.core.providers import provider_service
 from meteostat.enumerations import Frequency, Parameter
-from meteostat.utils.helpers import get_source_priority, order_source_columns
+from meteostat.utils.helpers import order_source_columns
 
 
 def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
@@ -23,7 +24,9 @@ def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
     columns = df.columns
 
     # Add source priority column
-    df["source_prio"] = df.index.get_level_values("source").map(get_source_priority)
+    df["source_prio"] = df.index.get_level_values("source").map(
+        provider_service.get_source_priority
+    )
 
     # Shift source information to columns
     if sources:

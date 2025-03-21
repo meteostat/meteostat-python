@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from meteostat.enumerations import Parameter
-from meteostat.fetcher import add_source, stations_to_df
+from meteostat.core.data import add_source, stations_to_df
 
 
 def test_add_source():

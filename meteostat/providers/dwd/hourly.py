@@ -13,8 +13,8 @@ from typing import Callable, Dict, List, NotRequired, Optional, TypedDict
 from zipfile import ZipFile
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
-from meteostat.logger import logger
-from meteostat.typing import QueryDict, StationDict
+from meteostat.core.logger import logger
+from meteostat.typing import Query, Station
 from meteostat.utils.decorators import cache
 from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
@@ -163,11 +163,11 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
 
 
 def get_parameter(
-    parameter_dir: str, modes: list[str], station: StationDict
+    parameter_dir: str, modes: list[str], station: Station
 ) -> Optional[pd.DataFrame]:
     try:
         data = [
-            get_df(parameter_dir, mode, station["identifiers"]["national"])
+            get_df(parameter_dir, mode, station.identifiers["national"])
             for mode in modes
         ]
         if all(d is None for d in data):
@@ -179,8 +179,8 @@ def get_parameter(
         return None
 
 
-def fetch(query: QueryDict):
-    if not "national" in query["station"]["identifiers"]:
+def fetch(query: Query):
+    if not "national" in query.station.identifiers:
         return None
 
     # Check which modes to consider for data fetching
@@ -192,17 +192,17 @@ def fetch(query: QueryDict):
     # period of 3 years here. If the end date of the query is within this period, we will also
     # consider the "recent" mode.
     modes = ["historical"]
-    if abs((query["end"] - datetime.now()).days) < 3 * 365:
+    if abs((query.end - datetime.now()).days) < 3 * 365:
         modes.append("recent")
 
     columns = map(
         lambda args: get_parameter(*args),
         (
-            (parameter["dir"], modes, query["station"])
+            (parameter["dir"], modes, query.station)
             for parameter in [
                 param
                 for param in PARAMETERS
-                if not set(query["parameters"]).isdisjoint(param["names"].values())
+                if not set(query.parameters).isdisjoint(param["names"].values())
             ]
         ),
     )
