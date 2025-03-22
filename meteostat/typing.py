@@ -2,8 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable, List, Optional
 
-from pandas import Series
-from pulire import Schema
+from meteostat.core.validator import Validator
 from meteostat.enumerations import (
     Grade,
     Priority,
@@ -72,10 +71,7 @@ class ParameterSpec:
     granularity: Granularity  # The perameter's granularity
     dtype: str  # The parameter's data type
     unit: Optional[Unit] = None  # The parameter's data unit
-    formatters: List[Callable[[Series], Series]] = field(
-        default_factory=list
-    )  # The parameter's formatters
-    validators: List[Callable[[Series], Series]] = field(
+    validators: List[Validator | Callable] = field(
         default_factory=list
     )  # The parameter's validators
 

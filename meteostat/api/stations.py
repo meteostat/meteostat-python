@@ -4,7 +4,7 @@ from requests import get, HTTPError, Timeout
 from meteostat.api.point import Point
 from meteostat.core.logger import logger
 from meteostat.typing import Station
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.helpers import get_distance
 
 INDEX_MIRRORS = [
@@ -18,7 +18,7 @@ STATION_MIRRORS = [
 ]
 
 
-@cache(60 * 60 * 24 * 7)
+@cache_service.cache(60 * 60 * 24 * 7)
 def _fetch_station(id: str) -> Optional[Station]:
     """
     Fetch meta data for a specific weather station
@@ -54,7 +54,7 @@ def station(id: str) -> Optional[Station]:
     return Station(**meta_data) if meta_data else None
 
 
-@cache(60 * 60 * 24, "pickle")
+@cache_service.cache(60 * 60 * 24, "pickle")
 def stations() -> Optional[pd.DataFrame]:
     """
     Get a DataFrame of all weather stations

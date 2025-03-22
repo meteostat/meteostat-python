@@ -1,5 +1,5 @@
 """
-Hourly Data
+Hourly Time Series Data
 
 Access hourly time series data for one or multiple weather stations.
 """
@@ -9,12 +9,8 @@ from datetime import datetime, date
 import pandas as pd
 from meteostat.core.data import data_service
 from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.api.point import Point
 from meteostat.typing import Station, Request
-from meteostat.utils.parsers import (
-    parse_station,
-    parse_time,
-)
+from meteostat.utils.parsers import parse_station, parse_time
 
 DEFAULT_PARAMETERS = [
     Parameter.TEMP,
@@ -32,7 +28,7 @@ DEFAULT_PARAMETERS = [
 
 
 def hourly(
-    station: str | Station | List[str | Station] | pd.Index | pd.Series | Point,
+    station: str | Station | List[str | Station] | pd.Index | pd.Series,
     start: Optional[Union[datetime, date]] = None,
     end: Optional[Union[datetime, date]] = None,
     timezone: Optional[str] = None,
@@ -41,7 +37,7 @@ def hourly(
     model: bool = True,
 ):
     """
-    Retrieve hourly time series data
+    Access hourly time series data
     """
     req = Request(
         granularity=Granularity.HOURLY,

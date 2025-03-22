@@ -13,7 +13,7 @@ from numpy import nan
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import Query
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
 
 FTP_SERVER = "ftp.ncdc.noaa.gov"
@@ -189,7 +189,7 @@ def dly_to_df(ftp, station_id):
     return df_all
 
 
-@cache(TTL.DAY, "pickle")
+@cache_service.cache(TTL.DAY, "pickle")
 def get_df(station: str) -> pd.DataFrame:
     ftp = connect_to_ftp()
     df = dly_to_df(ftp, station)

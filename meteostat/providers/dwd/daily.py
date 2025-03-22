@@ -14,7 +14,7 @@ from zipfile import ZipFile
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import Query
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.converters import ms_to_kmh, pres_to_msl
 from meteostat.providers.dwd.shared import get_ftp_connection
 
@@ -54,7 +54,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
     return match
 
 
-@cache(TTL.DAY, "pickle")
+@cache_service.cache(TTL.DAY, "pickle")
 def get_df(station: str, elevation: int, mode: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to DataFrame

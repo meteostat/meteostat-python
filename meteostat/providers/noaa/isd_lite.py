@@ -5,7 +5,7 @@ from numpy import isnan
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.typing import Query
 from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum
 
@@ -53,7 +53,7 @@ def get_ttl(_usaf: str, _wban: str, year: int) -> int:
     return TTL.DAY if current_year - year < 2 else TTL.MONTH
 
 
-@cache(get_ttl, "pickle")
+@cache_service.cache(get_ttl, "pickle")
 def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
     if not usaf:
         return None

@@ -15,7 +15,6 @@ __appname__ = "meteostat"
 __version__ = "2.0.0"
 
 from meteostat.configuration import config
-from meteostat.core.cache import purge as purge_cache
 from meteostat.enumerations import Parameter, Provider
 from meteostat.api.stations import stations, station, nearby
 from meteostat.api.point import Point
@@ -42,7 +41,6 @@ __all__ = [
     "normals",
     "units",
     "interpolate",
-    "purge_cache",
     "concat",
-    "interpolate",
+    "interpolate"
 ]

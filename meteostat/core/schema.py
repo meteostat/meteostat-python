@@ -1,10 +1,12 @@
 from copy import copy
+from inspect import isfunction
 from typing import Callable, List
 
 import pandas as pd
 
 from meteostat.core.logger import logger
 from meteostat.core.parameters import parameter_service
+from meteostat.core.validator import Validator
 from meteostat.enumerations import Granularity, Parameter
 
 
@@ -15,12 +17,23 @@ class SchemaService:
 
     @staticmethod
     def _apply_validator(
-        validator: Callable[[pd.Series], pd.Series], df: pd.DataFrame, col: str
+        validator: Validator | Callable, df: pd.DataFrame, col: str
     ) -> pd.Series:
         """
         Apply a validator
         """
-        return validator(df[col])
+        validator: Validator = validator() if isfunction(validator) else validator
+        if validator.ignore_na:
+            result = pd.Series(data=True, index=df.index, dtype=bool)
+            result.update(
+                validator.test(
+                    df.loc[df[col].notnull()][col],
+                    df.loc[df[col].notnull()],
+                    col,
+                )
+            )
+            return result.astype(bool)
+        return validator.test(df[col], df, col)
     
     @staticmethod
     def purge(df: pd.DataFrame, granularity: Granularity) -> pd.DataFrame:
@@ -47,7 +60,7 @@ class SchemaService:
     @staticmethod
     def format(df: pd.DataFrame, granularity: Granularity) -> pd.DataFrame:
         """
-        Set data types and apply formatters to a DataFrame
+        Set data types and round values
         """
         temp = copy(df)
 
@@ -64,8 +77,8 @@ class SchemaService:
 
             temp[col] = temp[col].astype(parameter.dtype, errors="ignore")
 
-            for formatter in parameter.formatters:
-                temp[col] = formatter(temp[col])
+            if "float" in str(parameter.dtype).lower():
+                temp[col] = temp[col].round(1)
 
         return temp
 

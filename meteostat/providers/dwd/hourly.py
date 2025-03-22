@@ -15,7 +15,7 @@ import pandas as pd
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
 from meteostat.typing import Query, Station
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
 from meteostat.providers.dwd.shared import get_ftp_connection
@@ -113,7 +113,7 @@ def find_file(ftp: FTP, path: str, needle: str):
     return match
 
 
-@cache(TTL.DAY, "pickle")
+@cache_service.cache(TTL.DAY, "pickle")
 def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame

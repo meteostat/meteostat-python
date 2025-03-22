@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 from meteostat.enumerations import TTL, Parameter
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import Query
 
@@ -19,7 +19,7 @@ PROPERTIES = {
 }
 
 
-@cache(TTL.WEEK, "pickle")
+@cache_service.cache(TTL.WEEK, "pickle")
 def get_df(
     climate_id: str,
 ) -> Optional[pd.DataFrame]:

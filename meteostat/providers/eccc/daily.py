@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 
 from meteostat.enumerations import TTL, Parameter
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import Query
 
@@ -21,7 +21,7 @@ PROPERTIES = {
 }
 
 
-@cache(TTL.DAY, "pickle")
+@cache_service.cache(TTL.DAY, "pickle")
 def get_df(climate_id: str, year: int) -> Optional[pd.DataFrame]:
     # Process start & end date
     # ECCC uses the station's local time zone

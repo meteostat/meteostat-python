@@ -1,6 +1,5 @@
 from meteostat.enumerations import Granularity, Parameter, Unit
 from meteostat.typing import ParameterSpec
-from meteostat.utils.formatters import decimals
 from meteostat.utils.validators import maximum, minimum
 
 
@@ -11,7 +10,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.HOURLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -20,7 +18,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -29,7 +26,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -38,7 +34,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -47,7 +42,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -56,7 +50,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -65,7 +58,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -74,7 +66,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -83,7 +74,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -92,7 +82,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -101,7 +90,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -110,7 +98,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -119,7 +106,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -128,7 +114,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -137,7 +122,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.HOURLY,
         unit=Unit.CELSIUS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(-100), maximum(65)],
     ),
     ParameterSpec(
@@ -178,7 +162,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.HOURLY,
         unit=Unit.MILIMETERS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(350)],
     ),
     ParameterSpec(
@@ -187,7 +170,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.MILIMETERS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(2000)],
     ),
     ParameterSpec(
@@ -196,7 +178,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.MILIMETERS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(10000)],
     ),
     ParameterSpec(
@@ -205,7 +186,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.MILIMETERS,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(10000)],
     ),
     ParameterSpec(
@@ -246,7 +226,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.HOURLY,
         unit=Unit.KMH,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(250)],
     ),
     ParameterSpec(
@@ -255,7 +234,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.KMH,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(150)],
     ),
     ParameterSpec(
@@ -264,7 +242,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.HOURLY,
         unit=Unit.KMH,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(500)],
     ),
     ParameterSpec(
@@ -273,7 +250,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.KMH,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(0), maximum(500)],
     ),
     ParameterSpec(
@@ -282,7 +258,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.HOURLY,
         unit=Unit.HPA,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(850), maximum(1090)],
     ),
     ParameterSpec(
@@ -291,7 +266,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.DAILY,
         unit=Unit.HPA,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(850), maximum(1090)],
     ),
     ParameterSpec(
@@ -300,7 +274,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.MONTHLY,
         unit=Unit.HPA,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(850), maximum(1090)],
     ),
     ParameterSpec(
@@ -309,7 +282,6 @@ DEFAULT_PARAMETERS = [
         granularity=Granularity.NORMALS,
         unit=Unit.HPA,
         dtype="Float64",
-        formatters=[decimals(1)],
         validators=[minimum(850), maximum(1090)],
     ),
     ParameterSpec(

@@ -14,7 +14,7 @@ from zipfile import ZipFile
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import Query
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_ftp_connection
 
@@ -52,7 +52,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
     return match
 
 
-@cache(TTL.WEEK, "pickle")
+@cache_service.cache(TTL.WEEK, "pickle")
 def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame

@@ -9,7 +9,7 @@ import pandas as pd
 from meteostat.enumerations import TTL
 from meteostat.core.logger import logger
 from meteostat.typing import Query
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 
 
 ENDPOINT = "https://bulk.meteostat.net/v2/raw/model/{year}/{station}.csv.gz"
@@ -26,7 +26,7 @@ def get_ttl(_station: str, year: int) -> int:
     return TTL.DAY if current_year - year < 2 else TTL.MONTH
 
 
-@cache(get_ttl, "pickle")
+@cache_service.cache(get_ttl, "pickle")
 def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
     """
     Get CSV file from Meteostat and convert to DataFrame

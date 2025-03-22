@@ -8,7 +8,7 @@ from metar import Metar
 from meteostat.enumerations import TTL, Frequency, Parameter
 from meteostat.typing import Query
 from meteostat.utils.converters import temp_dwpt_to_rhum
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import enforce_freq
 from meteostat.core.network import get
 
@@ -105,7 +105,7 @@ def map_data(record):
         return None
 
 
-@cache(TTL.HOUR, "pickle")
+@cache_service.cache(TTL.HOUR, "pickle")
 def get_df(station: str) -> Optional[pd.DataFrame]:
     """
     Get CSV file from Meteostat and convert to DataFrame

@@ -9,14 +9,14 @@ from urllib.error import HTTPError
 import pandas as pd
 from meteostat.core.logger import logger
 from meteostat.typing import Query
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import reshape_by_source
 
 
 ENDPOINT = "https://data.meteostat.net/monthly/{station}.csv.gz"
 
 
-@cache(60 * 60 * 24 * 30, "pickle")
+@cache_service.cache(60 * 60 * 24 * 30, "pickle")
 def get_df(station: str) -> Optional[pd.DataFrame]:
     """
     Get CSV file from Meteostat and convert to DataFrame
@@ -43,7 +43,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         return None
 
 
-@cache(60 * 60 * 24 * 30, "pickle")
+@cache_service.cache(60 * 60 * 24 * 30, "pickle")
 def get_source_df(station: str) -> Optional[pd.DataFrame]:
     """
     Get source map CSV file from Meteostat and convert to DataFrame

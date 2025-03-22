@@ -11,7 +11,7 @@ from meteostat.enumerations import TTL
 from meteostat.core.logger import logger
 from meteostat.typing import Query
 from meteostat.utils.converters import percentage_to_okta
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 
 
 ENDPOINT = "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?lat={latitude}&lon={longitude}&altitude={elevation}"
@@ -130,7 +130,7 @@ def map_data(record):
 
 
 # TODO: Use separate function for caching
-@cache(TTL.HOUR, "pickle")
+@cache_service.cache(TTL.HOUR, "pickle")
 def fetch(query: Query) -> Optional[pd.DataFrame]:
     file_url = ENDPOINT.format(
         latitude=query.station.latitude,

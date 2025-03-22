@@ -8,7 +8,7 @@ from urllib.error import HTTPError
 import pandas as pd
 from meteostat.core.logger import logger
 from meteostat.typing import Query
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import reshape_by_source
 
 
@@ -26,7 +26,7 @@ def get_ttl(_station: str, year: int) -> int:
     return 60 * 60 * 24 if current_year - year < 2 else 60 * 60 * 24 * 30
 
 
-@cache(get_ttl, "pickle")
+@cache_service.cache(get_ttl, "pickle")
 def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
     """
     Get CSV file from Meteostat and convert to DataFrame

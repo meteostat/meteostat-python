@@ -1,8 +1,9 @@
-from typing import Callable
 from pandas import Series
 
+from meteostat.core.validator import Validator
 
-def minimum(value: int | float) -> Callable[[Series], Series]:
+
+def minimum(value: int | float) -> Validator:
     """
     Numeric minimum
     """
@@ -10,10 +11,10 @@ def minimum(value: int | float) -> Callable[[Series], Series]:
     def _func(series: Series) -> Series:
         return series >= value
 
-    return _func
+    return Validator(_func)
 
 
-def maximum(value: int | float) -> Callable[[Series], Series]:
+def maximum(value: int | float) -> Validator:
     """
     Numeric maximum
     """
@@ -21,4 +22,4 @@ def maximum(value: int | float) -> Callable[[Series], Series]:
     def _func(series: Series) -> Series:
         return series <= value
 
-    return _func
+    return Validator(_func)
