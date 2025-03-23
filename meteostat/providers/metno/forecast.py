@@ -6,15 +6,21 @@ from urllib.error import HTTPError
 import pandas as pd
 import requests
 
-from meteostat import config, Parameter
-from meteostat.enumerations import TTL
+from meteostat.core.config import config
+from meteostat.enumerations import TTL, Parameter, Provider
 from meteostat.core.logger import logger
 from meteostat.typing import Query
 from meteostat.utils.converters import percentage_to_okta
 from meteostat.core.cache import cache_service
 
 
-ENDPOINT = "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?lat={latitude}&lon={longitude}&altitude={elevation}"
+cnf = config[Provider.METNO_FORECAST]
+
+
+ENDPOINT = cnf.get(
+    "endpoint",
+    "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?lat={latitude}&lon={longitude}&altitude={elevation}",
+)
 CONDICODES = {
     "clearsky": 1,
     "cloudy": 3,
@@ -138,13 +144,15 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
         elevation=query.station.elevation,
     )
 
-    if not config.metno_user_agent:
+    user_agent = cnf.get("user_agent")
+
+    if not user_agent:
         logger.warning(
-            "MET Norway requires a unique user agent as per their terms of service. Please use the settings key 'provider_metno_user_agent' to specify your user agent. For now, this provider is skipped."
+            "MET Norway requires a unique user agent as per their terms of service. Please use config to specify your user agent. For now, this provider is skipped."
         )
         return None
 
-    headers = {"User-Agent": config.metno_user_agent}
+    headers = {"User-Agent": user_agent}
 
     try:
         response = requests.get(file_url, headers=headers)

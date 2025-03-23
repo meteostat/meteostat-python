@@ -36,50 +36,42 @@ PARAMETERS: List[ParameterDefinition] = [
     {
         "dir": "precipitation",
         "usecols": [1, 3],
-        "parse_dates": {"time": [0]},
         "names": {"R1": Parameter.PRCP},
     },
     {
         "dir": "air_temperature",
         "usecols": [1, 3, 4],
-        "parse_dates": {"time": [0]},
         "names": {"TT_TU": Parameter.TEMP, "RF_TU": Parameter.RHUM},
     },
     {
         "dir": "wind",
         "usecols": [1, 3, 4],
-        "parse_dates": {"time": [0]},
         "names": {"F": Parameter.WSPD, "D": Parameter.WDIR},
         "convert": {"wspd": ms_to_kmh},
     },
     {
         "dir": "pressure",
         "usecols": [1, 3],
-        "parse_dates": {"time": [0]},
         "names": {"P": Parameter.PRES},
     },
     {
         "dir": "sun",
         "usecols": [1, 3],
-        "parse_dates": {"time": [0]},
         "names": {"SD_SO": Parameter.TSUN},
     },
     {
         "dir": "cloudiness",
         "usecols": [1, 4],
-        "parse_dates": {"time": [0]},
         "names": {"V_N": Parameter.CLDC},
     },
     {
         "dir": "visibility",
         "usecols": [1, 4],
-        "parse_dates": {"time": [0]},
         "names": {"V_VV": Parameter.VSBY},
     },
     {
         "dir": "weather_phenomena",
         "usecols": [1, 3],
-        "parse_dates": {"time": [0]},
         "names": {"WW": Parameter.COCO},
         "convert": {"coco": get_condicode},
         "encoding": "latin-1",
@@ -88,7 +80,6 @@ PARAMETERS: List[ParameterDefinition] = [
     # {
     #     "dir": "solar",
     #     "usecols": [1, 5],
-    #     "parse_dates": {"time": [0]},
     #     "names": {"FG_LBERG": "srad"},
     #     "convert": {"srad": jcm2_to_wm2},
     #     "historical_only": True,
@@ -107,7 +98,9 @@ def find_file(ftp: FTP, path: str, needle: str):
         files = ftp.nlst()
         matching = [f for f in files if needle in f]
         match = matching[0]
-    except BaseException:
+        logger.debug(f"Found file '{match}' in '{path}' directory")
+    except IndexError:
+        logger.info(f"File '{needle}' not found in '{path}' directory")
         pass
 
     return match
@@ -118,6 +111,8 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
+    logger.debug(f"Fetching {parameter_dir} data ({mode}) for DWD station '{station_id}'")
+
     parameter = next(param for param in PARAMETERS if param["dir"] == parameter_dir)
 
     ftp = get_ftp_connection()
@@ -128,6 +123,7 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
 
     buffer = BytesIO()
     ftp.retrbinary("RETR " + remote_file, buffer.write)
+
     # Unzip file
     with ZipFile(buffer, "r") as zipped:
         filelist = zipped.namelist()
@@ -136,6 +132,7 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
             if file[:7] == "produkt":
                 with zipped.open(file, "r") as reader:
                     raw = BytesIO(reader.read())
+
     # Convert raw data to DataFrame
     df: pd.DataFrame = pd.read_csv(
         raw,
@@ -144,18 +141,25 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
         date_format="%Y%m%d%H",
         na_values=[-999, "-999"],
         usecols=parameter["usecols"],
-        parse_dates=parameter["parse_dates"],
         encoding=parameter["encoding"] if "encoding" in parameter else None,
     )
+
+    df['time'] = pd.to_datetime(df.pop('MESS_DATUM'), format="%Y%m%d%H")
+
+    logger.debug(f"Found {len(df)} rows in {remote_file}")
+
     # Rename columns
     df = df.rename(columns=lambda x: x.strip())
     df = df.rename(columns=parameter["names"])
+
     # Convert column data
     if "convert" in parameter:
         for col, func in parameter["convert"].items():
             df[col] = df[col].apply(func)
+
     # Set index
     df = df.set_index("time")
+
     # Round decimals
     df = df.round(1)
 
@@ -165,6 +169,7 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
 def get_parameter(
     parameter_dir: str, modes: list[str], station: Station
 ) -> Optional[pd.DataFrame]:
+    logger.debug(f"Fetching {parameter_dir} data ({modes}) for station '{station.id}'")
     try:
         data = [
             get_df(parameter_dir, mode, station.identifiers["national"])
@@ -175,7 +180,7 @@ def get_parameter(
         df = pd.concat(data)
         return df.loc[~df.index.duplicated(keep="first")]
     except Exception as error:
-        logger.warning(error)
+        logger.warning(error, exc_info=True)
         return None
 
 

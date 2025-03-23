@@ -1,3 +1,10 @@
+"""
+Parameter Service
+
+The Parameter Service provides methods to manage and access
+supported parameters for data requests.
+"""
+
 from typing import List, Optional
 
 from meteostat.core.logger import logger
@@ -105,5 +112,6 @@ class ParameterService:
                 supported_parameters,
             )
         )
+
 
 parameter_service = ParameterService(DEFAULT_PARAMETERS)

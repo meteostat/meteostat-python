@@ -14,7 +14,7 @@ The code is licensed under the MIT license.
 __appname__ = "meteostat"
 __version__ = "2.0.0"
 
-from meteostat.configuration import config
+from meteostat.core.config import config
 from meteostat.enumerations import Parameter, Provider
 from meteostat.api.stations import stations, station, nearby
 from meteostat.api.point import Point
@@ -42,5 +42,5 @@ __all__ = [
     "units",
     "interpolate",
     "concat",
-    "interpolate"
+    "interpolate",
 ]

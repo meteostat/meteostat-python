@@ -1,3 +1,10 @@
+"""
+Schema Column Validator
+
+This class is used to validate DataFrame columns based
+on a parameter specification.
+"""
+
 from inspect import signature
 from typing import Callable, Optional
 

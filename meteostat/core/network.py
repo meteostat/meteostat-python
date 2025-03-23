@@ -1,6 +1,13 @@
+"""
+Network Service
+
+The Network Service provides methods to send HTTP requests
+considering the Meteostat configuration.
+"""
+
 import requests
 
-from meteostat.configuration import config
+from meteostat.core.config import config
 
 
 class NetworkService:
@@ -14,7 +21,9 @@ class NetworkService:
         Send a GET request using the Meteostat configuration
         """
 
-        return requests.get(url, params, headers=headers, proxies=config.proxies)
+        return requests.get(
+            url, params, headers=headers, proxies=config.get("network.proxies")
+        )
 
 
 network_service = NetworkService()

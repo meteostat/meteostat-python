@@ -1,3 +1,9 @@
+"""
+Provider Service
+
+The Provider Service provides methods to interact with data providers.
+"""
+
 from datetime import datetime
 from importlib import import_module
 from typing import List, Optional, TypeGuard
@@ -153,7 +159,7 @@ class ProviderService:
 
         if not provider:
             return None
-    
+
         query = Query(
             station=station,
             start=req.start if req.start else provider.start,
@@ -163,7 +169,7 @@ class ProviderService:
 
         module = import_module(provider.module)
         df = module.fetch(query)
-        
+
         return df
 
 

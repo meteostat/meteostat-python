@@ -74,6 +74,13 @@ class TimeSeries:
             if self.granularity is Granularity.DAILY
             else floor(diff.total_seconds() / 3600) + 1
         ) * len(self.stations)
+    
+    @property
+    def parameters(self) -> List[Parameter]:
+        """
+        Get parameters
+        """
+        return self._df.columns.to_list() if self._df is not None else []
 
     @property
     def freq(self) -> str:

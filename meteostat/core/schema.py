@@ -1,3 +1,10 @@
+"""
+Schema Service
+
+The Schema Service provides methods to clean and format
+DataFrames based on a set of parameters.
+"""
+
 from copy import copy
 from inspect import isfunction
 from typing import Callable, List
@@ -34,7 +41,7 @@ class SchemaService:
             )
             return result.astype(bool)
         return validator.test(df[col], df, col)
-    
+
     @staticmethod
     def purge(df: pd.DataFrame, granularity: Granularity) -> pd.DataFrame:
         """
@@ -45,7 +52,7 @@ class SchemaService:
             parameter.id for parameter in parameters if parameter.id in df.columns
         ]
         return df[columns]
-    
+
     @staticmethod
     def fill(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
         """
@@ -56,7 +63,7 @@ class SchemaService:
                 df[parameter_id] = None
 
         return df
-    
+
     @staticmethod
     def format(df: pd.DataFrame, granularity: Granularity) -> pd.DataFrame:
         """

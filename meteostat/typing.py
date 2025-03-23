@@ -1,3 +1,7 @@
+"""
+Meteostat Typing
+"""
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Callable, List, Optional
@@ -83,7 +87,7 @@ class Request:
     """
 
     granularity: Granularity  # Query's time series granularity
-    providers: List[ProviderSpec]  # Providers to query
+    providers: List[Provider]  # Providers to query
     parameters: List[Parameter]  # Schema of the query's data
     stations: List[Station]  # Stations to query
     start: Optional[datetime] = None  # Start date of the query

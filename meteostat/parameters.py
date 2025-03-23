@@ -1,3 +1,7 @@
+"""
+Meteostat Parameter Definitions
+"""
+
 from meteostat.enumerations import Granularity, Parameter, Unit
 from meteostat.typing import ParameterSpec
 from meteostat.utils.validators import maximum, minimum

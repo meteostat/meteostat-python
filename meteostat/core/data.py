@@ -34,7 +34,11 @@ class DataService:
         return df
 
     @staticmethod
-    def concat_fragments(fragments: List[pd.DataFrame], granularity: Granularity, parameters: List[Parameter]) -> pd.DataFrame:
+    def concat_fragments(
+        fragments: List[pd.DataFrame],
+        granularity: Granularity,
+        parameters: List[Parameter],
+    ) -> pd.DataFrame:
         """
         Concatenate multiple fragments into a single DataFrame
         """
@@ -140,7 +144,9 @@ class DataService:
         )
 
         # Filter parameters
-        req.parameters = parameter_service.filter_parameters(req.granularity, req.parameters)
+        req.parameters = parameter_service.filter_parameters(
+            req.granularity, req.parameters
+        )
 
         fragments = []
         included_stations: list[Station] = []

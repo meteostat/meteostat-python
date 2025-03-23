@@ -2,20 +2,18 @@ import os
 import json
 from typing import Any, Optional
 
-from meteostat.core.logger import logger
-
 
 class ConfigService:
-    prefix = "MS"
-
     _namespace: Optional[str]
-    _config: dict[str, Any]
+    _config: dict
 
     def __init__(
-        self, namespace: Optional[str] = None, root_config: dict[str, Any] = {}
+        self,
+        namespace: Optional[str] = None,
+        base_config={},
     ):
         self._namespace = namespace
-        self._config = root_config
+        self._config = base_config
 
     def _get_key(self, key: str) -> str:
         """
@@ -33,7 +31,6 @@ class ConfigService:
         try:
             return json.loads(value)
         except (json.JSONDecodeError, TypeError, ValueError):
-            logger.error(f"Failed to parse environment variable '{key}'")
             return None
 
     def set(self, key: str, value: Any) -> None:
@@ -50,19 +47,19 @@ class ConfigService:
         key = self._get_key(key)
         return self._config.get(key, default)
 
-    def get_env_name(self, key: str) -> str:
+    def get_env_name(self, key: str, prefix: Optional[str] = "MS") -> str:
         """
         Get the environment variable name for a given key
         """
-        prefix = f"{self.prefix}__" if self.prefix else ""
+        prefix = f"{prefix}__" if prefix else ""
         key = f"{prefix}{self._get_key(key)}"
         return key.upper()
 
-    def load_env(self) -> None:
+    def load_env(self, prefix: Optional[str] = "MS") -> None:
         """
         Update configuration from environment variables with a given prefix.
         """
-        prefix = f"{self.prefix}__" if prefix else ""
+        prefix = f"{prefix}_" if prefix else ""
 
         for key, value in os.environ.items():
             if not key.startswith(prefix):
@@ -81,43 +78,13 @@ class ConfigService:
         if self._namespace:
             namespace = f"{self._namespace}__{namespace}"
         return ConfigService(namespace, self._config)
-    
-    def __repr__(self) -> str:
-        """
-        Return a formatted representation of the configuration
-        """
-        def nest_dict(keys, value, d):
-            if len(keys) == 1:
-                d[keys[0]] = value
-            else:
-                d.setdefault(keys[0], {})
-                nest_dict(keys[1:], value, d[keys[0]])
-
-        nested_config = {}
-        for key, value in self._config.items():
-            keys = key.split("__")
-            nest_dict(keys, value, nested_config)
-
-        def format_nested(d, indent=0):
-            result = ""
-            for k, v in d.items():
-                if isinstance(v, dict):
-                    result += "  " * indent + k + "\n" + format_nested(v, indent + 1)
-                else:
-                    result += "  " * indent + f"{k} = {repr(v)}\n"
-            return result
-
-        return format_nested(nested_config).strip()
 
 
 config = ConfigService()
 
-# Default configuration
-config.set("cache.disable", False)
-config.set(
-    "cache.directory",
-    os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache",
-)
-config.set("cache.ttl", 60 * 60 * 24 * 30)
-config.set("cache.autoclean", True)
-config.set("network.proxies", None)
+
+cnf = config["user"]["data"]
+
+cnf.set("agent", "myapp")
+print(cnf.get("agent"))
+print(config.get("user.data.agent"))

@@ -1,15 +1,16 @@
 """
 Cache Service
 
-A global cache which provides utilities for caching data on the local file system.
+The Cache Service provides utilities for caching data on the local file system.
 """
+
 from functools import wraps
 from typing import Any, Callable, Optional
 import json
 import os
 from os.path import exists
 from hashlib import md5
-from meteostat.configuration import config
+from meteostat.core.config import config
 from meteostat.core.logger import logger
 import pandas as pd
 from time import time
@@ -19,14 +20,16 @@ class CacheService:
     """
     Cache Service
     """
+
     @staticmethod
     def _create_cache_dir() -> None:
         """
         Create the cache directory if it doesn't exist
         """
-        if not os.path.exists(config.cache_dir):
-            os.makedirs(config.cache_dir)
+        cache_dir = config.get("cache.directory")
 
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
 
     @staticmethod
     def _write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
@@ -34,7 +37,6 @@ class CacheService:
         Persist a DataFrame in Pickle format
         """
         pd.DataFrame().to_pickle(path) if df is None else df.to_pickle(path)
-
 
     @staticmethod
     def _read_pickle(path) -> Optional[pd.DataFrame]:
@@ -44,7 +46,6 @@ class CacheService:
         df: pd.DataFrame = pd.read_pickle(path)
         return None if df.empty else df
 
-
     @staticmethod
     def _write_json(path: str, data: dict | list) -> None:
         """
@@ -52,7 +53,6 @@ class CacheService:
         """
         with open(path, "w") as file:
             json.dump(data, file)
-
 
     @staticmethod
     def _read_json(path) -> dict | list:
@@ -63,9 +63,8 @@ class CacheService:
             raw = file.read()
         return json.loads(raw)
 
-
     @staticmethod
-    def _func_to_uid(func, args: tuple, kwargs: dict[str, Any]) -> str:
+    def func_to_uid(func, args: tuple, kwargs: dict[str, Any]) -> str:
         """
         Get a unique ID from a function call based on its module, name and arguments
         """
@@ -80,7 +79,6 @@ class CacheService:
             ).encode("utf-8")
         ).hexdigest()
 
-
     def persist(self, path: str, data: pd.DataFrame | dict | list, type: str) -> None:
         """
         Persist any given data under a specific path
@@ -93,7 +91,6 @@ class CacheService:
         else:
             self._write_pickle(path, data)
 
-
     def fetch(self, path, type: str) -> pd.DataFrame | dict | list:
         """
         Fetch data from a given path
@@ -102,29 +99,28 @@ class CacheService:
             return self._read_json(path)
         return self._read_pickle(path)
 
-
     @staticmethod
     def get_cache_path(uid: str, filetype: str):
         """
         Get path of a cached file based on its uid and file type
         """
-        return config.cache_dir + os.sep + f"{uid}.{filetype}"
-
+        return config.get("cache.directory") + os.sep + f"{uid}.{filetype}"
 
     @staticmethod
     def is_stale(path: str, ttl: int) -> bool:
         return (
             True
-            if time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
+            if time() - os.path.getmtime(path) > max([ttl, config.get("cache.ttl")])
             else False
         )
 
-
-    def from_func(self, func, args, kwargs, ttl: int, format: str) -> pd.DataFrame | dict | list:
+    def from_func(
+        self, func, args, kwargs, ttl: int, format: str
+    ) -> pd.DataFrame | dict | list:
         """
         Cache a function's return value
         """
-        uid = self._func_to_uid(func, args, kwargs)  # Get UID for function call
+        uid = self.func_to_uid(func, args, kwargs)  # Get UID for function call
         path = self.get_cache_path(uid, format)  # Get the local cache path
         result = (
             self.fetch(path, format)
@@ -145,18 +141,17 @@ class CacheService:
 
         return result
 
-
     @staticmethod
     def purge(ttl: Optional[int] = None) -> None:
         """
         Remove stale files from disk cache
         """
         if ttl is None:
-            ttl = config.cache_ttl
+            ttl = config.get("cache.ttl")
 
         logger.debug(f"Removing cached files older than {ttl} seconds")
 
-        cache_dir = config.cache_dir
+        cache_dir = config.get("cache.directory")
 
         if os.path.exists(cache_dir):
             # Get current time
@@ -170,7 +165,9 @@ class CacheService:
                     # Delete file
                     os.remove(path)
 
-    def cache(self, ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"):
+    def cache(
+        self, ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"
+    ):
         """
         A simple decorator which caches a function's return value
         based on its payload.
@@ -181,9 +178,9 @@ class CacheService:
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
-                if config.cache_autoclean:
+                if config.get("cache.autoclean", default=True):
                     self.purge()
-                if not config.cache_enable:
+                if config.get("cache.disable", default=False):
                     logger.debug(
                         f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                     )
@@ -199,6 +196,6 @@ class CacheService:
             return wrapper
 
         return decorator
-    
+
 
 cache_service = CacheService()
