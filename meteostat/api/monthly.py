@@ -23,6 +23,7 @@ DEFAULT_PARAMETERS = [
     Parameter.TSUN,
 ]
 
+
 def monthly(
     station: str | Station | List[str | Station] | pd.Index | pd.Series,
     start: Optional[Union[datetime, date]] = None,

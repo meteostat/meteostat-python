@@ -26,7 +26,7 @@ def parse_station(
     Parse one or multiple station(s) or a geo point
     """
     # Return data if it contains station meta data
-    if isinstance(station, dict):
+    if isinstance(station, Station):
         return [station]
 
     # Convert station identifier(s) to list

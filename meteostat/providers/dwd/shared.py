@@ -4,7 +4,7 @@ from ftplib import FTP
 from meteostat.core.config import config
 
 
-DWD_FTP_SERVER = config.get('dwd.ftp_server', "opendata.dwd.de")
+DWD_FTP_SERVER = config.get("dwd.ftp_server", "opendata.dwd.de")
 
 
 def get_ftp_connection() -> FTP:

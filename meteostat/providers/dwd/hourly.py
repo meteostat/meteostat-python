@@ -111,7 +111,9 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
-    logger.debug(f"Fetching {parameter_dir} data ({mode}) for DWD station '{station_id}'")
+    logger.debug(
+        f"Fetching {parameter_dir} data ({mode}) for DWD station '{station_id}'"
+    )
 
     parameter = next(param for param in PARAMETERS if param["dir"] == parameter_dir)
 
@@ -144,7 +146,7 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
         encoding=parameter["encoding"] if "encoding" in parameter else None,
     )
 
-    df['time'] = pd.to_datetime(df.pop('MESS_DATUM'), format="%Y%m%d%H")
+    df["time"] = pd.to_datetime(df.pop("MESS_DATUM"), format="%Y%m%d%H")
 
     logger.debug(f"Found {len(df)} rows in {remote_file}")
 

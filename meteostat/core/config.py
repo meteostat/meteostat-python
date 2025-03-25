@@ -81,11 +81,12 @@ class ConfigService:
         if self._namespace:
             namespace = f"{self._namespace}__{namespace}"
         return ConfigService(namespace, self._config)
-    
+
     def __repr__(self) -> str:
         """
         Return a formatted representation of the configuration
         """
+
         def nest_dict(keys, value, d):
             if len(keys) == 1:
                 d[keys[0]] = value

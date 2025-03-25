@@ -26,6 +26,7 @@ DEFAULT_PARAMETERS = [
     Parameter.CLDC,
 ]
 
+
 def daily(
     station: str | Station | List[str | Station] | pd.Index | pd.Series,
     start: Optional[Union[datetime, date]] = None,

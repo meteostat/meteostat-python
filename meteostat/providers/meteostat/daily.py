@@ -4,9 +4,8 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import Optional
-from urllib.error import HTTPError
 import pandas as pd
-from meteostat.core.logger import logger
+from meteostat.providers.meteostat.shared import handle_exceptions
 from meteostat.typing import Query
 from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import reshape_by_source
@@ -27,28 +26,20 @@ def get_ttl(_station: str, year: int) -> int:
 
 
 @cache_service.cache(get_ttl, "pickle")
+@handle_exceptions
 def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
     """
     Get CSV file from Meteostat and convert to DataFrame
     """
     file_url = ENDPOINT.format(station=station, year=str(year))
 
-    try:
-        df = pd.read_csv(file_url, sep=",", compression="gzip")
-        time_cols = df.columns[0:3]
-        df["time"] = pd.to_datetime(df[time_cols])
-        df = df.drop(time_cols, axis=1).set_index("time")
-        return reshape_by_source(df)
+    df = pd.read_csv(file_url, sep=",", compression="gzip")
 
-    except HTTPError as error:
-        logger.info(
-            f"Couldn't load daily data file {file_url} (status: {error.status})"
-        )
-        return None
+    time_cols = df.columns[0:3]
+    df["time"] = pd.to_datetime(df[time_cols])
+    df = df.drop(time_cols, axis=1).set_index("time")
 
-    except Exception:
-        logger.warning(f'Could not load daily data file "{file_url}"', exc_info=True)
-        return None
+    return reshape_by_source(df)
 
 
 def fetch(query: Query) -> Optional[pd.DataFrame]:

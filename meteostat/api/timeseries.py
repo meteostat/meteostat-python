@@ -74,7 +74,7 @@ class TimeSeries:
             if self.granularity is Granularity.DAILY
             else floor(diff.total_seconds() / 3600) + 1
         ) * len(self.stations)
-    
+
     @property
     def parameters(self) -> List[Parameter]:
         """

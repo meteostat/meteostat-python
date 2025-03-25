@@ -6,6 +6,7 @@ from meteostat.core.data import data_service
 from meteostat.core.schema import schema_service
 from meteostat.api.timeseries import TimeSeries
 
+
 def _get_dt(
     dt_a: Optional[datetime], dt_b: Optional[datetime], start=True
 ) -> Optional[datetime]:
@@ -47,7 +48,9 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
         end = _get_dt(end, obj.end, False)
         parameters.extend(obj.parameters)
 
-    df = data_service.concat_fragments([obj._df for obj in objs], ts.granularity, list(dict.fromkeys(parameters)))
+    df = data_service.concat_fragments(
+        [obj._df for obj in objs], ts.granularity, list(dict.fromkeys(parameters))
+    )
     df = schema_service.format(df, ts.granularity)
 
     return TimeSeries(
