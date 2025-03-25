@@ -16,7 +16,7 @@ __version__ = "2.0.0"
 
 from meteostat.core.config import config
 from meteostat.enumerations import Parameter, Provider
-from meteostat.api.stations import stations, station, nearby
+from meteostat.api.stations import stations, station, nearby, connect_stations_db
 from meteostat.api.point import Point
 from meteostat.api.hourly import hourly
 from meteostat.api.daily import daily
@@ -34,6 +34,7 @@ __all__ = [
     "stations",
     "station",
     "nearby",
+    "connect_stations_db",
     "Point",
     "hourly",
     "daily",
