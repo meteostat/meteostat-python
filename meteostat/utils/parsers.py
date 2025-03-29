@@ -14,7 +14,7 @@ import datetime
 import pandas as pd
 from pulire import Schema
 import pytz
-from meteostat.api.stations import station as get_station
+from meteostat.api.station import station as get_station
 from meteostat.enumerations import Parameter
 from meteostat.typing import Station
 

@@ -1,144 +1,179 @@
+from io import BytesIO
 import os
 import sqlite3
-from typing import List, Optional
+from typing import Optional
+
 import pandas as pd
-from requests import get, HTTPError, Timeout
+from requests import Response
 from meteostat.api.point import Point
-from meteostat.core.logger import logger
-from meteostat.core.network import network_service
-from meteostat.enumerations import TTL
-from meteostat.typing import Station
 from meteostat.core.cache import cache_service
-from meteostat.utils.helpers import get_distance
+from meteostat.core.config import config
+from meteostat.core.network import network_service
+from meteostat.typing import Station
 
-INDEX_MIRRORS = [
-    "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/locations.csv.gz",
-    "https://raw.githubusercontent.com/meteostat/weather-stations/master/locations.csv.gz",
-]
-STATION_MIRRORS = [
-    "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/stations/{id}.json",
-    "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json",
-]
-DATABASE_MIRROR = (
-    "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
-)
-DEFAULT_DB_FILE = (
-    os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
-)
-
-
-@cache_service.cache(60 * 60 * 24 * 7)
-def _fetch_station(id: str) -> Optional[Station]:
+class Stations:
     """
-    Fetch meta data for a specific weather station
+    Stations Database
     """
 
-    for mirror in STATION_MIRRORS:
-        try:
-            with get(mirror.format(id=id)) as res:
-                if res.status_code == 200:
-                    # Parse JSON response
-                    station = res.json()
-                    # Extract English station name
-                    station["name"] = station["name"]["en"]
-                    # Extract location data
-                    station["latitude"] = station["location"]["latitude"]
-                    station["longitude"] = station["location"]["longitude"]
-                    station["elevation"] = station["location"]["elevation"]
-                    # Remove unused data
-                    station.pop("location", None)
-                    station.pop("active", None)
-                    # Return station dictionary
-                    return station
-        except (HTTPError, Timeout):
-            logger.warning(f"Could not fetch weather station meta data from '{mirror}'")
+    def _fetch_file(self, stream=False) -> Response:
+        """
+        Download the SQLite database file from the configured URL
+        """
+        url = config.get("stations.database.url")
 
+        response = network_service.get(url, stream=stream)
 
-def station(id: str) -> Optional[Station]:
-    """
-    Get meta data for a specific weather station
-    """
-    meta_data = _fetch_station(id)
+        if response.status_code != 200:
+            raise Exception("Failed to download the database file")
+        
+        return response
+    
+    def _get_file_path(self) -> str:
+        """
+        Get the file path for the SQLite database
+        """
+        filepath = config.get("stations.database.file")
+        ttl = config.get("stations.database.ttl")
 
-    return Station(**meta_data) if meta_data else None
+        if os.path.exists(filepath) and not cache_service.is_stale(filepath, ttl):
+            return filepath
 
+        # Download the database file
+        response = self._fetch_file(stream=True)
 
-@cache_service.cache(60 * 60 * 24, "pickle")
-def stations() -> Optional[pd.DataFrame]:
-    """
-    Get a DataFrame of all weather stations
-    """
-    for mirror in INDEX_MIRRORS:
-        try:
-            return pd.read_csv(mirror, compression="gzip", index_col="id").sort_index()
-        except (HTTPError, Timeout):
-            logger.warning(f"Could not fetch weather stations from '{mirror}'")
-
-
-def nearby(
-    point: Point, radius: float = None, limit: int = None
-) -> Optional[List[str]]:
-    """
-    Get a list of weather station IDs ordered by distance
-    """
-    df = stations()
-
-    if df is None:
-        return None
-
-    # Get distance for each station
-    df["distance"] = get_distance(
-        point.latitude, point.longitude, df["latitude"], df["longitude"]
-    )
-
-    # Filter by radius
-    if radius:
-        df = df[df["distance"] <= radius]
-
-    # Sort stations by distance
-    df.columns.str.strip()
-    df = df.sort_values("distance")
-
-    return df[0:limit] if limit else df
-
-
-def _download_db_file(filepath: str, ttl: int) -> Optional[str]:
-    """
-    Downloads an SQLite file from the given URL
-    """
-    if os.path.exists(filepath) and not cache_service.is_stale(filepath, ttl):
-        logger.debug(f"Using cached file '{filepath}'")
-        return filepath
-
-    response = network_service.get(DATABASE_MIRRORS[1], stream=True)
-
-    if response.status_code == 200:
         with open(filepath, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
-        logger.debug(f"Downloaded file '{filepath}' successfully")
-    else:
-        logger.error(f"Failed to download file. Status code: {response.status_code}")
-        return None
 
-    return filepath
+        return filepath
 
+    def _connect_memory(self) -> sqlite3.Connection:
+        """
+        Create an in-memory SQLite database and load the downloaded database file into it
+        """
+        # Download the database file
+        response = self._fetch_file()
 
-def connect_stations_db(
-    file: str = DEFAULT_DB_FILE,
-    ttl: int = TTL.WEEK,
-):
-    """
-    Connect to the stations SQLite database
-    """
-    file = _download_db_file(file, ttl)
+        # Create an in-memory SQLite database
+        conn = sqlite3.connect(":memory:")
 
-    if not file:
-        return None
+        # Read the downloaded database file into memory
+        content = BytesIO(response.content)
 
-    try:
-        conn = sqlite3.connect(file)
+        # Convert bytes to string and write the content to the in-memory database
+        conn.deserialize(content.read())
+
         return conn
-    except sqlite3.Error as e:
-        logger.error(f"Failed to connect to SQLite database: {e}")
-        return None
+    
+    def _connect_fs(self) -> sqlite3.Connection:
+        """
+        Connect to the SQLite database file on the filesystem
+        """
+        file = self._get_file_path()
+
+        if not file:
+            raise FileNotFoundError("SQLite database file not found")
+
+        conn = sqlite3.connect(file)
+
+        return conn
+
+    def connect(self, in_memory: Optional[bool] = None) -> sqlite3.Connection:
+        """
+        Connect to the database
+        """
+        if in_memory is None:
+            in_memory = config.get("stations.database.file") is None
+
+        if in_memory:
+            return self._connect_memory()
+        
+        return self._connect_fs()
+    
+    def query(self, sql: str, index_col: Optional[list] = None, params: Optional[tuple] = None) -> pd.DataFrame:
+        """
+        Execute a SQL query and return the result as a DataFrame
+        """
+        with self.connect() as conn:
+            df = pd.read_sql(sql, conn, index_col=index_col, params=params)
+        
+        return df
+    
+
+    def meta(self, station: str) -> Station:
+        """
+        Get meta data for a specific weather station
+        """
+        meta = self.query(
+            "SELECT * FROM `stations` WHERE `id` LIKE ?",
+            index_col="id",
+            params=(station,),
+        ).to_dict("records")[0]
+
+        names = self.query(
+            "SELECT `language`, `name` FROM `names` WHERE `station` LIKE ?", params=(station,)
+        ).to_dict("records")
+
+        identifiers = self.query(
+            "SELECT `key`, `value` FROM `identifiers` WHERE `station` LIKE ?", params=(station,)
+        ).to_dict("records")
+
+        return Station(id=station, **meta, names={name["language"]: name["name"] for name in names}, identifiers={identifier["key"]: identifier["value"] for identifier in identifiers})
+
+    
+
+    def inventory(self, station: str) -> pd.DataFrame:
+        """
+        Get inventory records for a single weather station
+        """
+        return self.query(
+            "SELECT provider, parameter, start, end, completeness FROM `inventory` WHERE `station` LIKE ?",
+            index_col=['provider', 'parameter'],
+            params=(station,),
+        )
+    
+    def nearby(self, point: Point, radius=50000, limit=100) -> pd.DataFrame:
+        """
+        Get a list of weather station IDs ordered by distance
+        """
+        return self.query(
+            """
+            SELECT
+                `id`,
+                `names`.`name` as `name`,
+                `country`,
+                `region`,
+                `latitude`,
+                `longitude`,
+                `elevation`,
+                `timezone`,
+                ROUND(
+                    (
+                        6371000 * acos(
+                            cos(radians(:lat)) * cos(radians(`latitude`)) * cos(radians(`longitude`) - radians(:lon)) + sin(radians(:lat)) * sin(radians(`latitude`))
+                        )
+                    ),
+                    1
+                ) AS `distance`
+            FROM
+                `stations`
+                INNER JOIN `names` ON `stations`.`id` = `names`.`station`
+                AND `names`.`language` = "en"
+            WHERE
+                `distance` <= :radius
+            ORDER BY
+                `distance`
+            LIMIT
+                :limit
+            """,
+            index_col="id",
+            params={
+                "lat": point.latitude,
+                "lon": point.longitude,
+                "radius": radius,
+                "limit": limit,
+            },
+        )
+    
+stations = Stations()

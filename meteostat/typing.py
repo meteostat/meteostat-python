@@ -24,7 +24,7 @@ class Station:
     """
 
     id: str  # The Meteostat station ID
-    name: str  # The English name of the station
+    names: dict[str, str]  # The name of the station in different languages
     country: str  # ISO 3166-1 alpha-2 country code
     region: str  # ISO 3166-2 state or region code
     identifiers: dict[str, str]  # Provider identifiers
@@ -32,6 +32,13 @@ class Station:
     longitude: float  # The longitude in degrees
     elevation: int  # The elevation in meters
     timezone: str  # The IANA timezone name
+
+    @property
+    def name(self) -> str:
+        """
+        The English name of the station
+        """
+        return self.names["en"]
 
 
 @dataclass

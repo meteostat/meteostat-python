@@ -112,13 +112,3 @@ class ConfigService:
 
 
 config = ConfigService()
-
-# Default configuration
-config.set("cache.disable", False)
-config.set(
-    "cache.directory",
-    os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache",
-)
-config.set("cache.ttl", 60 * 60 * 24 * 30)
-config.set("cache.autoclean", True)
-config.set("network.proxies", None)
