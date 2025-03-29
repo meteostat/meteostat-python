@@ -12,7 +12,6 @@ import calendar
 from typing import List
 import datetime
 import pandas as pd
-from pulire import Schema
 import pytz
 from meteostat.api.station import station as get_station
 from meteostat.enumerations import Parameter
@@ -56,23 +55,6 @@ def parse_station(
 
     # Return station meta data
     return data
-
-
-def get_schema(root_schema: Schema, parameters: List[Parameter]) -> Schema:
-    """
-    Raise exception if a requested parameter is not part of the schema
-    """
-    # Get difference between requested parameters and root schema
-    diff = set(parameters).difference(root_schema.names)
-    # Log warning
-    if len(diff):
-        raise ValueError(
-            f"""Tried to request data for unsupported parameter(s): {
-            ", ".join([p for p in diff])
-        }"""
-        )
-    # Return intersection
-    return root_schema[parameters]
 
 
 def parse_time(

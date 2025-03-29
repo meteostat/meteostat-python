@@ -4,14 +4,16 @@ The code is licensed under the MIT license.
 
 from typing import Optional
 import pandas as pd
-from meteostat.enumerations import TTL
+from meteostat.core.config import config
+from meteostat.enumerations import TTL, Provider
 from meteostat.providers.meteostat.shared import handle_exceptions
 from meteostat.typing import Query
 from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import reshape_by_source
 
+cnf = config[Provider.MONTHLY]
 
-ENDPOINT = "https://data.meteostat.net/monthly/{station}.csv.gz"
+ENDPOINT = cnf.get("endpoint", "https://data.meteostat.net/monthly/{station}.csv.gz")
 
 
 @cache_service.cache(TTL.MONTH, "pickle")
