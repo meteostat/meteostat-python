@@ -6,11 +6,11 @@ from typing import Any, Optional
 import pandas as pd
 from metar import Metar
 from meteostat.enumerations import TTL, Frequency, Parameter
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 from meteostat.utils.converters import temp_dwpt_to_rhum
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import enforce_freq
-from meteostat.utils.network import get
+from meteostat.core.network import get
 
 ENDPOINT = "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
 CLDC_MAP = {
@@ -105,7 +105,7 @@ def map_data(record):
         return None
 
 
-@cache(TTL.HOUR, "pickle")
+@cache_service.cache(TTL.HOUR, "pickle")
 def get_df(station: str) -> Optional[pd.DataFrame]:
     """
     Get CSV file from Meteostat and convert to DataFrame
@@ -143,6 +143,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     return enforce_freq(df, Frequency.HOURLY)
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
-    if "icao" in query["station"]["identifiers"]:
-        return get_df(query["station"]["identifiers"]["icao"])
+def fetch(query: Query) -> Optional[pd.DataFrame]:
+    if "icao" in query.station.identifiers:
+        return get_df(query.station.identifiers["icao"])

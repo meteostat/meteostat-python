@@ -3,9 +3,9 @@ import pandas as pd
 import requests
 
 from meteostat.enumerations import TTL, Parameter
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 
 BATCH_LIMIT = 9000
 PROPERTIES = {
@@ -19,7 +19,7 @@ PROPERTIES = {
 }
 
 
-@cache(TTL.WEEK, "pickle")
+@cache_service.cache(TTL.WEEK, "pickle")
 def get_df(
     climate_id: str,
 ) -> Optional[pd.DataFrame]:
@@ -52,11 +52,11 @@ def get_df(
     return df
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
-    if not "national" in query["station"]["identifiers"]:
+def fetch(query: Query) -> Optional[pd.DataFrame]:
+    if not "national" in query.station.identifiers:
         return None
 
-    meta_data = get_meta_data(query["station"]["identifiers"]["national"])
+    meta_data = get_meta_data(query.station.identifiers["national"])
     climate_id = meta_data.get("CLIMATE_IDENTIFIER")
 
     if not climate_id:

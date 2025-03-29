@@ -4,9 +4,9 @@ import pandas as pd
 import requests
 
 from meteostat.enumerations import TTL, Parameter
-from meteostat.utils.decorators import cache
+from meteostat.core.cache import cache_service
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 
 BATCH_LIMIT = 9000
 PROPERTIES = {
@@ -21,7 +21,7 @@ PROPERTIES = {
 }
 
 
-@cache(TTL.DAY, "pickle")
+@cache_service.cache(TTL.DAY, "pickle")
 def get_df(climate_id: str, year: int) -> Optional[pd.DataFrame]:
     # Process start & end date
     # ECCC uses the station's local time zone
@@ -58,11 +58,11 @@ def get_df(climate_id: str, year: int) -> Optional[pd.DataFrame]:
     return df
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
-    if not "national" in query["station"]["identifiers"]:
+def fetch(query: Query) -> Optional[pd.DataFrame]:
+    if not "national" in query.station.identifiers:
         return None
 
-    meta_data = get_meta_data(query["station"]["identifiers"]["national"])
+    meta_data = get_meta_data(query.station.identifiers["national"])
     climate_id = meta_data.get("CLIMATE_IDENTIFIER")
     archive_first = meta_data.get("DLY_FIRST_DATE")
     archive_last = meta_data.get("DLY_LAST_DATE")
@@ -74,8 +74,8 @@ def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
     archive_end = datetime.strptime(archive_last, "%Y-%m-%d %H:%M:%S")
 
     years = range(
-        max(query["start"].year, archive_start.year),
-        min(query["end"].year, archive_end.year) + 1,
+        max(query.start.year, archive_start.year),
+        min(query.end.year, archive_end.year) + 1,
     )
     data = [get_df(climate_id, year) for year in years]
 

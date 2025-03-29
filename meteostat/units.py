@@ -1,9 +1,7 @@
 """
 Meteorological Data Units
 
-Convert a Pandas Series to any meteorological data unit
-
-The code is licensed under the MIT license.
+Convert a Pandas Series to any meteorological data unit.
 """
 
 

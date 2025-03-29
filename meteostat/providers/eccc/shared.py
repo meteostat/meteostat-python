@@ -3,14 +3,14 @@ from typing import Optional
 import requests
 
 from meteostat.enumerations import TTL
-from meteostat.utils.decorators import cache
-from meteostat.logger import logger
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
 
 
 ENDPOINT = "https://api.weather.gc.ca"
 
 
-@cache(TTL.WEEK)
+@cache_service.cache(TTL.WEEK)
 def get_meta_data(station: str) -> Optional[dict]:
     response = requests.get(
         f"{ENDPOINT}/collections/climate-stations/items",

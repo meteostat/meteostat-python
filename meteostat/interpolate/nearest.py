@@ -1,7 +1,7 @@
 from functools import cache
 import pandas as pd
-from meteostat.point import Point
-from meteostat.timeseries.timeseries import TimeSeries
+from meteostat.api.point import Point
+from meteostat.api.timeseries import TimeSeries
 from meteostat.utils.helpers import get_freq, get_distance
 from meteostat.utils.mutations import apply_lapse_rate
 

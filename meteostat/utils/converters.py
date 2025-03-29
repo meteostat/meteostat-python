@@ -48,7 +48,12 @@ def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = Parameter
     try:
         return (
             None
-            if (not row[Parameter.PRES] or not row[temp] or not altitude or row[Parameter.PRES] == -999)
+            if (
+                not row[Parameter.PRES]
+                or not row[temp]
+                or not altitude
+                or row[Parameter.PRES] == -999
+            )
             else round(
                 row[Parameter.PRES]
                 * math.pow(

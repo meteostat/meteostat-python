@@ -2,9 +2,9 @@ from typing import Optional, Union
 from urllib.error import HTTPError
 import pandas as pd
 
-from meteostat.logger import logger
+from meteostat.core.logger import logger
 from meteostat.enumerations import Parameter
-from meteostat.typing import QueryDict
+from meteostat.typing import Query
 from meteostat.utils.converters import percentage_to_okta
 
 ENDPOINT = "https://opendata.dwd.de/weather/weather_reports/poi/{station}-BEOB.csv"
@@ -108,6 +108,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         return None
 
 
-def fetch(query: QueryDict) -> Optional[pd.DataFrame]:
-    if "wmo" in query["station"]["identifiers"]:
-        return get_df(query["station"]["identifiers"]["wmo"])
+def fetch(query: Query) -> Optional[pd.DataFrame]:
+    if "wmo" in query.station.identifiers:
+        return get_df(query.station.identifiers["wmo"])

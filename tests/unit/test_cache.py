@@ -2,7 +2,7 @@ import os
 import time
 from unittest import mock
 import pandas as pd
-from meteostat.cache import (
+from meteostat.core.cache import (
     create_cache_dir,
     fetch,
     persist,

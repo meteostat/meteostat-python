@@ -9,62 +9,56 @@ The cod is licensed under the MIT license.
 """
 
 import calendar
-from typing import Iterator, List
+from typing import List
 import datetime
 import pandas as pd
 from pulire import Schema
 import pytz
-import meteostat as ms
-from meteostat.enumerations import Provider
-from meteostat.typing import ProviderDict, StationDict
+from meteostat.api.station import station as get_station
+from meteostat.enumerations import Parameter
+from meteostat.typing import Station
 
 
 def parse_station(
-    station: str | StationDict | List[str | StationDict] | pd.Index | pd.Series,
-) -> List[StationDict]:
+    station: str | Station | List[str | Station] | pd.Index | pd.Series | pd.DataFrame,
+) -> List[Station]:
     """
     Parse one or multiple station(s) or a geo point
     """
-    if isinstance(station, dict):
+    # Return data if it contains station meta data
+    if isinstance(station, Station):
         return [station]
 
-    data = []
+    # Convert station identifier(s) to list
+    if isinstance(station, pd.Series) or isinstance(station, pd.DataFrame):
+        stations = station.index.tolist()
+    elif isinstance(station, pd.Index):
+        stations = station.tolist()
+    elif isinstance(station, str):
+        stations = [station]
+    else:
+        stations = station
 
-    for s in [station] if isinstance(station, str) else list(station):
+    # Get station meta data
+    data = []
+    for s in stations:
+        # Append data early if it contains station meta data
         if isinstance(s, dict):
             data.append(s)
-        meta = ms.station(s)
+            continue
+        # Get station meta data
+        meta = get_station(s)
+        # Raise exception if station could not be found
         if meta is None:
             raise ValueError(f'Weather station with ID "{s}" could not be found')
+        # Append station meta data
         data.append(meta)
 
+    # Return station meta data
     return data
 
 
-def parse_providers(
-    requested: List[Provider], supported: List[ProviderDict]
-) -> Iterator[ProviderDict]:
-    """
-    Raise exception if a requested provider is not supported
-    """
-    # Convert providers to set
-    providers = list(
-        map(lambda p: p if isinstance(p, Provider) else Provider[p], requested)
-    )
-    # Get difference between providers and supported providers
-    diff = set(providers).difference([provider["id"] for provider in supported])
-    # Log warning
-    if len(diff):
-        raise ValueError(
-            f"""Tried to request data for unsupported provider(s): {
-            ", ".join([p for p in diff])
-        }"""
-        )
-    # Return intersection
-    return filter(lambda provider: provider["id"] in requested, supported)
-
-
-def get_schema(root_schema: Schema, parameters: List[ms.Parameter]) -> Schema:
+def get_schema(root_schema: Schema, parameters: List[Parameter]) -> Schema:
     """
     Raise exception if a requested parameter is not part of the schema
     """

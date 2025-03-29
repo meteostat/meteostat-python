@@ -1,11 +1,5 @@
 """
-Enumerations
-
-Meteorological data provided by Meteostat (https://dev.meteostat.net)
-under the terms of the Creative Commons Attribution-NonCommercial
-4.0 International Public License.
-
-The code is licensed under the MIT license.
+Meteostat Enumerations
 """
 
 from enum import StrEnum, IntEnum
@@ -61,6 +55,25 @@ class Parameter(StrEnum):
     COCO = "coco"  # Weather condition code at time of observation
 
 
+class Unit(StrEnum):
+    """
+    Data Units
+    """
+
+    CELSIUS = "°C"
+    FAHRENHEIT = "°F"
+    KELVIN = "K"
+    PERCENTAGE = "%"
+    HPA = "hPa"
+    MILIMETERS = "mm"
+    CENTIMETERS = "cm"
+    METERS = "m"
+    KMH = "km/h"
+    DEGREES = "°"
+    MINUTES = "min"
+    OKTAS = "okta"
+
+
 class Provider(StrEnum):
     """
     Providers supported by Meteostat
@@ -101,6 +114,17 @@ class Priority(IntEnum):
     LOW = 10
     LOWEST = 5
     NONE = 0
+
+
+class Grade(IntEnum):
+    """
+    Provider quality grades
+    """
+
+    RECORD = 4
+    OBSERVATION = 3
+    ANALYSIS = 2
+    FORECAST = 1
 
 
 class TTL(IntEnum):

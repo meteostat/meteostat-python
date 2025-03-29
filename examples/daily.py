@@ -1,30 +1,29 @@
-from datetime import date, datetime
-import logging
+from datetime import date
 import meteostat as ms
+import logging
+
+from meteostat.enumerations import Provider
 
 logging.basicConfig(
-    level=logging.INFO, format="%(levelname)s [%(filename)s:%(lineno)s] %(message)s"
+    level=logging.DEBUG, format="%(levelname)s - %(filename)s:%(lineno)d - %(message)s"
 )
 
-ts = ms.daily(
-    "10637",
-    datetime(2020, 1, 5),
-    datetime(2020, 1, 10),
-    providers=[ms.Provider.GHCND],
-)
-print(ts.fetch())
+ts = ms.hourly("10637", date(2024, 1, 1), date(2024, 1, 1))
+print(ts.fetch(sources=True))
 exit()
 
-# ms.purge_cache(0)
 
-logging.basicConfig(level=logging.INFO)
+# Specify location and time range
+POINT = ms.Point(50.1155, 8.6842, 113)
+START = date(2024, 1, 1)
+END = date(2024, 1, 1)
 
-ts = ms.daily(
-    "10637",
-    date(2020, 1, 1),
-    date(2020, 1, 31),
-    parameters=(ms.Parameter.TEMP,),
-    providers=(ms.Provider.GHCND,),
-)
+# Get nearby weather stations
+stations = ms.nearby(POINT, limit=4)
 
-print(ts.fetch(squash=False, fill=True))
+# Get daily data & perform interpolation
+ts = ms.hourly(stations, START, END)
+print(ts.fetch())
+df = ms.interpolate(ts, POINT)
+
+print(df)

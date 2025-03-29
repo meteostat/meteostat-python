@@ -13,8 +13,8 @@ from typing import Optional
 from zipfile import ZipFile
 import pandas as pd
 from meteostat.enumerations import TTL, Parameter
-from meteostat.typing import QueryDict
-from meteostat.utils.decorators import cache
+from meteostat.typing import Query
+from meteostat.core.cache import cache_service
 from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_ftp_connection
 
@@ -52,7 +52,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
     return match
 
 
-@cache(TTL.WEEK, "pickle")
+@cache_service.cache(TTL.WEEK, "pickle")
 def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
@@ -107,8 +107,8 @@ def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
     return df
 
 
-def fetch(query: QueryDict):
-    if not "national" in query["station"]["identifiers"]:
+def fetch(query: Query):
+    if not "national" in query.station.identifiers:
         return pd.DataFrame()
 
     # Check which modes to consider for data fetching
@@ -120,12 +120,12 @@ def fetch(query: QueryDict):
     # period of 3 years here. If the end date of the query is within this period, we will also
     # consider the "recent" mode.
     modes = ["historical"]
-    if abs((query["end"] - datetime.now()).days) < 3 * 365:
+    if abs((query.end - datetime.now()).days) < 3 * 365:
         modes.append("recent")
 
     data = [
         get_df(
-            query["station"]["identifiers"]["national"],
+            query.station.identifiers["national"],
             mode,
         )
         for mode in modes

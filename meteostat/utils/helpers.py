@@ -10,39 +10,9 @@ The code is licensed under the MIT license.
 
 import itertools
 from collections import Counter
-from typing import Any, Iterable, List, Tuple
+from typing import Any, Iterable, List
 import numpy as np
 import pandas as pd
-from meteostat.enumerations import Granularity, Priority
-from meteostat.model import ALL_PROVIDERS
-from meteostat.typing import StationDict
-
-
-def get_freq(granularity: Granularity) -> str:
-    """
-    Convert granularity to frequency
-    """
-    return "1h" if granularity is Granularity.HOURLY else "1D"
-
-
-def stations_to_df(stations: Tuple[StationDict]) -> pd.DataFrame:
-    """
-    TODO: Rename to join_station_details and provide drop_station_details, move to mutations
-
-    Add the weather station's meta data to a given DataFrame
-    """
-    return pd.DataFrame.from_records(
-        [
-            {
-                "id": station["id"],
-                "latitude": station["location"]["latitude"],
-                "longitude": station["location"]["longitude"],
-                "elevation": station["location"]["elevation"],
-            }
-            for station in stations
-        ],
-        index="id",
-    )
 
 
 def get_distance(lat1, lon1, lat2, lon2) -> int:
@@ -64,40 +34,6 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
     arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
     return round(radius * arch_sin)
-
-
-def get_provider_priority(id: str) -> int:
-    """
-    Get priority of a provider by its ID
-    """
-    BASELINES = {
-        Granularity.HOURLY: 0,
-        Granularity.DAILY: 100,
-        Granularity.MONTHLY: 200,
-        Granularity.NORMALS: 300,
-    }
-
-    provider = next(
-        (provider for provider in ALL_PROVIDERS if provider["id"] == id), None
-    )
-
-    baseline = BASELINES[provider["granularity"]]
-
-    return int((Priority.NONE if not provider else provider["priority"]) + baseline)
-
-
-def get_source_priority(source: str) -> int:
-    """
-    Get priority of a source string
-    """
-    providers = source.split(" ")
-
-    if len(providers) == 1:
-        return get_provider_priority(providers[0])
-
-    priorities = [get_provider_priority(provider) for provider in providers]
-
-    return min(priorities)
 
 
 def get_index(obj: Iterable, index: int, default=None) -> Any:
