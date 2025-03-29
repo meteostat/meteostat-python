@@ -30,7 +30,7 @@ from meteostat.api.interpolate import interpolate
 from meteostat import units, interpolate
 
 # Set default configuration
-config.set("cache.disable", False)
+config.set("cache.enable", True)
 config.set(
     "cache.directory",
     os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache",
@@ -45,14 +45,7 @@ config.set(
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json",
     ],
 )
-config.set(
-    "stations.index.mirrors",
-    [
-        "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/locations.csv.gz",
-        "https://raw.githubusercontent.com/meteostat/weather-stations/master/locations.csv.gz",
-    ],
-)
-config.set("stations.database.enable", False)
+config.set("stations.database.prefer", False)
 config.set("stations.database.ttl", TTL.WEEK)
 config.set(
     "stations.database.url",

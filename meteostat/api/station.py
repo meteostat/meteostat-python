@@ -45,9 +45,9 @@ def station(id: str) -> Optional[Station]:
     """
     Get meta data for a specific weather station
     """
-    if config.get("station.use_database"):
+    if config.get("station.database.prefer"):
         return stations.meta(id)
-    
+
     meta_data = _fetch_station(id)
 
     return Station(**meta_data) if meta_data else None

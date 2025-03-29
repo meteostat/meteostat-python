@@ -11,6 +11,7 @@ from meteostat.core.config import config
 from meteostat.core.network import network_service
 from meteostat.typing import Station
 
+
 class Stations:
     """
     Stations Database
@@ -26,9 +27,9 @@ class Stations:
 
         if response.status_code != 200:
             raise Exception("Failed to download the database file")
-        
+
         return response
-    
+
     def _get_file_path(self) -> str:
         """
         Get the file path for the SQLite database
@@ -65,7 +66,7 @@ class Stations:
         conn.deserialize(content.read())
 
         return conn
-    
+
     def _connect_fs(self) -> sqlite3.Connection:
         """
         Connect to the SQLite database file on the filesystem
@@ -88,18 +89,19 @@ class Stations:
 
         if in_memory:
             return self._connect_memory()
-        
+
         return self._connect_fs()
-    
-    def query(self, sql: str, index_col: Optional[list] = None, params: Optional[tuple] = None) -> pd.DataFrame:
+
+    def query(
+        self, sql: str, index_col: Optional[list] = None, params: Optional[tuple] = None
+    ) -> pd.DataFrame:
         """
         Execute a SQL query and return the result as a DataFrame
         """
         with self.connect() as conn:
             df = pd.read_sql(sql, conn, index_col=index_col, params=params)
-        
+
         return df
-    
 
     def meta(self, station: str) -> Station:
         """
@@ -112,16 +114,23 @@ class Stations:
         ).to_dict("records")[0]
 
         names = self.query(
-            "SELECT `language`, `name` FROM `names` WHERE `station` LIKE ?", params=(station,)
+            "SELECT `language`, `name` FROM `names` WHERE `station` LIKE ?",
+            params=(station,),
         ).to_dict("records")
 
         identifiers = self.query(
-            "SELECT `key`, `value` FROM `identifiers` WHERE `station` LIKE ?", params=(station,)
+            "SELECT `key`, `value` FROM `identifiers` WHERE `station` LIKE ?",
+            params=(station,),
         ).to_dict("records")
 
-        return Station(id=station, **meta, names={name["language"]: name["name"] for name in names}, identifiers={identifier["key"]: identifier["value"] for identifier in identifiers})
-
-    
+        return Station(
+            id=station,
+            **meta,
+            names={name["language"]: name["name"] for name in names},
+            identifiers={
+                identifier["key"]: identifier["value"] for identifier in identifiers
+            }
+        )
 
     def inventory(self, station: str) -> pd.DataFrame:
         """
@@ -129,10 +138,10 @@ class Stations:
         """
         return self.query(
             "SELECT provider, parameter, start, end, completeness FROM `inventory` WHERE `station` LIKE ?",
-            index_col=['provider', 'parameter'],
+            index_col=["provider", "parameter"],
             params=(station,),
         )
-    
+
     def nearby(self, point: Point, radius=50000, limit=100) -> pd.DataFrame:
         """
         Get a list of weather station IDs ordered by distance
@@ -175,5 +184,6 @@ class Stations:
                 "limit": limit,
             },
         )
-    
+
+
 stations = Stations()

@@ -180,7 +180,7 @@ class CacheService:
             def wrapper(*args, **kwargs):
                 if config.get("cache.autoclean", default=True):
                     self.purge()
-                if config.get("cache.disable", default=False):
+                if not config.get("cache.enable"):
                     logger.debug(
                         f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                     )
