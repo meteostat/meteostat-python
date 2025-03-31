@@ -99,12 +99,16 @@ class SchemaService:
         temp = copy(df)
 
         for col in temp.columns:
+            if "_source" in col:
+                continue
+    
             parameter = parameter_service.get_parameter(col, granularity)
 
             if not parameter:
                 logger.warning(
                     f"Column {col} is not a valid column name and won't be cleaned"
                 )
+                continue
 
             for validator in parameter.validators:
                 test = cls._apply_validator(validator, temp, col)

@@ -38,10 +38,10 @@ def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
     # Get highest priority value/source for each station and time
     df = (
         df.groupby(level=["station", "time", "source"])
-        .last()
+        .last()  # In case of duplicate index, the last row will be prefered
         .sort_values(by="source_prio", ascending=False)
         .groupby(["station", "time"])
-        .first()
+        .first()  # Prefer value with highest priority
         .drop("source_prio", axis=1)
     )
 

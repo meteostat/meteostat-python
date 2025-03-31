@@ -26,6 +26,9 @@ def _get_dt(
 def concat(objs: List[TimeSeries]) -> TimeSeries:
     """
     Merge one or multiple Meteostat time series into a common one
+
+    In case of duplicate index, the last row will be prefered.
+    Hence, please pass newest data last.
     """
     ts = objs[0]
 
