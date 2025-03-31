@@ -14,7 +14,9 @@ from meteostat.utils.mutations import reshape_by_source
 
 cnf = config[Provider.DAILY]
 
-ENDPOINT = cnf.get("endpoint", "https://data.meteostat.net/daily/{year}/{station}.csv.gz")
+ENDPOINT = cnf.get(
+    "endpoint", "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
+)
 
 
 def get_ttl(_station: str, year: int) -> int:
