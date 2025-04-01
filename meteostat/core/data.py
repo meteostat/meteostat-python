@@ -157,7 +157,7 @@ class DataService:
 
             if len(station_fragments):
                 included_stations.append(station)
-                fragments.append(*station_fragments)
+                fragments.extend(station_fragments)
 
         # Merge data in a single DataFrame
         df = (
