@@ -14,7 +14,7 @@ from meteostat.utils.converters import (
     percentage_to_okta,
     temp_dwpt_to_rhum,
 )
-from meteostat.core.network import get
+from meteostat.core.network import network_service
 
 ENDPOINT = "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/{station}/kml/MOSMIX_L_LATEST_{station}.kmz"
 COCO_MAP = {
@@ -59,7 +59,7 @@ def get_coco(code: str | int) -> Optional[int]:
 
 def get_df(station: str) -> Optional[pd.DataFrame]:
     # Fetch the KMZ file data in memory
-    response = get(ENDPOINT.format(station=station))
+    response = network_service.get(ENDPOINT.format(station=station))
     kmz_data = BytesIO(response.content)
 
     # KMZ -> KML in memory
