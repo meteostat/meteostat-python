@@ -6,6 +6,7 @@ The Provider Service provides methods to interact with data providers.
 
 from datetime import datetime
 from importlib import import_module
+from statistics import fmean
 from typing import List, Optional, TypeGuard
 
 import pandas as pd
@@ -73,7 +74,7 @@ class ProviderService:
 
         return int(provider.priority + baseline)
 
-    def get_source_priority(self, source: str) -> int:
+    def get_source_priority(self, source: str) -> float:
         """
         Get priority of a source string
         """
@@ -84,7 +85,7 @@ class ProviderService:
 
         priorities = [self.get_provider_priority(provider) for provider in provider_ids]
 
-        return min(priorities)
+        return fmean(priorities)
 
     def filter_providers(self, query: Request, station: Station) -> List[Provider]:
         """
