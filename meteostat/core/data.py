@@ -36,7 +36,6 @@ class DataService:
     @staticmethod
     def concat_fragments(
         fragments: List[pd.DataFrame],
-        granularity: Granularity,
         parameters: List[Parameter],
     ) -> pd.DataFrame:
         """
@@ -50,7 +49,7 @@ class DataService:
                 ]
             )
             df = schema_service.fill(df, parameters)
-            df = schema_service.purge(df, granularity)
+            df = schema_service.purge(df, parameters)
             return df
         except ValueError:
             return pd.DataFrame()
@@ -161,7 +160,7 @@ class DataService:
 
         # Merge data in a single DataFrame
         df = (
-            self.concat_fragments(fragments, req.granularity, req.parameters)
+            self.concat_fragments(fragments, req.parameters)
             if fragments
             else pd.DataFrame()
         )

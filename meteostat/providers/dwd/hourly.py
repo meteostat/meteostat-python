@@ -209,7 +209,7 @@ def fetch(query: Query):
     columns = map(
         lambda args: get_parameter(*args),
         (
-            (parameter["dir"], cnf.get('modes', modes), query.station)
+            (parameter["dir"], cnf.get("modes", modes), query.station)
             for parameter in [
                 param
                 for param in PARAMETERS

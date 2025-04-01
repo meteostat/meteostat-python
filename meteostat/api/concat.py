@@ -52,7 +52,7 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
         parameters.extend(obj.parameters)
 
     df = data_service.concat_fragments(
-        [obj._df for obj in objs], ts.granularity, list(dict.fromkeys(parameters))
+        [obj._df for obj in objs], list(dict.fromkeys(parameters))
     )
     df = schema_service.format(df, ts.granularity)
 

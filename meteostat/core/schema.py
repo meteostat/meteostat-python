@@ -43,14 +43,11 @@ class SchemaService:
         return validator.test(df[col], df, col)
 
     @staticmethod
-    def purge(df: pd.DataFrame, granularity: Granularity) -> pd.DataFrame:
+    def purge(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
         """
         Remove DataFrame columns which are not a known parameter
         """
-        parameters = parameter_service.get_parameters(granularity)
-        columns = [
-            parameter.id for parameter in parameters if parameter.id in df.columns
-        ]
+        columns = [parameter for parameter in parameters if parameter in df.columns]
         return df[columns]
 
     @staticmethod
@@ -101,7 +98,7 @@ class SchemaService:
         for col in temp.columns:
             if "_source" in col:
                 continue
-    
+
             parameter = parameter_service.get_parameter(col, granularity)
 
             if not parameter:
