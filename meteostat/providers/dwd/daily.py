@@ -12,12 +12,15 @@ from io import BytesIO
 from typing import Optional
 from zipfile import ZipFile
 import pandas as pd
-from meteostat.enumerations import TTL, Parameter
+from meteostat.core.config import config
+from meteostat.enumerations import TTL, Parameter, Provider
 from meteostat.typing import Query
 from meteostat.core.cache import cache_service
 from meteostat.utils.converters import ms_to_kmh, pres_to_msl
 from meteostat.providers.dwd.shared import get_ftp_connection
 
+
+cnf = config[Provider.DWD_DAILY]
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/daily/kl/"
 USECOLS = [1, 3, 4, 6, 8, 9, 10, 12, 13, 14, 15, 16]  # CSV cols which should be read
@@ -132,7 +135,7 @@ def fetch(query: Query):
             query.station.elevation,
             mode,
         )
-        for mode in modes
+        for mode in cnf.get("modes", modes)
     ]
 
     df = pd.concat(data)
