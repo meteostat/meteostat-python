@@ -69,7 +69,7 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
     """
     # Get all source columns
     source_cols = list(
-        dict.fromkeys([PARAMETER_AGGS[p][0] for p in query["parameters"]])
+        dict.fromkeys([PARAMETER_AGGS[p][0] for p in query.parameters])
     )
 
     # Get hourly DataFrame
