@@ -21,9 +21,9 @@ class Frequency(StrEnum):
     The different levels of time series frequency
     """
 
-    HOURLY = "H"
+    HOURLY = "h"
     DAILY = "D"
-    MONTHLY = "M"
+    MONTHLY = "MS"
 
 
 class Parameter(StrEnum):

@@ -5,14 +5,24 @@ The code is licensed under the MIT license.
 from typing import Any, Optional
 import pandas as pd
 from metar import Metar
-from meteostat.enumerations import TTL, Frequency, Parameter
+
+from meteostat.core.logger import logger
+from meteostat.core.config import config
+from meteostat.enumerations import TTL, Frequency, Parameter, Provider
 from meteostat.typing import Query
 from meteostat.utils.converters import temp_dwpt_to_rhum
 from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import enforce_freq
-from meteostat.core.network import get
+from meteostat.core.network import network_service
 
-ENDPOINT = "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
+
+cnf = config[Provider.METAR]
+
+ENDPOINT: str = cnf.get(
+    "endpoint",
+    "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24",
+)
+USER_AGENT: Optional[str] = cnf.get("user_agent")
 CLDC_MAP = {
     "FEW": 2,  # 1-2 octas
     "SCT": 4,  # 3-4 octas
@@ -112,7 +122,14 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     """
     url = ENDPOINT.format(station=station)
 
-    response = get(url)
+    if not USER_AGENT:
+        logger.warning(
+            "Consider specifying a unique user agent when querying the Aviation Weather Center's data API."
+        )
+
+    headers = {"User-Agent": USER_AGENT}
+    
+    response = network_service.get(url, headers=headers)
 
     # Raise an exception if the request was unsuccessful
     response.raise_for_status()

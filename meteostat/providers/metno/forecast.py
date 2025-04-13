@@ -17,10 +17,11 @@ from meteostat.core.cache import cache_service
 cnf = config[Provider.METNO_FORECAST]
 
 
-ENDPOINT = cnf.get(
+ENDPOINT: str = cnf.get(
     "endpoint",
     "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?lat={latitude}&lon={longitude}&altitude={elevation}",
 )
+USER_AGENT: Optional[str] = cnf.get("user_agent")
 CONDICODES = {
     "clearsky": 1,
     "cloudy": 3,
@@ -144,15 +145,13 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
         elevation=query.station.elevation,
     )
 
-    user_agent = cnf.get("user_agent")
-
-    if not user_agent:
+    if not USER_AGENT:
         logger.warning(
             "MET Norway requires a unique user agent as per their terms of service. Please use config to specify your user agent. For now, this provider is skipped."
         )
         return None
 
-    headers = {"User-Agent": user_agent}
+    headers = {"User-Agent": USER_AGENT}
 
     try:
         response = requests.get(file_url, headers=headers)
