@@ -68,9 +68,7 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
     repository and aggregate to daily granularity
     """
     # Get all source columns
-    source_cols = list(
-        dict.fromkeys([PARAMETER_AGGS[p][0] for p in query.parameters])
-    )
+    source_cols = list(dict.fromkeys([PARAMETER_AGGS[p][0] for p in query.parameters]))
 
     # Get hourly DataFrame
     ts_hourly = hourly(

@@ -65,9 +65,7 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
     repository and aggregate to monthly granularity
     """
     # Get all source columns
-    source_cols = list(
-        dict.fromkeys([PARAMETER_AGGS[p][0] for p in query.parameters])
-    )
+    source_cols = list(dict.fromkeys([PARAMETER_AGGS[p][0] for p in query.parameters]))
 
     # Get daily DataFrame
     ts_daily = daily(

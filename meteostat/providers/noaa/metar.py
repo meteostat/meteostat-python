@@ -128,7 +128,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         )
 
     headers = {"User-Agent": USER_AGENT}
-    
+
     response = network_service.get(url, headers=headers)
 
     # Raise an exception if the request was unsuccessful

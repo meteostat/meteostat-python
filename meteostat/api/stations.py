@@ -1,14 +1,16 @@
 from io import BytesIO
 import os
 import sqlite3
-from typing import Optional
+from typing import List, Optional
 
 import pandas as pd
 from requests import Response
+from meteostat.api.inventory import Inventory
 from meteostat.api.point import Point
 from meteostat.core.cache import cache_service
 from meteostat.core.config import config
 from meteostat.core.network import network_service
+from meteostat.enumerations import Provider
 from meteostat.typing import Station
 
 
@@ -129,18 +131,38 @@ class Stations:
             names={name["language"]: name["name"] for name in names},
             identifiers={
                 identifier["key"]: identifier["value"] for identifier in identifiers
-            }
+            },
         )
 
-    def inventory(self, station: str) -> pd.DataFrame:
+    def inventory(
+        self, station: str | List[str], providers: Optional[List[Provider]] = None
+    ) -> Inventory:
         """
         Get inventory records for a single weather station
         """
-        return self.query(
-            "SELECT provider, parameter, start, end, completeness FROM `inventory` WHERE `station` LIKE ?",
-            index_col=["provider", "parameter"],
-            params=(station,),
+        query = "SELECT station, provider, parameter, start, end, completeness FROM `inventory`"
+        stations = station if isinstance(station, list) else [station]
+
+        # Generate the right number of placeholders (?, ?, ?, ...)
+        placeholders = ", ".join(["?"] * len(stations))
+        # Add the placeholders to the query
+        query += f" WHERE `station`  IN ({placeholders})"
+        # Add the stations to the params
+        params = tuple(stations)
+
+        if providers:
+            # Generate the right number of placeholders (?, ?, ?, ...)
+            placeholders = ", ".join(["?"] * len(providers))
+            # Add the placeholders to the query
+            query += f" AND provider IN ({placeholders})"
+            # Add the providers to the params
+            params += tuple(providers)
+
+        df = self.query(
+            query, index_col=["station", "provider", "parameter"], params=params
         )
+
+        return Inventory(df)
 
     def nearby(self, point: Point, radius=50000, limit=100) -> pd.DataFrame:
         """
