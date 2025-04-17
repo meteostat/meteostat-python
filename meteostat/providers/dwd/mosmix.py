@@ -1,3 +1,9 @@
+"""
+DWD MOSMIX data provider
+
+Parameters: https://www.dwd.de/DE/leistungen/met_verfahren_mosmix/mosmix_parameteruebersicht.pdf?__blob=publicationFile&v=3
+"""
+
 from io import BytesIO
 import re
 from typing import Optional
@@ -245,10 +251,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         )
 
     # Precipitation
-    # !!!!!!!!
-    # PRCP DATA SEEMS INCORRECT
-    # NEEDS INVESTIGATION
-    # !!!!!!!!
     for value in (
         re.sub(
             r"/\s+/",
@@ -262,10 +264,9 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         .split()
     ):
         data[Parameter.PRCP].append(
-            # float(value)
-            # if value.lstrip("-").replace(".", "", 1).isdigit()
-            # else None
-            None
+            float(value)
+            if value.lstrip("-").replace(".", "", 1).isdigit()
+            else None
         )
 
     # Sunshine Duration

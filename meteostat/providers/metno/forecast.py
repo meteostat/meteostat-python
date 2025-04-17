@@ -1,5 +1,3 @@
-# TODO: Apparently, rounding doesn't work => RHUM 91.7 -> 91
-
 from typing import Optional, Union
 from urllib.error import HTTPError
 
