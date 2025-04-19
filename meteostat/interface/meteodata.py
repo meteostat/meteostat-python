@@ -55,7 +55,12 @@ class MeteoData(Base):
         else:
             # Get data from Meteostat
             df = load_handler(
-                self.endpoint, file, self._columns, self._types, self._parse_dates
+                self.endpoint,
+                file,
+                self._columns,
+                self._types,
+                self._parse_dates,
+                self.proxy
             )
 
             # Validate and prepare data for further processing

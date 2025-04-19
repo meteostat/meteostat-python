@@ -71,6 +71,7 @@ class TimeSeries(MeteoData):
                 self._columns,
                 {key: "string" for key in self._columns[self._first_met_col :]},
                 self._parse_dates,
+                self.proxy
             )
 
             # Validate Series

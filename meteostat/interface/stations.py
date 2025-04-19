@@ -86,7 +86,13 @@ class Stations(Base):
         else:
             # Get data from Meteostat
             df = load_handler(
-                self.endpoint, file, self._columns, self._types, self._parse_dates, True
+                self.endpoint,
+                file,
+                self._columns, 
+                self._types,
+                self._parse_dates,
+                self.proxy,
+                True
             )
 
             # Add index

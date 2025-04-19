@@ -8,6 +8,9 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from io import BytesIO
+from gzip import GzipFile
+from urllib.request import urlopen, Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
@@ -65,27 +68,36 @@ def load_handler(
     columns: Optional[list],
     types: Union[dict, None],
     parse_dates: list,
-    coerce_dates: bool = False,
+    proxy: str = None,
+    coerce_dates: bool = False
 ) -> pd.DataFrame:
     """
     Load a single CSV file into a DataFrame
     """
 
     try:
-        # Read CSV file from Meteostat endpoint
-        df = pd.read_csv(
-            endpoint + path,
-            compression="gzip",
-            names=columns,
-            dtype=types,
-            parse_dates=parse_dates,
-        )
+        handlers = []
+        
+        # Set a proxy
+        if proxy:
+            opener = (ProxyHandler({'http': proxy, 'https': proxy}))
 
-        # Force datetime conversion
-        if coerce_dates:
-            df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
-                pd.to_datetime, errors="coerce"
-            )
+        # Read CSV file from Meteostat endpoint
+        with build_opener(*handlers).open(Request(endpoint + path)) as response:
+            # Decompress the content
+            with GzipFile(fileobj=BytesIO(response.read()), mode='rb') as file:
+                df = pd.read_csv(
+                    file,
+                    names=columns,
+                    dtype=types,
+                    parse_dates=parse_dates,
+                )
+        
+                # Force datetime conversion
+                if coerce_dates:
+                    df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
+                        pd.to_datetime, errors="coerce"
+                    )
 
     except (FileNotFoundError, HTTPError):
         # Create empty DataFrane
