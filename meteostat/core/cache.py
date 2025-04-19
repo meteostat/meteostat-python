@@ -21,6 +21,8 @@ class CacheService:
     Cache Service
     """
 
+    _purged = False  # Flag to indicate if cache has been purged automatically
+
     @staticmethod
     def _create_cache_dir() -> None:
         """
@@ -178,13 +180,14 @@ class CacheService:
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
-                if config.get("cache.autoclean", default=True):
-                    self.purge()
                 if not config.get("cache.enable"):
                     logger.debug(
                         f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                     )
                     return func(*args, **kwargs)
+                if config.get("cache.autoclean") and not self._purged:
+                    self.purge()
+                    self._purged = True
                 return self.from_func(
                     func,
                     args,

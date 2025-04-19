@@ -134,20 +134,13 @@ def map_data(record):
     }
 
 
-# TODO: Use separate function for caching
 @cache_service.cache(TTL.HOUR, "pickle")
-def fetch(query: Query) -> Optional[pd.DataFrame]:
+def get_df(latitude: float, longitude: float, elevation: int) -> Optional[pd.DataFrame]:
     file_url = ENDPOINT.format(
-        latitude=query.station.latitude,
-        longitude=query.station.longitude,
-        elevation=query.station.elevation,
+        latitude=latitude,
+        longitude=longitude,
+        elevation=elevation,
     )
-
-    if not USER_AGENT:
-        logger.warning(
-            "MET Norway requires a unique user agent as per their terms of service. Please use config to specify your user agent. For now, this provider is skipped."
-        )
-        return None
 
     headers = {"User-Agent": USER_AGENT}
 
@@ -177,11 +170,23 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
         return df
 
     except HTTPError as error:
-        logger.info(
+        logger.warning(
             f"Couldn't load weather forecast from met.no (status: {error.status})"
+        )
+
+    except Exception as error:
+        logger.error(error, exc_info=True)
+
+
+def fetch(query: Query) -> Optional[pd.DataFrame]:
+    if not USER_AGENT:
+        logger.warning(
+            "MET Norway requires a unique user agent as per their terms of service. Please use config to specify your user agent. For now, this provider is skipped."
         )
         return None
 
-    except Exception as error:
-        logger.warning(error)
-        return None
+    return get_df(
+        query.station.latitude,
+        query.station.longitude,
+        query.station.elevation,
+    )

@@ -6,6 +6,7 @@ Aaron Penne (https://github.com/aaronpenne).
 
 The code is licensed under the MIT license.
 """
+
 from io import StringIO
 from ftplib import FTP
 from typing import Optional

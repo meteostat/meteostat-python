@@ -117,12 +117,16 @@ def fetch(query: Query) -> Optional[pd.DataFrame]:
             lambda i: get_df(*i),
             (
                 (
-                    query.station.identifiers["usaf"]
-                    if "usaf" in query.station.identifiers
-                    else None,
-                    query.station.identifiers["wban"]
-                    if "wban" in query.station.identifiers
-                    else None,
+                    (
+                        query.station.identifiers["usaf"]
+                        if "usaf" in query.station.identifiers
+                        else None
+                    ),
+                    (
+                        query.station.identifiers["wban"]
+                        if "wban" in query.station.identifiers
+                        else None
+                    ),
                     year,
                 )
                 for year in years

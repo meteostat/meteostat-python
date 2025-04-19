@@ -264,9 +264,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         .split()
     ):
         data[Parameter.PRCP].append(
-            float(value)
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            float(value) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Sunshine Duration

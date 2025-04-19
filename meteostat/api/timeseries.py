@@ -3,6 +3,7 @@ TimeSeries Class
 
 A class to handle meteorological time series data.
 """
+
 from copy import copy
 from datetime import datetime
 from math import floor
