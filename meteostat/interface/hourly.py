@@ -41,18 +41,30 @@ class Hourly(TimeSeries):
     # Default frequency
     _freq: str = "1H"
 
+    # Source mappings
+    _source_mappings: dict = {
+        "metar": "D",
+        "model": "E",
+        "isd_lite": "B",
+        "synop": "C",
+        "dwd_hourly": "A",
+        "eccc_hourly": "A"
+    }
+
     # Flag which represents model data
     _model_flag = "E"
 
     # Raw data columns
     _columns: list = [
-        "date",
+        "year",
+        "month",
+        "day",
         "hour",
         "temp",
         "dwpt",
         "rhum",
         "prcp",
-        "snow",
+        ("snwd", "snow"),
         "wdir",
         "wspd",
         "wpgt",
@@ -62,7 +74,7 @@ class Hourly(TimeSeries):
     ]
 
     # Index of first meteorological column
-    _first_met_col = 2
+    _first_met_col = 4
 
     # Data types
     _types: dict = {
@@ -80,7 +92,7 @@ class Hourly(TimeSeries):
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0, 1]}
+    _parse_dates: dict = {"time": [0, 1, 2, 3]}
 
     # Default aggregation functions
     aggregations: dict = {
@@ -105,7 +117,7 @@ class Hourly(TimeSeries):
         """
 
         # Don't use chunks if full dataset is requested
-        if start == None:
+        if start is None:
             self.chunked = False
 
         if timezone:
@@ -113,7 +125,6 @@ class Hourly(TimeSeries):
             self._timezone = timezone
 
             if start and end:
-
                 # Initialize time zone
                 timezone = pytz.timezone(self._timezone)
 
@@ -124,7 +135,9 @@ class Hourly(TimeSeries):
                 end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
 
         if self.chunked:
-            self._annual_steps = [start.year + i for i in range(end.year - start.year + 1)]
+            self._annual_steps = [
+                start.year + i for i in range(end.year - start.year + 1)
+            ]
 
         self._start = start
         self._end = end
@@ -138,7 +151,6 @@ class Hourly(TimeSeries):
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
-
         # Set time zone and adapt period
         self._set_time(start, end, timezone)
 

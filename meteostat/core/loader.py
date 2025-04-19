@@ -14,7 +14,7 @@ from urllib.request import urlopen, Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 import pandas as pd
 from meteostat.core.warn import warn
 
@@ -31,10 +31,8 @@ def processing_handler(
 
     # Multi-core processing
     if cores > 1 and len(datasets) > 1:
-
         # Create process pool
         with Pool(cores) as pool:
-
             # Process datasets in pool
             output = pool.starmap(load, datasets)
 
@@ -44,10 +42,8 @@ def processing_handler(
 
     # Multi-thread processing
     elif threads > 1 and len(datasets) > 1:
-
         # Create process pool
         with ThreadPool(threads) as pool:
-
             # Process datasets in pool
             output = pool.starmap(load, datasets)
 
@@ -57,7 +53,6 @@ def processing_handler(
 
     # Single-thread processing
     else:
-
         for dataset in datasets:
             output.append(load(*dataset))
 
@@ -70,7 +65,7 @@ def processing_handler(
 def load_handler(
     endpoint: str,
     path: str,
-    columns: list,
+    columns: Optional[list],
     types: Union[dict, None],
     parse_dates: list,
     proxy: str = None,
@@ -105,7 +100,6 @@ def load_handler(
                     )
 
     except (FileNotFoundError, HTTPError):
-
         # Create empty DataFrane
         df = pd.DataFrame(columns=[*types])
 

@@ -84,7 +84,6 @@ class Monthly(TimeSeries):
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
-
         # Set start date
         if start is not None:
             start = start.replace(day=1)

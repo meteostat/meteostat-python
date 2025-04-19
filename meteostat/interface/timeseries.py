@@ -29,6 +29,9 @@ class TimeSeries(MeteoData):
     used across all time series classes
     """
 
+    # Base URL of the Meteostat bulk data interface
+    endpoint: str = "https://data.meteostat.net/"
+
     # The list of origin weather Stations
     _origin_stations: Union[pd.Index, None] = None
 
@@ -57,12 +60,10 @@ class TimeSeries(MeteoData):
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
-
             # Read cached data
             df = pd.read_pickle(path)
 
         else:
-
             # Get data from Meteostat
             df = load_handler(
                 self.endpoint,
@@ -100,7 +101,6 @@ class TimeSeries(MeteoData):
         """
 
         if len(self._stations) > 0:
-
             # Get list of datasets
             datasets = self._get_datasets()
 
@@ -124,7 +124,7 @@ class TimeSeries(MeteoData):
                 (pd.isna(self._data[f"{col_name}_flag"]))
                 | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
                 col_name,
-            ] = np.NaN
+            ] = np.nan
 
         # Conditionally, remove flags from DataFrame
         if not self._flags:
@@ -132,7 +132,7 @@ class TimeSeries(MeteoData):
                 map(lambda col_name: f"{col_name}_flag", columns), axis=1, inplace=True
             )
 
-        # Drop NaN-only rows
+        # Drop nan-only rows
         self._data.dropna(how="all", subset=columns, inplace=True)
 
     def _init_time_series(
@@ -140,8 +140,8 @@ class TimeSeries(MeteoData):
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        model = True,  # Include model data?
+        flags = False,  # Load source flags?
     ) -> None:
         """
         Common initialization for all time series, regardless

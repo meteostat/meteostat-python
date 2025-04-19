@@ -25,7 +25,7 @@ def generate_endpoint_path(
     # Base path
     path = f"{granularity.value}/"
 
-    if granularity == Granularity.HOURLY and year:
+    if granularity in (Granularity.HOURLY, Granularity.DAILY) and year:
         path += f"{year}/"
 
     appendix = ".map" if map_file else ""

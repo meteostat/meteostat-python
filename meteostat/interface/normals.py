@@ -79,7 +79,6 @@ class Normals(MeteoData):
         start: int = None,
         end: int = None,
     ) -> None:
-
         # Set list of weather stations
         if isinstance(loc, pd.DataFrame):
             self._stations = loc.index
@@ -163,8 +162,8 @@ class Normals(MeteoData):
                     else df
                 )
 
-        # None -> NaN
-        temp._data = temp._data.fillna(np.NaN)
+        # None -> nan
+        temp._data = temp._data.fillna(np.nan)
 
         # Return class instance
         return temp
