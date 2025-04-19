@@ -117,7 +117,7 @@ class Hourly(TimeSeries):
         """
 
         # Don't use chunks if full dataset is requested
-        if start == None:
+        if start is None:
             self.chunked = False
 
         if timezone:
@@ -125,7 +125,6 @@ class Hourly(TimeSeries):
             self._timezone = timezone
 
             if start and end:
-
                 # Initialize time zone
                 timezone = pytz.timezone(self._timezone)
 
@@ -136,7 +135,9 @@ class Hourly(TimeSeries):
                 end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
 
         if self.chunked:
-            self._annual_steps = [start.year + i for i in range(end.year - start.year + 1)]
+            self._annual_steps = [
+                start.year + i for i in range(end.year - start.year + 1)
+            ]
 
         self._start = start
         self._end = end
@@ -150,7 +151,6 @@ class Hourly(TimeSeries):
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
-
         # Set time zone and adapt period
         self._set_time(start, end, timezone)
 

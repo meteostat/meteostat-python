@@ -28,10 +28,8 @@ def processing_handler(
 
     # Multi-core processing
     if cores > 1 and len(datasets) > 1:
-
         # Create process pool
         with Pool(cores) as pool:
-
             # Process datasets in pool
             output = pool.starmap(load, datasets)
 
@@ -41,10 +39,8 @@ def processing_handler(
 
     # Multi-thread processing
     elif threads > 1 and len(datasets) > 1:
-
         # Create process pool
         with ThreadPool(threads) as pool:
-
             # Process datasets in pool
             output = pool.starmap(load, datasets)
 
@@ -54,7 +50,6 @@ def processing_handler(
 
     # Single-thread processing
     else:
-
         for dataset in datasets:
             output.append(load(*dataset))
 
@@ -77,7 +72,6 @@ def load_handler(
     """
 
     try:
-
         # Read CSV file from Meteostat endpoint
         df = pd.read_csv(
             endpoint + path,
@@ -94,7 +88,6 @@ def load_handler(
             )
 
     except (FileNotFoundError, HTTPError):
-
         # Create empty DataFrane
         df = pd.DataFrame(columns=[*types])
 

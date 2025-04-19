@@ -18,7 +18,6 @@ def interpolate(self, limit: int = 3):
     """
 
     if self.count() > 0 and not self._data.isnull().values.all():
-
         # Create temporal instance
         temp = copy(self)
 

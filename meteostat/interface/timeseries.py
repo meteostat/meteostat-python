@@ -60,12 +60,10 @@ class TimeSeries(MeteoData):
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
-
             # Read cached data
             df = pd.read_pickle(path)
 
         else:
-
             # Get data from Meteostat
             df = load_handler(
                 self.endpoint,
@@ -102,7 +100,6 @@ class TimeSeries(MeteoData):
         """
 
         if len(self._stations) > 0:
-
             # Get list of datasets
             datasets = self._get_datasets()
 
