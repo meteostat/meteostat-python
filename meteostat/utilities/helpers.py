@@ -8,7 +8,26 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from typing import Optional
 import numpy as np
+
+
+SOURCE_MAPPINGS: dict = {
+    "metar": "D",
+    "model": "E",
+    "isd_lite": "B",
+    "ghcnd": "B",
+    "synop": "C",
+    "dwd_poi": "C",
+    "dwd_hourly": "A",
+    "dwd_daily": "A",
+    "dwd_monthly": "A",
+    "dwd_mosmix": "E",
+    "metno_forecast": "E",
+    "eccc_hourly": "A",
+    "eccc_daily": "A",
+    "eccc_monthly": "A"
+}
 
 
 def get_distance(lat1, lon1, lat2, lon2) -> float:
@@ -30,3 +49,26 @@ def get_distance(lat1, lon1, lat2, lon2) -> float:
     arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
     return radius * arch_sin
+
+
+def _get_flag_from_single_source(source: str, source_mappings: dict) -> str:
+    """
+    Get flag from single source
+    """
+    if source in source_mappings:
+        return source_mappings[source]
+    return "E"
+
+def get_flag_from_source_factory(source_mappings: dict) -> str:
+    """
+    Get flag from source
+    """
+    def _get_flag_from_source(source: Optional[str]) -> str:    
+        sources = source.split(" ")
+
+        flags = [_get_flag_from_single_source(src, source_mappings) for src in sources]
+        flag = sorted(flags)[-1]
+
+        return flag
+    
+    return _get_flag_from_source

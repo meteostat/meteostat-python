@@ -10,14 +10,15 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import Union
+from meteostat.core.cache import file_in_cache, get_local_file_path
+from meteostat.core.loader import load_handler
+from meteostat.enumerations.granularity import Granularity
+from meteostat.utilities.endpoint import generate_endpoint_path
+from meteostat.utilities.mutations import filter_time, localize
+from meteostat.utilities.validations import validate_series
 import numpy as np
 import pandas as pd
-from meteostat.enumerations.granularity import Granularity
-from meteostat.core.cache import get_local_file_path, file_in_cache
-from meteostat.core.loader import processing_handler, load_handler
-from meteostat.utilities.mutations import localize, filter_time
-from meteostat.utilities.validations import validate_series
-from meteostat.utilities.endpoint import generate_endpoint_path
+from meteostat.utilities.helpers import get_flag_from_source_factory
 from meteostat.interface.point import Point
 from meteostat.interface.meteodata import MeteoData
 
@@ -47,13 +48,12 @@ class TimeSeries(MeteoData):
     # Fetch source flags?
     _flags = bool = False
 
-    def _load_flags(self, station: str, year: Union[int, None] = None) -> None:
+    def _load_data(self, station: str, year: Union[int, None] = None) -> None:
         """
-        Load flag file for a single station from Meteostat
+        Load file for a single station from Meteostat
         """
-
         # File name
-        file = generate_endpoint_path(self.granularity, station, year, True)
+        file = generate_endpoint_path(self.granularity, station, year)
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
@@ -68,14 +68,35 @@ class TimeSeries(MeteoData):
             df = load_handler(
                 self.endpoint,
                 file,
-                self._columns,
-                {key: "string" for key in self._columns[self._first_met_col :]},
-                self._parse_dates,
+                None,
+                None,
+                None,
                 self.proxy
             )
 
-            # Validate Series
+            # Add time column and drop original columns
+            df["time"] = pd.to_datetime(df[self._parse_dates])
+            df = df.drop(self._parse_dates, axis=1)
+
+            # Validate and prepare data for further processing
             df = validate_series(df, station)
+
+            # Convert sources to flags
+            for col in df.columns:
+                basecol = col[:-7] if col.endswith("_source") else col
+
+                if basecol not in self._columns:
+                    df.drop(col, axis=1, inplace=True)
+                    continue
+
+                if col.endswith("_source"):
+                    flagcol = f"{basecol}_flag"
+                    df[flagcol] = pd.NA
+                    mask = df[col].notna()
+                    df.loc[mask, flagcol] = df.loc[mask, col].apply(
+                        get_flag_from_source_factory(self._source_mappings)
+                    )
+                    df.drop(col, axis=1, inplace=True)
 
             # Save as Pickle
             if self.max_age > 0:
@@ -90,27 +111,17 @@ class TimeSeries(MeteoData):
             df = localize(df, self._timezone)
 
         # Filter time period and append to DataFrame
-        if self._start and self._end:
+        # pylint: disable=no-else-return
+        if self.granularity == Granularity.NORMALS and df.index.size > 0 and self._end:
+            # Get time index
+            end = df.index.get_level_values("end")
+            # Filter & return
+            return df.loc[end == self._end]
+        elif not self.granularity == Granularity.NORMALS:
             df = filter_time(df, self._start, self._end)
 
+        # Return
         return df
-
-    def _get_flags(self) -> None:
-        """
-        Get all source flags
-        """
-
-        if len(self._stations) > 0:
-            # Get list of datasets
-            datasets = self._get_datasets()
-
-            # Data Processings
-            return processing_handler(
-                datasets, self._load_flags, self.processes, self.threads
-            )
-
-        # Empty DataFrame
-        return pd.DataFrame(columns=[*self._types])
 
     def _filter_model(self) -> None:
         """
@@ -125,12 +136,6 @@ class TimeSeries(MeteoData):
                 | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
                 col_name,
             ] = np.nan
-
-        # Conditionally, remove flags from DataFrame
-        if not self._flags:
-            self._data.drop(
-                map(lambda col_name: f"{col_name}_flag", columns), axis=1, inplace=True
-            )
 
         # Drop nan-only rows
         self._data.dropna(how="all", subset=columns, inplace=True)
@@ -170,19 +175,21 @@ class TimeSeries(MeteoData):
         # Get data for all weather stations
         self._data = self._get_data()
 
-        # Load source flags through map file
-        # if flags are explicitly requested or
-        # model data is excluded
-        if flags or not model:
-            flags = self._get_flags()
-            self._data = self._data.merge(
-                flags, on=["station", "time"], how="left", suffixes=[None, "_flag"]
-            )
-
         # Remove model data from DataFrame and
         # drop flags if not specified otherwise
         if not model:
             self._filter_model()
+
+        # Conditionally, remove flags from DataFrame
+        if not self._flags:
+            self._data.drop(
+                map(lambda col: f"{col}_flag", self._columns[self._first_met_col :]), axis=1, errors="ignore", inplace=True
+            )
+
+        # Fill columns if they don't exist
+        for col in self._columns:
+            if col not in self._data.columns:
+                self._data[col] = pd.NA
 
         # Interpolate data spatially if requested
         # location is a geographical point

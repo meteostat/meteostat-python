@@ -105,7 +105,7 @@ class MeteoData(Base):
         Get list of datasets
         """
 
-        if self.granularity == Granularity.HOURLY and self.chunked:
+        if self.granularity in (Granularity.HOURLY, Granularity.DAILY):
             datasets = [
                 (str(station), year)
                 for station in self._stations

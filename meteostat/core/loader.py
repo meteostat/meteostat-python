@@ -14,13 +14,13 @@ from urllib.request import urlopen, Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
-from typing import Callable, Optional, Union
+from typing import Callable, List, Optional
 import pandas as pd
 from meteostat.core.warn import warn
 
 
 def processing_handler(
-    datasets: list, load: Callable[[dict], None], cores: int, threads: int
+    datasets: List, load: Callable[[dict], None], cores: int, threads: int
 ) -> None:
     """
     Load multiple datasets (simultaneously)
@@ -65,11 +65,10 @@ def processing_handler(
 def load_handler(
     endpoint: str,
     path: str,
-    columns: Optional[list],
-    types: Union[dict, None],
-    parse_dates: list,
-    proxy: str = None,
-    coerce_dates: bool = False
+    columns: Optional[List] = None,
+    types: Optional[dict] = None,
+    parse_dates: Optional[List] = None,
+    proxy: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Load a single CSV file into a DataFrame
@@ -92,12 +91,6 @@ def load_handler(
                     dtype=types,
                     parse_dates=parse_dates,
                 )
-        
-                # Force datetime conversion
-                if coerce_dates:
-                    df.iloc[:, parse_dates] = df.iloc[:, parse_dates].apply(
-                        pd.to_datetime, errors="coerce"
-                    )
 
     except (FileNotFoundError, HTTPError):
         # Create empty DataFrane

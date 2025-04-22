@@ -33,6 +33,7 @@ class Hourly(TimeSeries):
     granularity = Granularity.HOURLY
 
     # Download data as annual chunks
+    # This cannot be changed and is only kept for backward compatibility
     chunked: bool = True
 
     # The time zone
@@ -47,7 +48,10 @@ class Hourly(TimeSeries):
         "model": "E",
         "isd_lite": "B",
         "synop": "C",
+        "dwd_poi": "C",
         "dwd_hourly": "A",
+        "dwd_mosmix": "E",
+        "metno_forecast": "E",
         "eccc_hourly": "A"
     }
 
@@ -55,7 +59,7 @@ class Hourly(TimeSeries):
     _model_flag = "E"
 
     # Raw data columns
-    _columns: list = [
+    _columns = [
         "year",
         "month",
         "day",
@@ -64,7 +68,7 @@ class Hourly(TimeSeries):
         "dwpt",
         "rhum",
         "prcp",
-        ("snwd", "snow"),
+        {"snwd", "snow"},
         "wdir",
         "wspd",
         "wpgt",
@@ -77,7 +81,7 @@ class Hourly(TimeSeries):
     _first_met_col = 4
 
     # Data types
-    _types: dict = {
+    _types = {
         "temp": "float64",
         "dwpt": "float64",
         "rhum": "float64",
@@ -92,10 +96,10 @@ class Hourly(TimeSeries):
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0, 1, 2, 3]}
+    _parse_dates = ["year", "month", "day", "hour"]
 
     # Default aggregation functions
-    aggregations: dict = {
+    aggregations = {
         "temp": "mean",
         "dwpt": "mean",
         "rhum": "mean",
@@ -115,11 +119,6 @@ class Hourly(TimeSeries):
         """
         Set & adapt the period's time zone
         """
-
-        # Don't use chunks if full dataset is requested
-        if start is None:
-            self.chunked = False
-
         if timezone:
             # Save timezone
             self._timezone = timezone
