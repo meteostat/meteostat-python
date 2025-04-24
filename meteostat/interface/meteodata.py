@@ -11,7 +11,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from typing import Union
+from typing import Dict, List, Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.core.cache import get_local_file_path, file_in_cache
@@ -35,6 +35,30 @@ class MeteoData(Base):
 
     # The data frame
     _data: pd.DataFrame = pd.DataFrame()
+
+    @property
+    def _raw_columns(self) -> List[str]:
+        """
+        Get the list of raw data columns
+        """
+
+        return [list(col.keys())[0] if isinstance(col, dict) else col for col in self._columns]
+    
+    @property
+    def _processed_columns(self) -> List[str]:
+        """
+        Get the list of processed data columns
+        """
+
+        return [list(col.values())[0] if isinstance(col, dict) else col for col in self._columns[self._first_met_col :]]
+    
+    @property
+    def _renamed_columns(self) -> Dict[str, str]:
+        """
+        Get the dict of renamed data columns
+        """
+
+        return {v: k for d in self._columns if isinstance(d, dict) for k, v in d.items()}
 
     def _load_data(self, station: str, year: Union[int, None] = None) -> None:
         """

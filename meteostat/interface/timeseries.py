@@ -81,11 +81,14 @@ class TimeSeries(MeteoData):
             # Validate and prepare data for further processing
             df = validate_series(df, station)
 
+            # Rename columns
+            df = df.rename(columns=self._renamed_columns, errors="ignore")
+
             # Convert sources to flags
             for col in df.columns:
                 basecol = col[:-7] if col.endswith("_source") else col
 
-                if basecol not in self._columns:
+                if basecol not in self._processed_columns:
                     df.drop(col, axis=1, inplace=True)
                     continue
 
@@ -128,9 +131,7 @@ class TimeSeries(MeteoData):
         Remove model data from time series
         """
 
-        columns = self._columns[self._first_met_col :]
-
-        for col_name in columns:
+        for col_name in self._processed_columns:
             self._data.loc[
                 (pd.isna(self._data[f"{col_name}_flag"]))
                 | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
@@ -138,7 +139,7 @@ class TimeSeries(MeteoData):
             ] = np.nan
 
         # Drop nan-only rows
-        self._data.dropna(how="all", subset=columns, inplace=True)
+        self._data.dropna(how="all", subset=self._processed_columns, inplace=True)
 
     def _init_time_series(
         self,
@@ -183,11 +184,11 @@ class TimeSeries(MeteoData):
         # Conditionally, remove flags from DataFrame
         if not self._flags:
             self._data.drop(
-                map(lambda col: f"{col}_flag", self._columns[self._first_met_col :]), axis=1, errors="ignore", inplace=True
+                map(lambda col: f"{col}_flag", self._processed_columns), axis=1, errors="ignore", inplace=True
             )
 
         # Fill columns if they don't exist
-        for col in self._columns:
+        for col in self._processed_columns:
             if col not in self._data.columns:
                 self._data[col] = pd.NA
 

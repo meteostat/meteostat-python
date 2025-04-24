@@ -92,7 +92,6 @@ class Stations(Base):
                 self._types,
                 self._parse_dates,
                 self.proxy,
-                True
             )
 
             # Add index

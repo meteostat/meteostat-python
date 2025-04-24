@@ -40,7 +40,7 @@ class Hourly(TimeSeries):
     _timezone: str = None
 
     # Default frequency
-    _freq: str = "1H"
+    _freq: str = "1h"
 
     # Source mappings
     _source_mappings: dict = {
@@ -68,7 +68,7 @@ class Hourly(TimeSeries):
         "dwpt",
         "rhum",
         "prcp",
-        {"snwd", "snow"},
+        {"snow": "snwd"},
         "wdir",
         "wspd",
         "wpgt",
