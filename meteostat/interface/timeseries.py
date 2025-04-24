@@ -72,8 +72,10 @@ class TimeSeries(MeteoData):
                 default_df=pd.DataFrame(columns=self._raw_columns + with_suffix(self._raw_columns, '_source')),
             )
 
-            # Add time column and drop original columns            
-            df["time"] = pd.to_datetime(df[self._parse_dates])
+            # Add time column and drop original columns
+            if len(self._parse_dates) < 3:
+                df["day"] = 1
+            df["time"] = pd.to_datetime(df[self._parse_dates if len(self._parse_dates) > 2 else self._parse_dates + ["day"]])
             df = df.drop(self._parse_dates, axis=1)
 
             # Validate and prepare data for further processing
@@ -187,16 +189,19 @@ class TimeSeries(MeteoData):
         if not model:
             self._filter_model()
 
+        # Fill columns if they don't exist
+        for col in self._processed_columns:
+            if col not in self._data.columns:
+                self._data[col] = pd.NA
+                self._data[col] = self._data[col].astype("Float64")
+                self._data[f"{col}_flag"] = pd.NA
+                self._data[f"{col}_flag"] = self._data[f"{col}_flag"].astype("string")
+
         # Conditionally, remove flags from DataFrame
         if not self._flags:
             self._data.drop(
                 map(lambda col: f"{col}_flag", self._processed_columns), axis=1, errors="ignore", inplace=True
             )
-
-        # Fill columns if they don't exist
-        for col in self._processed_columns:
-            if col not in self._data.columns:
-                self._data[col] = pd.NA
 
         # Interpolate data spatially if requested
         # location is a geographical point

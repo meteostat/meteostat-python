@@ -47,7 +47,7 @@ class MeteoData(Base):
             if isinstance(col, dict)
             else col
             for col in self._columns
-            if not (isinstance(col, dict) and isinstance(list(col.values())[0], Callable))
+            if not (isinstance(col, dict) and (isinstance(list(col.values())[0], Callable) or list(col.values())[0] is None))
         ]
 
     @property

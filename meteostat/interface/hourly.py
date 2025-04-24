@@ -81,21 +81,6 @@ class Hourly(TimeSeries):
     # Index of first meteorological column
     _first_met_col = 4
 
-    # Data types
-    _types = {
-        "temp": "float64",
-        "dwpt": "float64",
-        "rhum": "float64",
-        "prcp": "float64",
-        "snow": "float64",
-        "wdir": "float64",
-        "wspd": "float64",
-        "wpgt": "float64",
-        "pres": "float64",
-        "tsun": "float64",
-        "coco": "float64",
-    }
-
     # Columns for date parsing
     _parse_dates = ["year", "month", "day", "hour"]
 

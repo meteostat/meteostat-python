@@ -34,7 +34,6 @@ class Daily(TimeSeries):
     # This cannot be changed and is only kept for backward compatibility
     chunked = True
 
-
     # Default frequency
     _freq = "1D"
 
@@ -59,13 +58,15 @@ class Daily(TimeSeries):
 
     # Columns
     _columns = [
-        "date",
+        "year",
+        "month",
+        "day",
         {"tavg": "temp"},
         "tmin",
         "tmax",
         "prcp",
         {"snow": "snwd"},
-        "wdir",
+        {"wdir": None},
         "wspd",
         "wpgt",
         "pres",
@@ -73,24 +74,10 @@ class Daily(TimeSeries):
     ]
 
     # Index of first meteorological column
-    _first_met_col = 1
-
-    # Data types
-    _types = {
-        "tavg": "float64",
-        "tmin": "float64",
-        "tmax": "float64",
-        "prcp": "float64",
-        "snow": "float64",
-        "wdir": "float64",
-        "wspd": "float64",
-        "wpgt": "float64",
-        "pres": "float64",
-        "tsun": "float64",
-    }
+    _first_met_col = 3
 
     # Columns for date parsing
-    _parse_dates = {"time": [0]}
+    _parse_dates = ["year", "month", "day"]
 
     # Default aggregation functions
     aggregations = {
@@ -114,6 +101,7 @@ class Daily(TimeSeries):
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
+        # Extract relevant years
         if self.chunked:
             self._annual_steps = [
                 start.year + i for i in range(end.year - start.year + 1)
