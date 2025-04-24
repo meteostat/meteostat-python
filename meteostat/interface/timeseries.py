@@ -18,7 +18,7 @@ from meteostat.utilities.mutations import filter_time, localize
 from meteostat.utilities.validations import validate_series
 import numpy as np
 import pandas as pd
-from meteostat.utilities.helpers import get_flag_from_source_factory
+from meteostat.utilities.helpers import get_flag_from_source_factory, with_suffix
 from meteostat.interface.point import Point
 from meteostat.interface.meteodata import MeteoData
 
@@ -68,13 +68,11 @@ class TimeSeries(MeteoData):
             df = load_handler(
                 self.endpoint,
                 file,
-                None,
-                None,
-                None,
-                self.proxy
+                self.proxy,
+                default_df=pd.DataFrame(columns=self._raw_columns + with_suffix(self._raw_columns, '_source')),
             )
 
-            # Add time column and drop original columns
+            # Add time column and drop original columns            
             df["time"] = pd.to_datetime(df[self._parse_dates])
             df = df.drop(self._parse_dates, axis=1)
 
@@ -92,14 +90,22 @@ class TimeSeries(MeteoData):
                     df.drop(col, axis=1, inplace=True)
                     continue
 
+                if basecol == col:
+                    df[col] = df[col].astype('Float64')
+
                 if col.endswith("_source"):
                     flagcol = f"{basecol}_flag"
                     df[flagcol] = pd.NA
+                    df[flagcol] = df[flagcol].astype('string')
                     mask = df[col].notna()
                     df.loc[mask, flagcol] = df.loc[mask, col].apply(
                         get_flag_from_source_factory(self._source_mappings)
                     )
                     df.drop(col, axis=1, inplace=True)
+
+            # Process virtual columns
+            for key, value in self._virtual_columns.items():
+                df = value(df, key)
 
             # Save as Pickle
             if self.max_age > 0:

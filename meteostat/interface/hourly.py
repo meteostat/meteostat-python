@@ -9,14 +9,15 @@ The code is licensed under the MIT license.
 """
 
 from math import floor
-from datetime import datetime
-from typing import Union
+from datetime import datetime, timedelta
+from typing import Optional, Union
 import pytz
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.aggregations import degree_mean
 from meteostat.interface.timeseries import TimeSeries
 from meteostat.interface.point import Point
+from meteostat.utilities.mutations import calculate_dwpt
 
 
 class Hourly(TimeSeries):
@@ -27,23 +28,23 @@ class Hourly(TimeSeries):
     """
 
     # The cache subdirectory
-    cache_subdir: str = "hourly"
+    cache_subdir = "hourly"
 
     # Granularity
     granularity = Granularity.HOURLY
 
     # Download data as annual chunks
     # This cannot be changed and is only kept for backward compatibility
-    chunked: bool = True
+    chunked = True
 
     # The time zone
-    _timezone: str = None
+    _timezone: Optional[str] = None
 
     # Default frequency
-    _freq: str = "1h"
+    _freq = "1h"
 
     # Source mappings
-    _source_mappings: dict = {
+    _source_mappings = {
         "metar": "D",
         "model": "E",
         "isd_lite": "B",
@@ -65,7 +66,7 @@ class Hourly(TimeSeries):
         "day",
         "hour",
         "temp",
-        "dwpt",
+        {"dwpt": calculate_dwpt},
         "rhum",
         "prcp",
         {"snow": "snwd"},
@@ -114,7 +115,7 @@ class Hourly(TimeSeries):
     }
 
     def _set_time(
-        self, start: datetime = None, end: datetime = None, timezone: str = None
+        self, start: Optional[datetime] = None, end: Optional[datetime] = None, timezone: Optional[str] = None
     ) -> None:
         """
         Set & adapt the period's time zone
@@ -144,9 +145,9 @@ class Hourly(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start: datetime = None,
-        end: datetime = None,
-        timezone: str = None,
+        start: datetime = datetime(1890, 1, 1, 0, 0, 0),
+        end: datetime = datetime.combine(datetime.today().date() + timedelta(days=10), datetime.max.time()),
+        timezone: Optional[str] = None,
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:

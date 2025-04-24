@@ -11,6 +11,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from collections.abc import Callable
 from typing import Dict, List, Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
@@ -39,26 +40,52 @@ class MeteoData(Base):
     @property
     def _raw_columns(self) -> List[str]:
         """
-        Get the list of raw data columns
+        Get the list of raw data columns, excluding any dicts with callable values
         """
+        return [
+            list(col.values())[0]
+            if isinstance(col, dict)
+            else col
+            for col in self._columns
+            if not (isinstance(col, dict) and isinstance(list(col.values())[0], Callable))
+        ]
 
-        return [list(col.keys())[0] if isinstance(col, dict) else col for col in self._columns]
-    
     @property
     def _processed_columns(self) -> List[str]:
         """
-        Get the list of processed data columns
+        Get the list of processed data columns, excluding any dicts with callable values
         """
-
-        return [list(col.values())[0] if isinstance(col, dict) else col for col in self._columns[self._first_met_col :]]
+        return [
+            list(col.keys())[0]
+            if isinstance(col, dict)
+            else col
+            for col in self._columns[self._first_met_col :]
+        ]
     
     @property
     def _renamed_columns(self) -> Dict[str, str]:
         """
-        Get the dict of renamed data columns
+        Get the dict of renamed data columns, including `_source` suffixes
         """
-
-        return {v: k for d in self._columns if isinstance(d, dict) for k, v in d.items()}
+        return {
+            new_key: new_val
+            for d in self._columns if isinstance(d, dict)
+            for k, v in d.items()
+            if not isinstance(v, Callable)
+            for new_key, new_val in ((v, k), (f"{v}_source", f"{k}_source"))
+        }
+    
+    @property
+    def _virtual_columns(self) -> Dict[str, str]:
+        """
+        Get the dict of virtual data columns
+        """
+        return {
+            k: v
+            for d in self._columns if isinstance(d, dict)
+            for k, v in d.items()
+            if isinstance(v, Callable)
+        }
 
     def _load_data(self, station: str, year: Union[int, None] = None) -> None:
         """

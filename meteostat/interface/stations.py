@@ -88,10 +88,10 @@ class Stations(Base):
             df = load_handler(
                 self.endpoint,
                 file,
+                self.proxy,
                 self._columns, 
                 self._types,
                 self._parse_dates,
-                self.proxy,
             )
 
             # Add index

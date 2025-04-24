@@ -72,3 +72,10 @@ def get_flag_from_source_factory(source_mappings: dict) -> str:
         return flag
     
     return _get_flag_from_source
+
+def with_suffix(items, suffix):
+    """
+    Takes a list of strings and a suffix, returns a new list containing
+    the same items with the suffix added.
+    """
+    return [item + suffix for item in items]

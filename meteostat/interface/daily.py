@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.aggregations import degree_mean
@@ -25,25 +25,46 @@ class Daily(TimeSeries):
     """
 
     # The cache subdirectory
-    cache_subdir: str = "daily"
+    cache_subdir = "daily"
 
     # Granularity
     granularity = Granularity.DAILY
 
+    # Download data as annual chunks
+    # This cannot be changed and is only kept for backward compatibility
+    chunked = True
+
+
     # Default frequency
-    _freq: str = "1D"
+    _freq = "1D"
+
+    # Source mappings
+    _source_mappings = {
+        "dwd_daily": "A",
+        "eccc_daily": "A",
+        "ghcnd": "B",
+        "dwd_hourly": "C",
+        "eccc_hourly": "C",
+        "isd_lite": "D",
+        "synop": "E",
+        "dwd_poi": "E",
+        "metar": "F",
+        "model": "G",
+        "dwd_mosmix": "G",
+        "metno_forecast": "G",
+    }
 
     # Flag which represents model data
     _model_flag = "G"
 
     # Columns
-    _columns: list = [
+    _columns = [
         "date",
-        "tavg",
+        {"tavg": "temp"},
         "tmin",
         "tmax",
         "prcp",
-        "snow",
+        {"snow": "snwd"},
         "wdir",
         "wspd",
         "wpgt",
@@ -55,7 +76,7 @@ class Daily(TimeSeries):
     _first_met_col = 1
 
     # Data types
-    _types: dict = {
+    _types = {
         "tavg": "float64",
         "tmin": "float64",
         "tmax": "float64",
@@ -69,10 +90,10 @@ class Daily(TimeSeries):
     }
 
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0]}
+    _parse_dates = {"time": [0]}
 
     # Default aggregation functions
-    aggregations: dict = {
+    aggregations = {
         "tavg": "mean",
         "tmin": "min",
         "tmax": "max",
@@ -88,11 +109,15 @@ class Daily(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start: datetime = None,
-        end: datetime = None,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
+        if self.chunked:
+            self._annual_steps = [
+                start.year + i for i in range(end.year - start.year + 1)
+            ]
         # Initialize time series
         self._init_time_series(loc, start, end, model, flags)
 

@@ -57,7 +57,7 @@ def processing_handler(
             output.append(load(*dataset))
 
     # Remove empty DataFrames
-    filtered = list(filter(lambda df: df.index.size > 0, output))
+    filtered = list(filter(lambda df: not df.empty, output))
 
     return pd.concat(filtered) if len(filtered) > 0 else output[0]
 
@@ -65,10 +65,11 @@ def processing_handler(
 def load_handler(
     endpoint: str,
     path: str,
-    columns: Optional[List] = None,
-    types: Optional[dict] = None,
-    parse_dates: Optional[List] = None,
     proxy: Optional[str] = None,
+    names: Optional[List] = None,
+    dtype: Optional[dict] = None,
+    parse_dates: Optional[List] = None,
+    default_df: Optional[pd.DataFrame] = None,
 ) -> pd.DataFrame:
     """
     Load a single CSV file into a DataFrame
@@ -87,14 +88,13 @@ def load_handler(
             with GzipFile(fileobj=BytesIO(response.read()), mode='rb') as file:
                 df = pd.read_csv(
                     file,
-                    names=columns,
-                    dtype=types,
+                    names=names,
+                    dtype=dtype,
                     parse_dates=parse_dates,
                 )
 
     except (FileNotFoundError, HTTPError):
-        # Create empty DataFrane
-        df = pd.DataFrame(columns=[*types])
+        df = default_df if default_df is not None else pd.DataFrame(columns=names)
 
         # Display warning
         warn(f"Cannot load {path} from {endpoint}")

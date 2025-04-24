@@ -57,3 +57,12 @@ def adjust_temp(df: pd.DataFrame, alt: int):
             )
 
     return df
+
+def calculate_dwpt(df: pd.DataFrame, col: str) -> pd.DataFrame:
+    """
+    Calculate dew point temperature
+    """
+    df[col] = df["temp"] - ((100 - df["rhum"]) / 5)
+    df[f"{col}_flag"] = df[["temp_flag", "rhum_flag"]].max(axis=1, skipna=True)
+
+    return df
