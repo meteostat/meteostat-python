@@ -19,7 +19,7 @@ end = datetime(2018, 12, 31)
 # Get monthly data
 # Then, aggregate annually
 data = Monthly("72202", start, end)
-data = data.normalize().aggregate(freq="1Y").fetch()
+data = data.normalize().aggregate(freq="1YE").fetch()
 
 # Plot chart
 data.plot(y="tavg")

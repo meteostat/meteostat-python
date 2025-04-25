@@ -28,7 +28,7 @@ def normalize(self):
 
     if temp._start and temp._end and temp.coverage() < 1:
         # Create result DataFrame
-        result = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
+        result = pd.DataFrame(columns=temp._processed_columns)
 
         # Handle tz-aware date ranges
         if hasattr(temp, "_timezone") and temp._timezone is not None:
@@ -42,7 +42,7 @@ def normalize(self):
         # Go through list of weather stations
         for station in temp._stations:
             # Create data frame
-            df = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
+            df = pd.DataFrame(columns=temp._processed_columns)
             # Add time series
             df["time"] = pd.date_range(
                 start,
@@ -53,7 +53,7 @@ def normalize(self):
             # Add station ID
             df["station"] = station
             # Add columns
-            for column in temp._columns[temp._first_met_col :]:
+            for column in temp._processed_columns:
                 # Add column to DataFrame
                 df[column] = nan
 
