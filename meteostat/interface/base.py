@@ -12,7 +12,6 @@ import os
 
 
 class Base:
-
     """
     Base class that provides features which are used across the package
     """

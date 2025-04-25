@@ -22,7 +22,6 @@ from meteostat.interface.base import Base
 
 
 class MeteoData(Base):
-
     """
     A parent class for both time series and
     climate normals data
@@ -40,11 +39,15 @@ class MeteoData(Base):
         Get the list of raw data columns, excluding any dicts with callable values
         """
         return [
-            list(col.values())[0]
-            if isinstance(col, dict)
-            else col
+            list(col.values())[0] if isinstance(col, dict) else col
             for col in self._columns
-            if not (isinstance(col, dict) and (isinstance(list(col.values())[0], Callable) or list(col.values())[0] is None))
+            if not (
+                isinstance(col, dict)
+                and (
+                    isinstance(list(col.values())[0], Callable)
+                    or list(col.values())[0] is None
+                )
+            )
         ]
 
     @property
@@ -53,12 +56,10 @@ class MeteoData(Base):
         Get the list of processed data columns, excluding any dicts with callable values
         """
         return [
-            list(col.keys())[0]
-            if isinstance(col, dict)
-            else col
+            list(col.keys())[0] if isinstance(col, dict) else col
             for col in self._columns[self._first_met_col :]
         ]
-    
+
     @property
     def _renamed_columns(self) -> Dict[str, str]:
         """
@@ -66,12 +67,13 @@ class MeteoData(Base):
         """
         return {
             new_key: new_val
-            for d in self._columns if isinstance(d, dict)
+            for d in self._columns
+            if isinstance(d, dict)
             for k, v in d.items()
             if not isinstance(v, Callable)
             for new_key, new_val in ((v, k), (f"{v}_source", f"{k}_source"))
         }
-    
+
     @property
     def _virtual_columns(self) -> Dict[str, str]:
         """
@@ -79,7 +81,8 @@ class MeteoData(Base):
         """
         return {
             k: v
-            for d in self._columns if isinstance(d, dict)
+            for d in self._columns
+            if isinstance(d, dict)
             for k, v in d.items()
             if isinstance(v, Callable)
         }

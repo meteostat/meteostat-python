@@ -21,7 +21,6 @@ from meteostat.utilities.mutations import calculate_dwpt
 
 
 class Hourly(TimeSeries):
-
     """
     Retrieve hourly weather observations for one or multiple weather stations or
     a single geographical point
@@ -53,7 +52,7 @@ class Hourly(TimeSeries):
         "dwd_hourly": "A",
         "dwd_mosmix": "E",
         "metno_forecast": "E",
-        "eccc_hourly": "A"
+        "eccc_hourly": "A",
     }
 
     # Flag which represents model data
@@ -100,7 +99,10 @@ class Hourly(TimeSeries):
     }
 
     def _set_time(
-        self, start: Optional[datetime] = None, end: Optional[datetime] = None, timezone: Optional[str] = None
+        self,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+        timezone: Optional[str] = None,
     ) -> None:
         """
         Set & adapt the period's time zone
@@ -131,7 +133,9 @@ class Hourly(TimeSeries):
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = datetime(1890, 1, 1, 0, 0, 0),
-        end: datetime = datetime.combine(datetime.today().date() + timedelta(days=10), datetime.max.time()),
+        end: datetime = datetime.combine(
+            datetime.today().date() + timedelta(days=10), datetime.max.time()
+        ),
         timezone: Optional[str] = None,
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?

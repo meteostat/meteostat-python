@@ -14,7 +14,6 @@ from meteostat.interface.stations import Stations
 
 
 class Point:
-
     """
     Automatically select weather stations by geographic location
     """

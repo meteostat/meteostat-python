@@ -17,7 +17,6 @@ from meteostat.interface.point import Point
 
 
 class Monthly(TimeSeries):
-
     """
     Retrieve monthly weather data for one or multiple weather stations or
     a single geographical point

@@ -24,7 +24,6 @@ from meteostat.interface.meteodata import MeteoData
 
 
 class TimeSeries(MeteoData):
-
     """
     TimeSeries class which provides features which are
     used across all time series classes
@@ -69,13 +68,24 @@ class TimeSeries(MeteoData):
                 self.endpoint,
                 file,
                 self.proxy,
-                default_df=pd.DataFrame(columns=self._raw_columns + with_suffix(self._raw_columns, '_source')),
+                default_df=pd.DataFrame(
+                    columns=self._raw_columns
+                    + with_suffix(self._raw_columns, "_source")
+                ),
             )
 
             # Add time column and drop original columns
             if len(self._parse_dates) < 3:
                 df["day"] = 1
-            df["time"] = pd.to_datetime(df[self._parse_dates if len(self._parse_dates) > 2 else self._parse_dates + ["day"]])
+            df["time"] = pd.to_datetime(
+                df[
+                    (
+                        self._parse_dates
+                        if len(self._parse_dates) > 2
+                        else self._parse_dates + ["day"]
+                    )
+                ]
+            )
             df = df.drop(self._parse_dates, axis=1)
 
             # Validate and prepare data for further processing
@@ -93,12 +103,12 @@ class TimeSeries(MeteoData):
                     continue
 
                 if basecol == col:
-                    df[col] = df[col].astype('Float64')
+                    df[col] = df[col].astype("Float64")
 
                 if col.endswith("_source"):
                     flagcol = f"{basecol}_flag"
                     df[flagcol] = pd.NA
-                    df[flagcol] = df[flagcol].astype('string')
+                    df[flagcol] = df[flagcol].astype("string")
                     mask = df[col].notna()
                     df.loc[mask, flagcol] = df.loc[mask, col].apply(
                         get_flag_from_source_factory(self._source_mappings)
@@ -154,8 +164,8 @@ class TimeSeries(MeteoData):
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
-        model = True,  # Include model data?
-        flags = False,  # Load source flags?
+        model=True,  # Include model data?
+        flags=False,  # Load source flags?
     ) -> None:
         """
         Common initialization for all time series, regardless
@@ -200,7 +210,10 @@ class TimeSeries(MeteoData):
         # Conditionally, remove flags from DataFrame
         if not self._flags:
             self._data.drop(
-                map(lambda col: f"{col}_flag", self._processed_columns), axis=1, errors="ignore", inplace=True
+                map(lambda col: f"{col}_flag", self._processed_columns),
+                axis=1,
+                errors="ignore",
+                inplace=True,
             )
 
         # Interpolate data spatially if requested

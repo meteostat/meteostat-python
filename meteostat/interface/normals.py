@@ -23,7 +23,6 @@ from meteostat.interface.point import Point
 
 
 class Normals(MeteoData):
-
     """
     Retrieve climate normals for one or multiple weather stations or
     a single geographical point

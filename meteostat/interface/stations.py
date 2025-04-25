@@ -19,7 +19,6 @@ from meteostat.utilities.helpers import get_distance
 
 
 class Stations(Base):
-
     """
     Select weather stations from the full list of stations
     """
@@ -89,7 +88,7 @@ class Stations(Base):
                 self.endpoint,
                 file,
                 self.proxy,
-                self._columns, 
+                self._columns,
                 self._types,
                 self._parse_dates,
             )

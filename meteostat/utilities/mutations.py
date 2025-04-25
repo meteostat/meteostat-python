@@ -58,6 +58,7 @@ def adjust_temp(df: pd.DataFrame, alt: int):
 
     return df
 
+
 def calculate_dwpt(df: pd.DataFrame, col: str) -> pd.DataFrame:
     """
     Calculate dew point temperature

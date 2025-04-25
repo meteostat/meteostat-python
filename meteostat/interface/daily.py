@@ -18,7 +18,6 @@ from meteostat.interface.point import Point
 
 
 class Daily(TimeSeries):
-
     """
     Retrieve daily weather observations for one or multiple weather stations or
     a single geographical point
