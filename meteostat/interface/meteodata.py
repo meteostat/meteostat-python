@@ -15,12 +15,9 @@ from collections.abc import Callable
 from typing import Dict, List, Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
-from meteostat.core.cache import get_local_file_path, file_in_cache
-from meteostat.core.loader import processing_handler, load_handler
-from meteostat.utilities.mutations import localize, filter_time, adjust_temp
-from meteostat.utilities.validations import validate_series
+from meteostat.core.loader import processing_handler
+from meteostat.utilities.mutations import adjust_temp
 from meteostat.utilities.aggregations import weighted_average
-from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.interface.base import Base
 
 
@@ -86,70 +83,6 @@ class MeteoData(Base):
             for k, v in d.items()
             if isinstance(v, Callable)
         }
-
-    def _load_data(self, station: str, year: Union[int, None] = None) -> None:
-        """
-        Load file for a single station from Meteostat
-        """
-
-        # File name
-        file = generate_endpoint_path(self.granularity, station, year)
-
-        # Get local file path
-        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
-
-        # Check if file in cache
-        if self.max_age > 0 and file_in_cache(path, self.max_age):
-            # Read cached data
-            df = pd.read_pickle(path)
-
-        else:
-            # Get data from Meteostat
-            df = load_handler(
-                self.endpoint,
-                file,
-                self._columns,
-                self._types,
-                self._parse_dates,
-                self.proxy
-            )
-
-            # Validate and prepare data for further processing
-            if self.granularity == Granularity.NORMALS and df.index.size > 0:
-                # Add weather station ID
-                # pylint: disable=unsupported-assignment-operation
-                df["station"] = station
-
-                # Set index
-                df = df.set_index(["station", "start", "end", "month"])
-
-            else:
-                df = validate_series(df, station)
-
-            # Save as Pickle
-            if self.max_age > 0:
-                df.to_pickle(path)
-
-        # Localize time column
-        if (
-            self.granularity == Granularity.HOURLY
-            and self._timezone is not None
-            and len(df.index) > 0
-        ):
-            df = localize(df, self._timezone)
-
-        # Filter time period and append to DataFrame
-        # pylint: disable=no-else-return
-        if self.granularity == Granularity.NORMALS and df.index.size > 0 and self._end:
-            # Get time index
-            end = df.index.get_level_values("end")
-            # Filter & return
-            return df.loc[end == self._end]
-        elif not self.granularity == Granularity.NORMALS:
-            df = filter_time(df, self._start, self._end)
-
-        # Return
-        return df
 
     def _get_datasets(self) -> list:
         """

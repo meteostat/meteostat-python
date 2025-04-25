@@ -9,8 +9,11 @@ The code is licensed under the MIT license.
 """
 
 from copy import copy
-from typing import Union
+from typing import Optional, Union
 from datetime import datetime
+from meteostat.core.cache import file_in_cache, get_local_file_path
+from meteostat.core.loader import load_handler
+from meteostat.utilities.endpoint import generate_endpoint_path
 import numpy as np
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
@@ -27,25 +30,25 @@ class Normals(MeteoData):
     """
 
     # The cache subdirectory
-    cache_subdir: str = "normals"
+    cache_subdir = "normals"
 
     # Granularity
     granularity = Granularity.NORMALS
 
     # The list of weather Stations
-    _stations: pd.Index = None
+    _stations: Optional[pd.Index] = None
 
     # The first year of the period
-    _start: int = None
+    _start: Optional[int] = None
 
     # The last year of the period
-    _end: int = None
+    _end: Optional[int] = None
 
     # The data frame
     _data: pd.DataFrame = pd.DataFrame()
 
     # Columns
-    _columns: list = [
+    _columns = [
         "start",
         "end",
         "month",
@@ -60,18 +63,55 @@ class Normals(MeteoData):
     # Index of first meteorological column
     _first_met_col = 3
 
-    # Data types
-    _types: dict = {
-        "tmin": "float64",
-        "tmax": "float64",
-        "prcp": "float64",
-        "wspd": "float64",
-        "pres": "float64",
-        "tsun": "float64",
-    }
-
     # Which columns should be parsed as dates?
     _parse_dates = None
+
+    def _load_data(self, station: str, year: Optional[int] = None) -> None:
+        """
+        Load file for a single station from Meteostat
+        """
+
+        # File name
+        file = generate_endpoint_path(self.granularity, station, year)
+
+        # Get local file path
+        path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
+
+        # Check if file in cache
+        if self.max_age > 0 and file_in_cache(path, self.max_age):
+            # Read cached data
+            df = pd.read_pickle(path)
+
+        else:
+            # Get data from Meteostat
+            df = load_handler(
+                self.endpoint,
+                file,
+                self.proxy,
+                self._columns,
+            )
+
+            # Validate and prepare data for further processing
+            if not df.empty:
+                # Add weather station ID
+                df["station"] = station
+
+                # Set index
+                df = df.set_index(["station", "start", "end", "month"])
+
+            # Save as Pickle
+            if self.max_age > 0:
+                df.to_pickle(path)
+
+        # Filter time period and append to DataFrame
+        if self.granularity == Granularity.NORMALS and not df.empty and self._end:
+            # Get time index
+            end = df.index.get_level_values("end")
+            # Filter & return
+            return df.loc[end == self._end]
+
+        # Return
+        return df
 
     def __init__(
         self,
