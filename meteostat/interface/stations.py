@@ -181,12 +181,12 @@ class Stations(Base):
 
         if required is True:
             # Make sure data exists at all
-            temp._data = temp._data[(pd.isna(temp._data[freq + "_start"]) is False)]
+            temp._data = temp._data[~pd.isna(temp._data[f"{freq}_start"])]
 
         elif isinstance(required, tuple):
             # Make sure data exists across period
             temp._data = temp._data[
-                (pd.isna(temp._data[freq + "_start"]) is False)
+                (~pd.isna(temp._data[f"{freq}_start"]))
                 & (temp._data[freq + "_start"] <= required[0])
                 & (
                     temp._data[freq + "_end"] + timedelta(seconds=temp.max_age)
@@ -197,7 +197,7 @@ class Stations(Base):
         else:
             # Make sure data exists on a certain day
             temp._data = temp._data[
-                (pd.isna(temp._data[freq + "_start"]) is False)
+                (~pd.isna(temp._data[f"{freq}_start"]))
                 & (temp._data[freq + "_start"] <= required)
                 & (
                     temp._data[freq + "_end"] + timedelta(seconds=temp.max_age)
