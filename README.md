@@ -2,7 +2,7 @@
 
 The Meteostat Python library provides a simple API for accessing open weather and climate data. The historical observations and statistics are collected by [Meteostat](https://meteostat.net) from different public interfaces, most of which are governmental.
 
-Among the data sources are national weather services like the National Oceanic and Atmospheric Administration (NOAA) and Germany's national meteorological service (DWD).
+Among the data sources are national weather services like the National Oceanic and Atmospheric Administration (NOAA) and Germany's national weather service (DWD).
 
 Are you looking for a **hosted solution**? Try our [JSON API](https://rapidapi.com/meteostat/api/meteostat/).
 
@@ -34,13 +34,6 @@ The Meteostat Python library is divided into multiple classes which provide acce
   * [Formats & Units](https://dev.meteostat.net/formats.html)
   * [Data Sources](https://dev.meteostat.net/sources.html)
   * [Terms & License](https://dev.meteostat.net/terms.html)
-
-### Class Diagram
-![Classes](classes.png)
-
-
-### Package Diagram
-![Packages](packages.png)
 
 ## Example
 
@@ -75,16 +68,6 @@ Take a look at the expected output:
 ## Contributing
 
 Instructions on building and testing the Meteostat Python package can be found in the [documentation](https://dev.meteostat.net/python/contributing.html). More information about the Meteostat bulk data interface is available [here](https://dev.meteostat.net/bulk/).
-
-## Developer setup for contributions
-
-- Fork the repository
-- Create a new python virtual environment
-- Activate virtual environment
-- run pip install -U pip [get the latest version of pip]
-- run pip install -r requirements_dev.in [install all packages required to hack the code]
-- You can now use the Makefile to run tests and check style formatting as well as generate coverage information
-- Hack Away
 
 ## Donating
 
