@@ -95,12 +95,12 @@ class Daily(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start = datetime(1781, 1, 1, 0, 0, 0),
-        end = datetime.combine(
+        start=datetime(1781, 1, 1, 0, 0, 0),
+        end=datetime.combine(
             datetime.today().date() + timedelta(days=10), datetime.max.time()
         ),
-        model = True,  # Include model data?
-        flags = False,  # Load source flags?
+        model=True,  # Include model data?
+        flags=False,  # Load source flags?
     ) -> None:
         # Extract relevant years
         if self.chunked:
