@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from copy import copy
-import pandas as pd
+import numpy as np
 from meteostat.core.warn import warn
 
 
@@ -28,7 +28,7 @@ def interpolate(self, limit: int = 3):
         # Apply interpolation
         temp._data = temp._data.groupby("station", group_keys=False).apply(
             lambda group: group.interpolate(
-                method="linear", limit=limit, limit_direction="both", axis=0, fill_value=pd.NA
+                method="linear", limit=limit, limit_direction="both", axis=0, fill_value=np.nan
             )
         )
 

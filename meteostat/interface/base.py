@@ -9,6 +9,7 @@ The code is licensed under the MIT license.
 """
 
 import os
+from typing import Optional
 
 
 class Base:
@@ -17,22 +18,22 @@ class Base:
     """
 
     # Base URL of the Meteostat bulk data interface
-    endpoint: str = "https://bulk.meteostat.net/v2/"
+    endpoint = "https://bulk.meteostat.net/v2/"
 
-    # Proxy URL for the Meteostat bulk data interface
-    proxy: str = None
+    # Proxy URL for the Meteostat (bulk) data interface
+    proxy: Optional[str] = None
 
     # Location of the cache directory
-    cache_dir: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
+    cache_dir = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
 
     # Auto clean cache directories?
-    autoclean: bool = True
+    autoclean = True
 
     # Maximum age of a cached file in seconds
-    max_age: int = 24 * 60 * 60
+    max_age = 24 * 60 * 60
 
     # Number of processes used for processing files
-    processes: int = 1
+    processes = 1
 
     # Number of threads used for processing files
-    threads: int = 1
+    threads = 1

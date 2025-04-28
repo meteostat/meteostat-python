@@ -33,16 +33,16 @@ def get_distance(lat1, lon1, lat2, lon2) -> float:
     return radius * arch_sin
 
 
-def _get_flag_from_single_source(source: str, source_mappings: dict) -> str:
+def _get_flag_from_single_source(source: str, source_mappings: dict, model_flag: str) -> str:
     """
     Get flag from single source
     """
     if source in source_mappings:
         return source_mappings[source]
-    return "E"
+    return model_flag
 
 
-def get_flag_from_source_factory(source_mappings: dict) -> str:
+def get_flag_from_source_factory(source_mappings: dict, model_flag: str) -> str:
     """
     Get flag from source
     """
@@ -50,7 +50,7 @@ def get_flag_from_source_factory(source_mappings: dict) -> str:
     def _get_flag_from_source(source: Optional[str]) -> str:
         sources = source.split(" ")
 
-        flags = [_get_flag_from_single_source(src, source_mappings) for src in sources]
+        flags = [_get_flag_from_single_source(src, source_mappings, model_flag) for src in sources]
         flag = sorted(flags)[-1]
 
         return flag

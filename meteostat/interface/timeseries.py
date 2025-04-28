@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 import numpy as np
 import pandas as pd
 from meteostat.core.cache import file_in_cache, get_local_file_path
@@ -30,24 +30,24 @@ class TimeSeries(MeteoData):
     """
 
     # Base URL of the Meteostat bulk data interface
-    endpoint: str = "https://data.meteostat.net/"
+    endpoint = "https://data.meteostat.net/"
 
     # The list of origin weather Stations
-    _origin_stations: Union[pd.Index, None] = None
+    _origin_stations: Optional[pd.Index] = None
 
     # The start date
-    _start: Union[datetime, None] = None
+    _start: Optional[datetime] = None
 
     # The end date
-    _end: Union[datetime, None] = None
+    _end: Optional[datetime] = None
 
     # Include model data?
-    _model: bool = True
+    _model = True
 
     # Fetch source flags?
-    _flags = bool = False
+    _flags = False
 
-    def _load_data(self, station: str, year: Union[int, None] = None) -> None:
+    def _load_data(self, station: str, year: Optional[int] = None) -> None:
         """
         Load file for a single station from Meteostat
         """
@@ -77,6 +77,7 @@ class TimeSeries(MeteoData):
             # Add time column and drop original columns
             if len(self._parse_dates) < 3:
                 df["day"] = 1
+
             df["time"] = pd.to_datetime(
                 df[
                     (
@@ -111,7 +112,7 @@ class TimeSeries(MeteoData):
                     df[flagcol] = df[flagcol].astype("string")
                     mask = df[col].notna()
                     df.loc[mask, flagcol] = df.loc[mask, col].apply(
-                        get_flag_from_source_factory(self._source_mappings)
+                        get_flag_from_source_factory(self._source_mappings, self._model_flag)
                     )
                     df.drop(col, axis=1, inplace=True)
 
@@ -132,14 +133,7 @@ class TimeSeries(MeteoData):
             df = localize(df, self._timezone)
 
         # Filter time period and append to DataFrame
-        # pylint: disable=no-else-return
-        if self.granularity == Granularity.NORMALS and df.index.size > 0 and self._end:
-            # Get time index
-            end = df.index.get_level_values("end")
-            # Filter & return
-            return df.loc[end == self._end]
-        elif not self.granularity == Granularity.NORMALS:
-            df = filter_time(df, self._start, self._end)
+        df = filter_time(df, self._start, self._end)
 
         # Return
         return df

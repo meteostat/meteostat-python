@@ -11,8 +11,6 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from meteostat import Point, Hourly
 
-Hourly.max_age = 0  # Disable cache for this example
-
 # Time period
 start = datetime(2021, 1, 1)
 end = datetime(2021, 1, 1, 23, 59)
