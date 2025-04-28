@@ -8,8 +8,8 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
-from typing import Optional, Union
+from datetime import datetime, timedelta
+from typing import Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.aggregations import degree_mean
@@ -95,10 +95,12 @@ class Daily(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        start = datetime(1781, 1, 1, 0, 0, 0),
+        end = datetime.combine(
+            datetime.today().date() + timedelta(days=10), datetime.max.time()
+        ),
+        model = True,  # Include model data?
+        flags = False,  # Load source flags?
     ) -> None:
         # Extract relevant years
         if self.chunked:

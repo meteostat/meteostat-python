@@ -132,13 +132,13 @@ class Hourly(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start: datetime = datetime(1890, 1, 1, 0, 0, 0),
-        end: datetime = datetime.combine(
+        start = datetime(1890, 1, 1, 0, 0, 0),
+        end = datetime.combine(
             datetime.today().date() + timedelta(days=10), datetime.max.time()
         ),
         timezone: Optional[str] = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        model = True,  # Include model data?
+        flags = False,  # Load source flags?
     ) -> None:
         # Set time zone and adapt period
         self._set_time(start, end, timezone)
