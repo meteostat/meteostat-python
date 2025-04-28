@@ -112,7 +112,9 @@ class TimeSeries(MeteoData):
                     df[flagcol] = df[flagcol].astype("string")
                     mask = df[col].notna()
                     df.loc[mask, flagcol] = df.loc[mask, col].apply(
-                        get_flag_from_source_factory(self._source_mappings, self._model_flag)
+                        get_flag_from_source_factory(
+                            self._source_mappings, self._model_flag
+                        )
                     )
                     df.drop(col, axis=1, inplace=True)
 

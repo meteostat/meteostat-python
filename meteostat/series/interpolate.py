@@ -23,17 +23,21 @@ def interpolate(self, limit: int = 3):
         temp = copy(self)
 
         # Convert to float64
-        temp._data = temp._data.astype('float64')
+        temp._data = temp._data.astype("float64")
 
         # Apply interpolation
         temp._data = temp._data.groupby("station", group_keys=False).apply(
             lambda group: group.interpolate(
-                method="linear", limit=limit, limit_direction="both", axis=0, fill_value=np.nan
+                method="linear",
+                limit=limit,
+                limit_direction="both",
+                axis=0,
+                fill_value=np.nan,
             )
         )
 
         # Convert to original type
-        temp._data = temp._data.astype('Float64')
+        temp._data = temp._data.astype("Float64")
 
         # Return class instance
         return temp

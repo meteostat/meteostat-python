@@ -80,7 +80,7 @@ def load_handler(
 
         # Set a proxy
         if proxy:
-            handlers.append(ProxyHandler({'http': proxy, 'https': proxy}))
+            handlers.append(ProxyHandler({"http": proxy, "https": proxy}))
 
         # Read CSV file from Meteostat endpoint
         with build_opener(*handlers).open(Request(endpoint + path)) as response:
