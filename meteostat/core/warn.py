@@ -16,7 +16,7 @@ def _format(message, category, _filename, _lineno, _line=None) -> str:
     Print warning on a single line
     """
 
-    return "%s: %s\n" % (category.__name__, message)
+    return f"{category.__name__}: {message}\n"
 
 
 # Set warning format

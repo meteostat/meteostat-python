@@ -10,7 +10,7 @@ The code is licensed under the MIT license.
 
 from io import BytesIO
 from gzip import GzipFile
-from urllib.request import urlopen, Request, ProxyHandler, build_opener
+from urllib.request import Request, ProxyHandler, build_opener
 from urllib.error import HTTPError
 from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
@@ -80,7 +80,7 @@ def load_handler(
 
         # Set a proxy
         if proxy:
-            opener = ProxyHandler({"http": proxy, "https": proxy})
+            handlers.append(ProxyHandler({'http': proxy, 'https': proxy}))
 
         # Read CSV file from Meteostat endpoint
         with build_opener(*handlers).open(Request(endpoint + path)) as response:

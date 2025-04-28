@@ -129,7 +129,7 @@ class MeteoData(Base):
         """
 
         if self._stations.size == 0 or self._data.size == 0:
-            return None
+            return
 
         if method == "nearest":
             if adapt_temp:

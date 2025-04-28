@@ -1,16 +1,12 @@
 [MESSAGES CONTROL]
 
-disable=singleton-comparison,
+disable=
         no-member,
         too-few-public-methods,
         protected-access,
-        inconsistent-return-statements,
         import-outside-toplevel,
         duplicate-code,
-        import-error,
-        nan-comparison,
-        consider-using-set-comprehension,
-        consider-using-f-string,
+        too-many-positional-arguments
 
 [BASIC]
 

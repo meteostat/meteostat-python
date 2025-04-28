@@ -10,14 +10,14 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import Union
+import numpy as np
+import pandas as pd
 from meteostat.core.cache import file_in_cache, get_local_file_path
 from meteostat.core.loader import load_handler
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.endpoint import generate_endpoint_path
 from meteostat.utilities.mutations import filter_time, localize
 from meteostat.utilities.validations import validate_series
-import numpy as np
-import pandas as pd
 from meteostat.utilities.helpers import get_flag_from_source_factory, with_suffix
 from meteostat.interface.point import Point
 from meteostat.interface.meteodata import MeteoData

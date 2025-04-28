@@ -11,11 +11,11 @@ The code is licensed under the MIT license.
 from copy import copy
 from typing import Optional, Union
 from datetime import datetime
+import numpy as np
+import pandas as pd
 from meteostat.core.cache import file_in_cache, get_local_file_path
 from meteostat.core.loader import load_handler
 from meteostat.utilities.endpoint import generate_endpoint_path
-import numpy as np
-import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.core.warn import warn
 from meteostat.interface.meteodata import MeteoData
