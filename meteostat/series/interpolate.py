@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 """
 
 from copy import copy
-import numpy as np
+import pandas as pd
 from meteostat.core.warn import warn
 
 
@@ -19,19 +19,19 @@ def interpolate(self, limit: int = 3):
     """
 
     if self.count() > 0 and not self._data.isnull().values.all():
+        # Create temporal instance
         temp = copy(self)
 
-        def _interpolate_numeric(group):
-            numeric_cols = group.select_dtypes(include=[np.number])
-            interpolated = numeric_cols.interpolate(
-                method="linear", limit=limit, limit_direction="both", axis=0
+        # Apply interpolation
+        temp._data = temp._data.groupby("station", group_keys=False).apply(
+            lambda group: group.interpolate(
+                method="linear", limit=limit, limit_direction="both", axis=0, fill_value=pd.NA
             )
-            group[numeric_cols.columns] = interpolated
-            return group
+        )
 
-        temp._data = temp._data.groupby("station", group_keys=False).apply(_interpolate_numeric)
-
+        # Return class instance
         return temp
 
+    # Show warning & return self
     warn("Skipping interpolation on empty DataFrame")
     return self
