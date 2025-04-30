@@ -28,7 +28,7 @@ end = datetime(2019, 12, 31)
 data = Daily(stations, start, end)
 
 # Aggregate annually
-data = data.aggregate(freq="1Y").fetch()
+data = data.aggregate(freq="1YE").fetch()
 
 # Plot chart
 fig, ax = plt.subplots(figsize=(8, 6))
