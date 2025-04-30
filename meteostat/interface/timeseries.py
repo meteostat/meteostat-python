@@ -10,7 +10,6 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import Optional, Union
-import numpy as np
 import pandas as pd
 from meteostat.core.cache import file_in_cache, get_local_file_path
 from meteostat.core.loader import load_handler
@@ -150,7 +149,7 @@ class TimeSeries(MeteoData):
                 (pd.isna(self._data[f"{col_name}_flag"]))
                 | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
                 col_name,
-            ] = np.nan
+            ] = pd.NA
 
         # Drop nan-only rows
         self._data.dropna(how="all", subset=self._processed_columns, inplace=True)
@@ -190,11 +189,6 @@ class TimeSeries(MeteoData):
         # Get data for all weather stations
         self._data = self._get_data()
 
-        # Remove model data from DataFrame and
-        # drop flags if not specified otherwise
-        if not model:
-            self._filter_model()
-
         # Fill columns if they don't exist
         for col in self._processed_columns:
             if col not in self._data.columns:
@@ -203,10 +197,17 @@ class TimeSeries(MeteoData):
                 self._data[f"{col}_flag"] = pd.NA
                 self._data[f"{col}_flag"] = self._data[f"{col}_flag"].astype("string")
 
+        # Reorder the DataFrame
+        self._data = self._data[self._processed_columns + with_suffix(self._processed_columns, "_flag")]
+
+        # Remove model data from DataFrame
+        if not model:
+            self._filter_model()
+
         # Conditionally, remove flags from DataFrame
         if not self._flags:
             self._data.drop(
-                map(lambda col: f"{col}_flag", self._processed_columns),
+                with_suffix(self._processed_columns, "_flag"),
                 axis=1,
                 errors="ignore",
                 inplace=True,

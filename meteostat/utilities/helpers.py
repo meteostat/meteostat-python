@@ -56,9 +56,8 @@ def get_flag_from_source_factory(source_mappings: dict, model_flag: str) -> str:
             _get_flag_from_single_source(src, source_mappings, model_flag)
             for src in sources
         ]
-        flag = sorted(flags)[-1]
 
-        return flag
+        return "".join(flags)
 
     return _get_flag_from_source
 
