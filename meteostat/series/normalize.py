@@ -28,7 +28,7 @@ def normalize(self):
 
     if temp._start and temp._end and temp.coverage() < 1:
         # Create result DataFrame
-        result = pd.DataFrame(columns=temp._processed_columns)
+        result = pd.DataFrame(columns=temp._processed_columns, dtype='Float64')
 
         # Handle tz-aware date ranges
         if hasattr(temp, "_timezone") and temp._timezone is not None:
@@ -42,7 +42,7 @@ def normalize(self):
         # Go through list of weather stations
         for station in temp._stations:
             # Create data frame
-            df = pd.DataFrame(columns=temp._processed_columns)
+            df = pd.DataFrame(columns=temp._processed_columns, dtype='Float64')
             # Add time series
             df["time"] = pd.date_range(
                 start,
@@ -70,7 +70,7 @@ def normalize(self):
         )
 
         # None -> nan
-        temp._data = temp._data.fillna(nan)
+        temp._data = temp._data.fillna(pd.NA)
 
     # Return class instance
     return temp

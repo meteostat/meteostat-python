@@ -184,7 +184,7 @@ class Normals(MeteoData):
             # Go through all periods
             for period in periods:
                 # Create DataFrame
-                df = pd.DataFrame(columns=temp._columns[temp._first_met_col :])
+                df = pd.DataFrame(columns=temp._columns[temp._first_met_col :], dtype='float64')
                 # Populate index columns
                 df["month"] = range(1, 13)
                 df["station"] = station
