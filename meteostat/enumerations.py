@@ -82,6 +82,7 @@ class Provider(StrEnum):
     ISD_LITE = "isd_lite"
     METAR = "metar"
     GHCND = "ghcnd"
+    CLIMAT = "climat"
     DWD_HOURLY = "dwd_hourly"
     DWD_POI = "dwd_poi"
     DWD_MOSMIX = "dwd_mosmix"

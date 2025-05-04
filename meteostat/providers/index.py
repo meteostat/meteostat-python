@@ -365,6 +365,31 @@ PROVIDER_GHCND = ProviderSpec(
     module="meteostat.providers.noaa.ghcnd",
 )
 
+PROVIDER_CLIMAT = ProviderSpec(
+    id=Provider.CLIMAT,
+    granularity=Granularity.MONTHLY,
+    priority=Priority.HIGH,
+    grade=Grade.RECORD,
+    license=License(
+        commercial=True,
+        attribution="Deutscher Wetterdienst",
+        name="CC BY 4.0",
+        url="https://creativecommons.org/licenses/by/4.0/",
+    ),
+    parameters=[
+        Parameter.TEMP,
+        Parameter.TMIN,
+        Parameter.TMAX,
+        Parameter.TXMN,
+        Parameter.TXMX,
+        Parameter.PRES,
+        Parameter.PRCP,
+        Parameter.TSUN,
+    ],
+    start=date(1875, 6, 1),
+    module="meteostat.providers.dwd.climat",
+)
+
 PROVIDER_METAR = ProviderSpec(
     id=Provider.METAR,
     granularity=Granularity.HOURLY,
@@ -505,6 +530,7 @@ DEFAULT_PROVIDERS = [
     PROVIDER_ECCC_MONTHLY,
     PROVIDER_ISD_LITE,
     PROVIDER_GHCND,
+    PROVIDER_CLIMAT,
     PROVIDER_METAR,
     PROVIDER_METNO_FORECAST,
     PROVIDER_SYNOP,
