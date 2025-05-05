@@ -42,6 +42,8 @@ PARAMETERS = [
     ("air_temperature_mean", Parameter.TEMP),
     ("air_temperature_mean_of_daily_max", Parameter.TMAX),
     ("air_temperature_mean_of_daily_min", Parameter.TMIN),
+    ("air_temperature_absolute_max", Parameter.TXMX),
+    ("air_temperature_absolute_min", Parameter.TXMN),
     ("mean_sea_level_pressure", Parameter.PRES),
     ("sunshine_duration", Parameter.TSUN),
 ]
@@ -69,7 +71,7 @@ def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> Optional
     try:
         ftp.cwd(f"{BASE_DIR}{directory}/{mode}")
         matches = [f for f in ftp.nlst() if search_term in f]
-        return matches[0] if matches else None
+        return sorted(matches)[-1] if matches else None
     except Exception:
         logger.debug("Error while searching for file", exc_info=True)
         return None
