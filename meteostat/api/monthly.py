@@ -26,8 +26,8 @@ DEFAULT_PARAMETERS = [
 
 def monthly(
     station: str | Station | List[str | Station] | pd.Index | pd.Series,
-    start: Optional[Union[datetime, date]] = None,
-    end: Optional[Union[datetime, date]] = None,
+    start: Optional[datetime | date],
+    end: Optional[datetime | date],
     parameters: List[Parameter] = DEFAULT_PARAMETERS,
     providers: List[Provider] = [Provider.MONTHLY],
     model: bool = True,
