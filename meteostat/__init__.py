@@ -27,7 +27,7 @@ from meteostat.api.monthly import monthly
 from meteostat.api.normals import normals
 from meteostat.api.concat import concat
 from meteostat.api.interpolate import interpolate
-from meteostat import units, interpolate
+from meteostat import units
 
 # Set default configuration
 config.set("cache.enable", True)
@@ -75,5 +75,4 @@ __all__ = [
     "units",
     "interpolate",
     "concat",
-    "interpolate",
 ]

@@ -36,7 +36,27 @@ def daily(
     model: bool = True,
 ):
     """
-    Access daily time series data
+    Access daily time series data.
+
+    Parameters
+    ----------
+    station : str, Station, List[str | Station], pd.Index, pd.Series
+        Weather station(s) to query data for. Can be a single station or a list of stations.
+    start : datetime, date, optional
+        Start date for the data query. If None, the earliest available date will be used.
+    end : datetime, date, optional
+        End date for the data query. If None, the latest available date will be used.
+    parameters : List[Parameter], optional
+        List of parameters to include in the data query. Defaults to a set of common parameters.
+    providers : List[Provider], optional
+        List of data providers to use for the query. Defaults to the daily provider.
+    model : bool, optional
+        Whether to include model data in the query. Defaults to True.
+    
+    Returns
+    -------
+    TimeSeries
+        A TimeSeries object containing the daily data for the specified stations and parameters.
     """
     req = Request(
         granularity=Granularity.DAILY,

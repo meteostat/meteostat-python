@@ -29,6 +29,21 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
 
     In case of duplicate index, the last row will be prefered.
     Hence, please pass newest data last.
+
+    Parameters
+    ----------
+    objs : List[TimeSeries]
+        List of time series objects to concatenate
+
+    Returns
+    -------
+    TimeSeries
+        Concatenated time series object
+
+    Raises
+    ------
+    ValueError
+        If the time series objects have divergent granularity or time zone
     """
     ts = objs[0]
 

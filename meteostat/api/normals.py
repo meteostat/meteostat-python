@@ -26,7 +26,27 @@ def normals(
     max_missing: int = 3,
 ):
     """
-    Access climate normals data
+    Access climate normals data.
+
+    Parameters
+    ----------
+    station : str, Station, List[str | Station], pd.Index, pd.Series
+        Weather station(s) to query data for. Can be a single station or a list of stations.
+    start : int, optional
+        Start year for the data query. Defaults to 1961.
+    end : int, optional
+        End year for the data query. Defaults to 1990.
+    parameters : List[Parameter], optional
+        List of parameters to include in the data query. Defaults to a set of common parameters.
+    providers : List[Provider], optional
+        List of data providers to use for the query. Defaults to the monthly provider.
+    max_missing : int, optional
+        Maximum number of missing values allowed in a month to calculate the mean. Defaults to 3.
+    
+    Returns
+    -------
+    TimeSeries
+        A TimeSeries object containing the climate normals data for the specified stations and parameters.
     """
 
     def _mean(group: pd.Series):

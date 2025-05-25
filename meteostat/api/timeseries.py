@@ -203,7 +203,25 @@ class TimeSeries:
         clean=True,
     ) -> Optional[pd.DataFrame]:
         """
-        Force specific granularity on the time series
+        Fetch the time series data as a DataFrame.
+
+        Parameters
+        ----------
+        squash : bool, optional
+            Whether to squash the DataFrame by source. Defaults to True.
+        fill : bool, optional
+            Whether to fill missing rows in the DataFrame. Defaults to False.
+        sources : bool, optional
+            Whether to include source information in the DataFrame. Defaults to False.
+        location : bool, optional
+            Whether to include location information (latitude, longitude, elevation) in the DataFrame. Defaults to False.
+        clean : bool, optional
+            Whether to clean the DataFrame according to the schema. Defaults to True.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            The time series data as a DataFrame, or None if no data is available.
         """
         df = copy(self._df)
 
@@ -231,7 +249,18 @@ class TimeSeries:
 
     def count(self, parameter: Parameter | str) -> int:
         """
-        Get number of non-NaN values for a specific parameter
+        Get number of non-NaN values for a specific parameter.
+        If no parameter is specified, it returns the count for the entire DataFrame.
+
+        Parameters
+        ----------
+        parameter : Parameter or str
+            The parameter to count non-NaN values for. If None, counts for the entire DataFrame.
+
+        Returns
+        -------
+        int
+            The count of non-NaN values for the specified parameter or the entire DataFrame.
         """
         if self._df is None:
             return 0
@@ -242,7 +271,18 @@ class TimeSeries:
 
     def completeness(self, parameter: Parameter | str | None = None) -> float:
         """
-        Get completeness for a specific parameter or the whole DataFrame
+        Get completeness for a specific parameter or the entire DataFrame.
+
+        Parameters
+        ----------
+        parameter : Parameter or str, optional
+            The parameter to calculate completeness for. If None, calculates for the entire DataFrame.
+
+        Returns
+        -------
+        float
+            The completeness ratio for the specified parameter or the entire DataFrame.
+            Returns 0 if no data is available, 1 if complete, or a value between 0 and 1 otherwise.
         """
         df = self.fetch()
 
