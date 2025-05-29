@@ -1,4 +1,4 @@
-pandas>=1.1
+pandas>=2
 pytz
 numpy
 matplotlib

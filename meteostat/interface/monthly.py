@@ -17,29 +17,46 @@ from meteostat.interface.point import Point
 
 
 class Monthly(TimeSeries):
-
     """
     Retrieve monthly weather data for one or multiple weather stations or
     a single geographical point
     """
 
     # The cache subdirectory
-    cache_subdir: str = "monthly"
+    cache_subdir = "monthly"
 
     # Granularity
     granularity = Granularity.MONTHLY
 
     # Default frequency
-    _freq: str = "1MS"
+    _freq = "1MS"
+
+    # Source mappings
+    _source_mappings = {
+        "dwd_monthly": "A",
+        "eccc_monthly": "A",
+        "dwd_daily": "C",
+        "eccc_daily": "C",
+        "ghcnd": "D",
+        "dwd_hourly": "E",
+        "eccc_hourly": "E",
+        "isd_lite": "F",
+        "synop": "G",
+        "dwd_poi": "G",
+        "metar": "H",
+        "model": "I",
+        "dwd_mosmix": "I",
+        "metno_forecast": "I",
+    }
 
     # Flag which represents model data
     _model_flag = "I"
 
     # Columns
-    _columns: list = [
+    _columns = [
         "year",
         "month",
-        "tavg",
+        {"tavg": "temp"},
         "tmin",
         "tmax",
         "prcp",
@@ -51,22 +68,11 @@ class Monthly(TimeSeries):
     # Index of first meteorological column
     _first_met_col = 2
 
-    # Data types
-    _types: dict = {
-        "tavg": "float64",
-        "tmin": "float64",
-        "tmax": "float64",
-        "prcp": "float64",
-        "wspd": "float64",
-        "pres": "float64",
-        "tsun": "float64",
-    }
-
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0, 1]}
+    _parse_dates = ["year", "month"]
 
     # Default aggregation functions
-    aggregations: dict = {
+    aggregations = {
         "tavg": "mean",
         "tmin": "mean",
         "tmax": "mean",
@@ -84,7 +90,6 @@ class Monthly(TimeSeries):
         model: bool = True,  # Include model data?
         flags: bool = False,  # Load source flags?
     ) -> None:
-
         # Set start date
         if start is not None:
             start = start.replace(day=1)

@@ -9,50 +9,66 @@ The code is licensed under the MIT license.
 """
 
 from math import floor
-from datetime import datetime
-from typing import Union
+from datetime import datetime, timedelta
+from typing import Optional, Union
 import pytz
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
 from meteostat.utilities.aggregations import degree_mean
 from meteostat.interface.timeseries import TimeSeries
 from meteostat.interface.point import Point
+from meteostat.utilities.mutations import calculate_dwpt
 
 
 class Hourly(TimeSeries):
-
     """
     Retrieve hourly weather observations for one or multiple weather stations or
     a single geographical point
     """
 
     # The cache subdirectory
-    cache_subdir: str = "hourly"
+    cache_subdir = "hourly"
 
     # Granularity
     granularity = Granularity.HOURLY
 
     # Download data as annual chunks
-    chunked: bool = True
+    # This cannot be changed and is only kept for backward compatibility
+    chunked = True
 
     # The time zone
-    _timezone: str = None
+    _timezone: Optional[str] = None
 
     # Default frequency
-    _freq: str = "1H"
+    _freq = "1h"
+
+    # Source mappings
+    _source_mappings = {
+        "metar": "D",
+        "model": "E",
+        "isd_lite": "B",
+        "synop": "C",
+        "dwd_poi": "C",
+        "dwd_hourly": "A",
+        "dwd_mosmix": "E",
+        "metno_forecast": "E",
+        "eccc_hourly": "A",
+    }
 
     # Flag which represents model data
     _model_flag = "E"
 
     # Raw data columns
-    _columns: list = [
-        "date",
+    _columns = [
+        "year",
+        "month",
+        "day",
         "hour",
         "temp",
-        "dwpt",
+        {"dwpt": calculate_dwpt},
         "rhum",
         "prcp",
-        "snow",
+        {"snow": "snwd"},
         "wdir",
         "wspd",
         "wpgt",
@@ -62,28 +78,13 @@ class Hourly(TimeSeries):
     ]
 
     # Index of first meteorological column
-    _first_met_col = 2
-
-    # Data types
-    _types: dict = {
-        "temp": "float64",
-        "dwpt": "float64",
-        "rhum": "float64",
-        "prcp": "float64",
-        "snow": "float64",
-        "wdir": "float64",
-        "wspd": "float64",
-        "wpgt": "float64",
-        "pres": "float64",
-        "tsun": "float64",
-        "coco": "float64",
-    }
+    _first_met_col = 4
 
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0, 1]}
+    _parse_dates = ["year", "month", "day", "hour"]
 
     # Default aggregation functions
-    aggregations: dict = {
+    aggregations = {
         "temp": "mean",
         "dwpt": "mean",
         "rhum": "mean",
@@ -98,22 +99,19 @@ class Hourly(TimeSeries):
     }
 
     def _set_time(
-        self, start: datetime = None, end: datetime = None, timezone: str = None
+        self,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+        timezone: Optional[str] = None,
     ) -> None:
         """
         Set & adapt the period's time zone
         """
-
-        # Don't use chunks if full dataset is requested
-        if start == None:
-            self.chunked = False
-
         if timezone:
             # Save timezone
             self._timezone = timezone
 
             if start and end:
-
                 # Initialize time zone
                 timezone = pytz.timezone(self._timezone)
 
@@ -124,7 +122,9 @@ class Hourly(TimeSeries):
                 end = timezone.localize(end, is_dst=None).astimezone(pytz.utc)
 
         if self.chunked:
-            self._annual_steps = [start.year + i for i in range(end.year - start.year + 1)]
+            self._annual_steps = [
+                start.year + i for i in range(end.year - start.year + 1)
+            ]
 
         self._start = start
         self._end = end
@@ -132,13 +132,14 @@ class Hourly(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start: datetime = None,
-        end: datetime = None,
-        timezone: str = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        start=datetime(1890, 1, 1, 0, 0, 0),
+        end=datetime.combine(
+            datetime.today().date() + timedelta(days=10), datetime.max.time()
+        ),
+        timezone: Optional[str] = None,
+        model=True,  # Include model data?
+        flags=False,  # Load source flags?
     ) -> None:
-
         # Set time zone and adapt period
         self._set_time(start, end, timezone)
 

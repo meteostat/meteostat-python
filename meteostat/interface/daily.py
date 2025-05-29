@@ -8,7 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 import pandas as pd
 from meteostat.enumerations.granularity import Granularity
@@ -18,33 +18,54 @@ from meteostat.interface.point import Point
 
 
 class Daily(TimeSeries):
-
     """
     Retrieve daily weather observations for one or multiple weather stations or
     a single geographical point
     """
 
     # The cache subdirectory
-    cache_subdir: str = "daily"
+    cache_subdir = "daily"
 
     # Granularity
     granularity = Granularity.DAILY
 
+    # Download data as annual chunks
+    # This cannot be changed and is only kept for backward compatibility
+    chunked = True
+
     # Default frequency
-    _freq: str = "1D"
+    _freq = "1D"
+
+    # Source mappings
+    _source_mappings = {
+        "dwd_daily": "A",
+        "eccc_daily": "A",
+        "ghcnd": "B",
+        "dwd_hourly": "C",
+        "eccc_hourly": "C",
+        "isd_lite": "D",
+        "synop": "E",
+        "dwd_poi": "E",
+        "metar": "F",
+        "model": "G",
+        "dwd_mosmix": "G",
+        "metno_forecast": "G",
+    }
 
     # Flag which represents model data
     _model_flag = "G"
 
     # Columns
-    _columns: list = [
-        "date",
-        "tavg",
+    _columns = [
+        "year",
+        "month",
+        "day",
+        {"tavg": "temp"},
         "tmin",
         "tmax",
         "prcp",
-        "snow",
-        "wdir",
+        {"snow": "snwd"},
+        {"wdir": None},
         "wspd",
         "wpgt",
         "pres",
@@ -52,27 +73,13 @@ class Daily(TimeSeries):
     ]
 
     # Index of first meteorological column
-    _first_met_col = 1
-
-    # Data types
-    _types: dict = {
-        "tavg": "float64",
-        "tmin": "float64",
-        "tmax": "float64",
-        "prcp": "float64",
-        "snow": "float64",
-        "wdir": "float64",
-        "wspd": "float64",
-        "wpgt": "float64",
-        "pres": "float64",
-        "tsun": "float64",
-    }
+    _first_met_col = 3
 
     # Columns for date parsing
-    _parse_dates: dict = {"time": [0]}
+    _parse_dates = ["year", "month", "day"]
 
     # Default aggregation functions
-    aggregations: dict = {
+    aggregations = {
         "tavg": "mean",
         "tmin": "min",
         "tmax": "max",
@@ -88,12 +95,18 @@ class Daily(TimeSeries):
     def __init__(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
-        start: datetime = None,
-        end: datetime = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        start=datetime(1781, 1, 1, 0, 0, 0),
+        end=datetime.combine(
+            datetime.today().date() + timedelta(days=10), datetime.max.time()
+        ),
+        model=True,  # Include model data?
+        flags=False,  # Load source flags?
     ) -> None:
-
+        # Extract relevant years
+        if self.chunked:
+            self._annual_steps = [
+                start.year + i for i in range(end.year - start.year + 1)
+            ]
         # Initialize time series
         self._init_time_series(loc, start, end, model, flags)
 

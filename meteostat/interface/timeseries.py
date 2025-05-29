@@ -9,71 +9,117 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from typing import Union
-import numpy as np
+from typing import Optional, Union
 import pandas as pd
+from meteostat.core.cache import file_in_cache, get_local_file_path
+from meteostat.core.loader import load_handler
 from meteostat.enumerations.granularity import Granularity
-from meteostat.core.cache import get_local_file_path, file_in_cache
-from meteostat.core.loader import processing_handler, load_handler
-from meteostat.utilities.mutations import localize, filter_time
-from meteostat.utilities.validations import validate_series
 from meteostat.utilities.endpoint import generate_endpoint_path
+from meteostat.utilities.mutations import filter_time, localize
+from meteostat.utilities.validations import validate_series
+from meteostat.utilities.helpers import get_flag_from_source_factory, with_suffix
 from meteostat.interface.point import Point
 from meteostat.interface.meteodata import MeteoData
 
 
 class TimeSeries(MeteoData):
-
     """
     TimeSeries class which provides features which are
     used across all time series classes
     """
 
+    # Base URL of the Meteostat bulk data interface
+    endpoint = "https://data.meteostat.net/"
+
     # The list of origin weather Stations
-    _origin_stations: Union[pd.Index, None] = None
+    _origin_stations: Optional[pd.Index] = None
 
     # The start date
-    _start: Union[datetime, None] = None
+    _start: Optional[datetime] = None
 
     # The end date
-    _end: Union[datetime, None] = None
+    _end: Optional[datetime] = None
 
     # Include model data?
-    _model: bool = True
+    _model = True
 
     # Fetch source flags?
-    _flags = bool = False
+    _flags = False
 
-    def _load_flags(self, station: str, year: Union[int, None] = None) -> None:
+    def _load_data(self, station: str, year: Optional[int] = None) -> None:
         """
-        Load flag file for a single station from Meteostat
+        Load file for a single station from Meteostat
         """
-
         # File name
-        file = generate_endpoint_path(self.granularity, station, year, True)
+        file = generate_endpoint_path(self.granularity, station, year)
 
         # Get local file path
         path = get_local_file_path(self.cache_dir, self.cache_subdir, file)
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
-
             # Read cached data
             df = pd.read_pickle(path)
 
         else:
-
             # Get data from Meteostat
             df = load_handler(
                 self.endpoint,
                 file,
-                self._columns,
-                {key: "string" for key in self._columns[self._first_met_col :]},
-                self._parse_dates,
+                self.proxy,
+                default_df=pd.DataFrame(
+                    columns=self._raw_columns
+                    + with_suffix(self._raw_columns, "_source")
+                ),
             )
 
-            # Validate Series
+            # Add time column and drop original columns
+            if len(self._parse_dates) < 3:
+                df["day"] = 1
+
+            df["time"] = pd.to_datetime(
+                df[
+                    (
+                        self._parse_dates
+                        if len(self._parse_dates) > 2
+                        else self._parse_dates + ["day"]
+                    )
+                ]
+            )
+            df = df.drop(self._parse_dates, axis=1)
+
+            # Validate and prepare data for further processing
             df = validate_series(df, station)
+
+            # Rename columns
+            df = df.rename(columns=self._renamed_columns, errors="ignore")
+
+            # Convert sources to flags
+            for col in df.columns:
+                basecol = col[:-7] if col.endswith("_source") else col
+
+                if basecol not in self._processed_columns:
+                    df.drop(col, axis=1, inplace=True)
+                    continue
+
+                if basecol == col:
+                    df[col] = df[col].astype("Float64")
+
+                if col.endswith("_source"):
+                    flagcol = f"{basecol}_flag"
+                    df[flagcol] = pd.NA
+                    df[flagcol] = df[flagcol].astype("string")
+                    mask = df[col].notna()
+                    df.loc[mask, flagcol] = df.loc[mask, col].apply(
+                        get_flag_from_source_factory(
+                            self._source_mappings, self._model_flag
+                        )
+                    )
+                    df.drop(col, axis=1, inplace=True)
+
+            # Process virtual columns
+            for key, value in self._virtual_columns.items():
+                df = value(df, key)
 
             # Save as Pickle
             if self.max_age > 0:
@@ -88,59 +134,33 @@ class TimeSeries(MeteoData):
             df = localize(df, self._timezone)
 
         # Filter time period and append to DataFrame
-        if self._start and self._end:
-            df = filter_time(df, self._start, self._end)
+        df = filter_time(df, self._start, self._end)
 
+        # Return
         return df
-
-    def _get_flags(self) -> None:
-        """
-        Get all source flags
-        """
-
-        if len(self._stations) > 0:
-
-            # Get list of datasets
-            datasets = self._get_datasets()
-
-            # Data Processings
-            return processing_handler(
-                datasets, self._load_flags, self.processes, self.threads
-            )
-
-        # Empty DataFrame
-        return pd.DataFrame(columns=[*self._types])
 
     def _filter_model(self) -> None:
         """
         Remove model data from time series
         """
 
-        columns = self._columns[self._first_met_col :]
-
-        for col_name in columns:
+        for col_name in self._processed_columns:
             self._data.loc[
                 (pd.isna(self._data[f"{col_name}_flag"]))
                 | (self._data[f"{col_name}_flag"].str.contains(self._model_flag)),
                 col_name,
-            ] = np.nan
-
-        # Conditionally, remove flags from DataFrame
-        if not self._flags:
-            self._data.drop(
-                map(lambda col_name: f"{col_name}_flag", columns), axis=1, inplace=True
-            )
+            ] = pd.NA
 
         # Drop nan-only rows
-        self._data.dropna(how="all", subset=columns, inplace=True)
+        self._data.dropna(how="all", subset=self._processed_columns, inplace=True)
 
     def _init_time_series(
         self,
         loc: Union[pd.DataFrame, Point, list, str],  # Station(s) or geo point
         start: datetime = None,
         end: datetime = None,
-        model: bool = True,  # Include model data?
-        flags: bool = False,  # Load source flags?
+        model=True,  # Include model data?
+        flags=False,  # Load source flags?
     ) -> None:
         """
         Common initialization for all time series, regardless
@@ -169,19 +189,31 @@ class TimeSeries(MeteoData):
         # Get data for all weather stations
         self._data = self._get_data()
 
-        # Load source flags through map file
-        # if flags are explicitly requested or
-        # model data is excluded
-        if flags or not model:
-            flags = self._get_flags()
-            self._data = self._data.merge(
-                flags, on=["station", "time"], how="left", suffixes=[None, "_flag"]
-            )
+        # Fill columns if they don't exist
+        for col in self._processed_columns:
+            if col not in self._data.columns:
+                self._data[col] = pd.NA
+                self._data[col] = self._data[col].astype("Float64")
+                self._data[f"{col}_flag"] = pd.NA
+                self._data[f"{col}_flag"] = self._data[f"{col}_flag"].astype("string")
 
-        # Remove model data from DataFrame and
-        # drop flags if not specified otherwise
+        # Reorder the DataFrame
+        self._data = self._data[
+            self._processed_columns + with_suffix(self._processed_columns, "_flag")
+        ]
+
+        # Remove model data from DataFrame
         if not model:
             self._filter_model()
+
+        # Conditionally, remove flags from DataFrame
+        if not self._flags:
+            self._data.drop(
+                with_suffix(self._processed_columns, "_flag"),
+                axis=1,
+                errors="ignore",
+                inplace=True,
+            )
 
         # Interpolate data spatially if requested
         # location is a geographical point

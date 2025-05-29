@@ -14,7 +14,6 @@ from meteostat.interface.stations import Stations
 
 
 class Point:
-
     """
     Automatically select weather stations by geographic location
     """
@@ -53,7 +52,6 @@ class Point:
     _alt: int = None
 
     def __init__(self, lat: float, lon: float, alt: int = None) -> None:
-
         self._lat = lat
         self._lon = lon
         self._alt = alt
@@ -90,7 +88,7 @@ class Point:
         # Apply inventory filter
         if freq and start and end:
             age = (datetime.now() - end).days
-            if model == False or age > 180:
+            if model is False or age > 180:
                 stations = stations.inventory(freq, (start, end))
 
         # Apply altitude filter
@@ -110,7 +108,6 @@ class Point:
 
         # Score values
         if self.radius:
-
             # Calculate score values
             stations["score"] = (
                 (1 - (stations["distance"] / self.radius)) * self.weight_dist

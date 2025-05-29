@@ -19,7 +19,6 @@ from meteostat.utilities.helpers import get_distance
 
 
 class Stations(Base):
-
     """
     Select weather stations from the full list of stations
     """
@@ -80,15 +79,18 @@ class Stations(Base):
 
         # Check if file in cache
         if self.max_age > 0 and file_in_cache(path, self.max_age):
-
             # Read cached data
             df = pd.read_pickle(path)
 
         else:
-
             # Get data from Meteostat
             df = load_handler(
-                self.endpoint, file, self._columns, self._types, self._parse_dates, True
+                self.endpoint,
+                file,
+                self.proxy,
+                self._columns,
+                self._types,
+                self._parse_dates,
             )
 
             # Add index
@@ -102,7 +104,6 @@ class Stations(Base):
         self._data = df
 
     def __init__(self) -> None:
-
         # Get all weather stations
         self._load()
 
@@ -179,12 +180,12 @@ class Stations(Base):
 
         if required is True:
             # Make sure data exists at all
-            temp._data = temp._data[(pd.isna(temp._data[freq + "_start"]) == False)]
+            temp._data = temp._data[~pd.isna(temp._data[f"{freq}_start"])]
 
         elif isinstance(required, tuple):
             # Make sure data exists across period
             temp._data = temp._data[
-                (pd.isna(temp._data[freq + "_start"]) == False)
+                (~pd.isna(temp._data[f"{freq}_start"]))
                 & (temp._data[freq + "_start"] <= required[0])
                 & (
                     temp._data[freq + "_end"] + timedelta(seconds=temp.max_age)
@@ -195,7 +196,7 @@ class Stations(Base):
         else:
             # Make sure data exists on a certain day
             temp._data = temp._data[
-                (pd.isna(temp._data[freq + "_start"]) == False)
+                (~pd.isna(temp._data[f"{freq}_start"]))
                 & (temp._data[freq + "_start"] <= required)
                 & (
                     temp._data[freq + "_end"] + timedelta(seconds=temp.max_age)

@@ -12,7 +12,7 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = "meteostat"
-__version__ = "1.6.8"
+__version__ = "1.7.0"
 
 from .interface.base import Base
 from .interface.timeseries import TimeSeries
@@ -22,3 +22,14 @@ from .interface.hourly import Hourly
 from .interface.daily import Daily
 from .interface.monthly import Monthly
 from .interface.normals import Normals
+
+__all__ = [
+    "Base",
+    "TimeSeries",
+    "Stations",
+    "Point",
+    "Hourly",
+    "Daily",
+    "Monthly",
+    "Normals",
+]

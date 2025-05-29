@@ -8,6 +8,7 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from typing import Optional
 import numpy as np
 
 
@@ -30,3 +31,40 @@ def get_distance(lat1, lon1, lat2, lon2) -> float:
     arch_sin = 2 * np.arcsin(np.sqrt(arch))
 
     return radius * arch_sin
+
+
+def _get_flag_from_single_source(
+    source: str, source_mappings: dict, model_flag: str
+) -> str:
+    """
+    Get flag from single source
+    """
+    if source in source_mappings:
+        return source_mappings[source]
+    return model_flag
+
+
+def get_flag_from_source_factory(source_mappings: dict, model_flag: str) -> str:
+    """
+    Get flag from source
+    """
+
+    def _get_flag_from_source(source: Optional[str]) -> str:
+        sources = source.split(" ")
+
+        flags = [
+            _get_flag_from_single_source(src, source_mappings, model_flag)
+            for src in sources
+        ]
+
+        return "".join(flags)
+
+    return _get_flag_from_source
+
+
+def with_suffix(items, suffix):
+    """
+    Takes a list of strings and a suffix, returns a new list containing
+    the same items with the suffix added.
+    """
+    return [item + suffix for item in items]
