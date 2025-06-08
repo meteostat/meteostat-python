@@ -21,7 +21,7 @@ def convert(self, units: dict):
 
     # Change data units
     for parameter, unit in units.items():
-        if parameter in temp._columns:
+        if parameter in temp._processed_columns:
             temp._data[parameter] = temp._data[parameter].apply(unit)
 
     # Return class instance
