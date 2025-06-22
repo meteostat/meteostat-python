@@ -78,6 +78,8 @@ def calculate_dwpt(df: pd.DataFrame, col: str) -> pd.DataFrame:
     ) + np.log(relative_humidity / 100.0)
     df[col] = (magnus_const_b * alpha) / (magnus_const_a - alpha)
 
+    df[col] = df[col].round(1)
+
     df[f"{col}_flag"] = df[["temp_flag", "rhum_flag"]].max(axis=1, skipna=True)
 
     return df
