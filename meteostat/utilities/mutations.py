@@ -34,6 +34,10 @@ def filter_time(
     # Get time index
     time = df.index.get_level_values("time")
 
+    # If no time index, return original DataFrame
+    if len(time) == 0:
+        return df
+
     # Filter & return
     return df.loc[(time >= start) & (time <= end)] if start and end else df
 

@@ -12,7 +12,7 @@ The code is licensed under the MIT license.
 """
 
 __appname__ = "meteostat"
-__version__ = "1.7.1"
+__version__ = "1.7.2"
 
 from .interface.base import Base
 from .interface.timeseries import TimeSeries
