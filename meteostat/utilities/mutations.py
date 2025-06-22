@@ -67,7 +67,14 @@ def calculate_dwpt(df: pd.DataFrame, col: str) -> pd.DataFrame:
     """
     Calculate dew point temperature
     """
-    df[col] = df["temp"] - ((100 - df["rhum"]) / 5)
+    a = 17.27
+    b = 237.7  # degrees Celsius
+
+    alpha = ((a * df["temp"]) / (b + df["temp"])) + np.log(df["rhum"] / 100.0)
+    df[col] = (b * alpha) / (a - alpha)
+
+    df[col] = df[col].round(1)
+
     df[f"{col}_flag"] = df[["temp_flag", "rhum_flag"]].max(axis=1, skipna=True)
 
     return df
