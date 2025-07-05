@@ -49,7 +49,7 @@ def monthly(
         List of data providers to use for the query. Defaults to the monthly provider.
     model : bool, optional
         Whether to include model data in the query. Defaults to True.
-    
+
     Returns
     -------
     TimeSeries

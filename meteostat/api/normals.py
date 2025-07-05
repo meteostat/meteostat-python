@@ -42,7 +42,7 @@ def normals(
         List of data providers to use for the query. Defaults to the monthly provider.
     max_missing : int, optional
         Maximum number of missing values allowed in a month to calculate the mean. Defaults to 3.
-    
+
     Returns
     -------
     TimeSeries
