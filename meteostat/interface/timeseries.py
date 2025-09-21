@@ -194,8 +194,9 @@ class TimeSeries(MeteoData):
             if col not in self._data.columns:
                 self._data[col] = pd.NA
                 self._data[col] = self._data[col].astype("Float64")
-                self._data[f"{col}_flag"] = pd.NA
-                self._data[f"{col}_flag"] = self._data[f"{col}_flag"].astype("string")
+            if (flagcol := f"{col}_flag") not in self._data.columns:
+                self._data[flagcol] = pd.NA
+                self._data[flagcol] = self._data[flagcol].astype("string")
 
         # Reorder the DataFrame
         self._data = self._data[
