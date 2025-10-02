@@ -7,10 +7,9 @@ when no weather stations are found near a location.
 The code is licensed under the MIT license.
 """
 
-import pandas as pd
 from datetime import datetime
+import pandas as pd
 from meteostat import Monthly, Hourly, Daily, Normals
-from meteostat.interface.point import Point
 
 
 def test_monthly_no_stations():
@@ -20,7 +19,7 @@ def test_monthly_no_stations():
     # Create an empty DataFrame with station columns
     empty_stations = pd.DataFrame(columns=["id", "latitude", "longitude", "elevation"])
     empty_stations = empty_stations.set_index("id")
-    
+
     # This should not raise AttributeError: 'Monthly' object has no attribute '_types'
     try:
         data = Monthly(empty_stations, start=datetime(2024, 1, 1), end=datetime(2024, 12, 31))
@@ -30,7 +29,7 @@ def test_monthly_no_stations():
         assert len(df) == 0
     except AttributeError as e:
         if "'Monthly' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}")
+            raise AssertionError(f"Bug still present: {e}") from e
         raise
 
 
@@ -40,7 +39,7 @@ def test_hourly_no_stations():
     """
     empty_stations = pd.DataFrame(columns=["id", "latitude", "longitude", "elevation"])
     empty_stations = empty_stations.set_index("id")
-    
+
     try:
         data = Hourly(empty_stations, start=datetime(2024, 1, 1, 0), end=datetime(2024, 1, 1, 23))
         df = data.fetch()
@@ -48,7 +47,7 @@ def test_hourly_no_stations():
         assert len(df) == 0
     except AttributeError as e:
         if "'Hourly' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}")
+            raise AssertionError(f"Bug still present: {e}") from e
         raise
 
 
@@ -58,7 +57,7 @@ def test_daily_no_stations():
     """
     empty_stations = pd.DataFrame(columns=["id", "latitude", "longitude", "elevation"])
     empty_stations = empty_stations.set_index("id")
-    
+
     try:
         data = Daily(empty_stations, start=datetime(2024, 1, 1), end=datetime(2024, 1, 31))
         df = data.fetch()
@@ -66,7 +65,7 @@ def test_daily_no_stations():
         assert len(df) == 0
     except AttributeError as e:
         if "'Daily' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}")
+            raise AssertionError(f"Bug still present: {e}") from e
         raise
 
 
@@ -76,9 +75,10 @@ def test_normals_no_stations():
     """
     empty_stations = pd.DataFrame(columns=["id", "latitude", "longitude", "elevation"])
     empty_stations = empty_stations.set_index("id")
-    
+
     try:
-        # The main bug fix: creating a Normals object with no stations should not raise AttributeError
+        # The main bug fix: creating Normals with no stations
+        # should not raise AttributeError
         data = Normals(empty_stations, start=1991, end=2020)
         # Check that data object was created successfully
         assert isinstance(data, Normals)
@@ -86,5 +86,5 @@ def test_normals_no_stations():
         assert data.count() == 0
     except AttributeError as e:
         if "'Normals' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}")
+            raise AssertionError(f"Bug still present: {e}") from e
         raise
