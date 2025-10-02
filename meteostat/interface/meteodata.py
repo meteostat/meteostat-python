@@ -118,7 +118,7 @@ class MeteoData(Base):
             )
 
         # Empty DataFrame
-        return pd.DataFrame(columns=[*self._types])
+        return pd.DataFrame(columns=self._processed_columns)
 
     # pylint: disable=too-many-branches
     def _resolve_point(

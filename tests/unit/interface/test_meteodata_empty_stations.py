@@ -9,7 +9,7 @@ The code is licensed under the MIT license.
 
 import pandas as pd
 from datetime import datetime
-from meteostat import Monthly, Hourly, Daily
+from meteostat import Monthly, Hourly, Daily, Normals
 from meteostat.interface.point import Point
 
 
@@ -66,5 +66,25 @@ def test_daily_no_stations():
         assert len(df) == 0
     except AttributeError as e:
         if "'Daily' object has no attribute '_types'" in str(e):
+            raise AssertionError(f"Bug still present: {e}")
+        raise
+
+
+def test_normals_no_stations():
+    """
+    Test: Normals class with no stations found
+    """
+    empty_stations = pd.DataFrame(columns=["id", "latitude", "longitude", "elevation"])
+    empty_stations = empty_stations.set_index("id")
+    
+    try:
+        # The main bug fix: creating a Normals object with no stations should not raise AttributeError
+        data = Normals(empty_stations, start=1991, end=2020)
+        # Check that data object was created successfully
+        assert isinstance(data, Normals)
+        assert len(data._stations) == 0
+        assert data.count() == 0
+    except AttributeError as e:
+        if "'Normals' object has no attribute '_types'" in str(e):
             raise AssertionError(f"Bug still present: {e}")
         raise
