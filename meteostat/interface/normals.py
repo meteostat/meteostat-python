@@ -223,7 +223,7 @@ class Normals(MeteoData):
             "tavg",
             pd.to_numeric(
                 temp[["tmin", "tmax"]].dropna(how="any").mean(axis=1),
-                errors='coerce'
+                errors="coerce"
             ).round(1)
         )
 
