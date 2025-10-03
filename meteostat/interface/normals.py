@@ -219,7 +219,12 @@ class Normals(MeteoData):
 
         # Add avg. temperature column
         temp.insert(
-            0, "tavg", temp[["tmin", "tmax"]].dropna(how="any").mean(axis=1).round(1)
+            0,
+            "tavg",
+            pd.to_numeric(
+                temp[["tmin", "tmax"]].dropna(how="any").mean(axis=1),
+                errors='coerce'
+            ).round(1)
         )
 
         # Remove station index if it's a single station
