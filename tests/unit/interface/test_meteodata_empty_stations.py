@@ -27,9 +27,9 @@ def test_monthly_no_stations():
         # Should return an empty DataFrame with the correct columns
         assert isinstance(df, pd.DataFrame)
         assert len(df) == 0
-    except AttributeError as e:
-        if "'Monthly' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}") from e
+    except AttributeError as exception:
+        if "'Monthly' object has no attribute '_types'" in str(exception):
+            raise AssertionError(f"Bug still present: {exception}") from exception
         raise
 
 
@@ -45,9 +45,9 @@ def test_hourly_no_stations():
         df = data.fetch()
         assert isinstance(df, pd.DataFrame)
         assert len(df) == 0
-    except AttributeError as e:
-        if "'Hourly' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}") from e
+    except AttributeError as exception:
+        if "'Hourly' object has no attribute '_types'" in str(exception):
+            raise AssertionError(f"Bug still present: {exception}") from exception
         raise
 
 
@@ -63,9 +63,9 @@ def test_daily_no_stations():
         df = data.fetch()
         assert isinstance(df, pd.DataFrame)
         assert len(df) == 0
-    except AttributeError as e:
-        if "'Daily' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}") from e
+    except AttributeError as exception:
+        if "'Daily' object has no attribute '_types'" in str(exception):
+            raise AssertionError(f"Bug still present: {exception}") from exception
         raise
 
 
@@ -84,7 +84,7 @@ def test_normals_no_stations():
         assert isinstance(data, Normals)
         assert len(data._stations) == 0
         assert data.count() == 0
-    except AttributeError as e:
-        if "'Normals' object has no attribute '_types'" in str(e):
-            raise AssertionError(f"Bug still present: {e}") from e
+    except AttributeError as exception:
+        if "'Normals' object has no attribute '_types'" in str(exception):
+            raise AssertionError(f"Bug still present: {exception}") from exception
         raise
