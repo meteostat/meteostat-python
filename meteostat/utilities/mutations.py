@@ -67,6 +67,10 @@ def calculate_dwpt(df: pd.DataFrame, col: str) -> pd.DataFrame:
     """
     Calculate dew point temperature
     """
+    # Check if required columns exist
+    if "temp" not in df.columns or "rhum" not in df.columns:
+        return df
+
     magnus_const_a = 17.27
     magnus_const_b = 237.7  # degrees Celsius
 
