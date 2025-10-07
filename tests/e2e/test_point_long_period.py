@@ -19,7 +19,7 @@ def test_point_long_period():
     hourly data from a point over a long time period where some stations
     may have missing data for certain years.
 
-    Issue: https://github.com/meteostat/meteostat-python/issues/XXX
+    Issue: https://github.com/meteostat/meteostat-python/issues/208
     """
 
     # Create Point (coordinates from the original issue)
