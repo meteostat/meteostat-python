@@ -34,7 +34,7 @@ jobs:
     
     - name: Run unit tests
       run: |
-        pytest tests/unit/test_point.py tests/unit/test_parsers.py tests/unit/test_units.py -v
+        pytest tests/unit -v
     
     - name: Run integration tests
       run: |
