@@ -14,19 +14,27 @@ import datetime
 import pandas as pd
 import pytz
 from meteostat.api.station import station as get_station
+from meteostat.api.point import Point
 from meteostat.enumerations import Parameter
 from meteostat.typing import Station
 
 
 def parse_station(
-    station: str | Station | List[str | Station] | pd.Index | pd.Series | pd.DataFrame,
+    station: str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series | pd.DataFrame,
 ) -> List[Station]:
     """
     Parse one or multiple station(s) or a geo point
+    
+    Point objects are converted to virtual stations with IDs like $0001, $0002, etc.
+    based on their position in the input list.
     """
     # Return data if it contains station meta data
     if isinstance(station, Station):
         return [station]
+    
+    # Handle Point objects
+    if isinstance(station, Point):
+        return [_point_to_station(station, 1)]
 
     # Convert station identifier(s) to list
     if isinstance(station, pd.Series) or isinstance(station, pd.DataFrame):
@@ -40,10 +48,16 @@ def parse_station(
 
     # Get station meta data
     data = []
+    point_counter = 0
     for s in stations:
         # Append data early if it contains station meta data
-        if isinstance(s, dict):
+        if isinstance(s, Station):
             data.append(s)
+            continue
+        # Handle Point objects
+        if isinstance(s, Point):
+            point_counter += 1
+            data.append(_point_to_station(s, point_counter))
             continue
         # Get station meta data
         meta = get_station(s)
@@ -55,6 +69,35 @@ def parse_station(
 
     # Return station meta data
     return data
+
+
+def _point_to_station(point: Point, index: int) -> Station:
+    """
+    Convert a Point object to a virtual Station object
+    
+    Parameters
+    ----------
+    point : Point
+        The Point object to convert
+    index : int
+        The position in the list of points (1-indexed)
+    
+    Returns
+    -------
+    Station
+        A virtual Station object with an ID like $0001
+    """
+    # Create virtual station ID
+    station_id = f"${index:04d}"
+    
+    # Create Station object with Point as location
+    return Station(
+        id=station_id,
+        location=point,
+        latitude=point.latitude,
+        longitude=point.longitude,
+        elevation=point.elevation,
+    )
 
 
 def parse_time(

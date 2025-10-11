@@ -10,6 +10,7 @@ import pandas as pd
 from meteostat.core.data import data_service
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.typing import Station, Request
+from meteostat.api.point import Point
 from meteostat.utils.parsers import parse_station, parse_time
 
 DEFAULT_PARAMETERS = [
@@ -25,7 +26,7 @@ DEFAULT_PARAMETERS = [
 
 
 def monthly(
-    station: str | Station | List[str | Station] | pd.Index | pd.Series,
+    station: str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series,
     start: Optional[datetime | date],
     end: Optional[datetime | date],
     parameters: List[Parameter] = DEFAULT_PARAMETERS,
@@ -37,8 +38,9 @@ def monthly(
 
     Parameters
     ----------
-    station : str, Station, List[str | Station], pd.Index, pd.Series
-        Weather station(s) to query data for. Can be a single station or a list of stations.
+    station : str, Station, Point, List[str | Station | Point], pd.Index, pd.Series
+        Weather station(s) or Point(s) to query data for. Can be a single station/point or a list.
+        Points are converted to virtual stations with IDs like $0001, $0002, etc.
     start : datetime, date, optional
         Start date for the data query. If None, the earliest available date will be used.
     end : datetime, date, optional
