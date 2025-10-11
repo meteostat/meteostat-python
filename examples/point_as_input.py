@@ -34,9 +34,9 @@ stations = parse_station(point)
 print(f"Result:")
 print(f"  Point converted to virtual station: {stations[0].id}")
 print(
-    f"  Station location: lat={stations[0].location.latitude}, "
-    f"lon={stations[0].location.longitude}, "
-    f"elevation={stations[0].location.elevation}"
+    f"  Station location: lat={stations[0].latitude}, "
+    f"lon={stations[0].longitude}, "
+    f"elevation={stations[0].elevation}"
 )
 print()
 
@@ -60,7 +60,7 @@ print("Result:")
 for i, station in enumerate(stations, 1):
     print(
         f"  Point {i} -> Station ID: {station.id}, "
-        f"Location: ({station.location.latitude}, {station.location.longitude})"
+        f"Location: ({station.latitude}, {station.longitude})"
     )
 print()
 
@@ -75,7 +75,7 @@ print("  # ts = ms.hourly([point1, '10637', point2], ...)")
 print()
 
 # Create a mock Station object to demonstrate mixing
-mock_station = ms.typing.Station(id="10637", location=ms.Point(52, 8, 100))
+mock_station = ms.typing.Station(id="10637", latitude=52, longitude=8, elevation=100)
 stations = parse_station([point1, mock_station, point2])
 print("Result:")
 for station in stations:
@@ -96,26 +96,21 @@ print("Type signatures accept:")
 print("  str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series")
 print()
 
-# Example 5: Show how Station.location works
-print("Example 5: Station.location property")
+# Example 5: Show how Station coordinates work
+print("Example 5: Station coordinates extracted from Point")
 print("-" * 80)
 point = ms.Point(50.110924, 8.682127, 112)
 station = ms.typing.Station(
     id="CUSTOM",
-    location=point,
     latitude=point.latitude,
     longitude=point.longitude,
     elevation=point.elevation,
 )
-print("All Station objects now have a 'location' property that is a Point instance:")
+print("Virtual stations have coordinates extracted from the Point:")
 print(f"  station.id = {station.id}")
-print(
-    f"  station.location = Point({station.location.latitude}, "
-    f"{station.location.longitude}, {station.location.elevation})"
-)
-print(f"  station.location.latitude = {station.location.latitude}")
-print(f"  station.location.longitude = {station.location.longitude}")
-print(f"  station.location.elevation = {station.location.elevation}")
+print(f"  station.latitude = {station.latitude}")
+print(f"  station.longitude = {station.longitude}")
+print(f"  station.elevation = {station.elevation}")
 print()
 
 print("=" * 80)

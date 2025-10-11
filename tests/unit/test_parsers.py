@@ -18,7 +18,6 @@ def test_point_to_station():
     station = _point_to_station(point, 1)
 
     assert station.id == "$0001"
-    assert station.location is point
     assert station.latitude == 50.110924
     assert station.longitude == 8.682127
     assert station.elevation == 112
@@ -49,7 +48,6 @@ def test_point_to_station_without_elevation():
     station = _point_to_station(point, 1)
 
     assert station.id == "$0001"
-    assert station.location is point
     assert station.latitude == 50.0
     assert station.longitude == 8.0
     assert station.elevation is None
@@ -64,15 +62,16 @@ def test_parse_station_with_point():
 
     assert len(stations) == 1
     assert stations[0].id == "$0001"
-    assert stations[0].location is point
+    assert stations[0].latitude == 50.110924
+    assert stations[0].longitude == 8.682127
+    assert stations[0].elevation == 112
 
 
 def test_parse_station_with_station():
     """
     Test parse_station with a Station object
     """
-    point = Point(50.0, 8.0, 100)
-    station = Station(id="TEST01", location=point)
+    station = Station(id="TEST01", latitude=50.0, longitude=8.0, elevation=100)
     stations = parse_station(station)
 
     assert len(stations) == 1
@@ -85,16 +84,16 @@ def test_parse_station_with_mixed_list():
     """
     point1 = Point(50.0, 8.0, 100)
     point2 = Point(51.0, 9.0, 200)
-    station1 = Station(id="TEST01", location=Point(52.0, 10.0, 300))
+    station1 = Station(id="TEST01", latitude=52.0, longitude=10.0, elevation=300)
 
     stations = parse_station([point1, station1, point2])
 
     assert len(stations) == 3
     assert stations[0].id == "$0001"
-    assert stations[0].location is point1
+    assert stations[0].latitude == 50.0
     assert stations[1] is station1
     assert stations[2].id == "$0002"
-    assert stations[2].location is point2
+    assert stations[2].latitude == 51.0
 
 
 def test_parse_station_with_point_list():
@@ -111,6 +110,6 @@ def test_parse_station_with_point_list():
     assert stations[0].id == "$0001"
     assert stations[1].id == "$0002"
     assert stations[2].id == "$0003"
-    assert stations[0].location is point1
-    assert stations[1].location is point2
-    assert stations[2].location is point3
+    assert stations[0].latitude == 50.0
+    assert stations[1].latitude == 51.0
+    assert stations[2].latitude == 52.0

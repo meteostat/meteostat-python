@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-mock black mypy
+    
+    - name: Run black formatter check
+      run: |
+        black --check meteostat tests examples
+    
+    - name: Run unit tests
+      run: |
+        pytest tests/unit -v
+    
+    - name: Run integration tests
+      run: |
+        pytest tests/integration -v

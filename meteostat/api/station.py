@@ -5,7 +5,6 @@ from meteostat.core.logger import logger
 from meteostat.core.network import network_service
 from meteostat.enumerations import TTL
 from meteostat.typing import Station
-from meteostat.api.point import Point
 from meteostat.core.cache import cache_service
 from meteostat.api.stations import stations
 
@@ -29,17 +28,12 @@ def _fetch_station(id: str) -> Optional[dict]:
                     # Extract names
                     station["names"] = station["name"]
                     # Extract location data
-                    latitude = station["location"]["latitude"]
-                    longitude = station["location"]["longitude"]
-                    elevation = station["location"]["elevation"]
-                    # Create Point object for location
-                    station["location"] = Point(latitude, longitude, elevation)
-                    # Also set individual fields for backwards compatibility
-                    station["latitude"] = latitude
-                    station["longitude"] = longitude
-                    station["elevation"] = elevation
+                    station["latitude"] = station["location"]["latitude"]
+                    station["longitude"] = station["location"]["longitude"]
+                    station["elevation"] = station["location"]["elevation"]
                     # Remove unused data
                     station.pop("name", None)
+                    station.pop("location", None)
                     station.pop("active", None)
                     # Return station dictionary
                     return station

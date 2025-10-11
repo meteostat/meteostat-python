@@ -4,7 +4,7 @@ Meteostat Typing
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, List, Literal, Optional, TYPE_CHECKING
+from typing import Callable, List, Literal, Optional
 
 from meteostat.core.validator import Validator
 from meteostat.enumerations import (
@@ -16,9 +16,6 @@ from meteostat.enumerations import (
     Unit,
 )
 
-if TYPE_CHECKING:
-    from meteostat.api.point import Point
-
 
 @dataclass
 class Station:
@@ -26,26 +23,19 @@ class Station:
     A weather station
 
     For virtual stations created from Point objects, most fields will be None
-    except for id and location.
+    except for id, latitude, longitude, and elevation.
     """
 
     id: str  # The Meteostat station ID (e.g., "10637" or "$0001" for virtual stations)
-    location: Optional["Point"] = None  # The location as a Point object
     names: Optional[dict[str, str]] = (
         None  # The name of the station in different languages
     )
     country: Optional[str] = None  # ISO 3166-1 alpha-2 country code
     region: Optional[str] = None  # ISO 3166-2 state or region code
     identifiers: Optional[dict[str, str]] = None  # Provider identifiers
-    latitude: Optional[float] = (
-        None  # The latitude in degrees (deprecated: use location)
-    )
-    longitude: Optional[float] = (
-        None  # The longitude in degrees (deprecated: use location)
-    )
-    elevation: Optional[int] = (
-        None  # The elevation in meters (deprecated: use location)
-    )
+    latitude: Optional[float] = None  # The latitude in degrees
+    longitude: Optional[float] = None  # The longitude in degrees
+    elevation: Optional[int] = None  # The elevation in meters
     timezone: Optional[str] = None  # The IANA timezone name
 
     @property

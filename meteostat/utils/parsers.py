@@ -98,10 +98,9 @@ def _point_to_station(point: Point, index: int) -> Station:
     # Create virtual station ID
     station_id = f"${index:04d}"
 
-    # Create Station object with Point as location
+    # Create Station object with extracted coordinates
     return Station(
         id=station_id,
-        location=point,
         latitude=point.latitude,
         longitude=point.longitude,
         elevation=point.elevation,
