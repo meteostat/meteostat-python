@@ -13,12 +13,13 @@ from meteostat.core.schema import schema_service
 from meteostat.api.monthly import DEFAULT_PARAMETERS, monthly
 from meteostat.api.timeseries import TimeSeries
 from meteostat.typing import Station
+from meteostat.api.point import Point
 from meteostat.utils.mutations import reshape_by_source
 from meteostat.utils.parsers import parse_year
 
 
 def normals(
-    station: str | Station | List[str | Station] | pd.Index | pd.Series,
+    station: str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series,
     start: int = 1961,
     end: int = 1990,
     parameters: List[Parameter] = DEFAULT_PARAMETERS,
@@ -30,8 +31,9 @@ def normals(
 
     Parameters
     ----------
-    station : str, Station, List[str | Station], pd.Index, pd.Series
-        Weather station(s) to query data for. Can be a single station or a list of stations.
+    station : str, Station, Point, List[str | Station | Point], pd.Index, pd.Series
+        Weather station(s) or Point(s) to query data for. Can be a single station/point or a list.
+        Points are converted to virtual stations with IDs like $0001, $0002, etc.
     start : int, optional
         Start year for the data query. Defaults to 1961.
     end : int, optional
