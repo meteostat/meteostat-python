@@ -20,18 +20,26 @@ from meteostat.typing import Station
 
 
 def parse_station(
-    station: str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series | pd.DataFrame,
+    station: (
+        str
+        | Station
+        | Point
+        | List[str | Station | Point]
+        | pd.Index
+        | pd.Series
+        | pd.DataFrame
+    ),
 ) -> List[Station]:
     """
     Parse one or multiple station(s) or a geo point
-    
+
     Point objects are converted to virtual stations with IDs like $0001, $0002, etc.
     based on their position in the input list.
     """
     # Return data if it contains station meta data
     if isinstance(station, Station):
         return [station]
-    
+
     # Handle Point objects
     if isinstance(station, Point):
         return [_point_to_station(station, 1)]
@@ -74,14 +82,14 @@ def parse_station(
 def _point_to_station(point: Point, index: int) -> Station:
     """
     Convert a Point object to a virtual Station object
-    
+
     Parameters
     ----------
     point : Point
         The Point object to convert
     index : int
         The position in the list of points (1-indexed)
-    
+
     Returns
     -------
     Station
@@ -89,7 +97,7 @@ def _point_to_station(point: Point, index: int) -> Station:
     """
     # Create virtual station ID
     station_id = f"${index:04d}"
-    
+
     # Create Station object with Point as location
     return Station(
         id=station_id,
