@@ -5,12 +5,13 @@ import pandas as pd
 from meteostat.typing import AbstractStation, Station
 
 
-class StationList():
+class StationList:
     """
     A list of stations.
 
     This class is used to represent a list of stations, which can be filtered by various parameters.
     """
+
     _stations: List[Station | AbstractStation]
     _validated = False  # Indicates whether the station list has been validated
 
@@ -25,7 +26,7 @@ class StationList():
             List[Station]: A list of Station objects.
         """
         return self._stations
-    
+
     def count(self) -> int:
         """
         Get the number of stations in the list.
