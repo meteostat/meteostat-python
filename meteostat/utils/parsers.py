@@ -29,7 +29,7 @@ def parse_station(
         | pd.Series
         | pd.DataFrame
     ),
-) -> tuple[List[Station], bool]:
+) -> Station | List[Station]:
     """
     Parse one or multiple station(s) or a geo point
 
@@ -38,36 +38,33 @@ def parse_station(
 
     Returns
     -------
-    tuple[List[Station], bool]
-        A tuple containing:
-        - List of Station objects
-        - Boolean indicating if input was provided as an iterable (True for list, False for single item)
+    Station | List[Station]
+        - Returns a single Station object for single-station input (str, Station, Point)
+        - Returns a list of Station objects for multi-station input (list, pd.Index, etc.)
     """
-    # Track if input was an iterable
-    multi_station = False
-
-    # Return data if it contains station meta data
+    # Return data if it contains station meta data (single station)
     if isinstance(station, Station):
-        return [station], multi_station
+        return station
 
-    # Handle Point objects
+    # Handle Point objects (single point)
     if isinstance(station, Point):
-        return [_point_to_station(station, 1)], multi_station
+        return _point_to_station(station, 1)
 
-    # Convert station identifier(s) to list
+    # Handle string (single station ID)
+    if isinstance(station, str):
+        meta = get_station(station)
+        if meta is None:
+            raise ValueError(f'Weather station with ID "{station}" could not be found')
+        return meta
+
+    # Convert station identifier(s) to list (multi-station)
     if isinstance(station, pd.Series) or isinstance(station, pd.DataFrame):
         stations = station.index.tolist()
-        multi_station = True
     elif isinstance(station, pd.Index):
         stations = station.tolist()
-        multi_station = True
-    elif isinstance(station, str):
-        stations = [station]
-        multi_station = False
     else:
         # It's a list
         stations = station
-        multi_station = True
 
     # Get station meta data
     data = []
@@ -90,8 +87,8 @@ def parse_station(
         # Append station meta data
         data.append(meta)
 
-    # Return station meta data
-    return data, multi_station
+    # Return list of station meta data
+    return data
 
 
 def _point_to_station(point: Point, index: int) -> Station:

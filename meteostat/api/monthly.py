@@ -57,7 +57,16 @@ def monthly(
     TimeSeries
         A TimeSeries object containing the monthly data for the specified stations and parameters.
     """
-    stations, multi_station = parse_station(station)
+    parsed_stations = parse_station(station)
+
+    # Determine if multi-station and convert to list
+    if isinstance(parsed_stations, list):
+        stations = parsed_stations
+        multi_station = True
+    else:
+        stations = [parsed_stations]
+        multi_station = False
+
     req = Request(
         granularity=Granularity.MONTHLY,
         providers=providers,
