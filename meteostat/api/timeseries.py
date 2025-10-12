@@ -245,6 +245,10 @@ class TimeSeries:
                 self.stations_df[["latitude", "longitude", "elevation"]], on="station"
             )
 
+        # Remove station index level if only one station
+        if len(self.stations) == 1 and "station" in df.index.names:
+            df = df.droplevel("station")
+
         return df.sort_index()
 
     def count(self, parameter: Parameter | str) -> int:
