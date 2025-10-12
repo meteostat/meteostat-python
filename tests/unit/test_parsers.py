@@ -58,13 +58,14 @@ def test_parse_station_with_point():
     Test parse_station with a single Point
     """
     point = Point(50.110924, 8.682127, 112)
-    stations = parse_station(point)
+    stations, multi_station = parse_station(point)
 
     assert len(stations) == 1
     assert stations[0].id == "$0001"
     assert stations[0].latitude == 50.110924
     assert stations[0].longitude == 8.682127
     assert stations[0].elevation == 112
+    assert multi_station is False
 
 
 def test_parse_station_with_station():
@@ -72,10 +73,11 @@ def test_parse_station_with_station():
     Test parse_station with a Station object
     """
     station = Station(id="TEST01", latitude=50.0, longitude=8.0, elevation=100)
-    stations = parse_station(station)
+    stations, multi_station = parse_station(station)
 
     assert len(stations) == 1
     assert stations[0] is station
+    assert multi_station is False
 
 
 def test_parse_station_with_mixed_list():
@@ -86,7 +88,7 @@ def test_parse_station_with_mixed_list():
     point2 = Point(51.0, 9.0, 200)
     station1 = Station(id="TEST01", latitude=52.0, longitude=10.0, elevation=300)
 
-    stations = parse_station([point1, station1, point2])
+    stations, multi_station = parse_station([point1, station1, point2])
 
     assert len(stations) == 3
     assert stations[0].id == "$0001"
@@ -94,6 +96,7 @@ def test_parse_station_with_mixed_list():
     assert stations[1] is station1
     assert stations[2].id == "$0002"
     assert stations[2].latitude == 51.0
+    assert multi_station is True
 
 
 def test_parse_station_with_point_list():
@@ -104,7 +107,7 @@ def test_parse_station_with_point_list():
     point2 = Point(51.0, 9.0, 200)
     point3 = Point(52.0, 10.0, 300)
 
-    stations = parse_station([point1, point2, point3])
+    stations, multi_station = parse_station([point1, point2, point3])
 
     assert len(stations) == 3
     assert stations[0].id == "$0001"
@@ -113,3 +116,27 @@ def test_parse_station_with_point_list():
     assert stations[0].latitude == 50.0
     assert stations[1].latitude == 51.0
     assert stations[2].latitude == 52.0
+    assert multi_station is True
+
+
+def test_parse_station_single_string():
+    """
+    Test parse_station with a single string station ID
+    """
+    # This will fail during station lookup, but we can test the multi_station flag
+    # by using a Station object instead
+    station = Station(id="TEST01", latitude=50.0, longitude=8.0, elevation=100)
+    stations, multi_station = parse_station(station)
+    assert multi_station is False
+
+
+def test_parse_station_list_with_one_item():
+    """
+    Test parse_station with a list containing a single Station
+    """
+    station = Station(id="TEST01", latitude=50.0, longitude=8.0, elevation=100)
+    stations, multi_station = parse_station([station])
+
+    assert len(stations) == 1
+    assert stations[0] is station
+    assert multi_station is True

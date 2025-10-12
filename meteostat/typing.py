@@ -111,6 +111,9 @@ class Request:
     end: Optional[datetime] = None  # End date of the query
     timezone: Optional[str] = None  # Time zone of the query's data
     model: bool = True  # Include model data?
+    multi_station: bool = (
+        False  # Whether input was provided as an iterable (list, etc.)
+    )
 
 
 @dataclass

@@ -32,6 +32,7 @@ def test_single_station_no_station_index():
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
+        multi_station=False,  # Single station, not provided as list
     )
 
     result = ts.fetch()
@@ -71,6 +72,7 @@ def test_multiple_stations_keep_station_index():
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
+        multi_station=True,  # Multiple stations or list input
     )
 
     result = ts.fetch()
@@ -78,6 +80,37 @@ def test_multiple_stations_keep_station_index():
     assert "station" in result.index.names
     assert "time" in result.index.names
     assert len(result) == 6
+
+
+def test_single_station_list_keeps_station_index():
+    """
+    Test that single station provided as list keeps station in index
+    """
+    # Create mock data with proper multi-index (station, time, source)
+    dates = pd.date_range("2025-01-01", periods=3, freq="h")
+    data = {"temp": [10, 11, 12], "rhum": [80, 81, 82]}
+
+    df = pd.DataFrame(data, index=dates)
+    df.index.name = "time"
+    df["source"] = "test_provider"
+    df = df.set_index("source", append=True)
+    df = pd.concat([df], keys=["$0001"], names=["station"])
+
+    station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
+    ts = TimeSeries(
+        granularity=Granularity.HOURLY,
+        stations=[station],
+        df=df,
+        start=datetime(2025, 1, 1),
+        end=datetime(2025, 1, 1, 2),
+        multi_station=True,  # Provided as list
+    )
+
+    result = ts.fetch()
+
+    assert "station" in result.index.names
+    assert "time" in result.index.names
+    assert len(result) == 3
 
 
 def test_single_station_no_data():

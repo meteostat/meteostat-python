@@ -176,6 +176,7 @@ class DataService:
             req.start,
             req.end,
             req.timezone,
+            req.multi_station,
         )
 
         # Filter data & return

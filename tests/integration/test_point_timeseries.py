@@ -16,7 +16,7 @@ def test_hourly_point_conversion():
     Test that Point is properly converted when passed to hourly function
     """
     point = ms.Point(50.110924, 8.682127, 112)
-    stations = parse_station(point)
+    stations, multi_station = parse_station(point)
 
     # Verify that the station was created with ID $0001
     assert len(stations) == 1
@@ -24,6 +24,7 @@ def test_hourly_point_conversion():
     assert stations[0].latitude == 50.110924
     assert stations[0].longitude == 8.682127
     assert stations[0].elevation == 112
+    assert multi_station is False
 
 
 def test_daily_point_conversion():
@@ -31,13 +32,14 @@ def test_daily_point_conversion():
     Test that Point is properly converted when passed to daily function
     """
     point = ms.Point(50.110924, 8.682127, 112)
-    stations = parse_station(point)
+    stations, multi_station = parse_station(point)
 
     # Verify that the station was created with ID $0001
     assert len(stations) == 1
     assert stations[0].id == "$0001"
     assert stations[0].latitude == 50.110924
     assert stations[0].longitude == 8.682127
+    assert multi_station is False
 
 
 def test_monthly_point_conversion():
@@ -45,13 +47,14 @@ def test_monthly_point_conversion():
     Test that Point is properly converted when passed to monthly function
     """
     point = ms.Point(50.110924, 8.682127, 112)
-    stations = parse_station(point)
+    stations, multi_station = parse_station(point)
 
     # Verify that the station was created with ID $0001
     assert len(stations) == 1
     assert stations[0].id == "$0001"
     assert stations[0].latitude == 50.110924
     assert stations[0].longitude == 8.682127
+    assert multi_station is False
 
 
 def test_normals_point_conversion():
@@ -59,13 +62,14 @@ def test_normals_point_conversion():
     Test that Point is properly converted when passed to normals function
     """
     point = ms.Point(50.110924, 8.682127, 112)
-    stations = parse_station(point)
+    stations, multi_station = parse_station(point)
 
     # Verify that the station was created with ID $0001
     assert len(stations) == 1
     assert stations[0].id == "$0001"
     assert stations[0].latitude == 50.110924
     assert stations[0].longitude == 8.682127
+    assert multi_station is False
 
 
 def test_multiple_points_conversion():
@@ -76,7 +80,7 @@ def test_multiple_points_conversion():
     point2 = ms.Point(51.0, 9.0, 200)
     point3 = ms.Point(52.0, 10.0, 300)
 
-    stations = parse_station([point1, point2, point3])
+    stations, multi_station = parse_station([point1, point2, point3])
 
     # Verify that stations were created with IDs $0001, $0002, $0003
     assert len(stations) == 3
@@ -86,6 +90,7 @@ def test_multiple_points_conversion():
     assert stations[0].latitude == 50.0
     assert stations[1].latitude == 51.0
     assert stations[2].latitude == 52.0
+    assert multi_station is True
 
 
 def test_mixed_stations_and_points_conversion():
@@ -99,7 +104,7 @@ def test_mixed_stations_and_points_conversion():
     )
     point2 = ms.Point(52.0, 10.0, 300)
 
-    stations = parse_station([point1, station1, point2])
+    stations, multi_station = parse_station([point1, station1, point2])
 
     # Verify that Points were converted to virtual stations and regular station was preserved
     assert len(stations) == 3
@@ -108,3 +113,4 @@ def test_mixed_stations_and_points_conversion():
     assert stations[1].id == "TEST01"
     assert stations[2].id == "$0002"
     assert stations[2].latitude == 52.0
+    assert multi_station is True

@@ -29,30 +29,45 @@ def parse_station(
         | pd.Series
         | pd.DataFrame
     ),
-) -> List[Station]:
+) -> tuple[List[Station], bool]:
     """
     Parse one or multiple station(s) or a geo point
 
     Point objects are converted to virtual stations with IDs like $0001, $0002, etc.
     based on their position in the input list.
+
+    Returns
+    -------
+    tuple[List[Station], bool]
+        A tuple containing:
+        - List of Station objects
+        - Boolean indicating if input was provided as an iterable (True for list, False for single item)
     """
+    # Track if input was an iterable
+    multi_station = False
+
     # Return data if it contains station meta data
     if isinstance(station, Station):
-        return [station]
+        return [station], multi_station
 
     # Handle Point objects
     if isinstance(station, Point):
-        return [_point_to_station(station, 1)]
+        return [_point_to_station(station, 1)], multi_station
 
     # Convert station identifier(s) to list
     if isinstance(station, pd.Series) or isinstance(station, pd.DataFrame):
         stations = station.index.tolist()
+        multi_station = True
     elif isinstance(station, pd.Index):
         stations = station.tolist()
+        multi_station = True
     elif isinstance(station, str):
         stations = [station]
+        multi_station = False
     else:
+        # It's a list
         stations = station
+        multi_station = True
 
     # Get station meta data
     data = []
@@ -76,7 +91,7 @@ def parse_station(
         data.append(meta)
 
     # Return station meta data
-    return data
+    return data, multi_station
 
 
 def _point_to_station(point: Point, index: int) -> Station:

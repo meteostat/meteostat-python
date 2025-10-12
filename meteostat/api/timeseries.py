@@ -28,6 +28,7 @@ class TimeSeries:
     start: Optional[datetime] = None
     end: Optional[datetime] = None
     timezone: Optional[str] = None
+    multi_station: bool = False
 
     _df: Optional[pd.DataFrame] = None
 
@@ -39,10 +40,12 @@ class TimeSeries:
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
+        multi_station: bool = False,
     ) -> None:
         self.granularity = granularity
         self.stations = stations
         self.timezone = timezone
+        self.multi_station = multi_station
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -245,8 +248,8 @@ class TimeSeries:
                 self.stations_df[["latitude", "longitude", "elevation"]], on="station"
             )
 
-        # Remove station index level if only one station
-        if len(self.stations) == 1 and "station" in df.index.names:
+        # Remove station index level if not a multi-station query
+        if not self.multi_station and "station" in df.index.names:
             df = df.droplevel("station")
 
         return df.sort_index()
