@@ -28,24 +28,25 @@ class TimeSeries:
     start: Optional[datetime] = None
     end: Optional[datetime] = None
     timezone: Optional[str] = None
-    multi_station: bool = False
+    _multi_station: bool = False
 
     _df: Optional[pd.DataFrame] = None
 
     def __init__(
         self,
         granularity: Granularity,
+        original_stations: Station | List[Station],
         stations: List[Station],
         df: Optional[pd.DataFrame],
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
-        multi_station: bool = False,
     ) -> None:
         self.granularity = granularity
         self.stations = stations
         self.timezone = timezone
-        self.multi_station = multi_station
+        # Determine if multi-station based on whether original input was a list
+        self._multi_station = isinstance(original_stations, list)
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -249,7 +250,7 @@ class TimeSeries:
             )
 
         # Remove station index level if not a multi-station query
-        if not self.multi_station and "station" in df.index.names:
+        if not self._multi_station and "station" in df.index.names:
             df = df.droplevel("station")
 
         return df.sort_index()

@@ -62,23 +62,14 @@ def daily(
     """
     parsed_stations = parse_station(station)
 
-    # Determine if multi-station and convert to list
-    if isinstance(parsed_stations, list):
-        stations = parsed_stations
-        multi_station = True
-    else:
-        stations = [parsed_stations]
-        multi_station = False
-
     req = Request(
         granularity=Granularity.DAILY,
         providers=providers,
         parameters=parameters,
-        stations=stations,
+        stations=parsed_stations,
         start=parse_time(start),
         end=parse_time(end, is_end=True),
         model=model,
-        multi_station=multi_station,
     )
 
     return data_service.fetch(req)

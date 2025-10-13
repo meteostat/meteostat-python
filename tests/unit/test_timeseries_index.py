@@ -28,11 +28,11 @@ def test_single_station_no_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
+        original_stations=station,  # Single station, not provided as list
         stations=[station],
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
-        multi_station=False,  # Single station, not provided as list
     )
 
     result = ts.fetch()
@@ -68,11 +68,11 @@ def test_multiple_stations_keep_station_index():
 
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
+        original_stations=[station1, station2],  # Multiple stations or list input
         stations=[station1, station2],
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
-        multi_station=True,  # Multiple stations or list input
     )
 
     result = ts.fetch()
@@ -99,11 +99,11 @@ def test_single_station_list_keeps_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
+        original_stations=[station],  # Provided as list
         stations=[station],
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
-        multi_station=True,  # Provided as list
     )
 
     result = ts.fetch()
@@ -120,6 +120,7 @@ def test_single_station_no_data():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
+        original_stations=station,
         stations=[station],
         df=None,
         start=datetime(2025, 1, 1),

@@ -106,14 +106,11 @@ class Request:
     granularity: Granularity  # Query's time series granularity
     providers: List[Provider]  # Providers to query
     parameters: List[Parameter]  # Schema of the query's data
-    stations: List[Station]  # Stations to query
+    stations: Station | List[Station]  # Station(s) to query
     start: Optional[datetime] = None  # Start date of the query
     end: Optional[datetime] = None  # End date of the query
     timezone: Optional[str] = None  # Time zone of the query's data
     model: bool = True  # Include model data?
-    multi_station: bool = (
-        False  # Whether input was provided as an iterable (list, etc.)
-    )
 
 
 @dataclass
