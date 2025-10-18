@@ -139,9 +139,7 @@ class DataService:
         Load meteorological time series data from different providers
         """
         # Convert stations to list if single Station
-        stations = (
-            req.station if isinstance(req.station, list) else [req.station]
-        )
+        stations = req.station if isinstance(req.station, list) else [req.station]
 
         logger.debug(
             f"{req.granularity} time series requested for {len(stations)} station(s)"
