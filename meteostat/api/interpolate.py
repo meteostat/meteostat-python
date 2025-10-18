@@ -93,15 +93,17 @@ def interpolate(
     )
 
     # Resolve method to a callable
+    method_func: Callable[[pd.DataFrame, TimeSeries, Point], pd.DataFrame]
     if isinstance(method, str):
-        method_func = METHOD_MAP.get(method.lower())
-        if method_func is None:
+        resolved = METHOD_MAP.get(method.lower())
+        if resolved is None:
             raise ValueError(
                 f"Unknown method '{method}'. "
                 f"Valid methods are: {', '.join(METHOD_MAP.keys())}"
             )
+        method_func = resolved  # type: ignore[assignment]
     else:
-        method_func = method
+        method_func = method  # type: ignore[assignment]
 
     # Interpolate
     df = method_func(df, ts, point)
