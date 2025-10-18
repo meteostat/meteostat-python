@@ -21,24 +21,31 @@ from meteostat.enumerations import (
 class Station:
     """
     A weather station
+
+    For virtual stations created from Point objects, most fields will be None
+    except for id, latitude, longitude, and elevation.
     """
 
-    id: str  # The Meteostat station ID
-    names: dict[str, str]  # The name of the station in different languages
-    country: str  # ISO 3166-1 alpha-2 country code
-    region: str  # ISO 3166-2 state or region code
-    identifiers: dict[str, str]  # Provider identifiers
-    latitude: float  # The latitude in degrees
-    longitude: float  # The longitude in degrees
-    elevation: int  # The elevation in meters
-    timezone: str  # The IANA timezone name
+    id: str  # The Meteostat station ID (e.g., "10637" or "$0001" for virtual stations)
+    names: Optional[dict[str, str]] = (
+        None  # The name of the station in different languages
+    )
+    country: Optional[str] = None  # ISO 3166-1 alpha-2 country code
+    region: Optional[str] = None  # ISO 3166-2 state or region code
+    identifiers: Optional[dict[str, str]] = None  # Provider identifiers
+    latitude: Optional[float] = None  # The latitude in degrees
+    longitude: Optional[float] = None  # The longitude in degrees
+    elevation: Optional[int] = None  # The elevation in meters
+    timezone: Optional[str] = None  # The IANA timezone name
 
     @property
     def name(self) -> str:
         """
         The English name of the station
         """
-        return self.names["en"]
+        if self.names and "en" in self.names:
+            return self.names["en"]
+        return self.id
 
 
 @dataclass
@@ -99,7 +106,7 @@ class Request:
     granularity: Granularity  # Query's time series granularity
     providers: List[Provider]  # Providers to query
     parameters: List[Parameter]  # Schema of the query's data
-    stations: List[Station]  # Stations to query
+    station: Station | List[Station]  # Station(s) to query
     start: Optional[datetime] = None  # Start date of the query
     end: Optional[datetime] = None  # End date of the query
     timezone: Optional[str] = None  # Time zone of the query's data
