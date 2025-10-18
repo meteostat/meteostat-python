@@ -29,7 +29,7 @@ def test_single_station_no_station_index():
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
         original_stations=station,  # Single station, not provided as list
-        stations=[station],
+        station=[station],
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
@@ -69,7 +69,7 @@ def test_multiple_stations_keep_station_index():
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
         original_stations=[station1, station2],  # Multiple stations or list input
-        stations=[station1, station2],
+        station=[station1, station2],
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
@@ -100,7 +100,7 @@ def test_single_station_list_keeps_station_index():
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
         original_stations=[station],  # Provided as list
-        stations=[station],
+        station=[station],
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
@@ -121,7 +121,7 @@ def test_single_station_no_data():
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
         original_stations=station,
-        stations=[station],
+        station=[station],
         df=None,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),

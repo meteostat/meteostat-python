@@ -59,28 +59,64 @@ def normals(
             return np.nan
         return group.mean()
 
+    # Fetch monthly data for the specified stations and parameters
     ts = monthly(
         station, parse_year(start), parse_year(end, True), parameters, providers
     )
-
     df = ts.fetch(sources=True)
 
+    # Add station level if only a single station is provided
+    if not ts._multi_station:
+        df = pd.concat([df], keys=[ts.stations[0].id], names=["station"])
+
+    # Extract month from time index
     df["month"] = df.index.get_level_values("time").month
-    df = df.groupby(["station", "month"]).agg(_mean)
+    
+    # Create aggregation functions for different column types
+    agg_funcs = {}
+    for col in df.columns:
+        if col.endswith('_source'):
+            # For source columns, concatenate unique values
+            agg_funcs[col] = lambda x: ', '.join(x.dropna().unique())
+        elif col == 'txmx':
+            # For temperature maximum, use max function
+            agg_funcs[col] = lambda x: x.max() if not x.isna().all() else np.nan
+        elif col == 'txmn':
+            # For temperature minimum, use min function
+            agg_funcs[col] = lambda x: x.min() if not x.isna().all() else np.nan
+        else:
+            # For data columns, use the mean function
+            agg_funcs[col] = _mean
+    
+    # Apply aggregation functions
+    df = df.groupby(["station", "month"]).agg(agg_funcs)
     df = df.rename_axis(index={"month": "time"})
 
-    df = schema_service.format(df, Granularity.NORMALS, parameters)
+    # Separate parameter columns from source columns for formatting
+    param_cols = [str(param) for param in parameters if str(param) in df.columns]
+    source_cols = [col for col in df.columns if col.endswith('_source')]
+    
+    # Format only the parameter columns
+    if param_cols:
+        df_data = schema_service.format(df[param_cols], Granularity.NORMALS)
+        # Combine formatted parameter columns with unformatted source columns
+        if source_cols:
+            df = pd.concat([df_data, df[source_cols]], axis=1)
+        else:
+            df = df_data
 
+    # Reshape data by source for each station
     df_fragments = []
-
     for s in df.index.get_level_values("station").unique():
-        fragment = reshape_by_source(df)
+        station_df = df.loc[s]
+        fragment = reshape_by_source(station_df)
         fragment = pd.concat([fragment], keys=[s], names=["station"])
         df_fragments.append(fragment)
 
+    # Return the final TimeSeries object
     return TimeSeries(
         granularity=Granularity.NORMALS,
-        stations=ts.stations,
+        station=ts.stations if ts._multi_station else ts.stations[0],
         df=pd.concat(df_fragments),
         start=ts.start,
         end=ts.end,

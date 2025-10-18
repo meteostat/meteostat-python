@@ -63,13 +63,11 @@ def hourly(
     TimeSeries
         A TimeSeries object containing the hourly data for the specified stations and parameters.
     """
-    parsed_stations = parse_station(station)
-
     req = Request(
         granularity=Granularity.HOURLY,
         providers=providers,
         parameters=parameters,
-        stations=parsed_stations,
+        station=parse_station(station),
         start=parse_time(start, timezone),
         end=parse_time(end, timezone, is_end=True),
         timezone=timezone,

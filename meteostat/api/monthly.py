@@ -57,13 +57,11 @@ def monthly(
     TimeSeries
         A TimeSeries object containing the monthly data for the specified stations and parameters.
     """
-    parsed_stations = parse_station(station)
-
     req = Request(
         granularity=Granularity.MONTHLY,
         providers=providers,
         parameters=parameters,
-        stations=parsed_stations,
+        station=parse_station(station),
         start=parse_time(start),
         end=parse_time(end, is_end=True),
         model=model,
