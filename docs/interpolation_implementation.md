@@ -27,11 +27,12 @@ Four interpolation methods are now available:
 - Incorporates elevation differences in distance calculation
 - Good for smoothing data across multiple stations
 
-#### Machine Learning (ML)
-- Adaptive k-nearest neighbors approach
-- Automatically adjusts weighting based on distance distribution
-- More sophisticated than simple IDW
-- Better for complex terrain
+#### Random Forest Regression (RFR)
+- Uses scikit-learn's RandomForestRegressor
+- Trains on spatial features (lat, lon, elevation)
+- Captures complex non-linear spatial relationships
+- Best accuracy for complex terrain
+- Requires: `pip install scikit-learn`
 
 ### 2. API Design
 
@@ -71,7 +72,7 @@ meteostat/
 ├── interpolation/
 │   ├── nearest.py              # Nearest neighbor (existing)
 │   ├── idw.py                  # Inverse Distance Weighting (new)
-│   ├── ml.py                   # Machine learning approach (new)
+│   ├── rfr.py                  # Random Forest Regression (new)
 │   ├── auto.py                 # Auto selection (new)
 │   └── lapserate.py            # Elevation adjustment (updated for numpy 2.0)
 docs/
@@ -165,15 +166,15 @@ See `docs/interpolation_research.md` for detailed research notes.
 
 1. **Data Availability**: Interpolation quality depends on nearby station availability
 2. **Distance Limits**: Best results when stations are within 50km
-3. **Elevation**: Large elevation differences (>500m) may reduce accuracy
-4. **ML Method**: Currently uses simplified k-NN; future versions could add scikit-learn integration
+3. **Elevation**: Large elevation differences (>500m) may reduce accuracy for distance-based methods
+4. **RFR Method**: Requires scikit-learn installation; needs at least 2 stations for training
 
 ## Future Enhancements
 
 Potential improvements for future versions:
 
-1. **Advanced ML**: Integration with scikit-learn for Random Forest models
-2. **Kriging**: Add geostatistical interpolation methods
+1. **Advanced RFR**: Add cross-validation and hyperparameter tuning options
+2. **Kriging**: Add geostatistical interpolation methods  
 3. **Temporal**: Consider temporal patterns in interpolation
 4. **Validation**: Cross-validation tools for method selection
 5. **Caching**: Cache interpolation results for performance

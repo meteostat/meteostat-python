@@ -67,41 +67,49 @@ effective_distance = sqrt(horizontal_distance^2 + (elevation_diff * elevation_we
 - Shepard, D. (1968). "A two-dimensional interpolation function for irregularly-spaced data". Proceedings of the 1968 ACM National Conference.
 - Ly, S., Charles, C., & Degré, A. (2011). "Geostatistical interpolation of daily rainfall at catchment scale: the use of several variogram models in the Ourthe and Ambleve catchments, Belgium". Hydrology and Earth System Sciences, 15(7), 2259-2274.
 
-### 3. Machine Learning-Based Interpolation
+### 3. Random Forest Regression (RFR) Interpolation
 
-**Method**: Uses a Random Forest Regressor trained on spatial features to predict weather values.
+**Method**: Uses scikit-learn's RandomForestRegressor trained on spatial features to predict weather values at unmeasured locations.
 
 **Features**:
 - Latitude
 - Longitude  
-- Elevation
-- Distance to nearest stations
-- Values from k-nearest stations
-- Temporal features (day of year, hour)
+- Elevation (when available)
 
 **Model**: Random Forest Regressor
-- Handles non-linear relationships
+- Ensemble of decision trees that vote on predictions
+- Handles non-linear relationships naturally
 - Robust to outliers
 - Can capture complex spatial patterns
-- Works well with limited data
+- No assumptions about data distribution
+
+**Training Approach**:
+- For each time step, train a separate model for each weather parameter
+- Use nearby station data as training samples
+- Features: geographic coordinates and elevation
+- Target: weather parameter value at that location
 
 **Advantages**:
-- Can capture complex spatial relationships
-- Automatically learns importance of elevation
-- Can incorporate additional features
-- Generally more accurate than simple methods
+- Can capture complex spatial relationships that linear methods miss
+- Automatically learns importance of elevation and location
+- Handles non-stationarity in spatial patterns
+- Generally more accurate than distance-based methods
+- Works well even with limited training data
 
 **Disadvantages**:
-- Requires training data
-- More computationally expensive
-- Less interpretable
-- May require tuning
+- Requires scikit-learn installation
+- More computationally expensive than IDW
+- Less interpretable than distance-based methods
+- Requires at least 2 stations for training
 
-**Use Case**: When high accuracy is needed and computational cost is acceptable.
+**Use Case**: When highest accuracy is needed and computational cost is acceptable. Especially useful in complex terrain.
+
+**Implementation Note**: This method is loaded dynamically so that scikit-learn remains an optional dependency. Users only need to install it if they want to use RFR interpolation.
 
 **References**:
-- Hengl, T., Nussbaum, M., Wright, M. N., Heuvelink, G. B., & Gräler, B. (2018). "Random forest as a generic framework for predictive modeling of spatial and spatio-temporal variables". PeerJ, 6, e5518.
-- Sekulić, A., Kilibarda, M., Heuvelink, G. B., Nikolić, M., & Bajat, B. (2020). "Random Forest Spatial Interpolation". Remote Sensing, 12(10), 1687.
+- Hengl, T., Nussbaum, M., Wright, M. N., Heuvelink, G. B., & Gräler, B. (2018). "Random forest as a generic framework for predictive modeling of spatial and spatio-temporal variables". PeerJ, 6, e5518. https://doi.org/10.7717/peerj.5518
+- Sekulić, A., Kilibarda, M., Heuvelink, G. B., Nikolić, M., & Bajat, B. (2020). "Random Forest Spatial Interpolation". Remote Sensing, 12(10), 1687. https://doi.org/10.3390/rs12101687
+- RFSI implementation: https://github.com/AleksandarSekulic/RFSI
 
 ### 4. Auto (Hybrid Approach)
 
@@ -130,7 +138,7 @@ ELSE:
 - Arbitrary thresholds (though based on meteorological principles)
 - May not be optimal in all cases
 
-**Use Case**: Default method for general-purpose interpolation.
+**Use Case**: Default method for general-purpose interpolation when scikit-learn is not available or when speed is prioritized over maximum accuracy.
 
 **References**:
 - Willmott, C. J., & Robeson, S. M. (1995). "Climatologically aided interpolation (CAI) of terrestrial air temperature". International Journal of Climatology, 15(2), 221-229.

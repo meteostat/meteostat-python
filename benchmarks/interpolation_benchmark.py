@@ -38,7 +38,7 @@ def benchmark_location(point, location_name, start, end):
     methods = {
         "nearest": "Nearest Neighbor",
         "idw": "Inverse Distance Weighting",
-        "ml": "Machine Learning",
+        "rfr": "Random Forest Regression",
         "auto": "Auto (Hybrid)",
     }
 
@@ -171,7 +171,7 @@ def main():
     print(f"{'=' * 60}")
 
     # Average execution times across all locations
-    methods = ["nearest", "idw", "ml", "auto"]
+    methods = ["nearest", "idw", "rfr", "auto"]
     avg_times = {}
 
     for method in methods:

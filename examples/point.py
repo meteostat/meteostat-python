@@ -33,10 +33,15 @@ print("\n=== IDW Method ===")
 df_idw = ms.interpolate(ts, point, method="idw")
 print(df_idw.head())
 
-# Method 4: Machine Learning - Adaptive weighted approach
-print("\n=== ML Method ===")
-df_ml = ms.interpolate(ts, point, method="ml")
-print(df_ml.head())
+# Method 4: Random Forest Regression - Machine learning approach
+# Note: Requires scikit-learn (pip install scikit-learn)
+print("\n=== RFR Method (requires scikit-learn) ===")
+try:
+    df_rfr = ms.interpolate(ts, point, method="rfr")
+    print(df_rfr.head())
+except ImportError:
+    print("Scikit-learn not installed. Install with: pip install scikit-learn")
+    df_rfr = None
 
 # Compare temperature values from different methods
 print("\n=== Temperature Comparison ===")
@@ -44,4 +49,5 @@ if "temp" in df_auto.columns:
     print(f"Auto:    {df_auto['temp'].mean():.2f}°C")
     print(f"Nearest: {df_nearest['temp'].mean():.2f}°C")
     print(f"IDW:     {df_idw['temp'].mean():.2f}°C")
-    print(f"ML:      {df_ml['temp'].mean():.2f}°C")
+    if df_rfr is not None and "temp" in df_rfr.columns:
+        print(f"RFR:     {df_rfr['temp'].mean():.2f}°C")

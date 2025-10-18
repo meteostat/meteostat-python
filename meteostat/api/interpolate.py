@@ -6,17 +6,26 @@ from meteostat.api.timeseries import TimeSeries
 from meteostat.interpolation.lapserate import apply_lapse_rate
 from meteostat.interpolation.nearest import nearest_neighbor
 from meteostat.interpolation.idw import idw
-from meteostat.interpolation.ml import ml_interpolate
 from meteostat.interpolation.auto import auto_interpolate
 from meteostat.utils.helpers import get_distance
 
 # Mapping of method names to functions
+# Note: RFR is loaded dynamically to avoid requiring sklearn as a dependency
 METHOD_MAP = {
     "nearest": nearest_neighbor,
     "idw": idw,
-    "ml": ml_interpolate,
     "auto": auto_interpolate,
 }
+
+
+def _get_rfr_interpolate():
+    """
+    Dynamically import and return the RFR interpolation function.
+    This allows sklearn to be an optional dependency.
+    """
+    from meteostat.interpolation.rfr import rfr_interpolate
+
+    return rfr_interpolate
 
 
 def interpolate(
@@ -44,8 +53,8 @@ def interpolate(
           and 50m elevation difference, otherwise uses IDW.
         - "nearest": Use the value from the nearest weather station.
         - "idw": Inverse Distance Weighting - weighted average based on distance.
-        - "ml": Machine learning-based interpolation using k-nearest neighbors
-          with adaptive weighting.
+        - "rfr": Random Forest Regression - machine learning-based interpolation
+          using scikit-learn (requires: pip install scikit-learn).
         Custom functions should have signature:
         func(df: pd.DataFrame, ts: TimeSeries, point: Point) -> pd.DataFrame
     lapse_rate : float, optional
@@ -95,13 +104,20 @@ def interpolate(
     # Resolve method to a callable
     method_func: Callable[[pd.DataFrame, TimeSeries, Point], Optional[pd.DataFrame]]
     if isinstance(method, str):
-        resolved = METHOD_MAP.get(method.lower())
-        if resolved is None:
-            raise ValueError(
-                f"Unknown method '{method}'. "
-                f"Valid methods are: {', '.join(METHOD_MAP.keys())}"
-            )
-        method_func = resolved  # type: ignore[assignment]
+        method_lower = method.lower()
+
+        # Handle RFR separately with dynamic import
+        if method_lower == "rfr":
+            method_func = _get_rfr_interpolate()  # type: ignore[assignment]
+        else:
+            resolved = METHOD_MAP.get(method_lower)
+            if resolved is None:
+                valid_methods = list(METHOD_MAP.keys()) + ["rfr"]
+                raise ValueError(
+                    f"Unknown method '{method}'. "
+                    f"Valid methods are: {', '.join(valid_methods)}"
+                )
+            method_func = resolved  # type: ignore[assignment]
     else:
         method_func = method  # type: ignore[assignment]
 
