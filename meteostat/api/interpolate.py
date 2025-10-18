@@ -93,7 +93,7 @@ def interpolate(
     )
 
     # Resolve method to a callable
-    method_func: Callable[[pd.DataFrame, TimeSeries, Point], pd.DataFrame]
+    method_func: Callable[[pd.DataFrame, TimeSeries, Point], Optional[pd.DataFrame]]
     if isinstance(method, str):
         resolved = METHOD_MAP.get(method.lower())
         if resolved is None:
@@ -106,11 +106,11 @@ def interpolate(
         method_func = method  # type: ignore[assignment]
 
     # Interpolate
-    df = method_func(df, ts, point)
+    result = method_func(df, ts, point)
 
     # If no data is returned, return None
-    if df is None or df.empty:
+    if result is None or result.empty:
         return None
 
     # Drop location-related columns & return
-    return df.drop(["latitude", "longitude", "elevation", "distance"], axis=1)
+    return result.drop(["latitude", "longitude", "elevation", "distance"], axis=1)
