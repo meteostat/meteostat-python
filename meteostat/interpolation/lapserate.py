@@ -37,7 +37,7 @@ def apply_lapse_rate(
 
     for col in columns:
         if col in df.columns:
-            df.loc[df[col] != np.NaN, col] = round(
+            df.loc[df[col] != np.nan, col] = round(
                 df[col] + ((lapse_rate / 1000) * (df["elevation"] - elevation)), 1
             )
 
