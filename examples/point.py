@@ -45,4 +45,3 @@ if "temp" in df_auto.columns:
     print(f"Nearest: {df_nearest['temp'].mean():.2f}°C")
     print(f"IDW:     {df_idw['temp'].mean():.2f}°C")
     print(f"ML:      {df_ml['temp'].mean():.2f}°C")
-

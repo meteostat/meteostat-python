@@ -15,7 +15,9 @@ def benchmark_location(point, location_name, start, end):
     """Benchmark interpolation methods for a specific location"""
     print(f"\n{'=' * 60}")
     print(f"Benchmarking: {location_name}")
-    print(f"Point: Lat {point.latitude}, Lon {point.longitude}, Elev {point.elevation}m")
+    print(
+        f"Point: Lat {point.latitude}, Lon {point.longitude}, Elev {point.elevation}m"
+    )
     print(f"Period: {start} to {end}")
     print(f"{'=' * 60}")
 
@@ -105,11 +107,15 @@ def compare_methods(results):
         print(f"  {method:15s}: {time_ms:6.2f} ms")
 
     # Temperature comparison (if available)
-    temp_results = {k: v for k, v in valid_results.items() if v["temp_mean"] is not None}
+    temp_results = {
+        k: v for k, v in valid_results.items() if v["temp_mean"] is not None
+    }
     if temp_results:
         print("\n🌡️  Temperature Comparison:")
         for method, data in temp_results.items():
-            print(f"  {method:15s}: mean={data['temp_mean']:6.2f}°C, std={data['temp_std']:5.2f}°C")
+            print(
+                f"  {method:15s}: mean={data['temp_mean']:6.2f}°C, std={data['temp_std']:5.2f}°C"
+            )
 
         # Calculate variance between methods
         temp_means = [v["temp_mean"] for v in temp_results.values()]
