@@ -1,20 +1,31 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 import pandas as pd
 
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
 from meteostat.interpolation.lapserate import apply_lapse_rate
 from meteostat.interpolation.nearest import nearest_neighbor
+from meteostat.interpolation.idw import idw
+from meteostat.interpolation.ml import ml_interpolate
+from meteostat.interpolation.auto import auto_interpolate
 from meteostat.utils.helpers import get_distance
+
+# Mapping of method names to functions
+METHOD_MAP = {
+    "nearest": nearest_neighbor,
+    "idw": idw,
+    "ml": ml_interpolate,
+    "auto": auto_interpolate,
+}
 
 
 def interpolate(
     ts: TimeSeries,
     point: Point,
-    method: Callable[
-        [pd.DataFrame, TimeSeries, Point], Optional[pd.DataFrame]
-    ] = nearest_neighbor,
-    lapse_rate=6.5,
+    method: Union[
+        str, Callable[[pd.DataFrame, TimeSeries, Point], Optional[pd.DataFrame]]
+    ] = "auto",
+    lapse_rate: float = 6.5,
 ) -> Optional[pd.DataFrame]:
     """
     Interpolate time series data spatially to a specific point.
@@ -25,15 +36,45 @@ def interpolate(
         The time series to interpolate.
     point : Point
         The point to interpolate the data for.
+    method : str or callable, optional
+        Interpolation method to use. Can be a string name or a custom function.
+        Built-in methods:
+        - "auto" (default): Automatically select between nearest and IDW based on
+          spatial context. Uses nearest neighbor if closest station is within 5km
+          and 50m elevation difference, otherwise uses IDW.
+        - "nearest": Use the value from the nearest weather station.
+        - "idw": Inverse Distance Weighting - weighted average based on distance.
+        - "ml": Machine learning-based interpolation using k-nearest neighbors
+          with adaptive weighting.
+        Custom functions should have signature:
+        func(df: pd.DataFrame, ts: TimeSeries, point: Point) -> pd.DataFrame
     lapse_rate : float, optional
         The lapse rate (temperature gradient) in degrees Celsius per
         1000 meters of elevation gain. Default is 6.5.
+        Set to 0 or None to disable lapse rate adjustment.
 
     Returns
     -------
     pd.DataFrame or None
         A DataFrame containing the interpolated data for the specified point,
         or None if no data is available.
+
+    Examples
+    --------
+    >>> from datetime import datetime
+    >>> import meteostat as ms
+    >>> point = ms.Point(50.1155, 8.6842, 113)
+    >>> stations = ms.stations.nearby(point, limit=5)
+    >>> ts = ms.hourly(stations, datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
+    >>> df = ms.interpolate(ts, point, method="auto")
+
+    >>> # Using IDW method
+    >>> df = ms.interpolate(ts, point, method="idw")
+
+    >>> # Using custom interpolation function
+    >>> def custom_method(df, ts, point):
+    ...     return df.groupby(pd.Grouper(level="time", freq=ts.freq)).mean()
+    >>> df = ms.interpolate(ts, point, method=custom_method)
     """
     # Fetch DataFrame, filling missing values and adding location data
     df = ts.fetch(fill=True, location=True)
@@ -51,11 +92,22 @@ def interpolate(
         point.latitude, point.longitude, df["latitude"], df["longitude"]
     )
 
+    # Resolve method to a callable
+    if isinstance(method, str):
+        method_func = METHOD_MAP.get(method.lower())
+        if method_func is None:
+            raise ValueError(
+                f"Unknown method '{method}'. "
+                f"Valid methods are: {', '.join(METHOD_MAP.keys())}"
+            )
+    else:
+        method_func = method
+
     # Interpolate
-    df = method(df, ts, point)
+    df = method_func(df, ts, point)
 
     # If no data is returned, return None
-    if df is None:
+    if df is None or df.empty:
         return None
 
     # Drop location-related columns & return
