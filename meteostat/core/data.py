@@ -138,8 +138,11 @@ class DataService:
         """
         Load meteorological time series data from different providers
         """
+        # Convert stations to list if single Station
+        stations = req.station if isinstance(req.station, list) else [req.station]
+
         logger.debug(
-            f"{req.granularity} time series requested for {len(req.stations)} station(s)"
+            f"{req.granularity} time series requested for {len(stations)} station(s)"
         )
 
         # Filter parameters
@@ -148,14 +151,12 @@ class DataService:
         )
 
         fragments = []
-        included_stations: list[Station] = []
 
         # Go through all weather stations
-        for station in req.stations:
+        for station in stations:
             station_fragments = self._fetch_station_data(req, station)
 
             if len(station_fragments):
-                included_stations.append(station)
                 fragments.extend(station_fragments)
 
         # Merge data in a single DataFrame
@@ -171,7 +172,7 @@ class DataService:
         # Create time series
         ts = TimeSeries(
             req.granularity,
-            included_stations,
+            req.station,
             df,
             req.start,
             req.end,

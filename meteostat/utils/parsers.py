@@ -14,36 +14,70 @@ import datetime
 import pandas as pd
 import pytz
 from meteostat.api.station import station as get_station
+from meteostat.api.point import Point
 from meteostat.enumerations import Parameter
 from meteostat.typing import Station
 
 
 def parse_station(
-    station: str | Station | List[str | Station] | pd.Index | pd.Series | pd.DataFrame,
-) -> List[Station]:
+    station: (
+        str
+        | Station
+        | Point
+        | List[str | Station | Point]
+        | pd.Index
+        | pd.Series
+        | pd.DataFrame
+    ),
+) -> Station | List[Station]:
     """
     Parse one or multiple station(s) or a geo point
-    """
-    # Return data if it contains station meta data
-    if isinstance(station, Station):
-        return [station]
 
-    # Convert station identifier(s) to list
+    Point objects are converted to virtual stations with IDs like $0001, $0002, etc.
+    based on their position in the input list.
+
+    Returns
+    -------
+    Station | List[Station]
+        - Returns a single Station object for single-station input (str, Station, Point)
+        - Returns a list of Station objects for multi-station input (list, pd.Index, etc.)
+    """
+    # Return data if it contains station meta data (single station)
+    if isinstance(station, Station):
+        return station
+
+    # Handle Point objects (single point)
+    if isinstance(station, Point):
+        return _point_to_station(station, 1)
+
+    # Handle string (single station ID)
+    if isinstance(station, str):
+        meta = get_station(station)
+        if meta is None:
+            raise ValueError(f'Weather station with ID "{station}" could not be found')
+        return meta
+
+    # Convert station identifier(s) to list (multi-station)
     if isinstance(station, pd.Series) or isinstance(station, pd.DataFrame):
         stations = station.index.tolist()
     elif isinstance(station, pd.Index):
         stations = station.tolist()
-    elif isinstance(station, str):
-        stations = [station]
     else:
+        # It's a list
         stations = station
 
     # Get station meta data
     data = []
+    point_counter = 0
     for s in stations:
         # Append data early if it contains station meta data
-        if isinstance(s, dict):
+        if isinstance(s, Station):
             data.append(s)
+            continue
+        # Handle Point objects
+        if isinstance(s, Point):
+            point_counter += 1
+            data.append(_point_to_station(s, point_counter))
             continue
         # Get station meta data
         meta = get_station(s)
@@ -53,8 +87,36 @@ def parse_station(
         # Append station meta data
         data.append(meta)
 
-    # Return station meta data
+    # Return list of station meta data
     return data
+
+
+def _point_to_station(point: Point, index: int) -> Station:
+    """
+    Convert a Point object to a virtual Station object
+
+    Parameters
+    ----------
+    point : Point
+        The Point object to convert
+    index : int
+        The position in the list of points (1-indexed)
+
+    Returns
+    -------
+    Station
+        A virtual Station object with an ID like $0001
+    """
+    # Create virtual station ID
+    station_id = f"${index:04d}"
+
+    # Create Station object with extracted coordinates
+    return Station(
+        id=station_id,
+        latitude=point.latitude,
+        longitude=point.longitude,
+        elevation=point.elevation,
+    )
 
 
 def parse_time(

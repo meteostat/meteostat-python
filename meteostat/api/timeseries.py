@@ -30,19 +30,21 @@ class TimeSeries:
     timezone: Optional[str] = None
 
     _df: Optional[pd.DataFrame] = None
+    _multi_station: bool = False
 
     def __init__(
         self,
         granularity: Granularity,
-        stations: List[Station],
+        station: Station | List[Station],
         df: Optional[pd.DataFrame],
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
     ) -> None:
         self.granularity = granularity
-        self.stations = stations
+        self.stations = station if isinstance(station, list) else [station]
         self.timezone = timezone
+        self._multi_station = isinstance(station, list)
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -244,6 +246,10 @@ class TimeSeries:
             df = df.join(
                 self.stations_df[["latitude", "longitude", "elevation"]], on="station"
             )
+
+        # Remove station index level if not a multi-station query
+        if not self._multi_station and "station" in df.index.names:
+            df = df.droplevel("station")
 
         return df.sort_index()
 
