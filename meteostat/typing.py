@@ -27,9 +27,9 @@ class Station:
     """
 
     id: str  # The Meteostat station ID (e.g., "10637" or "$0001" for virtual stations)
-    names: Optional[
-        dict[str, str]
-    ] = None  # The name of the station in different languages
+    names: Optional[dict[str, str]] = (
+        None  # The name of the station in different languages
+    )
     country: Optional[str] = None  # ISO 3166-1 alpha-2 country code
     region: Optional[str] = None  # ISO 3166-2 state or region code
     identifiers: Optional[dict[str, str]] = None  # Provider identifiers
