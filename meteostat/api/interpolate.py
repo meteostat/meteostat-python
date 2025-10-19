@@ -10,7 +10,6 @@ from meteostat.interpolation.auto import auto_interpolate
 from meteostat.utils.helpers import get_distance
 
 # Mapping of method names to functions
-# Note: RFR is loaded dynamically to avoid requiring sklearn as a dependency
 METHOD_MAP = {
     "nearest": nearest_neighbor,
     "idw": idw,
@@ -94,7 +93,6 @@ def interpolate(
     if isinstance(method, str):
         method_lower = method.lower()
 
-        # Handle RFR separately with dynamic import
         resolved = METHOD_MAP.get(method_lower)
         if resolved is None:
             valid_methods = list(METHOD_MAP.keys())
