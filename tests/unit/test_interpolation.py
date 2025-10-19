@@ -234,6 +234,7 @@ class TestIDW:
         # Should use only the valid value
         assert result["temp"].iloc[0] == 20.0
 
+
 class TestAutoInterpolate:
     """Tests for auto interpolation"""
 
