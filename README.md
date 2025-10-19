@@ -58,7 +58,7 @@ START = date(2018, 1, 1)
 END = date(2018, 12, 31)
 
 # Get nearby weather stations
-stations = ms.nearby(POINT, limit=4)
+stations = ms.stations.nearby(POINT, limit=4)
 
 # Get daily data & perform interpolation
 ts = ms.daily(stations, START, END)
@@ -72,6 +72,33 @@ plt.show()
 Take a look at the expected output:
 
 ![2018 temperature data for Vancouver, BC][product-screenshot]
+
+### 🎯 Spatial Interpolation
+
+Meteostat supports multiple interpolation methods for estimating weather data at specific points:
+
+```python
+from datetime import datetime
+import meteostat as ms
+
+point = ms.Point(50.1155, 8.6842, 113)  # Frankfurt, Germany
+stations = ms.stations.nearby(point, limit=5)
+ts = ms.hourly(stations, datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
+
+# Auto method (default) - intelligently selects best method
+df = ms.interpolate(ts, point, method="auto")
+
+# Or choose a specific method:
+# - "nearest": Nearest neighbor interpolation
+# - "idw": Inverse Distance Weighting
+df = ms.interpolate(ts, point, method="idw")
+```
+
+Each method has different characteristics:
+
+- **Auto**: Adaptively selects between nearest neighbor and IDW based on station proximity
+- **Nearest**: Fast, uses closest station's data (best for very close stations)
+- **IDW**: Weighted average considering distance and elevation (good general-purpose method)
 
 ## 🤝 Contributing
 
