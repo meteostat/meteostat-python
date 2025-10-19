@@ -5,7 +5,6 @@ Tests for interpolation methods
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import datetime
 
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
@@ -234,77 +233,6 @@ class TestIDW:
 
         # Should use only the valid value
         assert result["temp"].iloc[0] == 20.0
-
-
-class TestRFRInterpolate:
-    """Tests for RFR-based interpolation"""
-
-    def test_basic_functionality(self, sample_df_with_location, sample_timeseries):
-        """Test that RFR interpolation returns data (if sklearn is available)"""
-        point = Point(50.0, 8.0, 100)
-
-        try:
-            from meteostat.interpolation.rfr import rfr_interpolate
-
-            result = rfr_interpolate(sample_df_with_location, sample_timeseries, point)
-
-            assert not result.empty
-            assert "temp" in result.columns
-            assert len(result) == 3  # 3 time periods
-        except ImportError:
-            # sklearn not installed, skip test
-            pytest.skip("scikit-learn not installed")
-
-    def test_n_estimators_parameter(self, sample_df_with_location, sample_timeseries):
-        """Test that n_estimators parameter works"""
-        point = Point(50.0, 8.0, 100)
-
-        try:
-            from meteostat.interpolation.rfr import rfr_interpolate
-
-            # Test with different n_estimators values
-            result1 = rfr_interpolate(
-                sample_df_with_location, sample_timeseries, point, n_estimators=10
-            )
-            result2 = rfr_interpolate(
-                sample_df_with_location, sample_timeseries, point, n_estimators=50
-            )
-
-            # Both should return results
-            assert not result1.empty
-            assert not result2.empty
-        except ImportError:
-            pytest.skip("scikit-learn not installed")
-
-    def test_handles_insufficient_data(self, sample_timeseries):
-        """Test that RFR handles cases with insufficient training data"""
-        point = Point(50.0, 8.0, 100)
-
-        try:
-            from meteostat.interpolation.rfr import rfr_interpolate
-
-            # Create data with only one station
-            times = pd.date_range("2020-01-01", periods=1, freq="1h")
-            data = [
-                {
-                    "time": times[0],
-                    "station": "STATION1",
-                    "temp": 20.0,
-                    "latitude": 50.0,
-                    "longitude": 8.0,
-                    "elevation": 100,
-                    "distance": 1000,
-                }
-            ]
-
-            df = pd.DataFrame(data).set_index(["station", "time"])
-            result = rfr_interpolate(df, sample_timeseries, point)
-
-            # Should handle gracefully (fall back to simple mean)
-            assert not result.empty
-        except ImportError:
-            pytest.skip("scikit-learn not installed")
-
 
 class TestAutoInterpolate:
     """Tests for auto interpolation"""

@@ -8,8 +8,8 @@ geographic point using various interpolation methods.
 from datetime import datetime
 import meteostat as ms
 
-# Define the point of interest: Frankfurt, Germany
-point = ms.Point(50.1155, 8.6842, 113)
+# Define the point of interest: Neu-Anspach, Germany
+point = ms.Point(50.3167, 8.5, 320)
 
 # Get nearby weather stations
 stations = ms.stations.nearby(point, limit=5)
@@ -33,21 +33,9 @@ print("\n=== IDW Method ===")
 df_idw = ms.interpolate(ts, point, method="idw")
 print(df_idw.head())
 
-# Method 4: Random Forest Regression - Machine learning approach
-# Note: Requires scikit-learn (pip install scikit-learn)
-print("\n=== RFR Method (requires scikit-learn) ===")
-try:
-    df_rfr = ms.interpolate(ts, point, method="rfr")
-    print(df_rfr.head())
-except ImportError:
-    print("Scikit-learn not installed. Install with: pip install scikit-learn")
-    df_rfr = None
-
 # Compare temperature values from different methods
 print("\n=== Temperature Comparison ===")
 if "temp" in df_auto.columns:
     print(f"Auto:    {df_auto['temp'].mean():.2f}°C")
     print(f"Nearest: {df_nearest['temp'].mean():.2f}°C")
     print(f"IDW:     {df_idw['temp'].mean():.2f}°C")
-    if df_rfr is not None and "temp" in df_rfr.columns:
-        print(f"RFR:     {df_rfr['temp'].mean():.2f}°C")

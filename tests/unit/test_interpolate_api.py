@@ -4,7 +4,6 @@ Tests for the interpolate API function
 
 import pytest
 import pandas as pd
-import numpy as np
 from datetime import datetime
 
 from meteostat import Point, interpolate
@@ -110,19 +109,6 @@ class TestInterpolateAPI:
         assert result is not None
         assert not result.empty
         assert "temp" in result.columns
-
-    def test_string_method_rfr(self, mock_timeseries):
-        """Test using 'rfr' method string"""
-        point = Point(50.0, 8.0, 100)
-
-        try:
-            result = interpolate(mock_timeseries, point, method="rfr")
-            assert result is not None
-            assert not result.empty
-            assert "temp" in result.columns
-        except ImportError:
-            # sklearn not installed, skip test
-            pytest.skip("scikit-learn not installed")
 
     def test_invalid_method_string(self, mock_timeseries):
         """Test that invalid method string raises error"""

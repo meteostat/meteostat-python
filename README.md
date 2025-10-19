@@ -91,17 +91,14 @@ df = ms.interpolate(ts, point, method="auto")
 # Or choose a specific method:
 # - "nearest": Nearest neighbor interpolation
 # - "idw": Inverse Distance Weighting
-# - "rfr": Random Forest Regression (requires scikit-learn)
 df = ms.interpolate(ts, point, method="idw")
 ```
 
 Each method has different characteristics:
+
 - **Auto**: Adaptively selects between nearest neighbor and IDW based on station proximity
 - **Nearest**: Fast, uses closest station's data (best for very close stations)
 - **IDW**: Weighted average considering distance and elevation (good general-purpose method)
-- **RFR**: Random Forest Regression using scikit-learn (best accuracy, requires `pip install scikit-learn`)
-
-For more details, see the [interpolation research documentation](docs/interpolation_research.md).
 
 ## 🤝 Contributing
 

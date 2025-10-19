@@ -6,7 +6,7 @@ using real-world data from multiple locations.
 """
 
 import time
-from datetime import datetime, date
+from datetime import datetime
 import pandas as pd
 import meteostat as ms
 
@@ -38,7 +38,6 @@ def benchmark_location(point, location_name, start, end):
     methods = {
         "nearest": "Nearest Neighbor",
         "idw": "Inverse Distance Weighting",
-        "rfr": "Random Forest Regression",
         "auto": "Auto (Hybrid)",
     }
 
@@ -171,7 +170,7 @@ def main():
     print(f"{'=' * 60}")
 
     # Average execution times across all locations
-    methods = ["nearest", "idw", "rfr", "auto"]
+    methods = ["nearest", "idw", "auto"]
     avg_times = {}
 
     for method in methods:

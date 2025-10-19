@@ -18,16 +18,6 @@ METHOD_MAP = {
 }
 
 
-def _get_rfr_interpolate():
-    """
-    Dynamically import and return the RFR interpolation function.
-    This allows sklearn to be an optional dependency.
-    """
-    from meteostat.interpolation.rfr import rfr_interpolate
-
-    return rfr_interpolate
-
-
 def interpolate(
     ts: TimeSeries,
     point: Point,
@@ -53,8 +43,6 @@ def interpolate(
           and 50m elevation difference, otherwise uses IDW.
         - "nearest": Use the value from the nearest weather station.
         - "idw": Inverse Distance Weighting - weighted average based on distance.
-        - "rfr": Random Forest Regression - machine learning-based interpolation
-          using scikit-learn (requires: pip install scikit-learn).
         Custom functions should have signature:
         func(df: pd.DataFrame, ts: TimeSeries, point: Point) -> pd.DataFrame
     lapse_rate : float, optional
@@ -107,17 +95,14 @@ def interpolate(
         method_lower = method.lower()
 
         # Handle RFR separately with dynamic import
-        if method_lower == "rfr":
-            method_func = _get_rfr_interpolate()  # type: ignore[assignment]
-        else:
-            resolved = METHOD_MAP.get(method_lower)
-            if resolved is None:
-                valid_methods = list(METHOD_MAP.keys()) + ["rfr"]
-                raise ValueError(
-                    f"Unknown method '{method}'. "
-                    f"Valid methods are: {', '.join(valid_methods)}"
-                )
-            method_func = resolved  # type: ignore[assignment]
+        resolved = METHOD_MAP.get(method_lower)
+        if resolved is None:
+            valid_methods = list(METHOD_MAP.keys())
+            raise ValueError(
+                f"Unknown method '{method}'. "
+                f"Valid methods are: {', '.join(valid_methods)}"
+            )
+        method_func = resolved  # type: ignore[assignment]
     else:
         method_func = method  # type: ignore[assignment]
 
