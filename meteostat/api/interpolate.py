@@ -6,7 +6,7 @@ from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
 from meteostat.core.config import config
 from meteostat.enumerations import Parameter
-from meteostat.interpolation.lapserate import apply_lapse_rate
+from meteostat.interpolation.lapserate import apply_dynamic_lapse_rate, apply_static_lapse_rate
 from meteostat.interpolation.nearest import nearest_neighbor
 from meteostat.interpolation.idw import inverse_distance_weighting
 from meteostat.utils.helpers import get_distance
@@ -21,7 +21,7 @@ def interpolate(
     power: float = 2.0,
     lapse_rate: Union[Literal["dynamic"], Literal["static"], None] = "dynamic",
     lapse_rate_threshold: int = 50,
-    lapse_rate_parameters: Optional[List[Parameter]] = None,
+    lapse_rate_parameters: Optional[List[Parameter]] = [Parameter.TEMP, Parameter.TMIN, Parameter.TMAX, Parameter.PRCP, Parameter.WSPD],
 ) -> Optional[pd.DataFrame]:
     """
     Interpolate time series data spatially to a specific point.
@@ -70,13 +70,7 @@ def interpolate(
     # If no data is returned, return None
     if df is None:
         return None
-
-    # Apply lapse rate if specified and elevation is available
-    if lapse_rate and point.elevation:
-        # TODO: Handle 'dynamic' and 'static' options properly.
-        # Currently, only a static lapse rate is applied.
-        df = apply_lapse_rate(df, point.elevation, config.get("lapse_rate"))
-
+    
     # Add distance column
     df["distance"] = get_distance(
         point.latitude, point.longitude, df["latitude"], df["longitude"]
@@ -90,6 +84,22 @@ def interpolate(
         )
     else:
         df["effective_distance"] = df["distance"]
+
+
+    # Add elevation difference column
+    if "elevation" in df.columns and point.elevation is not None:
+        df["elevation_diff"] = np.abs(df["elevation"] - point.elevation)
+    else:
+        df["elevation_diff"] = np.nan
+
+    # Apply lapse rate if specified and elevation is available
+    if lapse_rate and point.elevation and df["elevation_diff"].max() >= lapse_rate_threshold:
+        if lapse_rate == "static":
+            df = apply_static_lapse_rate(df, point.elevation, config.get("lapse_rate"))
+        df = apply_dynamic_lapse_rate(
+            df,
+            parameters=lapse_rate_parameters,
+        )
 
     # Check if any stations are close enough for nearest neighbor
     min_distance = df["distance"].min()
@@ -148,5 +158,5 @@ def interpolate(
 
     # Drop location-related columns & return
     return result.drop(
-        ["latitude", "longitude", "elevation", "distance", "effective_distance"], axis=1
+        ["latitude", "longitude", "elevation", "distance", "effective_distance", "elevation_diff"], axis=1
     )

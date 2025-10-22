@@ -37,9 +37,16 @@ df_idw = ms.interpolate(
 )
 print(df_idw.head())
 
+print("\n=== IDW Method (Dynamic) ===")
+df_idw_dynamic = ms.interpolate(
+    ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate="dynamic"
+)
+print(df_idw_dynamic.head())
+
 # Compare temperature values from different methods
 print("\n=== Temperature Comparison ===")
 if "temp" in df_auto.columns:
     print(f"Auto:    {df_auto['temp'].mean():.2f}°C")
     print(f"Nearest: {df_nearest['temp'].mean():.2f}°C")
     print(f"IDW:     {df_idw['temp'].mean():.2f}°C")
+    print(f"IDW (Dynamic):     {df_idw_dynamic['temp'].mean():.2f}°C")
