@@ -14,7 +14,6 @@ from meteostat.api.timeseries import TimeSeries
 
 def inverse_distance_weighting(
     power: float = 2.0,
-    elevation_weight: float = 0.1,
 ) -> pd.DataFrame:
     """
     Interpolate values using Inverse Distance Weighting (IDW).
@@ -56,16 +55,7 @@ def inverse_distance_weighting(
             if group.empty:
                 continue
 
-            # Calculate effective distance incorporating elevation if available
-            if point.elevation is not None and "elevation" in group.columns:
-                # Calculate elevation difference
-                elev_diff = np.abs(group["elevation"] - point.elevation)
-                # Calculate effective distance combining horizontal and vertical
-                effective_distance = np.sqrt(
-                    group["distance"] ** 2 + (elev_diff * elevation_weight) ** 2
-                )
-            else:
-                effective_distance = group["distance"]
+            effective_distance = group["effective_distance"]
 
             # Calculate weights using IDW formula: w = 1 / d^p
             # Handle zero distance case (station at exact location)
