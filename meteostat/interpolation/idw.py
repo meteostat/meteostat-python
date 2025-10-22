@@ -11,6 +11,7 @@ import pandas as pd
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
 
+
 def inverse_distance_weighting(
     power: float = 2.0,
     elevation_weight: float = 0.1,
@@ -39,6 +40,7 @@ def inverse_distance_weighting(
     - Stations with zero effective distance get weight of 1.0, all others get 0.
     - All numeric columns except location-related ones are interpolated.
     """
+
     def _get_df(
         df: pd.DataFrame,
         ts: TimeSeries,
@@ -83,7 +85,8 @@ def inverse_distance_weighting(
             numeric_cols = [
                 col
                 for col in group.columns
-                if col not in location_cols and pd.api.types.is_numeric_dtype(group[col])
+                if col not in location_cols
+                and pd.api.types.is_numeric_dtype(group[col])
             ]
 
             # Calculate weighted average for each numeric column

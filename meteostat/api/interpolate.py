@@ -10,6 +10,7 @@ from meteostat.interpolation.nearest import nearest_neighbor
 from meteostat.interpolation.idw import inverse_distance_weighting
 from meteostat.utils.helpers import get_distance
 
+
 def interpolate(
     ts: TimeSeries,
     point: Point,
@@ -17,7 +18,7 @@ def interpolate(
     elevation_threshold: int = 50,
     elevation_weight: float = 0.1,
     power: float = 2.0,
-    lapse_rate: Union[Literal['dynamic'], Literal['static'], None] = 'dynamic',
+    lapse_rate: Union[Literal["dynamic"], Literal["static"], None] = "dynamic",
     lapse_rate_threshold: int = 50,
     lapse_rate_parameters: Optional[List[Parameter]] = None,
 ) -> Optional[pd.DataFrame]:
@@ -90,8 +91,8 @@ def interpolate(
     if use_nearest:
         # Filter applicable stations based on thresholds
         df_filtered = df[
-            (df["distance"] <= distance_threshold) &
-            (np.abs(df["elevation"] - point.elevation) <= elevation_threshold)
+            (df["distance"] <= distance_threshold)
+            & (np.abs(df["elevation"] - point.elevation) <= elevation_threshold)
         ]
         df_nearest = nearest_neighbor(df_filtered, ts, point)
 
@@ -99,8 +100,7 @@ def interpolate(
     if not use_nearest or len(df_nearest) == 0 or df_nearest.isna().any().any():
         # Perform IDW interpolation
         idw_func = inverse_distance_weighting(
-            power=power,
-            elevation_weight=elevation_weight
+            power=power, elevation_weight=elevation_weight
         )
         df_idw = idw_func(df, ts, point)
 
