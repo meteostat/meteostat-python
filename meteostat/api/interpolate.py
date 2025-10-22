@@ -11,7 +11,6 @@ from meteostat.interpolation.idw import inverse_distance_weighting
 from meteostat.interpolation.combined import combined
 from meteostat.utils.helpers import get_distance
 
-
 def interpolate(
     ts: TimeSeries,
     point: Point,
@@ -63,6 +62,23 @@ def interpolate(
     pd.DataFrame or None
         A DataFrame containing the interpolated data for the specified point,
         or None if no data is available.
+
+    Examples
+    --------
+    >>> from datetime import datetime
+    >>> import meteostat as ms
+    >>> point = ms.Point(50.1155, 8.6842, 113)
+    >>> stations = ms.stations.nearby(point, limit=5)
+    >>> ts = ms.hourly(stations, datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
+    >>> df = ms.interpolate(ts, point, method="auto")
+
+    >>> # Using IDW method
+    >>> df = ms.interpolate(ts, point, method="idw")
+
+    >>> # Using custom interpolation function
+    >>> def custom_method(df, ts, point):
+    ...     return df.groupby(pd.Grouper(level="time", freq=ts.freq)).mean()
+    >>> df = ms.interpolate(ts, point, method=custom_method)
     """
     # Fetch DataFrame, filling missing values and adding location data
     df = ts.fetch(fill=True, location=True)
