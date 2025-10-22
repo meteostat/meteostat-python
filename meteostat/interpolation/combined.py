@@ -11,13 +11,10 @@ import pandas as pd
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
 from meteostat.interpolation.nearest import nearest_neighbor
-from meteostat.interpolation.idw import idw
+from meteostat.interpolation.idw import inverse_distance_weighting
 
 
-def auto_interpolate(
-    df: pd.DataFrame,
-    ts: TimeSeries,
-    point: Point,
+def combined(
     distance_threshold: float = 5000,
     elevation_threshold: float = 50,
 ) -> pd.DataFrame:
@@ -55,24 +52,31 @@ def auto_interpolate(
       Use nearest neighbor (most accurate for very close stations)
     - Otherwise: Use IDW (better for distributed or distant stations)
     """
-    if df.empty:
-        return pd.DataFrame()
+    def _get_df(
+        df: pd.DataFrame,
+        ts: TimeSeries,
+        point: Point
+    ) -> pd.DataFrame:
+        if df.empty:
+            return pd.DataFrame()
 
-    # Find the minimum distance across all time periods
-    min_distance = df["distance"].min()
+        # Find the minimum distance across all time periods
+        min_distance = df["distance"].min()
 
-    # Check elevation difference if available
-    use_nearest = min_distance <= distance_threshold
+        # Check elevation difference if available
+        use_nearest = min_distance <= distance_threshold
 
-    if use_nearest and point.elevation is not None and "elevation" in df.columns:
-        # Calculate minimum elevation difference
-        min_elev_diff = np.abs(df["elevation"] - point.elevation).min()
-        use_nearest = min_elev_diff <= elevation_threshold
+        if use_nearest and point.elevation is not None and "elevation" in df.columns:
+            # Calculate minimum elevation difference
+            min_elev_diff = np.abs(df["elevation"] - point.elevation).min()
+            use_nearest = min_elev_diff <= elevation_threshold
 
-    # Select method based on decision
-    if use_nearest:
-        # Use nearest neighbor for very close stations
-        return nearest_neighbor(df, ts, point)
-    else:
-        # Use IDW for better averaging across stations
-        return idw(df, ts, point)
+        # Select method based on decision
+        if use_nearest:
+            # Use nearest neighbor for very close stations
+            return nearest_neighbor(df, ts, point)
+        else:
+            # Use IDW for better averaging across stations
+            return inverse_distance_weighting()(df, ts, point)
+
+    return _get_df

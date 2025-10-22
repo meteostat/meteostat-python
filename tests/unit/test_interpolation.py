@@ -11,7 +11,7 @@ from meteostat.api.timeseries import TimeSeries
 from meteostat.enumerations import Granularity
 from meteostat.interpolation.nearest import nearest_neighbor
 from meteostat.interpolation.idw import idw
-from meteostat.interpolation.auto import auto_interpolate
+from meteostat.interpolation.combined import combined
 
 
 @pytest.fixture
@@ -271,7 +271,7 @@ class TestAutoInterpolate:
         df = pd.DataFrame(data).set_index(["station", "time"])
         point = Point(50.0, 8.0, 100)
 
-        result = auto_interpolate(df, sample_timeseries, point)
+        result = combined(df, sample_timeseries, point)
 
         # Should use nearest neighbor, so temp = 20.0
         assert result["temp"].iloc[0] == 20.0
@@ -308,7 +308,7 @@ class TestAutoInterpolate:
         df = pd.DataFrame(data).set_index(["station", "time"])
         point = Point(50.0, 8.0, 100)
 
-        result = auto_interpolate(df, sample_timeseries, point)
+        result = combined(df, sample_timeseries, point)
 
         # Should use IDW, so result should be weighted average
         # Closer to 20.0 than 18.0 since STATION1 is closer
@@ -348,7 +348,7 @@ class TestAutoInterpolate:
         df = pd.DataFrame(data).set_index(["station", "time"])
         point = Point(50.0, 8.0, 100)
 
-        result = auto_interpolate(df, sample_timeseries, point)
+        result = combined(df, sample_timeseries, point)
 
         # Should use IDW due to elevation difference
         # Result should be a weighted average, not just STATION1
