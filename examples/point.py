@@ -20,17 +20,17 @@ ts = ms.hourly(stations, datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
 
 # Method 1: Auto (default) - Intelligently selects between nearest and IDW
 print("\n=== Auto Method (Default) ===")
-df_auto = ms.interpolate(ts, point, lapse_rate=6.5)
+df_auto = ms.interpolate(ts, point, lapse_rate="static")
 print(df_auto.head())
 
 # Method 2: Nearest Neighbor - Uses closest station
 print("\n=== Nearest Neighbor Method ===")
-df_nearest = ms.interpolate(ts, point, lapse_rate=6.5)
+df_nearest = ms.interpolate(ts, point, distance_threshold=None, elevation_threshold=None, lapse_rate="static")
 print(df_nearest.head())
 
 # Method 3: Inverse Distance Weighting (IDW) - Weighted average
 print("\n=== IDW Method ===")
-df_idw = ms.interpolate(ts, point, lapse_rate=6.5)
+df_idw = ms.interpolate(ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate="static")
 print(df_idw.head())
 
 # Compare temperature values from different methods

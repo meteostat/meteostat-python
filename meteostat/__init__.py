@@ -55,6 +55,7 @@ config.set(
     "stations.database.file",
     os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db",
 )
+config.set("lapse_rate", 0.65)  # °C per 100m
 
 # Delete obsolete modules
 del os, TTL
