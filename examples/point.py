@@ -25,12 +25,16 @@ print(df_auto.head())
 
 # Method 2: Nearest Neighbor - Uses closest station
 print("\n=== Nearest Neighbor Method ===")
-df_nearest = ms.interpolate(ts, point, distance_threshold=None, elevation_threshold=None, lapse_rate="static")
+df_nearest = ms.interpolate(
+    ts, point, distance_threshold=None, elevation_threshold=None, lapse_rate="static"
+)
 print(df_nearest.head())
 
 # Method 3: Inverse Distance Weighting (IDW) - Weighted average
 print("\n=== IDW Method ===")
-df_idw = ms.interpolate(ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate="static")
+df_idw = ms.interpolate(
+    ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate="static"
+)
 print(df_idw.head())
 
 # Compare temperature values from different methods

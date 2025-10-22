@@ -97,7 +97,9 @@ def interpolate(
     if use_nearest and point.elevation is not None and "elevation" in df.columns:
         # Calculate minimum elevation difference
         min_elev_diff = np.abs(df["elevation"] - point.elevation).min()
-        use_nearest = elevation_threshold is None or min_elev_diff <= elevation_threshold
+        use_nearest = (
+            elevation_threshold is None or min_elev_diff <= elevation_threshold
+        )
 
     # Initialize variables
     df_nearest = None
@@ -106,17 +108,28 @@ def interpolate(
     # Perform nearest neighbor if applicable
     if use_nearest:
         # Filter applicable stations based on thresholds
-        distance_filter = pd.Series([True] * len(df), index=df.index) if distance_threshold is None else (df["distance"] <= distance_threshold)
-        elevation_filter = pd.Series([True] * len(df), index=df.index) if elevation_threshold is None else (np.abs(df["elevation"] - point.elevation) <= elevation_threshold)
+        distance_filter = (
+            pd.Series([True] * len(df), index=df.index)
+            if distance_threshold is None
+            else (df["distance"] <= distance_threshold)
+        )
+        elevation_filter = (
+            pd.Series([True] * len(df), index=df.index)
+            if elevation_threshold is None
+            else (np.abs(df["elevation"] - point.elevation) <= elevation_threshold)
+        )
         df_filtered = df[distance_filter & elevation_filter]
         df_nearest = nearest_neighbor(df_filtered, ts, point)
 
     # Check if we need to use IDW
-    if not use_nearest or df_nearest is None or len(df_nearest) == 0 or df_nearest.isna().any().any():
+    if (
+        not use_nearest
+        or df_nearest is None
+        or len(df_nearest) == 0
+        or df_nearest.isna().any().any()
+    ):
         # Perform IDW interpolation
-        idw_func = inverse_distance_weighting(
-            power=power
-        )
+        idw_func = inverse_distance_weighting(power=power)
         df_idw = idw_func(df, ts, point)
 
     # Merge DataFrames with priority to nearest neighbor
@@ -134,4 +147,6 @@ def interpolate(
         return None
 
     # Drop location-related columns & return
-    return result.drop(["latitude", "longitude", "elevation", "distance", "effective_distance"], axis=1)
+    return result.drop(
+        ["latitude", "longitude", "elevation", "distance", "effective_distance"], axis=1
+    )
