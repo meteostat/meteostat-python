@@ -1,29 +1,27 @@
-from typing import Callable, Optional, Union
+from typing import List, Literal, Optional, Union
+import numpy as np
 import pandas as pd
 
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
+from meteostat.core.config import config
+from meteostat.enumerations import Parameter
 from meteostat.interpolation.lapserate import apply_lapse_rate
 from meteostat.interpolation.nearest import nearest_neighbor
-from meteostat.interpolation.idw import idw
-from meteostat.interpolation.auto import auto_interpolate
+from meteostat.interpolation.idw import inverse_distance_weighting
 from meteostat.utils.helpers import get_distance
-
-# Mapping of method names to functions
-METHOD_MAP = {
-    "nearest": nearest_neighbor,
-    "idw": idw,
-    "auto": auto_interpolate,
-}
 
 
 def interpolate(
     ts: TimeSeries,
     point: Point,
-    method: Union[
-        str, Callable[[pd.DataFrame, TimeSeries, Point], Optional[pd.DataFrame]]
-    ] = "auto",
-    lapse_rate: float = 6.5,
+    distance_threshold: Union[int, None] = 5000,
+    elevation_threshold: Union[int, None] = 50,
+    elevation_weight: float = 10,
+    power: float = 2.0,
+    lapse_rate: Union[Literal["dynamic"], Literal["static"], None] = "dynamic",
+    lapse_rate_threshold: int = 50,
+    lapse_rate_parameters: Optional[List[Parameter]] = None,
 ) -> Optional[pd.DataFrame]:
     """
     Interpolate time series data spatially to a specific point.
@@ -34,43 +32,37 @@ def interpolate(
         The time series to interpolate.
     point : Point
         The point to interpolate the data for.
-    method : str or callable, optional
-        Interpolation method to use. Can be a string name or a custom function.
-        Built-in methods:
-        - "auto" (default): Automatically select between nearest and IDW based on
-          spatial context. Uses nearest neighbor if closest station is within 5km
-          and 50m elevation difference, otherwise uses IDW.
-        - "nearest": Use the value from the nearest weather station.
-        - "idw": Inverse Distance Weighting - weighted average based on distance.
-        Custom functions should have signature:
-        func(df: pd.DataFrame, ts: TimeSeries, point: Point) -> pd.DataFrame
-    lapse_rate : float, optional
-        The lapse rate (temperature gradient) in degrees Celsius per
-        1000 meters of elevation gain. Default is 6.5.
-        Set to 0 or None to disable lapse rate adjustment.
+    distance_threshold : int, optional
+        Maximum distance (in meters) to use nearest neighbor (default: 5000).
+        Beyond this, IDW is used.
+    elevation_threshold : int, optional
+        Maximum elevation difference (in meters) to use nearest neighbor (default: 50).
+        Beyond this, IDW is used even if distance is within threshold.
+    elevation_weight : float, optional
+        Weight for elevation difference in distance calculation (default: 0.1).
+        The effective distance is calculated as:
+        sqrt(horizontal_distance^2 + (elevation_diff * elevation_weight)^2)
+    power : float, optional
+        Power parameter for IDW (default: 2.0). Higher values give more
+        weight to closer stations.
+    lapse_rate : {'dynamic', 'static', None}, optional
+        Apply lapse rate correction based on elevation difference (default: 'dynamic').
+        - 'dynamic': Uses actual data to determine lapse rates for a variety of parameters.
+        - 'static': Uses a fixed lapse rate of 6.5°C per 1000m (only temperature).
+        - None: No lapse rate correction applied.
+    lapse_rate_threshold : int, optional
+        Elevation difference threshold (in meters) to apply lapse rate correction
+        (default: 50). If the elevation difference between the point and stations
+        is less than this, no correction is applied.
+    lapse_rate_parameters : list of Parameter, optional
+        List of parameters to apply lapse rate correction to (default: None,
+        which applies to all applicable parameters).
 
     Returns
     -------
     pd.DataFrame or None
         A DataFrame containing the interpolated data for the specified point,
         or None if no data is available.
-
-    Examples
-    --------
-    >>> from datetime import datetime
-    >>> import meteostat as ms
-    >>> point = ms.Point(50.1155, 8.6842, 113)
-    >>> stations = ms.stations.nearby(point, limit=5)
-    >>> ts = ms.hourly(stations, datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
-    >>> df = ms.interpolate(ts, point, method="auto")
-
-    >>> # Using IDW method
-    >>> df = ms.interpolate(ts, point, method="idw")
-
-    >>> # Using custom interpolation function
-    >>> def custom_method(df, ts, point):
-    ...     return df.groupby(pd.Grouper(level="time", freq=ts.freq)).mean()
-    >>> df = ms.interpolate(ts, point, method=custom_method)
     """
     # Fetch DataFrame, filling missing values and adding location data
     df = ts.fetch(fill=True, location=True)
@@ -81,35 +73,80 @@ def interpolate(
 
     # Apply lapse rate if specified and elevation is available
     if lapse_rate and point.elevation:
-        df = apply_lapse_rate(df, point.elevation, lapse_rate)
+        # TODO: Handle 'dynamic' and 'static' options properly.
+        # Currently, only a static lapse rate is applied.
+        df = apply_lapse_rate(df, point.elevation, config.get("lapse_rate"))
 
     # Add distance column
     df["distance"] = get_distance(
         point.latitude, point.longitude, df["latitude"], df["longitude"]
     )
 
-    # Resolve method to a callable
-    method_func: Callable[[pd.DataFrame, TimeSeries, Point], Optional[pd.DataFrame]]
-    if isinstance(method, str):
-        method_lower = method.lower()
-
-        resolved = METHOD_MAP.get(method_lower)
-        if resolved is None:
-            valid_methods = list(METHOD_MAP.keys())
-            raise ValueError(
-                f"Unknown method '{method}'. "
-                f"Valid methods are: {', '.join(valid_methods)}"
-            )
-        method_func = resolved  # type: ignore[assignment]
+    # Add effective distance column if elevation is available
+    if point.elevation is not None and "elevation" in df.columns:
+        elev_diff = np.abs(df["elevation"] - point.elevation)
+        df["effective_distance"] = np.sqrt(
+            df["distance"] ** 2 + (elev_diff * elevation_weight) ** 2
+        )
     else:
-        method_func = method  # type: ignore[assignment]
+        df["effective_distance"] = df["distance"]
 
-    # Interpolate
-    result = method_func(df, ts, point)
+    # Check if any stations are close enough for nearest neighbor
+    min_distance = df["distance"].min()
+    use_nearest = distance_threshold is None or min_distance <= distance_threshold
+    if use_nearest and point.elevation is not None and "elevation" in df.columns:
+        # Calculate minimum elevation difference
+        min_elev_diff = np.abs(df["elevation"] - point.elevation).min()
+        use_nearest = (
+            elevation_threshold is None or min_elev_diff <= elevation_threshold
+        )
+
+    # Initialize variables
+    df_nearest = None
+    df_idw = None
+
+    # Perform nearest neighbor if applicable
+    if use_nearest:
+        # Filter applicable stations based on thresholds
+        distance_filter = (
+            pd.Series([True] * len(df), index=df.index)
+            if distance_threshold is None
+            else (df["distance"] <= distance_threshold)
+        )
+        elevation_filter = (
+            pd.Series([True] * len(df), index=df.index)
+            if elevation_threshold is None
+            else (np.abs(df["elevation"] - point.elevation) <= elevation_threshold)
+        )
+        df_filtered = df[distance_filter & elevation_filter]
+        df_nearest = nearest_neighbor(df_filtered, ts, point)
+
+    # Check if we need to use IDW
+    if (
+        not use_nearest
+        or df_nearest is None
+        or len(df_nearest) == 0
+        or df_nearest.isna().any().any()
+    ):
+        # Perform IDW interpolation
+        idw_func = inverse_distance_weighting(power=power)
+        df_idw = idw_func(df, ts, point)
+
+    # Merge DataFrames with priority to nearest neighbor
+    if use_nearest and df_nearest is not None and len(df_nearest) > 0:
+        if df_idw is not None:
+            # Combine nearest and IDW results, prioritizing nearest values
+            result = df_nearest.combine_first(df_idw)
+        else:
+            result = df_nearest
+    else:
+        result = df_idw
 
     # If no data is returned, return None
     if result is None or result.empty:
         return None
 
     # Drop location-related columns & return
-    return result.drop(["latitude", "longitude", "elevation", "distance"], axis=1)
+    return result.drop(
+        ["latitude", "longitude", "elevation", "distance", "effective_distance"], axis=1
+    )
