@@ -67,7 +67,7 @@ def normals(
 
     # Add station level if only a single station is provided
     if not ts._multi_station:
-        df = pd.concat([df], keys=[ts.stations[0].id], names=["station"])
+        df = pd.concat([df], keys=[ts.stations.index.get_level_values("id")[0]], names=["station"])
 
     # Extract month from time index
     df["month"] = df.index.get_level_values("time").month
@@ -116,8 +116,9 @@ def normals(
     # Return the final TimeSeries object
     return TimeSeries(
         granularity=Granularity.NORMALS,
-        station=ts.stations if ts._multi_station else ts.stations[0],
+        stations=ts.stations,
         df=pd.concat(df_fragments),
         start=ts.start,
         end=ts.end,
+        multi_station=ts._multi_station,
     )

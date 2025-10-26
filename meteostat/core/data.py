@@ -12,9 +12,10 @@ from meteostat.core.logger import logger
 from meteostat.core.parameters import parameter_service
 from meteostat.core.providers import provider_service
 from meteostat.core.schema import schema_service
-from meteostat.enumerations import Grade, Granularity, Parameter, Provider
+from meteostat.enumerations import Grade, Parameter, Provider
 from meteostat.typing import Station, Request
 from meteostat.utils.filters import filter_time
+from meteostat.utils.mutations import stations_to_df
 
 
 class DataService:
@@ -172,11 +173,12 @@ class DataService:
         # Create time series
         ts = TimeSeries(
             req.granularity,
-            req.station,
+            stations_to_df(req.station if isinstance(req.station, list) else [req.station]),
             df,
             req.start,
             req.end,
             req.timezone,
+            multi_station=isinstance(req.station, list),
         )
 
         # Filter data & return

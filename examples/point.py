@@ -16,30 +16,31 @@ stations = ms.stations.nearby(point, limit=5)
 print(f"Found {len(stations)} nearby stations")
 
 # Fetch hourly data for a specific time range
-ts = ms.hourly(stations, datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
+ts = ms.hourly(['10637', '10635'], datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
 
 # Method 1: Auto (default) - Intelligently selects between nearest and IDW
 print("\n=== Auto Method (Default) ===")
-df_auto = ms.interpolate(ts, point, lapse_rate="static")
+df_auto = ms.interpolate(ts, point)
 print(df_auto.head())
 
 # Method 2: Nearest Neighbor - Uses closest station
 print("\n=== Nearest Neighbor Method ===")
 df_nearest = ms.interpolate(
-    ts, point, distance_threshold=None, elevation_threshold=None, lapse_rate="static"
+    ts, point, distance_threshold=None, elevation_threshold=None
 )
 print(df_nearest.head())
 
 # Method 3: Inverse Distance Weighting (IDW) - Weighted average
 print("\n=== IDW Method ===")
 df_idw = ms.interpolate(
-    ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate="static"
+    ts, point, distance_threshold=0, elevation_threshold=0
 )
 print(df_idw.head())
 
 print("\n=== IDW Method (Dynamic) ===")
+print("Using dynamic lapse rate from time series data: ", ts.lapse_rate)
 df_idw_dynamic = ms.interpolate(
-    ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate="dynamic"
+    ts, point, distance_threshold=0, elevation_threshold=0, lapse_rate=ts.lapse_rate
 )
 print(df_idw_dynamic.head())
 
