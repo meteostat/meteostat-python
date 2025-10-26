@@ -16,7 +16,7 @@ stations = ms.stations.nearby(point, limit=5)
 print(f"Found {len(stations)} nearby stations")
 
 # Fetch hourly data for a specific time range
-ts = ms.hourly(['10637', '10635'], datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
+ts = ms.hourly(["10637", "10635"], datetime(2020, 1, 1, 6), datetime(2020, 1, 1, 18))
 
 # Method 1: Auto (default) - Intelligently selects between nearest and IDW
 print("\n=== Auto Method (Default) ===")
@@ -32,9 +32,7 @@ print(df_nearest.head())
 
 # Method 3: Inverse Distance Weighting (IDW) - Weighted average
 print("\n=== IDW Method ===")
-df_idw = ms.interpolate(
-    ts, point, distance_threshold=0, elevation_threshold=0
-)
+df_idw = ms.interpolate(ts, point, distance_threshold=0, elevation_threshold=0)
 print(df_idw.head())
 
 print("\n=== IDW Method (Dynamic) ===")

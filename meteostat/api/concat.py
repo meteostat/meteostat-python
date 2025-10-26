@@ -64,11 +64,15 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
     multi_station = ts._multi_station
 
     for obj in objs[1:]:
-        stations = pd.concat([stations, obj.stations]).drop_duplicates(subset=['id'])
+        stations = pd.concat([stations, obj.stations]).drop_duplicates(subset=["id"])
         start = _get_dt(start, obj.start)
         end = _get_dt(end, obj.end, False)
         parameters.extend(obj.parameters)
-        if obj._multi_station or stations.index.get_level_values("id")[0] != obj.stations.index.get_level_values("id")[0]:
+        if (
+            obj._multi_station
+            or stations.index.get_level_values("id")[0]
+            != obj.stations.index.get_level_values("id")[0]
+        ):
             multi_station = True
 
     df = data_service.concat_fragments(

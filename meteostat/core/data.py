@@ -173,7 +173,9 @@ class DataService:
         # Create time series
         ts = TimeSeries(
             req.granularity,
-            stations_to_df(req.station if isinstance(req.station, list) else [req.station]),
+            stations_to_df(
+                req.station if isinstance(req.station, list) else [req.station]
+            ),
             df,
             req.start,
             req.end,

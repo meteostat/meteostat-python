@@ -147,10 +147,11 @@ def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
 
 
 def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
-        """
-        Convert list of stations to DataFrame
-        """
-        return pd.DataFrame.from_records(
+    """
+    Convert list of stations to DataFrame
+    """
+    return (
+        pd.DataFrame.from_records(
             [
                 {
                     "id": station.id,
@@ -164,4 +165,7 @@ def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
                 for station in stations
             ],
             index="id",
-        ) if len(stations) else None
+        )
+        if len(stations)
+        else None
+    )

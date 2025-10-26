@@ -148,7 +148,7 @@ class TimeSeries:
                     return False
 
         return True
-    
+
     @property
     def lapse_rate(self) -> Optional[float]:
         """
@@ -156,7 +156,11 @@ class TimeSeries:
         """
         df = self.fetch(location=True)
 
-        if df is None or 'elevation' not in df.columns or Parameter.TEMP not in df.columns:
+        if (
+            df is None
+            or "elevation" not in df.columns
+            or Parameter.TEMP not in df.columns
+        ):
             return None
 
         elev_by_station = df["elevation"].groupby(level="station").first()
@@ -168,15 +172,21 @@ class TimeSeries:
         lapse_rates = []
 
         for a, b in combinations(elev_by_station.index, 2):
-            if (pd.isna(elev_by_station[a]) or pd.isna(elev_by_station[b]) or 
-                pd.isna(temp_by_station[a]) or pd.isna(temp_by_station[b]) or
-                elev_by_station[a] == elev_by_station[b]):
+            if (
+                pd.isna(elev_by_station[a])
+                or pd.isna(elev_by_station[b])
+                or pd.isna(temp_by_station[a])
+                or pd.isna(temp_by_station[b])
+                or elev_by_station[a] == elev_by_station[b]
+            ):
                 continue
 
             temp_diff = temp_by_station[a] - temp_by_station[b]
             elev_diff = elev_by_station[a] - elev_by_station[b]
 
-            lapse_rate = (temp_diff / elev_diff) * 1000 * -1 # multiply by -1 to get positive lapse rate for decreasing temp with increasing elevation
+            lapse_rate = (
+                (temp_diff / elev_diff) * 1000 * -1
+            )  # multiply by -1 to get positive lapse rate for decreasing temp with increasing elevation
             lapse_rates.append(lapse_rate)
 
         if not lapse_rates:

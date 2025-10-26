@@ -61,7 +61,7 @@ def interpolate(
     # If no data is returned, return None
     if df is None:
         return None
-    
+
     # Add distance column
     df["distance"] = get_distance(
         point.latitude, point.longitude, df["latitude"], df["longitude"]
@@ -76,7 +76,6 @@ def interpolate(
     else:
         df["effective_distance"] = df["distance"]
 
-
     # Add elevation difference column
     if "elevation" in df.columns and point.elevation is not None:
         df["elevation_diff"] = np.abs(df["elevation"] - point.elevation)
@@ -84,7 +83,11 @@ def interpolate(
         df["elevation_diff"] = np.nan
 
     # Apply lapse rate if specified and elevation is available
-    if lapse_rate and point.elevation and df["elevation_diff"].max() >= lapse_rate_threshold:
+    if (
+        lapse_rate
+        and point.elevation
+        and df["elevation_diff"].max() >= lapse_rate_threshold
+    ):
         df = apply_lapse_rate(df, point.elevation, lapse_rate)
 
     # Check if any stations are close enough for nearest neighbor
@@ -144,5 +147,13 @@ def interpolate(
 
     # Drop location-related columns & return
     return result.drop(
-        ["latitude", "longitude", "elevation", "distance", "effective_distance", "elevation_diff"], axis=1
+        [
+            "latitude",
+            "longitude",
+            "elevation",
+            "distance",
+            "effective_distance",
+            "elevation_diff",
+        ],
+        axis=1,
     )
