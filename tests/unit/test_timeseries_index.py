@@ -9,6 +9,7 @@ from datetime import datetime
 from meteostat.api.timeseries import TimeSeries
 from meteostat.enumerations import Granularity
 from meteostat.typing import Station
+from meteostat.utils.mutations import stations_to_df
 
 
 def test_single_station_no_station_index():
@@ -28,10 +29,11 @@ def test_single_station_no_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        station=station,  # Single station, not provided as list
+        stations=stations_to_df([station]),  # Single station, not provided as list
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
+        multi_station=False,  # Single station should not be multi_station
     )
 
     result = ts.fetch()
@@ -67,10 +69,11 @@ def test_multiple_stations_keep_station_index():
 
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        station=[station1, station2],  # Multiple stations or list input
+        stations=stations_to_df([station1, station2]),  # Multiple stations or list input
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
+        multi_station=True,  # Multiple stations should be multi_station
     )
 
     result = ts.fetch()
@@ -97,10 +100,11 @@ def test_single_station_list_keeps_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        station=[station],  # Provided as list
+        stations=stations_to_df([station]),  # Provided as list
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
+        multi_station=True,  # Provided as list should be multi_station
     )
 
     result = ts.fetch()
@@ -117,10 +121,11 @@ def test_single_station_no_data():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        station=station,
+        stations=stations_to_df([station]),
         df=None,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
+        multi_station=False,  # Single station should not be multi_station
     )
 
     result = ts.fetch()
