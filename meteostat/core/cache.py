@@ -24,16 +24,6 @@ class CacheService:
     _purged = False  # Flag to indicate if cache has been purged automatically
 
     @staticmethod
-    def _create_cache_dir() -> None:
-        """
-        Create the cache directory if it doesn't exist
-        """
-        cache_dir = config.get("cache.directory")
-
-        if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
-
-    @staticmethod
     def _write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
         """
         Persist a DataFrame in Pickle format
@@ -64,6 +54,16 @@ class CacheService:
         with open(path, "r") as file:
             raw = file.read()
         return json.loads(raw)
+    
+    @staticmethod
+    def create_cache_dir() -> None:
+        """
+        Create the cache directory if it doesn't exist
+        """
+        cache_dir = config.get("cache.directory")
+
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
 
     @staticmethod
     def func_to_uid(func, args: tuple, kwargs: dict[str, Any]) -> str:
@@ -86,7 +86,7 @@ class CacheService:
         Persist any given data under a specific path
         """
         # Create cache directory if it doesn't exist
-        self._create_cache_dir()
+        self.create_cache_dir()
         # Save data locally
         if type == "json":
             self._write_json(path, data)
