@@ -27,6 +27,7 @@ from meteostat.api.monthly import monthly
 from meteostat.api.normals import normals
 from meteostat.api.concat import concat
 from meteostat.api.interpolate import interpolate
+from meteostat.typing import Station
 from meteostat import units
 
 # Set default configuration
@@ -76,4 +77,5 @@ __all__ = [
     "units",
     "interpolate",
     "concat",
+    "Station",
 ]

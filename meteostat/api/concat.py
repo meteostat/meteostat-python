@@ -2,6 +2,8 @@ from copy import copy
 from datetime import datetime
 from typing import List, Optional
 
+import pandas as pd
+
 from meteostat.core.data import data_service
 from meteostat.core.schema import schema_service
 from meteostat.api.timeseries import TimeSeries
@@ -59,12 +61,19 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
     start = copy(ts.start)
     end = copy(ts.end)
     parameters = ts.parameters
+    multi_station = ts._multi_station
 
     for obj in objs[1:]:
-        stations.extend(obj.stations)
+        stations = pd.concat([stations, obj.stations]).drop_duplicates(subset=["id"])
         start = _get_dt(start, obj.start)
         end = _get_dt(end, obj.end, False)
         parameters.extend(obj.parameters)
+        if (
+            obj._multi_station
+            or stations.index.get_level_values("id")[0]
+            != obj.stations.index.get_level_values("id")[0]
+        ):
+            multi_station = True
 
     df = data_service.concat_fragments(
         [obj._df for obj in objs], list(dict.fromkeys(parameters))
@@ -78,4 +87,5 @@ def concat(objs: List[TimeSeries]) -> TimeSeries:
         start,
         end,
         ts.timezone,
+        multi_station=multi_station,
     )

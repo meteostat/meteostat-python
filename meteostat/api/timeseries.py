@@ -6,6 +6,7 @@ A class to handle meteorological time series data.
 
 from copy import copy
 from datetime import datetime
+from itertools import combinations
 from math import floor
 from statistics import mean
 from typing import List, Optional
@@ -13,7 +14,7 @@ import pandas as pd
 from meteostat.core.parameters import parameter_service
 from meteostat.core.schema import schema_service
 from meteostat.enumerations import Parameter, Granularity, Provider
-from meteostat.typing import License, Station
+from meteostat.typing import License
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
 
@@ -24,7 +25,7 @@ class TimeSeries:
     """
 
     granularity: Granularity
-    stations: List[Station]
+    stations: Optional[pd.DataFrame] = None
     start: Optional[datetime] = None
     end: Optional[datetime] = None
     timezone: Optional[str] = None
@@ -35,16 +36,17 @@ class TimeSeries:
     def __init__(
         self,
         granularity: Granularity,
-        station: Station | List[Station],
+        stations: Optional[pd.DataFrame],
         df: Optional[pd.DataFrame],
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         timezone: Optional[str] = None,
+        multi_station: bool = False,
     ) -> None:
         self.granularity = granularity
-        self.stations = station if isinstance(station, list) else [station]
+        self.stations = stations
         self.timezone = timezone
-        self._multi_station = isinstance(station, list)
+        self._multi_station = multi_station
         if df is not None and not df.empty:
             self._df = df
             self.start = start if start else df.index.get_level_values("time").min()
@@ -148,29 +150,49 @@ class TimeSeries:
         return True
 
     @property
-    def stations_df(self) -> pd.DataFrame:
+    def lapse_rate(self) -> Optional[float]:
         """
-        Get included weather stations as DataFrame
+        Actual lapse rate (degrees Celsius per 1000 meters)
         """
-        return (
-            pd.DataFrame.from_records(
-                [
-                    {
-                        "id": station.id,
-                        "name": station.name,
-                        "country": station.country,
-                        "latitude": station.latitude,
-                        "longitude": station.longitude,
-                        "elevation": station.elevation,
-                        "timezone": station.timezone,
-                    }
-                    for station in self.stations
-                ],
-                index="id",
-            )
-            if len(self.stations)
-            else []
-        )
+        df = self.fetch(location=True)
+
+        if (
+            df is None
+            or "elevation" not in df.columns
+            or Parameter.TEMP not in df.columns
+        ):
+            return None
+
+        elev_by_station = df["elevation"].groupby(level="station").first()
+        temp_by_station = df[Parameter.TEMP].groupby(level="station").mean()
+
+        if len(elev_by_station) < 2 or len(temp_by_station) < 2:
+            return None
+
+        lapse_rates = []
+
+        for a, b in combinations(elev_by_station.index, 2):
+            if (
+                pd.isna(elev_by_station[a])
+                or pd.isna(elev_by_station[b])
+                or pd.isna(temp_by_station[a])
+                or pd.isna(temp_by_station[b])
+                or elev_by_station[a] == elev_by_station[b]
+            ):
+                continue
+
+            temp_diff = temp_by_station[a] - temp_by_station[b]
+            elev_diff = elev_by_station[a] - elev_by_station[b]
+
+            lapse_rate = (
+                (temp_diff / elev_diff) * 1000 * -1
+            )  # multiply by -1 to get positive lapse rate for decreasing temp with increasing elevation
+            lapse_rates.append(lapse_rate)
+
+        if not lapse_rates:
+            return None
+
+        return mean(lapse_rates)
 
     def filter_stations(self, station: str | List[str], exclude=False) -> "TimeSeries":
         """
@@ -244,7 +266,7 @@ class TimeSeries:
 
         if location:
             df = df.join(
-                self.stations_df[["latitude", "longitude", "elevation"]], on="station"
+                self.stations[["latitude", "longitude", "elevation"]], on="station"
             )
 
         # Remove station index level if not a multi-station query

@@ -9,6 +9,7 @@ from meteostat.api.inventory import Inventory
 from meteostat.api.point import Point
 from meteostat.core.cache import cache_service
 from meteostat.core.config import config
+from meteostat.core.logger import logger
 from meteostat.core.network import network_service
 from meteostat.enumerations import Provider
 from meteostat.typing import Station
@@ -44,6 +45,9 @@ class Stations:
 
         # Download the database file
         response = self._fetch_file(stream=True)
+
+        # Create cache directory if it doesn't exist
+        cache_service.create_cache_dir()
 
         with open(filepath, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
@@ -89,6 +93,8 @@ class Stations:
         if in_memory is None:
             in_memory = config.get("stations.database.file") is None
 
+        logger.info(f"Connecting to stations database (in_memory={in_memory})")
+
         if in_memory:
             return self._connect_memory()
 
@@ -110,15 +116,18 @@ class Stations:
         Get meta data for a specific weather station
         """
         meta = self.query(
-            "SELECT * FROM `stations` WHERE `id` LIKE ?",
+            """
+            SELECT 
+                `stations`.*,
+                `names`.`name` as `name`
+            FROM `stations` 
+            LEFT JOIN `names` ON `stations`.`id` = `names`.`station` 
+                AND `names`.`language` = 'en'
+            WHERE `stations`.`id` LIKE ?
+            """,
             index_col="id",
             params=(station,),
         ).to_dict("records")[0]
-
-        names = self.query(
-            "SELECT `language`, `name` FROM `names` WHERE `station` LIKE ?",
-            params=(station,),
-        ).to_dict("records")
 
         identifiers = self.query(
             "SELECT `key`, `value` FROM `identifiers` WHERE `station` LIKE ?",
@@ -128,7 +137,6 @@ class Stations:
         return Station(
             id=station,
             **meta,
-            names={name["language"]: name["name"] for name in names},
             identifiers={
                 identifier["key"]: identifier["value"] for identifier in identifiers
             },

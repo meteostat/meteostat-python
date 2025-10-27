@@ -9,10 +9,12 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
+from typing import List, Optional
 import numpy as np
 import pandas as pd
 from meteostat.core.providers import provider_service
 from meteostat.enumerations import Frequency, Parameter
+from meteostat.typing import Station
 from meteostat.utils.helpers import order_source_columns
 
 
@@ -142,3 +144,28 @@ def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:
 def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
     df.index = pd.to_datetime(df.index.get_level_values("time"))
     return df.resample(freq).first()
+
+
+def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
+    """
+    Convert list of stations to DataFrame
+    """
+    return (
+        pd.DataFrame.from_records(
+            [
+                {
+                    "id": station.id,
+                    "name": station.name,
+                    "country": station.country,
+                    "latitude": station.latitude,
+                    "longitude": station.longitude,
+                    "elevation": station.elevation,
+                    "timezone": station.timezone,
+                }
+                for station in stations
+            ],
+            index="id",
+        )
+        if len(stations)
+        else None
+    )

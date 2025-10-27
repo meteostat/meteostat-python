@@ -25,14 +25,13 @@ def _fetch_station(id: str) -> Optional[dict]:
                 if res.status_code == 200:
                     # Parse JSON response
                     station = res.json()
-                    # Extract names
-                    station["names"] = station["name"]
+                    # Extract English name
+                    station["name"] = station["name"]["en"]
                     # Extract location data
                     station["latitude"] = station["location"]["latitude"]
                     station["longitude"] = station["location"]["longitude"]
                     station["elevation"] = station["location"]["elevation"]
                     # Remove unused data
-                    station.pop("name", None)
                     station.pop("location", None)
                     station.pop("active", None)
                     # Return station dictionary

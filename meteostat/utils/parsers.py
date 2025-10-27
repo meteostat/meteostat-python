@@ -15,7 +15,6 @@ import pandas as pd
 import pytz
 from meteostat.api.station import station as get_station
 from meteostat.api.point import Point
-from meteostat.enumerations import Parameter
 from meteostat.typing import Station
 
 
@@ -31,7 +30,7 @@ def parse_station(
     ),
 ) -> Station | List[Station]:
     """
-    Parse one or multiple station(s) or a geo point
+    Parse one or multiple station(s) or geo point(s)
 
     Point objects are converted to virtual stations with IDs like $0001, $0002, etc.
     based on their position in the input list.
@@ -113,6 +112,7 @@ def _point_to_station(point: Point, index: int) -> Station:
     # Create Station object with extracted coordinates
     return Station(
         id=station_id,
+        name=f"Location #{index}",
         latitude=point.latitude,
         longitude=point.longitude,
         elevation=point.elevation,
