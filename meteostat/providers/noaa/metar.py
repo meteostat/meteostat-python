@@ -16,13 +16,8 @@ from meteostat.utils.mutations import enforce_freq
 from meteostat.core.network import network_service
 
 
-cnf = config[Provider.METAR]
-
-ENDPOINT: str = cnf.get(
-    "endpoint",
-    "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24",
-)
-USER_AGENT: Optional[str] = cnf.get("user_agent")
+ENDPOINT = config.aviationweather_endpoint
+USER_AGENT = config.aviationweather_user_agent
 CLDC_MAP = {
     "FEW": 2,  # 1-2 octas
     "SCT": 4,  # 3-4 octas

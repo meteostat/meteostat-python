@@ -3,7 +3,7 @@ import json
 from typing import Any, Optional
 
 from meteostat.core.logger import logger
-from meteostat.enumerations import TTL
+from meteostat.enumerations import TTL, Parameter
 from meteostat.utils.types import extract_property_type, validate_parsed_value
 
 
@@ -29,12 +29,20 @@ class ConfigService:
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json",
     ]
 
+    # Interpolation settings
+    lapse_rate_parameters = [
+        Parameter.TEMP,
+        Parameter.TMIN,
+        Parameter.TMAX,
+    ]
+
     # [Provider] Meteostat settings
     meteostat_hourly_endpoint: str = "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
     meteostat_daily_endpoint: str = "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
     meteostat_monthly_endpoint: str = "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
 
     # [Provider] DWD settings
+    dwd_ftp_host: str = "opendata.dwd.de"
     dwd_hourly_modes: Optional[list] = None
     dwd_daily_modes: Optional[list] = None
     dwd_climat_modes: Optional[list] = None

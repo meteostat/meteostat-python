@@ -26,16 +26,7 @@ def apply_lapse_rate(
     pd.DataFrame
         DataFrame with adjusted temperature values.
     """
-    columns = config.get(
-        "interpolation.lapse_rate.cols",
-        [
-            Parameter.TEMP,
-            Parameter.TMIN,
-            Parameter.TMAX,
-        ],
-    )
-
-    for col in columns:
+    for col in config.lapse_rate_parameters:
         if col in df.columns:
             df.loc[df[col] != np.nan, col] = round(
                 df[col] + ((lapse_rate / 1000) * (df["elevation"] - elevation)), 1

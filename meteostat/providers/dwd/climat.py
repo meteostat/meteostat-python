@@ -11,13 +11,12 @@ import pandas as pd
 
 from meteostat.core.logger import logger
 from meteostat.core.config import config
-from meteostat.enumerations import TTL, Parameter, Provider
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import Query, Station
 from meteostat.core.cache import cache_service
 from meteostat.providers.dwd.shared import get_ftp_connection
 
 # Constants
-CNF = config[Provider.CLIMAT]
 BASE_DIR = "/climate_environment/CDC/observations_global/CLIMAT/monthly/qc/"
 
 # Monthly column stubnames mapping template
@@ -82,14 +81,14 @@ def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFram
     """
     Download and parse a CLIMAT dataset from DWD FTP.
     """
-    config = PARAMETER_CONFIGS.get(parameter)
-    if not config:
+    param_config = PARAMETER_CONFIGS.get(parameter)
+    if not param_config:
         logger.debug(f"Unknown parameter '{parameter}'")
         return None
 
     ftp = get_ftp_connection()
     search_term = station_code if mode == "recent" else f"{station_code}_"
-    remote_file = find_file(ftp, mode, config["dir"], search_term)
+    remote_file = find_file(ftp, mode, param_config["dir"], search_term)
 
     if not remote_file:
         logger.debug(
@@ -103,7 +102,7 @@ def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFram
 
     buffer.seek(0)
     df = pd.read_csv(buffer, sep=";").rename(columns=lambda col: col.strip().lower())
-    df.rename(columns=config["stubnames"], inplace=True)
+    df.rename(columns=param_config["stubnames"], inplace=True)
 
     # Convert wide to long format
     df = pd.wide_to_long(
@@ -159,7 +158,7 @@ def fetch(query: Query) -> pd.DataFrame:
         modes.append("recent")
 
     data_frames = [
-        get_parameter(param.value, CNF.get("modes", modes), query.station)
+        get_parameter(param.value, config.dwd_climat_modes or modes, query.station)
         for param in query.parameters
         if param in PARAMETER_CONFIGS
     ]
