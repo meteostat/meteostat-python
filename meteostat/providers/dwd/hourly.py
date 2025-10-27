@@ -21,6 +21,7 @@ from meteostat.utils.converters import ms_to_kmh
 from meteostat.providers.dwd.shared import get_condicode
 from meteostat.providers.dwd.shared import get_ftp_connection
 
+
 class ParameterDefinition(TypedDict):
     dir: str
     usecols: List[int]

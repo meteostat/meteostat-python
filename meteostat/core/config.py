@@ -12,7 +12,9 @@ class ConfigService:
 
     # Cache settings
     cache_enable: bool = True
-    cache_directory: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
+    cache_directory: str = (
+        os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
+    )
     cache_ttl: int = TTL.MONTH
     cache_autoclean: bool = True
 
@@ -23,7 +25,9 @@ class ConfigService:
     stations_db_prefer: bool = False
     stations_db_ttl: int = TTL.WEEK
     stations_db_url: str = "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
-    stations_db_file: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
+    stations_db_file: str = (
+        os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
+    )
     stations_meta_mirrors: list = [
         "https://cdn.jsdelivr.net/gh/meteostat/weather-stations/stations/{id}.json",
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations/{id}.json",
@@ -37,9 +41,15 @@ class ConfigService:
     ]
 
     # [Provider] Meteostat settings
-    meteostat_hourly_endpoint: str = "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
-    meteostat_daily_endpoint: str = "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
-    meteostat_monthly_endpoint: str = "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
+    meteostat_hourly_endpoint: str = (
+        "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
+    )
+    meteostat_daily_endpoint: str = (
+        "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
+    )
+    meteostat_monthly_endpoint: str = (
+        "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
+    )
 
     # [Provider] DWD settings
     dwd_ftp_host: str = "opendata.dwd.de"
@@ -68,7 +78,7 @@ class ConfigService:
         """
         # Extract the expected type for the property
         expected_type, original_type = extract_property_type(self.__class__, key)
-        
+
         if expected_type is None:
             # Fallback to JSON parsing if no type annotation is available
             try:
@@ -76,14 +86,14 @@ class ConfigService:
             except (json.JSONDecodeError, TypeError, ValueError):
                 logger.error(f"Failed to parse environment variable '{key}'")
                 return None
-        
+
         # Parse the value using JSON
         try:
             parsed_value = json.loads(value)
         except (json.JSONDecodeError, TypeError, ValueError):
             logger.error(f"Failed to parse environment variable '{key}'")
             return None
-        
+
         # Validate and potentially convert the parsed value
         return validate_parsed_value(parsed_value, expected_type, original_type, key)
 
