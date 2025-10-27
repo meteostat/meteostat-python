@@ -12,7 +12,9 @@ class ConfigService:
 
     # Cache settings
     cache_enable: bool = True
-    cache_directory: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
+    cache_directory: str = (
+        os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
+    )
     cache_ttl: int = TTL.MONTH
     cache_autoclean: bool = True
 
@@ -22,7 +24,9 @@ class ConfigService:
     # Station meta data settings
     stations_db_prefer: bool = False
     stations_db_ttl: int = TTL.WEEK
-    stations_db_url: str = "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
+    stations_db_url: str = (
+        "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
+    )
     stations_db_file: str = (
         os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
     )
@@ -35,9 +39,15 @@ class ConfigService:
     lapse_rate_parameters = [Parameter.TEMP, Parameter.TMIN, Parameter.TMAX]
 
     # [Provider] Meteostat settings
-    meteostat_hourly_endpoint: str = "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
-    meteostat_daily_endpoint: str = "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
-    meteostat_monthly_endpoint: str = "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
+    meteostat_hourly_endpoint: str = (
+        "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
+    )
+    meteostat_daily_endpoint: str = (
+        "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
+    )
+    meteostat_monthly_endpoint: str = (
+        "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
+    )
 
     # [Provider] DWD settings
     dwd_ftp_host: str = "opendata.dwd.de"
@@ -46,11 +56,15 @@ class ConfigService:
     dwd_climat_modes: Optional[list] = None
 
     # [Provider] NOAA settings
-    aviationweather_endpoint: str = "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
+    aviationweather_endpoint: str = (
+        "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
+    )
     aviationweather_user_agent: Optional[str] = None
 
     # [Provider] Met.no settings
-    metno_forecast_endpoint: str = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={latitude}&lon={longitude}&altitude={elevation}"
+    metno_forecast_endpoint: str = (
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={latitude}&lon={longitude}&altitude={elevation}"
+    )
     metno_user_agent: Optional[str] = None
 
     @property
