@@ -60,7 +60,7 @@ class CacheService:
         """
         Create the cache directory if it doesn't exist
         """
-        cache_dir = config.get("cache.directory")
+        cache_dir = config.cache_directory
 
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir)
@@ -106,13 +106,13 @@ class CacheService:
         """
         Get path of a cached file based on its uid and file type
         """
-        return config.get("cache.directory") + os.sep + f"{uid}.{filetype}"
+        return config.cache_directory + os.sep + f"{uid}.{filetype}"
 
     @staticmethod
     def is_stale(path: str, ttl: int) -> bool:
         return (
             True
-            if time() - os.path.getmtime(path) > max([ttl, config.get("cache.ttl")])
+            if time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
             else False
         )
 
@@ -149,11 +149,11 @@ class CacheService:
         Remove stale files from disk cache
         """
         if ttl is None:
-            ttl = config.get("cache.ttl")
+            ttl = config.cache_ttl
 
         logger.debug(f"Removing cached files older than {ttl} seconds")
 
-        cache_dir = config.get("cache.directory")
+        cache_dir = config.cache_directory
 
         if os.path.exists(cache_dir):
             # Get current time
@@ -180,12 +180,12 @@ class CacheService:
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
-                if not config.get("cache.enable"):
+                if not config.cache_enable:
                     logger.debug(
                         f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
                     )
                     return func(*args, **kwargs)
-                if config.get("cache.autoclean") and not self._purged:
+                if config.cache_autoclean and not self._purged:
                     self.purge()
                     self._purged = True
                 return self.from_func(

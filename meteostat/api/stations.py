@@ -24,7 +24,7 @@ class Stations:
         """
         Download the SQLite database file from the configured URL
         """
-        url = config.get("stations.database.url")
+        url = config.stations_db_url
 
         response = network_service.get(url, stream=stream)
 
@@ -37,8 +37,8 @@ class Stations:
         """
         Get the file path for the SQLite database
         """
-        filepath = config.get("stations.database.file")
-        ttl = config.get("stations.database.ttl")
+        filepath = config.stations_db_file
+        ttl = config.stations_db_ttl
 
         if os.path.exists(filepath) and not cache_service.is_stale(filepath, ttl):
             return filepath
@@ -91,7 +91,7 @@ class Stations:
         Connect to the database
         """
         if in_memory is None:
-            in_memory = config.get("stations.database.file") is None
+            in_memory = config.stations_db_file is None
 
         logger.info(f"Connecting to stations database (in_memory={in_memory})")
 

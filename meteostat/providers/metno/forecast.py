@@ -5,21 +5,15 @@ import pandas as pd
 import requests
 
 from meteostat.core.config import config
-from meteostat.enumerations import TTL, Parameter, Provider
+from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
 from meteostat.typing import Query
 from meteostat.utils.converters import percentage_to_okta
 from meteostat.core.cache import cache_service
 
 
-cnf = config[Provider.METNO_FORECAST]
-
-
-ENDPOINT: str = cnf.get(
-    "endpoint",
-    "https://api.met.no/weatherapi/locationforecast/2.0/complete.json?lat={latitude}&lon={longitude}&altitude={elevation}",
-)
-USER_AGENT: Optional[str] = cnf.get("user_agent")
+ENDPOINT = config.metno_forecast_endpoint
+USER_AGENT = config.metno_user_agent
 CONDICODES = {
     "clearsky": 1,
     "cloudy": 3,

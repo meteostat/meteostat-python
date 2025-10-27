@@ -5,7 +5,6 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from typing import Optional
 import pandas as pd
-from meteostat.enumerations import Provider
 from meteostat.providers.meteostat.shared import handle_exceptions
 from meteostat.typing import Query
 from meteostat.core.config import config
@@ -13,11 +12,7 @@ from meteostat.core.cache import cache_service
 from meteostat.utils.mutations import reshape_by_source
 
 
-cnf = config[Provider.HOURLY]
-
-ENDPOINT = cnf.get(
-    "endpoint", "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
-)
+ENDPOINT = config.meteostat_hourly_endpoint
 
 
 def get_ttl(_station: str, year: int) -> int:

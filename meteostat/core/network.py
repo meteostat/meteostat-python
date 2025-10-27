@@ -41,7 +41,7 @@ class NetworkService:
             params,
             headers=headers,
             stream=stream,
-            proxies=config.get("network.proxies"),
+            proxies=config.network_proxies,
         )
 
 
