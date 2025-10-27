@@ -69,7 +69,9 @@ def test_multiple_stations_keep_station_index():
 
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        stations=stations_to_df([station1, station2]),  # Multiple stations or list input
+        stations=stations_to_df(
+            [station1, station2]
+        ),  # Multiple stations or list input
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
