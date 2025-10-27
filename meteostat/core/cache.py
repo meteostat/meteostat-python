@@ -54,7 +54,7 @@ class CacheService:
         with open(path, "r") as file:
             raw = file.read()
         return json.loads(raw)
-    
+
     @staticmethod
     def create_cache_dir() -> None:
         """
