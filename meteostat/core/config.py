@@ -12,9 +12,7 @@ class ConfigService:
 
     # Cache settings
     cache_enable: bool = True
-    cache_directory: str = (
-        os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
-    )
+    cache_directory: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
     cache_ttl: int = TTL.MONTH
     cache_autoclean: bool = True
 
@@ -34,22 +32,12 @@ class ConfigService:
     ]
 
     # Interpolation settings
-    lapse_rate_parameters = [
-        Parameter.TEMP,
-        Parameter.TMIN,
-        Parameter.TMAX,
-    ]
+    lapse_rate_parameters = [Parameter.TEMP, Parameter.TMIN, Parameter.TMAX]
 
     # [Provider] Meteostat settings
-    meteostat_hourly_endpoint: str = (
-        "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
-    )
-    meteostat_daily_endpoint: str = (
-        "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
-    )
-    meteostat_monthly_endpoint: str = (
-        "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
-    )
+    meteostat_hourly_endpoint: str = "https://data.meteostat.net/hourly/{year}/{station}.csv.gz"
+    meteostat_daily_endpoint: str = "https://data.meteostat.net/daily/{year}/{station}.csv.gz"
+    meteostat_monthly_endpoint: str = "https://data.meteostat.net/monthly/{year}/{station}.csv.gz"
 
     # [Provider] DWD settings
     dwd_ftp_host: str = "opendata.dwd.de"
