@@ -5,15 +5,17 @@ The Cache Service provides utilities for caching data on the local file system.
 """
 
 from functools import wraps
-from typing import Any, Callable, Optional
+from hashlib import md5
 import json
 import os
 from os.path import exists
-from hashlib import md5
+from time import time
+from typing import Any, Callable, Optional
+
+import pandas as pd
+
 from meteostat.core.config import config
 from meteostat.core.logger import logger
-import pandas as pd
-from time import time
 
 
 class CacheService:
@@ -28,7 +30,10 @@ class CacheService:
         """
         Persist a DataFrame in Pickle format
         """
-        pd.DataFrame().to_pickle(path) if df is None else df.to_pickle(path)
+        if df is None:
+            pd.DataFrame().to_pickle(path)
+        else:
+            df.to_pickle(path)
 
     @staticmethod
     def _read_pickle(path) -> Optional[pd.DataFrame]:
@@ -43,7 +48,7 @@ class CacheService:
         """
         Persist data in JSON format
         """
-        with open(path, "w") as file:
+        with open(path, "w", encoding="utf-8") as file:
             json.dump(data, file)
 
     @staticmethod
@@ -51,7 +56,7 @@ class CacheService:
         """
         Read JSON data into memory
         """
-        with open(path, "r") as file:
+        with open(path, "r", encoding="utf-8") as file:
             raw = file.read()
         return json.loads(raw)
 
@@ -81,23 +86,25 @@ class CacheService:
             ).encode("utf-8")
         ).hexdigest()
 
-    def persist(self, path: str, data: pd.DataFrame | dict | list, type: str) -> None:
+    def persist(
+        self, path: str, data: pd.DataFrame | dict | list, data_type: str
+    ) -> None:
         """
         Persist any given data under a specific path
         """
         # Create cache directory if it doesn't exist
         self.create_cache_dir()
         # Save data locally
-        if type == "json":
+        if data_type == "json":
             self._write_json(path, data)
         else:
             self._write_pickle(path, data)
 
-    def fetch(self, path, type: str) -> pd.DataFrame | dict | list:
+    def fetch(self, path, data_type: str) -> pd.DataFrame | dict | list:
         """
         Fetch data from a given path
         """
-        if type == "json":
+        if data_type == "json":
             return self._read_json(path)
         return self._read_pickle(path)
 
@@ -110,36 +117,42 @@ class CacheService:
 
     @staticmethod
     def is_stale(path: str, ttl: int) -> bool:
-        return (
-            True
-            if time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
-            else False
-        )
+        """
+        Check if a cached file is stale based on its age and TTL
+        """
+        return time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
 
     def from_func(
-        self, func, args, kwargs, ttl: int, format: str
+        self, func, args, kwargs, ttl: int, data_format: str
     ) -> pd.DataFrame | dict | list:
         """
         Cache a function's return value
         """
         uid = self.func_to_uid(func, args, kwargs)  # Get UID for function call
-        path = self.get_cache_path(uid, format)  # Get the local cache path
+        path = self.get_cache_path(uid, data_format)  # Get the local cache path
         result = (
-            self.fetch(path, format)
+            self.fetch(path, data_format)
             if ttl > 0 and exists(path) and not self.is_stale(path, ttl)
             else False
         )
 
+        cache_status = "is" if isinstance(result, pd.DataFrame) or result else "is not"
         logger.debug(
-            f'{func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs} returns {format} and {"is" if isinstance(result, pd.DataFrame) or result else "is not"} served from cache'
+            "%s from module %s with args=%s and kwargs=%s returns %s and %s served from cache",
+            func.__name__,
+            func.__module__,
+            args,
+            kwargs,
+            data_format,
+            cache_status,
         )
 
         if isinstance(result, pd.DataFrame) or result:
             return result
-        else:
-            result = func(*args, **kwargs)
-            if ttl > 0:
-                self.persist(path, result, format)
+
+        result = func(*args, **kwargs)
+        if ttl > 0:
+            self.persist(path, result, data_format)
 
         return result
 
@@ -151,7 +164,7 @@ class CacheService:
         if ttl is None:
             ttl = config.cache_ttl
 
-        logger.debug(f"Removing cached files older than {ttl} seconds")
+        logger.debug("Removing cached files older than %s seconds", ttl)
 
         cache_dir = config.cache_directory
 
@@ -168,7 +181,9 @@ class CacheService:
                     os.remove(path)
 
     def cache(
-        self, ttl: int | Callable[[Any], int] = 60 * 60 * 24, format: str = "json"
+        self,
+        ttl: int | Callable[[Any], int] = 60 * 60 * 24,
+        data_format: str = "json",
     ):
         """
         A simple decorator which caches a function's return value
@@ -182,7 +197,11 @@ class CacheService:
             def wrapper(*args, **kwargs):
                 if not config.cache_enable:
                     logger.debug(
-                        f"Ommitting cache for {func.__name__} from module {func.__module__} with args={args} and kwargs={kwargs}"
+                        "Omitting cache for %s from module %s with args=%s and kwargs=%s",
+                        func.__name__,
+                        func.__module__,
+                        args,
+                        kwargs,
                     )
                     return func(*args, **kwargs)
                 if config.cache_autoclean and not self._purged:
@@ -193,7 +212,7 @@ class CacheService:
                     args,
                     kwargs,
                     ttl if isinstance(ttl, int) else ttl(*args, **kwargs),
-                    format,
+                    data_format,
                 )
 
             return wrapper

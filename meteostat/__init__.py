@@ -31,7 +31,6 @@ from meteostat import units
 # Export public API
 __all__ = [
     "config",
-    "env",
     "Parameter",
     "Provider",
     "stations",

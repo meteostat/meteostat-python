@@ -43,10 +43,9 @@ def filter_parameters(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataF
     Filter DataFrame based on requested parameters
     """
     # Remove obsolete columns
-    [
-        df.drop(col, axis=1, inplace=True) if col not in parameters else None
-        for col in df.columns
-    ]
+    for col in df.columns:
+        if col not in parameters:
+            df.drop(col, axis=1, inplace=True)
     # Add missing columns
     for col in parameters:
         if col not in df:

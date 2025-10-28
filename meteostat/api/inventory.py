@@ -1,3 +1,9 @@
+"""
+Inventory Module
+
+Provides classes for working with weather station data inventories.
+"""
+
 from datetime import date, datetime
 from typing import List, Optional
 
@@ -19,6 +25,9 @@ class Inventory:
 
     @property
     def start(self) -> Optional[date]:
+        """
+        Get the earliest start date from the inventory
+        """
         return (
             datetime.strptime(self.df["start"].min(), "%Y-%m-%d").date()
             if self.df is not None
@@ -27,6 +36,9 @@ class Inventory:
 
     @property
     def end(self) -> Optional[date]:
+        """
+        Get the latest end date from the inventory
+        """
         return (
             datetime.strptime(self.df["end"].max(), "%Y-%m-%d").date()
             if self.df is not None
@@ -35,6 +47,9 @@ class Inventory:
 
     @property
     def parameters(self) -> Optional[List[Parameter]]:
+        """
+        Get the list of available parameters from the inventory
+        """
         return [
             Parameter[parameter.upper()]
             for parameter in self.df.index.get_level_values("parameter").unique()

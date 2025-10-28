@@ -28,11 +28,17 @@ class NetworkService:
         return headers
 
     def get(
-        self, url: str, params=None, headers: dict = {}, stream: Optional[bool] = None
+        self,
+        url: str,
+        params=None,
+        headers: Optional[dict] = None,
+        stream: Optional[bool] = None,
     ) -> requests.Response:
         """
         Send a GET request using the Meteostat configuration
         """
+        if headers is None:
+            headers = {}
 
         headers = self._process_headers(headers)
 
@@ -42,6 +48,7 @@ class NetworkService:
             headers=headers,
             stream=stream,
             proxies=config.network_proxies,
+            timeout=30,
         )
 
 

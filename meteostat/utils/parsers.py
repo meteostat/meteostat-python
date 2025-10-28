@@ -57,7 +57,7 @@ def parse_station(
         return meta
 
     # Convert station identifier(s) to list (multi-station)
-    if isinstance(station, pd.Series) or isinstance(station, pd.DataFrame):
+    if isinstance(station, (pd.Series, pd.DataFrame)):
         stations = station.index.tolist()
     elif isinstance(station, pd.Index):
         stations = station.tolist()
@@ -162,4 +162,7 @@ def parse_month(
 
 
 def parse_year(year: int, is_end: bool = False) -> datetime.date:
+    """
+    Parse a year into a date, returning either the first or last day of the year
+    """
     return datetime.date(year, 12, 31) if is_end else datetime.date(year, 1, 1)

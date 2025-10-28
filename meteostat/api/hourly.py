@@ -33,8 +33,8 @@ def hourly(
     start: Optional[datetime | date],
     end: Optional[datetime | date],
     timezone: Optional[str] = None,
-    parameters: List[Parameter] = DEFAULT_PARAMETERS,
-    providers: List[Provider] = [Provider.HOURLY],
+    parameters: Optional[List[Parameter]] = None,
+    providers: Optional[List[Provider]] = None,
     model: bool = True,
 ):
     """
@@ -63,6 +63,11 @@ def hourly(
     TimeSeries
         A TimeSeries object containing the hourly data for the specified stations and parameters.
     """
+    if parameters is None:
+        parameters = DEFAULT_PARAMETERS
+    if providers is None:
+        providers = [Provider.HOURLY]
+
     req = Request(
         granularity=Granularity.HOURLY,
         providers=providers,

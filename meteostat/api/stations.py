@@ -1,3 +1,9 @@
+"""
+Stations Module
+
+Provides the Stations class for working with weather station metadata.
+"""
+
 from io import BytesIO
 import os
 import sqlite3
@@ -93,7 +99,7 @@ class Stations:
         if in_memory is None:
             in_memory = config.stations_db_file is None
 
-        logger.info(f"Connecting to stations database (in_memory={in_memory})")
+        logger.info("Connecting to stations database (in_memory=%s)", in_memory)
 
         if in_memory:
             return self._connect_memory()
@@ -149,14 +155,14 @@ class Stations:
         Get inventory records for a single weather station
         """
         query = "SELECT station, provider, parameter, start, end, completeness FROM `inventory`"
-        stations = station if isinstance(station, list) else [station]
+        station_list = station if isinstance(station, list) else [station]
 
         # Generate the right number of placeholders (?, ?, ?, ...)
-        placeholders = ", ".join(["?"] * len(stations))
+        placeholders = ", ".join(["?"] * len(station_list))
         # Add the placeholders to the query
         query += f" WHERE `station`  IN ({placeholders})"
         # Add the stations to the params
-        params = tuple(stations)
+        params = tuple(station_list)
 
         if providers:
             # Generate the right number of placeholders (?, ?, ?, ...)
@@ -190,7 +196,9 @@ class Stations:
                 ROUND(
                     (
                         6371000 * acos(
-                            cos(radians(:lat)) * cos(radians(`latitude`)) * cos(radians(`longitude`) - radians(:lon)) + sin(radians(:lat)) * sin(radians(`latitude`))
+                            cos(radians(:lat)) * cos(radians(`latitude`)) * 
+                            cos(radians(`longitude`) - radians(:lon)) + 
+                            sin(radians(:lat)) * sin(radians(`latitude`))
                         )
                     ),
                     1

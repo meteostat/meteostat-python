@@ -54,6 +54,9 @@ def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
 def fill_df(
     df: pd.DataFrame, start: datetime, end: datetime, freq: str
 ) -> pd.DataFrame:
+    """
+    Fill a DataFrame with a complete date range for each station
+    """
     try:
         iterables = [
             df.index.get_level_values("station").unique(),
@@ -117,6 +120,9 @@ def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
+    """
+    Enforce a specific frequency on a DataFrame by resampling
+    """
     df.index = pd.to_datetime(df.index.get_level_values("time"))
     return df.resample(freq).first()
 
