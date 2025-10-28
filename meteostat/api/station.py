@@ -49,13 +49,13 @@ def _fetch_station(station_id: str) -> Optional[dict]:
     return None
 
 
-def station(station_id: str) -> Optional[Station]:
+def station(id: str) -> Optional[Station]:
     """
     Get meta data for a specific weather station.
 
     Parameters
     ----------
-    station_id : str
+    id : str
         Unique identifier of the weather station.
 
     Returns
@@ -64,8 +64,8 @@ def station(station_id: str) -> Optional[Station]:
         A Station object containing the meta data for the specified weather station.
     """
     if config.stations_db_prefer:
-        return stations.meta(station_id)
+        return stations.meta(id)
 
-    meta_data = _fetch_station(station_id)
+    meta_data = _fetch_station(id)
 
     return Station(**meta_data) if meta_data else None
