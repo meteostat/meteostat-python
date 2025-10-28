@@ -38,8 +38,7 @@ class Parameter(StrEnum):
     TXMX = "txmx"  # Extreme maximum air temperature (aggregation: max)
     DWPT = "dwpt"  # Dew point (aggregation: mean)
     PRCP = "prcp"  # Precipitation (aggregation: sum)
-    # Days with precipitation equal to or greater than 1 millimeter (aggregation: sum)
-    PDAY = "pday"
+    PDAY = "pday"  # Days with precipitation equal to or greater than 1 millimeter (aggregation: sum)
     WDIR = "wdir"  # Wind direction at observation time
     WSPD = "wspd"  # Wind speed (aggregation: mean)
     WPGT = "wpgt"  # Peak wind gust (aggregation: max)
