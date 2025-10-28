@@ -69,7 +69,7 @@ def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = Parameter
                 1,
             )
         )
-    except BaseException:
+    except Exception:
         return None
 
 

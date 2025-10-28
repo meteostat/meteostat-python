@@ -37,6 +37,9 @@ def get_distance(lat1, lon1, lat2, lon2) -> int:
 
 
 def get_index(obj: Iterable, index: int, default=None) -> Any:
+    """
+    Get an item from an iterable by index, returning a default value if not accessible
+    """
     try:
         return obj[index]
     except TypeError:
@@ -44,6 +47,9 @@ def get_index(obj: Iterable, index: int, default=None) -> Any:
 
 
 def get_intersection(list1, list2) -> List[Any]:
+    """
+    Get the intersection of two lists while preserving the order from list1
+    """
     set1 = set(list1)
     set2 = set(list2)
     intersection_set = set1.intersection(set2)

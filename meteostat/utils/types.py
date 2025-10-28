@@ -96,13 +96,12 @@ def validate_parsed_value(
     if expected_type is bool and isinstance(value, int):
         if value == 0:
             return False
-        elif value == 1:
+        if value == 1:
             return True
-        else:
-            raise ValueError(
-                f"Environment variable '{property_name}' has value {value} "
-                f"but boolean type only accepts 0, 1, true, or false"
-            )
+        raise ValueError(
+            f"Environment variable '{property_name}' has value {value} "
+            f"but boolean type only accepts 0, 1, true, or false"
+        )
 
     # Type mismatch
     raise ValueError(
