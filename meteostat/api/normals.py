@@ -4,7 +4,7 @@ Climate Normals
 Access climate normals data for one or multiple weather stations.
 """
 
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -48,7 +48,8 @@ def normals(
     Returns
     -------
     TimeSeries
-        A TimeSeries object containing the climate normals data for the specified stations and parameters.
+        A TimeSeries object containing the climate normals data for the specified
+        stations and parameters.
     """
     if parameters is None:
         parameters = DEFAULT_PARAMETERS
