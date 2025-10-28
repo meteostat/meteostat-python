@@ -8,7 +8,7 @@ from metar import Metar
 
 from meteostat.core.logger import logger
 from meteostat.core.config import config
-from meteostat.enumerations import TTL, Frequency, Parameter, Provider
+from meteostat.enumerations import TTL
 from meteostat.typing import Query
 from meteostat.utils.converters import temp_dwpt_to_rhum
 from meteostat.core.cache import cache_service

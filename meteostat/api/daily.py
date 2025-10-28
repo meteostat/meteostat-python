@@ -4,7 +4,7 @@ Daily Time Series Data
 Access daily time series data for one or multiple weather stations.
 """
 
-from typing import List, Union, Optional
+from typing import List, Optional
 from datetime import datetime, date
 import pandas as pd
 from meteostat.core.data import data_service

@@ -13,7 +13,7 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 from meteostat.core.providers import provider_service
-from meteostat.enumerations import Frequency, Parameter
+from meteostat.enumerations import Frequency
 from meteostat.typing import Station
 from meteostat.utils.helpers import order_source_columns
 
@@ -78,31 +78,6 @@ def localize(df: pd.DataFrame, timezone: str) -> pd.DataFrame:
     Convert time data to any time zone
     """
     return df.tz_localize("UTC", level="time").tz_convert(timezone, level="time")
-
-
-def apply_lapse_rate(
-    df: pd.DataFrame,
-    target_elevation: int,
-    columns: list[Parameter] = [
-        Parameter.TEMP,
-        Parameter.DWPT,
-        Parameter.TMIN,
-        Parameter.TMAX,
-    ],
-) -> pd.DataFrame:
-    """
-    Calculate approximate temperature at target elevation
-    """
-    # Standard lapse rate in degrees Celsius per meter
-    LAPSE_RATE = 0.0065
-
-    for col in columns:
-        if col in df.columns:
-            df.loc[df[col] != np.NaN, col] = round(
-                df[col] + (LAPSE_RATE * (df["elevation"] - target_elevation)), 1
-            )
-
-    return df
 
 
 def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:

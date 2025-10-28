@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 from meteostat.core.config import config
-from meteostat.enumerations import Parameter
 
 
 def apply_lapse_rate(
