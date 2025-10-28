@@ -1,3 +1,11 @@
+"""
+Configuration Service
+
+Manages configuration settings for Meteostat, including cache, network,
+stations, interpolation, and provider-specific settings. Configuration can be
+loaded from environment variables with the MS_ prefix.
+"""
+
 import os
 import json
 from typing import Any, Optional
@@ -8,6 +16,14 @@ from meteostat.utils.types import extract_property_type, validate_parsed_value
 
 
 class ConfigService:
+    """
+    Configuration Service for Meteostat
+
+    Manages all configuration settings including cache, network, stations,
+    interpolation, and provider-specific settings. Supports loading configuration
+    from environment variables.
+    """
+
     _prefix: str
 
     # Cache settings
@@ -57,13 +73,15 @@ class ConfigService:
 
     # [Provider] NOAA settings
     aviationweather_endpoint: str = (
-        "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
+        "https://aviationweather.gov/api/data/metar?"
+        "ids={station}&format=raw&taf=false&hours=24"
     )
     aviationweather_user_agent: Optional[str] = None
 
     # [Provider] Met.no settings
     metno_forecast_endpoint: str = (
-        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={latitude}&lon={longitude}&altitude={elevation}"
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?"
+        "lat={latitude}&lon={longitude}&altitude={elevation}"
     )
     metno_user_agent: Optional[str] = None
 
@@ -86,14 +104,14 @@ class ConfigService:
             try:
                 return json.loads(value)
             except (json.JSONDecodeError, TypeError, ValueError):
-                logger.error(f"Failed to parse environment variable '{key}'")
+                logger.error("Failed to parse environment variable '%s'", key)
                 return None
 
         # Parse the value using JSON
         try:
             parsed_value = json.loads(value)
         except (json.JSONDecodeError, TypeError, ValueError):
-            logger.error(f"Failed to parse environment variable '{key}'")
+            logger.error("Failed to parse environment variable '%s'", key)
             return None
 
         # Validate and potentially convert the parsed value
