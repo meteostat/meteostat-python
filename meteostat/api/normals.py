@@ -22,8 +22,8 @@ def normals(
     station: str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series,
     start: int = 1961,
     end: int = 1990,
-    parameters: List[Parameter] = DEFAULT_PARAMETERS,
-    providers: List[Provider] = [Provider.MONTHLY],
+    parameters: Optional[List[Parameter]] = None,
+    providers: Optional[List[Provider]] = None,
     max_missing: int = 3,
 ):
     """
@@ -50,6 +50,10 @@ def normals(
     TimeSeries
         A TimeSeries object containing the climate normals data for the specified stations and parameters.
     """
+    if parameters is None:
+        parameters = DEFAULT_PARAMETERS
+    if providers is None:
+        providers = [Provider.MONTHLY]
 
     def _mean(group: pd.Series):
         """

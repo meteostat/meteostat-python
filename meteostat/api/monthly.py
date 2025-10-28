@@ -29,8 +29,8 @@ def monthly(
     station: str | Station | Point | List[str | Station | Point] | pd.Index | pd.Series,
     start: Optional[datetime | date],
     end: Optional[datetime | date],
-    parameters: List[Parameter] = DEFAULT_PARAMETERS,
-    providers: List[Provider] = [Provider.MONTHLY],
+    parameters: Optional[List[Parameter]] = None,
+    providers: Optional[List[Provider]] = None,
     model: bool = True,
 ):
     """
@@ -57,6 +57,11 @@ def monthly(
     TimeSeries
         A TimeSeries object containing the monthly data for the specified stations and parameters.
     """
+    if parameters is None:
+        parameters = DEFAULT_PARAMETERS
+    if providers is None:
+        providers = [Provider.MONTHLY]
+
     req = Request(
         granularity=Granularity.MONTHLY,
         providers=providers,

@@ -122,7 +122,7 @@ class TimeSeries:
         """
         Is commercial use allowed?
         """
-        return all([provider.license.commercial for provider in self.providers])
+        return all(provider.license.commercial for provider in self.providers)
 
     @property
     def licenses(self) -> List[License]:
@@ -184,9 +184,9 @@ class TimeSeries:
             temp_diff = temp_by_station[a] - temp_by_station[b]
             elev_diff = elev_by_station[a] - elev_by_station[b]
 
-            lapse_rate = (
-                (temp_diff / elev_diff) * 1000 * -1
-            )  # multiply by -1 to get positive lapse rate for decreasing temp with increasing elevation
+            # multiply by -1 to get positive lapse rate for decreasing temp
+            # with increasing elevation
+            lapse_rate = (temp_diff / elev_diff) * 1000 * -1
             lapse_rates.append(lapse_rate)
 
         if not lapse_rates:
@@ -238,7 +238,8 @@ class TimeSeries:
         sources : bool, optional
             Whether to include source information in the DataFrame. Defaults to False.
         location : bool, optional
-            Whether to include location information (latitude, longitude, elevation) in the DataFrame. Defaults to False.
+            Whether to include location information (latitude, longitude, elevation)
+            in the DataFrame. Defaults to False.
         clean : bool, optional
             Whether to clean the DataFrame according to the schema. Defaults to True.
 
@@ -304,7 +305,8 @@ class TimeSeries:
         Parameters
         ----------
         parameter : Parameter or str, optional
-            The parameter to calculate completeness for. If None, calculates for the entire DataFrame.
+            The parameter to calculate completeness for.
+            If None, calculates for the entire DataFrame.
 
         Returns
         -------

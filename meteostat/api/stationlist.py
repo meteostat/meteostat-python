@@ -1,3 +1,9 @@
+"""
+Station List Module
+
+Provides classes for managing lists of weather stations.
+"""
+
 from typing import List
 
 import pandas as pd

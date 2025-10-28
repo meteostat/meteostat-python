@@ -1,3 +1,9 @@
+"""
+Concatenation Module
+
+Provides functions to concatenate multiple time series objects into one.
+"""
+
 from copy import copy
 from datetime import datetime
 from typing import List, Optional

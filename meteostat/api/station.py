@@ -1,3 +1,9 @@
+"""
+Station Module
+
+Provides functions to fetch individual weather station metadata.
+"""
+
 from typing import Optional
 from requests import HTTPError, Timeout
 from meteostat.core.config import config
@@ -10,7 +16,7 @@ from meteostat.api.stations import stations
 
 
 @cache_service.cache(TTL.WEEK)
-def _fetch_station(id: str) -> Optional[dict]:
+def _fetch_station(station_id: str) -> Optional[dict]:
     """
     Fetch meta data for a specific weather station from static JSON file
     """
@@ -21,32 +27,35 @@ def _fetch_station(id: str) -> Optional[dict]:
 
     for mirror in mirrors:
         try:
-            with network_service.get(mirror.format(id=id)) as res:
+            with network_service.get(mirror.format(id=station_id)) as res:
                 if res.status_code == 200:
                     # Parse JSON response
-                    station = res.json()
+                    station_data = res.json()
                     # Extract English name
-                    station["name"] = station["name"]["en"]
+                    station_data["name"] = station_data["name"]["en"]
                     # Extract location data
-                    station["latitude"] = station["location"]["latitude"]
-                    station["longitude"] = station["location"]["longitude"]
-                    station["elevation"] = station["location"]["elevation"]
+                    station_data["latitude"] = station_data["location"]["latitude"]
+                    station_data["longitude"] = station_data["location"]["longitude"]
+                    station_data["elevation"] = station_data["location"]["elevation"]
                     # Remove unused data
-                    station.pop("location", None)
-                    station.pop("active", None)
+                    station_data.pop("location", None)
+                    station_data.pop("active", None)
                     # Return station dictionary
-                    return station
+                    return station_data
         except (HTTPError, Timeout):
-            logger.warning(f"Could not fetch weather station meta data from '{mirror}'")
+            logger.warning(
+                "Could not fetch weather station meta data from '%s'", mirror
+            )
+    return None
 
 
-def station(id: str) -> Optional[Station]:
+def station(station_id: str) -> Optional[Station]:
     """
     Get meta data for a specific weather station.
 
     Parameters
     ----------
-    id : str
+    station_id : str
         Unique identifier of the weather station.
 
     Returns
@@ -55,8 +64,8 @@ def station(id: str) -> Optional[Station]:
         A Station object containing the meta data for the specified weather station.
     """
     if config.stations_db_prefer:
-        return stations.meta(id)
+        return stations.meta(station_id)
 
-    meta_data = _fetch_station(id)
+    meta_data = _fetch_station(station_id)
 
     return Station(**meta_data) if meta_data else None
