@@ -125,7 +125,7 @@ def dly_to_df(ftp, station_id):
 
         # Read metadata for each line
         # (one month of data for a particular element per line)
-        _id_station = stream.read(11)
+        stream.read(11)  # station ID (not used in this loop)
         year = stream.read(4)
         month = stream.read(2)
         day = 0
@@ -143,8 +143,7 @@ def dly_to_df(ftp, station_id):
             # current row
             if day == 1:
                 try:
-                    _first_hit = element_flag[element]
-                    pass
+                    element_flag[element]
                 except BaseException:
                     element_flag[element] = 1
                     all_dicts[element] = {}

@@ -102,7 +102,6 @@ def find_file(ftp: FTP, path: str, needle: str):
         logger.debug(f"Found file '{match}' in '{path}' directory")
     except IndexError:
         logger.info(f"File '{needle}' not found in '{path}' directory")
-        pass
 
     return match
 

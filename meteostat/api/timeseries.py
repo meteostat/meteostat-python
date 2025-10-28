@@ -206,7 +206,7 @@ class TimeSeries:
         return temp
 
     def filter_providers(
-        self, provider: Provider | List[Provider], exclude=False, strict=True
+        self, provider: Provider | List[Provider], exclude=False
     ) -> "TimeSeries":
         """
         Filter data by provider(s)
