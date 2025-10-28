@@ -58,7 +58,7 @@ class ProviderService:
         """
         Get priority of a provider by its ID
         """
-        BASELINES = {
+        baselines = {
             Granularity.HOURLY: 0,
             Granularity.DAILY: 100,
             Granularity.MONTHLY: 200,
@@ -70,7 +70,7 @@ class ProviderService:
         if not provider:
             return Priority.NONE
 
-        baseline = BASELINES[provider.granularity]
+        baseline = baselines[provider.granularity]
 
         return int(provider.priority + baseline)
 
@@ -98,14 +98,17 @@ class ProviderService:
             # Filter out providers with diverging granularities
             if provider.granularity is not query.granularity:
                 logger.error(
-                    f"Provider '{provider_id}' does not support granularity '{query.granularity}'"
+                    "Provider '%s' does not support granularity '%s'",
+                    provider_id,
+                    query.granularity,
                 )
                 return False
 
             # Filter out providers with no overlap in parameters
             if set(provider.parameters).isdisjoint(query.parameters):
                 logger.info(
-                    f"Provider '{provider_id}' does not support any requested parameter"
+                    "Provider '%s' does not support any requested parameter",
+                    provider_id,
                 )
                 return False
 
@@ -115,14 +118,17 @@ class ProviderService:
                 Grade.ANALYSIS,
             ):
                 logger.info(
-                    f"Skipping provider '{provider_id}' as it only provides modeled data"
+                    "Skipping provider '%s' as it only provides modeled data",
+                    provider_id,
                 )
                 return False
 
             # Filter out providers which do not serve the station's country
             if provider.countries and station.country not in provider.countries:
                 logger.info(
-                    f"Skipping provider '{provider_id}' as it does not serve the station's country ('{station.country}')"
+                    "Skipping provider '%s' as it does not serve the station's country ('%s')",
+                    provider_id,
+                    station.country,
                 )
                 return False
 
@@ -131,7 +137,8 @@ class ProviderService:
                 provider.start, datetime.min.time()
             ):
                 logger.info(
-                    f"Skipping provider '{provider_id}' as it stopped providing data before the request's start date"
+                    "Skipping provider '%s' as it stopped providing data before request start",
+                    provider_id,
                 )
                 return False
 
@@ -142,7 +149,8 @@ class ProviderService:
                 and query.start > datetime.combine(provider.end, datetime.max.time())
             ):
                 logger.info(
-                    f"Skipping provider '{provider_id}' as it only started providing data after the request's end date"
+                    "Skipping provider '%s' as it only started providing data after request end",
+                    provider_id,
                 )
                 return False
 

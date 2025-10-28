@@ -85,7 +85,8 @@ class DataService:
 
         except Exception:
             logger.error(
-                f'Could not fetch data for provider "{provider}"',
+                'Could not fetch data for provider "%s"',
+                provider,
                 exc_info=True,
             )
 
@@ -126,11 +127,9 @@ class DataService:
             )
 
         # Return filtered time series
-        return (
-            ts.filter_providers(excluded_providers, exclude=True)
-            if len(excluded_providers)
-            else ts
-        )
+        if excluded_providers:
+            return ts.filter_providers(excluded_providers, exclude=True)
+        return ts
 
     def fetch(
         self,
@@ -143,7 +142,7 @@ class DataService:
         stations = req.station if isinstance(req.station, list) else [req.station]
 
         logger.debug(
-            f"{req.granularity} time series requested for {len(stations)} station(s)"
+            "%s time series requested for %s station(s)", req.granularity, len(stations)
         )
 
         # Filter parameters
@@ -157,15 +156,14 @@ class DataService:
         for station in stations:
             station_fragments = self._fetch_station_data(req, station)
 
-            if len(station_fragments):
+            if station_fragments:
                 fragments.extend(station_fragments)
 
         # Merge data in a single DataFrame
-        df = (
-            self.concat_fragments(fragments, req.parameters)
-            if fragments
-            else pd.DataFrame()
-        )
+        if fragments:
+            df = self.concat_fragments(fragments, req.parameters)
+        else:
+            df = pd.DataFrame()
 
         # Set data types
         df = schema_service.format(df, req.granularity)

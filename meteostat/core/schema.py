@@ -73,7 +73,7 @@ class SchemaService:
 
             if not parameter:
                 logger.warning(
-                    f"Column {col} is not a valid column name and won't be formatted"
+                    "Column %s is not a valid column name and won't be formatted", col
                 )
 
             if "int" in str(parameter.dtype).lower():
@@ -103,7 +103,7 @@ class SchemaService:
 
             if not parameter:
                 logger.warning(
-                    f"Column {col} is not a valid column name and won't be cleaned"
+                    "Column %s is not a valid column name and won't be cleaned", col
                 )
                 continue
 

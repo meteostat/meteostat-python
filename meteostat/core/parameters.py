@@ -101,9 +101,10 @@ class ParameterService:
         # Get difference between requested parameters and root schema
         diff = set(parameters).difference(supported_parameters)
         # Log warning
-        if len(diff):
+        if diff:
             logger.error(
-                f"Tried to request data for unsupported parameter(s): {', '.join(diff)}"
+                "Tried to request data for unsupported parameter(s): %s",
+                ", ".join(diff),
             )
         # Return intersection
         return list(
