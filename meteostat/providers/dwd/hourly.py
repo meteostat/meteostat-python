@@ -11,7 +11,9 @@ from ftplib import FTP
 from io import BytesIO
 from typing import Callable, Dict, List, NotRequired, Optional, TypedDict
 from zipfile import ZipFile
+
 import pandas as pd
+
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
 from meteostat.typing import Query, Station

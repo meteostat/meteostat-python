@@ -10,8 +10,10 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import List, Optional
+
 import numpy as np
 import pandas as pd
+
 from meteostat.core.providers import provider_service
 from meteostat.enumerations import Frequency
 from meteostat.typing import Station

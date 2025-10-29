@@ -2,6 +2,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+
 from meteostat.enumerations import Parameter, Provider
 from meteostat.api.daily import daily
 from meteostat.typing import Query

@@ -7,6 +7,7 @@ The code is licensed under the MIT license.
 
 import math
 from typing import Optional
+
 from numpy import isnan
 
 from meteostat.enumerations import Parameter

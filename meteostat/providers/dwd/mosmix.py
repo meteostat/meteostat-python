@@ -4,12 +4,13 @@ DWD MOSMIX data provider
 Parameters: https://www.dwd.de/DE/leistungen/met_verfahren_mosmix/mosmix_parameteruebersicht.pdf?__blob=publicationFile&v=3
 """
 
-from io import BytesIO
 import re
+from io import BytesIO
 from typing import Optional
 from datetime import datetime
 from zipfile import ZipFile
 from lxml import etree
+
 import pandas as pd
 
 from meteostat.enumerations import Parameter

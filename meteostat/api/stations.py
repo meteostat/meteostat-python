@@ -4,12 +4,13 @@ Stations Module
 Provides the Stations class for working with weather station metadata.
 """
 
-from io import BytesIO
 import os
-import sqlite3
 from typing import List, Optional
+from io import BytesIO
+import sqlite3
 
 import pandas as pd
+
 from requests import Response
 from meteostat.api.inventory import Inventory
 from meteostat.api.point import Point

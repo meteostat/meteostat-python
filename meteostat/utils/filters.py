@@ -10,7 +10,9 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import Iterator, List, Optional, TypeGuard, Union
+
 import pandas as pd
+
 from meteostat.enumerations import Granularity, Parameter, Provider
 from meteostat.typing import ProviderSpec
 

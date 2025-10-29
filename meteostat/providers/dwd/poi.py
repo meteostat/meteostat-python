@@ -1,5 +1,6 @@
 from typing import Optional, Union
 from urllib.error import HTTPError
+
 import pandas as pd
 
 from meteostat.core.logger import logger

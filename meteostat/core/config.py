@@ -134,6 +134,9 @@ class ConfigService:
         """
         Get the environment variable name for a given key
         """
+        if not hasattr(self, key):
+            raise KeyError(f"Configuration has no key '{key}'")
+        
         key = f"{self.prefix}{key}"
         return key.upper()
 

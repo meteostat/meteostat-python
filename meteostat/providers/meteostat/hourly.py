@@ -4,7 +4,9 @@ The code is licensed under the MIT license.
 
 from datetime import datetime
 from typing import Optional
+
 import pandas as pd
+
 from meteostat.providers.meteostat.shared import handle_exceptions
 from meteostat.typing import Query
 from meteostat.core.config import config

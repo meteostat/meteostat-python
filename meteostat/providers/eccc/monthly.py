@@ -1,9 +1,10 @@
 from typing import Optional
+
 import pandas as pd
-import requests
 
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.cache import cache_service
+from meteostat.core.network import network_service
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import Query
 
@@ -23,7 +24,7 @@ PROPERTIES = {
 def get_df(
     climate_id: str,
 ) -> Optional[pd.DataFrame]:
-    response = requests.get(
+    response = network_service.get(
         f"{ENDPOINT}/collections/climate-monthly/items",
         params={
             "CLIMATE_IDENTIFIER": climate_id,

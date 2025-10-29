@@ -10,10 +10,13 @@ from itertools import combinations
 from math import floor
 from statistics import mean
 from typing import List, Optional
+
 import pandas as pd
+
 from meteostat.core.parameters import parameter_service
 from meteostat.core.schema import schema_service
 from meteostat.enumerations import Parameter, Granularity, Provider
+from meteostat.interpolation.lapserate import calculate_lapse_rate
 from meteostat.typing import License
 from meteostat.utils.mutations import fill_df, localize, squash_df
 
@@ -156,43 +159,7 @@ class TimeSeries:
         """
         df = self.fetch(location=True)
 
-        if (
-            df is None
-            or "elevation" not in df.columns
-            or Parameter.TEMP not in df.columns
-        ):
-            return None
-
-        elev_by_station = df["elevation"].groupby(level="station").first()
-        temp_by_station = df[Parameter.TEMP].groupby(level="station").mean()
-
-        if len(elev_by_station) < 2 or len(temp_by_station) < 2:
-            return None
-
-        lapse_rates = []
-
-        for a, b in combinations(elev_by_station.index, 2):
-            if (
-                pd.isna(elev_by_station[a])
-                or pd.isna(elev_by_station[b])
-                or pd.isna(temp_by_station[a])
-                or pd.isna(temp_by_station[b])
-                or elev_by_station[a] == elev_by_station[b]
-            ):
-                continue
-
-            temp_diff = temp_by_station[a] - temp_by_station[b]
-            elev_diff = elev_by_station[a] - elev_by_station[b]
-
-            # multiply by -1 to get positive lapse rate for decreasing temp
-            # with increasing elevation
-            lapse_rate = (temp_diff / elev_diff) * 1000 * -1
-            lapse_rates.append(lapse_rate)
-
-        if not lapse_rates:
-            return None
-
-        return mean(lapse_rates)
+        return calculate_lapse_rate(df)
 
     def filter_stations(self, station: str | List[str], exclude=False) -> "TimeSeries":
         """

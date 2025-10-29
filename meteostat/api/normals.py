@@ -8,6 +8,7 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
+
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.core.schema import schema_service
 from meteostat.api.monthly import DEFAULT_PARAMETERS, monthly

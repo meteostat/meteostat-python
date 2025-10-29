@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Optional
+
 import pandas as pd
 import pytz
-import requests
 
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.cache import cache_service
+from meteostat.core.network import network_service
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import Query
 
@@ -38,7 +39,7 @@ def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
         .strftime("%Y-%m-%dT%H:%M:%S")
     )
 
-    response = requests.get(
+    response = network_service.get(
         f"{ENDPOINT}/collections/climate-hourly/items",
         params={
             "CLIMATE_IDENTIFIER": climate_id,

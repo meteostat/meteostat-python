@@ -6,7 +6,9 @@ different providers and merging it into a single time series.
 """
 
 from typing import List, Optional
+
 import pandas as pd
+
 from meteostat.api.timeseries import TimeSeries
 from meteostat.core.logger import logger
 from meteostat.core.parameters import parameter_service

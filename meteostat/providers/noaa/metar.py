@@ -3,6 +3,7 @@ The code is licensed under the MIT license.
 """
 
 from typing import Any, Optional
+
 import pandas as pd
 from metar import Metar
 

@@ -6,6 +6,7 @@ considering the Meteostat configuration.
 """
 
 from typing import Optional
+
 import requests
 
 from meteostat import __version__

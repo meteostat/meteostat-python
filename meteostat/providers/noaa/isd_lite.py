@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional, Union
 from urllib.error import HTTPError
+
 from numpy import isnan
 import pandas as pd
+
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
 from meteostat.core.cache import cache_service

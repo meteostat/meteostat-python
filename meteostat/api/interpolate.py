@@ -5,6 +5,7 @@ Provides spatial interpolation functions for meteorological data.
 """
 
 from typing import Optional, Union
+
 import numpy as np
 import pandas as pd
 

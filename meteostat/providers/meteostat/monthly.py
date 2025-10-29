@@ -3,7 +3,9 @@ The code is licensed under the MIT license.
 """
 
 from typing import Optional
+
 import pandas as pd
+
 from meteostat.core.config import config
 from meteostat.enumerations import TTL
 from meteostat.providers.meteostat.shared import handle_exceptions
