@@ -9,7 +9,7 @@ from datetime import datetime
 from meteostat.api.timeseries import TimeSeries
 from meteostat.enumerations import Granularity
 from meteostat.typing import Station
-from meteostat.utils.mutations import stations_to_df
+from meteostat.utils.data import stations_to_df
 
 
 def test_single_station_no_station_index():

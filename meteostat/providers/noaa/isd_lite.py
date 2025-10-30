@@ -9,7 +9,7 @@ from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
 from meteostat.core.cache import cache_service
 from meteostat.typing import Query
-from meteostat.utils.converters import ms_to_kmh, temp_dwpt_to_rhum
+from meteostat.utils.conversions import ms_to_kmh, temp_dwpt_to_rhum
 
 ISD_LITE_ENDPOINT = "https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/"
 COLSPECS = [

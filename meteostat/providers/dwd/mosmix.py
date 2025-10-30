@@ -15,7 +15,7 @@ import pandas as pd
 
 from meteostat.enumerations import Parameter
 from meteostat.typing import Query
-from meteostat.utils.converters import (
+from meteostat.utils.conversions import (
     kelvin_to_celsius,
     ms_to_kmh,
     percentage_to_okta,

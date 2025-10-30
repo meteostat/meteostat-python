@@ -1,6 +1,6 @@
 """
 Functions for converting between different
-meteorological data units
+meteorological data units.
 
 The code is licensed under the MIT license.
 """
@@ -22,14 +22,14 @@ def kelvin_to_celsius(value):
 
 def ms_to_kmh(value):
     """
-    # Convert m/s to km/h
+    Convert m/s to km/h
     """
     return value * 3.6 if value is not None and not isnan(value) else None
 
 
 def temp_dwpt_to_rhum(row: dict):
     """
-    # Get relative humidity from temperature and dew point
+    Get relative humidity from temperature and dew point
     """
     return (
         100
@@ -44,7 +44,7 @@ def temp_dwpt_to_rhum(row: dict):
 
 def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = Parameter.TEMP):
     """
-    # Convert local air pressure to MSL
+    Convert local air pressure to MSL
     """
     try:
         return (

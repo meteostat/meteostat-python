@@ -8,7 +8,7 @@ from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service
 from meteostat.typing import Query
-from meteostat.utils.converters import percentage_to_okta
+from meteostat.utils.conversions import percentage_to_okta
 from meteostat.core.cache import cache_service
 
 

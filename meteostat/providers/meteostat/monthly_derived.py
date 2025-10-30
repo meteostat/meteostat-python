@@ -6,8 +6,7 @@ import pandas as pd
 from meteostat.enumerations import Parameter, Provider
 from meteostat.api.daily import daily
 from meteostat.typing import Query
-from meteostat.utils.helpers import aggregate_sources
-from meteostat.utils.mutations import reshape_by_source
+from meteostat.utils.data import aggregate_sources, reshape_by_source
 from meteostat.utils.parsers import parse_month
 
 

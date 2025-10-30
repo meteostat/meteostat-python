@@ -11,7 +11,7 @@ from meteostat.providers.meteostat.shared import handle_exceptions
 from meteostat.typing import Query
 from meteostat.core.config import config
 from meteostat.core.cache import cache_service
-from meteostat.utils.mutations import reshape_by_source
+from meteostat.utils.data import reshape_by_source
 
 
 ENDPOINT = config.meteostat_hourly_endpoint

@@ -6,7 +6,6 @@ A class to handle meteorological time series data.
 
 from copy import copy
 from datetime import datetime
-from itertools import combinations
 from math import floor
 from statistics import mean
 from typing import List, Optional
@@ -18,7 +17,7 @@ from meteostat.core.schema import schema_service
 from meteostat.enumerations import Parameter, Granularity, Provider
 from meteostat.interpolation.lapserate import calculate_lapse_rate
 from meteostat.typing import License
-from meteostat.utils.mutations import fill_df, localize, squash_df
+from meteostat.utils.data import fill_df, localize, squash_df
 
 
 class TimeSeries:
