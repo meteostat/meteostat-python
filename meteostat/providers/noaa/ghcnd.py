@@ -10,12 +10,14 @@ The code is licensed under the MIT license.
 from io import StringIO
 from ftplib import FTP
 from typing import Optional
+
 from numpy import nan
 import pandas as pd
+
 from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import Query
 from meteostat.core.cache import cache_service
-from meteostat.utils.converters import ms_to_kmh, percentage_to_okta
+from meteostat.utils.conversions import ms_to_kmh, percentage_to_okta
 
 FTP_SERVER = "ftp.ncdc.noaa.gov"
 COLUMN_NAMES = {

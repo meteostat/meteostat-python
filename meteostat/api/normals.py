@@ -8,13 +8,14 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
+
 from meteostat.enumerations import Parameter, Provider, Granularity
 from meteostat.core.schema import schema_service
 from meteostat.api.monthly import DEFAULT_PARAMETERS, monthly
 from meteostat.api.timeseries import TimeSeries
 from meteostat.typing import Station
 from meteostat.api.point import Point
-from meteostat.utils.mutations import reshape_by_source
+from meteostat.utils.data import reshape_by_source
 from meteostat.utils.parsers import parse_year
 
 

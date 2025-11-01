@@ -1,11 +1,12 @@
 from typing import Optional, Union
 from urllib.error import HTTPError
+
 import pandas as pd
 
 from meteostat.core.logger import logger
 from meteostat.enumerations import Parameter
 from meteostat.typing import Query
-from meteostat.utils.converters import percentage_to_okta
+from meteostat.utils.conversions import percentage_to_okta
 
 ENDPOINT = "https://opendata.dwd.de/weather/weather_reports/poi/{station}-BEOB.csv"
 USECOLS = [0, 1, 2, 9, 11, 14, 21, 22, 23, 33, 35, 36, 37, 40, 41]

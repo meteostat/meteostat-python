@@ -5,7 +5,9 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from typing import Optional
 from urllib.error import HTTPError
+
 import pandas as pd
+
 from meteostat.enumerations import TTL
 from meteostat.core.logger import logger
 from meteostat.typing import Query

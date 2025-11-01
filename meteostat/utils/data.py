@@ -8,14 +8,42 @@ under the terms of the Creative Commons Attribution-NonCommercial
 The code is licensed under the MIT license.
 """
 
+from collections import Counter
 from datetime import datetime
+from itertools import chain
 from typing import List, Optional
+
 import numpy as np
 import pandas as pd
+
 from meteostat.core.providers import provider_service
 from meteostat.enumerations import Frequency
 from meteostat.typing import Station
-from meteostat.utils.helpers import order_source_columns
+
+
+def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
+    """
+    Convert list of stations to DataFrame
+    """
+    return (
+        pd.DataFrame.from_records(
+            [
+                {
+                    "id": station.id,
+                    "name": station.name,
+                    "country": station.country,
+                    "latitude": station.latitude,
+                    "longitude": station.longitude,
+                    "elevation": station.elevation,
+                    "timezone": station.timezone,
+                }
+                for station in stations
+            ],
+            index="id",
+        )
+        if len(stations)
+        else None
+    )
 
 
 def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
@@ -119,6 +147,25 @@ def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:
     return df_pivoted
 
 
+def aggregate_sources(series: pd.Series) -> str:
+    """
+    Concatenate multiple data sources into a unique source string,
+    ordered by the number of occurrences.
+    """
+    # Extract sources and flatten them
+    sources = [str(item) for item in series if pd.notna(item)]
+    flat_sources = list(chain(*[source.split() for source in sources]))
+
+    # Count occurrences of each source
+    source_counts = Counter(flat_sources)
+
+    # Sort sources by count in descending order
+    sorted_sources = sorted(source_counts, key=source_counts.get, reverse=True)
+
+    # Concatenate sorted sources into a unique source string
+    return " ".join(sorted_sources)
+
+
 def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
     """
     Enforce a specific frequency on a DataFrame by resampling
@@ -127,26 +174,15 @@ def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
     return df.resample(freq).first()
 
 
-def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
+def order_source_columns(columns: pd.Index) -> List[str]:
     """
-    Convert list of stations to DataFrame
+    Order source columns
     """
-    return (
-        pd.DataFrame.from_records(
-            [
-                {
-                    "id": station.id,
-                    "name": station.name,
-                    "country": station.country,
-                    "latitude": station.latitude,
-                    "longitude": station.longitude,
-                    "elevation": station.elevation,
-                    "timezone": station.timezone,
-                }
-                for station in stations
-            ],
-            index="id",
-        )
-        if len(stations)
-        else None
-    )
+    ordered_columns = []
+
+    for col in columns:
+        if not col.endswith("_source"):
+            ordered_columns.append(col)
+            ordered_columns.append(f"{col}_source")
+
+    return ordered_columns

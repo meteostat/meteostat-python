@@ -5,7 +5,9 @@ Provides functions to fetch individual weather station metadata.
 """
 
 from typing import Optional
+
 from requests import HTTPError, Timeout
+
 from meteostat.core.config import config
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service

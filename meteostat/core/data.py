@@ -5,8 +5,11 @@ The Data Service is responsible for fetching meteorological data from
 different providers and merging it into a single time series.
 """
 
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Union
+
 import pandas as pd
+
 from meteostat.api.timeseries import TimeSeries
 from meteostat.core.logger import logger
 from meteostat.core.parameters import parameter_service
@@ -14,14 +17,35 @@ from meteostat.core.providers import provider_service
 from meteostat.core.schema import schema_service
 from meteostat.enumerations import Grade, Parameter, Provider
 from meteostat.typing import Station, Request
-from meteostat.utils.filters import filter_time
-from meteostat.utils.mutations import stations_to_df
 
 
 class DataService:
     """
     Data Service
     """
+
+    @staticmethod
+    def _filter_time(
+        df: pd.DataFrame,
+        start: Union[datetime, None] = None,
+        end: Union[datetime, None] = None,
+    ) -> pd.DataFrame:
+        """
+        Filter time series data based on start and end date
+        """
+
+        # Get time index
+        time = df.index.get_level_values("time")
+
+        # Filter & return
+        try:
+            return df.loc[(time >= start) & (time <= end)] if start and end else df
+        except TypeError:
+            return (
+                df.loc[(time >= start.date()) & (time <= end.date())]
+                if start and end
+                else df
+            )
 
     @staticmethod
     def _add_source(df: pd.DataFrame, provider_id: str) -> pd.DataFrame:
@@ -33,6 +57,31 @@ class DataService:
             df = df.set_index(["source"], append=True)
 
         return df
+
+    @staticmethod
+    def _stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
+        """
+        Convert list of stations to DataFrame
+        """
+        return (
+            pd.DataFrame.from_records(
+                [
+                    {
+                        "id": station.id,
+                        "name": station.name,
+                        "country": station.country,
+                        "latitude": station.latitude,
+                        "longitude": station.longitude,
+                        "elevation": station.elevation,
+                        "timezone": station.timezone,
+                    }
+                    for station in stations
+                ],
+                index="id",
+            )
+            if len(stations)
+            else None
+        )
 
     @staticmethod
     def concat_fragments(
@@ -76,7 +125,7 @@ class DataService:
             df = self._add_source(df, provider)
 
             # Filter DataFrame for requested parameters and time range
-            df = filter_time(df, req.start, req.end)
+            df = self._filter_time(df, req.start, req.end)
 
             # Drop empty rows
             df = df.dropna(how="all")
@@ -171,7 +220,7 @@ class DataService:
         # Create time series
         ts = TimeSeries(
             req.granularity,
-            stations_to_df(
+            self._stations_to_df(
                 req.station if isinstance(req.station, list) else [req.station]
             ),
             df,

@@ -1,5 +1,5 @@
 """
-Type parsing utilities for configuration management
+Type parsing utilities
 
 This module contains utilities for extracting and validating types
 from class annotations without creating circular imports.

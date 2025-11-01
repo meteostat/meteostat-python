@@ -11,11 +11,13 @@ from ftplib import FTP
 from io import BytesIO
 from typing import Optional
 from zipfile import ZipFile
+
 import pandas as pd
+
 from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import Query
 from meteostat.core.cache import cache_service
-from meteostat.utils.converters import ms_to_kmh
+from meteostat.utils.conversions import ms_to_kmh
 from meteostat.providers.dwd.shared import get_ftp_connection
 
 

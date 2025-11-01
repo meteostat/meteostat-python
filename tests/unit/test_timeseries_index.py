@@ -7,9 +7,9 @@ The code is licensed under the MIT license.
 import pandas as pd
 from datetime import datetime
 from meteostat.api.timeseries import TimeSeries
+from meteostat.core.data import data_service
 from meteostat.enumerations import Granularity
 from meteostat.typing import Station
-from meteostat.utils.mutations import stations_to_df
 
 
 def test_single_station_no_station_index():
@@ -29,7 +29,9 @@ def test_single_station_no_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        stations=stations_to_df([station]),  # Single station, not provided as list
+        stations=data_service._stations_to_df(
+            [station]
+        ),  # Single station, not provided as list
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
@@ -69,7 +71,7 @@ def test_multiple_stations_keep_station_index():
 
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        stations=stations_to_df(
+        stations=data_service._stations_to_df(
             [station1, station2]
         ),  # Multiple stations or list input
         df=df,
@@ -102,7 +104,7 @@ def test_single_station_list_keeps_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        stations=stations_to_df([station]),  # Provided as list
+        stations=data_service._stations_to_df([station]),  # Provided as list
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
@@ -123,7 +125,7 @@ def test_single_station_no_data():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        stations=stations_to_df([station]),
+        stations=data_service._stations_to_df([station]),
         df=None,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),

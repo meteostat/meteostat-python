@@ -2,13 +2,13 @@ from typing import Optional, Union
 from urllib.error import HTTPError
 
 import pandas as pd
-import requests
 
 from meteostat.core.config import config
 from meteostat.enumerations import TTL, Parameter
 from meteostat.core.logger import logger
+from meteostat.core.network import network_service
 from meteostat.typing import Query
-from meteostat.utils.converters import percentage_to_okta
+from meteostat.utils.conversions import percentage_to_okta
 from meteostat.core.cache import cache_service
 
 
@@ -139,7 +139,7 @@ def get_df(latitude: float, longitude: float, elevation: int) -> Optional[pd.Dat
     headers = {"User-Agent": USER_AGENT}
 
     try:
-        response = requests.get(file_url, headers=headers)
+        response = network_service.get(file_url, headers=headers)
 
         # Raise an exception if the request was unsuccessful
         response.raise_for_status()

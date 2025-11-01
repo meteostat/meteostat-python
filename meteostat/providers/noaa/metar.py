@@ -3,6 +3,7 @@ The code is licensed under the MIT license.
 """
 
 from typing import Any, Optional
+
 import pandas as pd
 from metar import Metar
 
@@ -10,9 +11,9 @@ from meteostat.core.logger import logger
 from meteostat.core.config import config
 from meteostat.enumerations import TTL, Frequency, Parameter
 from meteostat.typing import Query
-from meteostat.utils.converters import temp_dwpt_to_rhum
+from meteostat.utils.conversions import temp_dwpt_to_rhum
 from meteostat.core.cache import cache_service
-from meteostat.utils.mutations import enforce_freq
+from meteostat.utils.data import enforce_freq
 from meteostat.core.network import network_service
 
 

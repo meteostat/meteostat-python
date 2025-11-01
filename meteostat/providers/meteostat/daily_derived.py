@@ -2,11 +2,11 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+
 from meteostat.enumerations import Parameter, Provider
 from meteostat.api.hourly import hourly
 from meteostat.typing import Query
-from meteostat.utils.helpers import aggregate_sources
-from meteostat.utils.mutations import reshape_by_source
+from meteostat.utils.data import aggregate_sources, reshape_by_source
 
 
 def daily_mean(group: pd.Series):

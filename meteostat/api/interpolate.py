@@ -5,6 +5,7 @@ Provides spatial interpolation functions for meteorological data.
 """
 
 from typing import Optional, Union
+
 import numpy as np
 import pandas as pd
 
@@ -13,7 +14,7 @@ from meteostat.api.timeseries import TimeSeries
 from meteostat.interpolation.lapserate import apply_lapse_rate
 from meteostat.interpolation.nearest import nearest_neighbor
 from meteostat.interpolation.idw import inverse_distance_weighting
-from meteostat.utils.helpers import get_distance
+from meteostat.utils.geo import get_distance
 
 
 def interpolate(
