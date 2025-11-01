@@ -11,13 +11,39 @@ The code is licensed under the MIT license.
 from collections import Counter
 from datetime import datetime
 from itertools import chain
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 
 from meteostat.core.providers import provider_service
 from meteostat.enumerations import Frequency
+from meteostat.typing import Station
+
+
+def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
+    """
+    Convert list of stations to DataFrame
+    """
+    return (
+        pd.DataFrame.from_records(
+            [
+                {
+                    "id": station.id,
+                    "name": station.name,
+                    "country": station.country,
+                    "latitude": station.latitude,
+                    "longitude": station.longitude,
+                    "elevation": station.elevation,
+                    "timezone": station.timezone,
+                }
+                for station in stations
+            ],
+            index="id",
+        )
+        if len(stations)
+        else None
+    )
 
 
 def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:

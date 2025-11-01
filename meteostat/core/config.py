@@ -115,7 +115,9 @@ class ConfigService(Config):
     # Station meta data settings
     stations_db_prefer: bool = False
     stations_db_ttl: int = TTL.WEEK
-    stations_db_url: str = "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
+    stations_db_url: str = (
+        "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
+    )
     stations_db_file: str = (
         os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
     )
