@@ -75,7 +75,6 @@ class CacheService:
                 )
             ).encode("utf-8")
         ).hexdigest()
-    
 
     @staticmethod
     def create_cache_dir() -> None:
@@ -100,7 +99,7 @@ class CacheService:
         Check if a cached file is stale based on its age and TTL
         """
         return time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
-    
+
     @staticmethod
     def purge(ttl: Optional[int] = None) -> None:
         """
@@ -124,7 +123,7 @@ class CacheService:
                 if now - os.path.getmtime(path) > ttl and os.path.isfile(path):
                     # Delete file
                     os.remove(path)
-    
+
     def persist(
         self, path: str, data: pd.DataFrame | dict | list, data_type: str
     ) -> None:

@@ -83,7 +83,9 @@ class ProviderService:
         if len(provider_ids) == 1:
             return self._get_provider_priority(provider_ids[0])
 
-        priorities = [self._get_provider_priority(provider) for provider in provider_ids]
+        priorities = [
+            self._get_provider_priority(provider) for provider in provider_ids
+        ]
 
         return fmean(priorities)
 

@@ -120,6 +120,7 @@ def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:
 
     return df_pivoted
 
+
 def aggregate_sources(series: pd.Series) -> str:
     """
     Concatenate multiple data sources into a unique source string,

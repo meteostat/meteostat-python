@@ -19,6 +19,7 @@ class Config:
     """
     Configuration Base Class
     """
+
     prefix: str
 
     @property
@@ -72,7 +73,7 @@ class Config:
         """
         if not hasattr(self, key):
             raise KeyError(f"Configuration has no key '{key}'")
-        
+
         key = f"{self._prefix}{key}"
         return key.upper()
 
@@ -114,9 +115,7 @@ class ConfigService(Config):
     # Station meta data settings
     stations_db_prefer: bool = False
     stations_db_ttl: int = TTL.WEEK
-    stations_db_url: str = (
-        "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
-    )
+    stations_db_url: str = "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db"
     stations_db_file: str = (
         os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
     )
@@ -158,5 +157,6 @@ class ConfigService(Config):
         "lat={latitude}&lon={longitude}&altitude={elevation}"
     )
     metno_user_agent: Optional[str] = None
+
 
 config = ConfigService("MS")

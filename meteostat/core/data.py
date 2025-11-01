@@ -57,7 +57,7 @@ class DataService:
             df = df.set_index(["source"], append=True)
 
         return df
-    
+
     @staticmethod
     def _stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
         """

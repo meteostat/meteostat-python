@@ -29,7 +29,8 @@ def get_df(climate_id: str, year: int) -> Optional[pd.DataFrame]:
     start = datetime(year, 1, 1, 0, 0, 0).strftime("%Y-%m-%dT%H:%M:%S")
     end = datetime(year, 12, 31, 23, 59, 59).strftime("%Y-%m-%dT%H:%M:%S")
 
-    response = network_service.get(f"{ENDPOINT}/collections/climate-daily/items",
+    response = network_service.get(
+        f"{ENDPOINT}/collections/climate-daily/items",
         params={
             "CLIMATE_IDENTIFIER": climate_id,
             "datetime": f"{start}/{end}",

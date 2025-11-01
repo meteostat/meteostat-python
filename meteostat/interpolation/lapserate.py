@@ -7,9 +7,8 @@ import pandas as pd
 from meteostat.core.config import config
 from meteostat.enumerations import Parameter
 
-def calculate_lapse_rate(
-    df: pd.DataFrame
-) -> float:
+
+def calculate_lapse_rate(df: pd.DataFrame) -> float:
     """
     Calculate the lapse rate (temperature gradient) in degrees Celsius per kilometer
     based on temperature and elevation data from multiple stations.
@@ -18,17 +17,13 @@ def calculate_lapse_rate(
     ----------
     df : pd.DataFrame
         DataFrame containing temperature and elevation data for multiple stations.
-    
+
     Returns
     -------
     float
         Calculated lapse rate in degrees Celsius per kilometer.
     """
-    if (
-        df is None
-        or "elevation" not in df.columns
-        or Parameter.TEMP not in df.columns
-    ):
+    if df is None or "elevation" not in df.columns or Parameter.TEMP not in df.columns:
         return None
 
     elev_by_station = df["elevation"].groupby(level="station").first()
