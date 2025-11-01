@@ -57,30 +57,9 @@ class DataService:
             df = df.set_index(["source"], append=True)
 
         return df
-
-    @staticmethod
-    def concat_fragments(
-        fragments: List[pd.DataFrame],
-        parameters: List[Parameter],
-    ) -> pd.DataFrame:
-        """
-        Concatenate multiple fragments into a single DataFrame
-        """
-        try:
-            df = pd.concat(
-                [
-                    df.dropna(how="all", axis=1) if not df.empty else None
-                    for df in fragments
-                ]
-            )
-            df = schema_service.fill(df, parameters)
-            df = schema_service.purge(df, parameters)
-            return df
-        except ValueError:
-            return pd.DataFrame()
     
     @staticmethod
-    def stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
+    def _stations_to_df(stations: List[Station]) -> Optional[pd.DataFrame]:
         """
         Convert list of stations to DataFrame
         """
@@ -103,6 +82,27 @@ class DataService:
             if len(stations)
             else None
         )
+
+    @staticmethod
+    def concat_fragments(
+        fragments: List[pd.DataFrame],
+        parameters: List[Parameter],
+    ) -> pd.DataFrame:
+        """
+        Concatenate multiple fragments into a single DataFrame
+        """
+        try:
+            df = pd.concat(
+                [
+                    df.dropna(how="all", axis=1) if not df.empty else None
+                    for df in fragments
+                ]
+            )
+            df = schema_service.fill(df, parameters)
+            df = schema_service.purge(df, parameters)
+            return df
+        except ValueError:
+            return pd.DataFrame()
 
     def _fetch_provider_data(
         self, req: Request, station: Station, provider: Provider
@@ -220,7 +220,7 @@ class DataService:
         # Create time series
         ts = TimeSeries(
             req.granularity,
-            self.stations_to_df(
+            self._stations_to_df(
                 req.station if isinstance(req.station, list) else [req.station]
             ),
             df,

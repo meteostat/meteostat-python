@@ -54,7 +54,7 @@ class ProviderService:
             None,
         )
 
-    def get_provider_priority(self, provider_id: Provider) -> int:
+    def _get_provider_priority(self, provider_id: Provider) -> int:
         """
         Get priority of a provider by its ID
         """
@@ -81,9 +81,9 @@ class ProviderService:
         provider_ids = source.split(" ")
 
         if len(provider_ids) == 1:
-            return self.get_provider_priority(provider_ids[0])
+            return self._get_provider_priority(provider_ids[0])
 
-        priorities = [self.get_provider_priority(provider) for provider in provider_ids]
+        priorities = [self._get_provider_priority(provider) for provider in provider_ids]
 
         return fmean(priorities)
 

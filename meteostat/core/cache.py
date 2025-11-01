@@ -61,17 +61,7 @@ class CacheService:
         return json.loads(raw)
 
     @staticmethod
-    def create_cache_dir() -> None:
-        """
-        Create the cache directory if it doesn't exist
-        """
-        cache_dir = config.cache_directory
-
-        if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
-
-    @staticmethod
-    def func_to_uid(func, args: tuple, kwargs: dict[str, Any]) -> str:
+    def _func_to_uid(func, args: tuple, kwargs: dict[str, Any]) -> str:
         """
         Get a unique ID from a function call based on its module, name and arguments
         """
@@ -85,7 +75,56 @@ class CacheService:
                 )
             ).encode("utf-8")
         ).hexdigest()
+    
 
+    @staticmethod
+    def create_cache_dir() -> None:
+        """
+        Create the cache directory if it doesn't exist
+        """
+        cache_dir = config.cache_directory
+
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+
+    @staticmethod
+    def get_cache_path(uid: str, filetype: str):
+        """
+        Get path of a cached file based on its uid and file type
+        """
+        return config.cache_directory + os.sep + f"{uid}.{filetype}"
+
+    @staticmethod
+    def is_stale(path: str, ttl: int) -> bool:
+        """
+        Check if a cached file is stale based on its age and TTL
+        """
+        return time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
+    
+    @staticmethod
+    def purge(ttl: Optional[int] = None) -> None:
+        """
+        Remove stale files from disk cache
+        """
+        if ttl is None:
+            ttl = config.cache_ttl
+
+        logger.debug("Removing cached files older than %s seconds", ttl)
+
+        cache_dir = config.cache_directory
+
+        if os.path.exists(cache_dir):
+            # Get current time
+            now = time()
+            # Go through all files
+            for file in os.listdir(cache_dir):
+                # Get full path
+                path = os.path.join(cache_dir, file)
+                # Check if file is older than TTL
+                if now - os.path.getmtime(path) > ttl and os.path.isfile(path):
+                    # Delete file
+                    os.remove(path)
+    
     def persist(
         self, path: str, data: pd.DataFrame | dict | list, data_type: str
     ) -> None:
@@ -108,27 +147,13 @@ class CacheService:
             return self._read_json(path)
         return self._read_pickle(path)
 
-    @staticmethod
-    def get_cache_path(uid: str, filetype: str):
-        """
-        Get path of a cached file based on its uid and file type
-        """
-        return config.cache_directory + os.sep + f"{uid}.{filetype}"
-
-    @staticmethod
-    def is_stale(path: str, ttl: int) -> bool:
-        """
-        Check if a cached file is stale based on its age and TTL
-        """
-        return time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
-
     def from_func(
         self, func, args, kwargs, ttl: int, data_format: str
     ) -> pd.DataFrame | dict | list:
         """
         Cache a function's return value
         """
-        uid = self.func_to_uid(func, args, kwargs)  # Get UID for function call
+        uid = self._func_to_uid(func, args, kwargs)  # Get UID for function call
         path = self.get_cache_path(uid, data_format)  # Get the local cache path
         result = (
             self.fetch(path, data_format)
@@ -155,30 +180,6 @@ class CacheService:
             self.persist(path, result, data_format)
 
         return result
-
-    @staticmethod
-    def purge(ttl: Optional[int] = None) -> None:
-        """
-        Remove stale files from disk cache
-        """
-        if ttl is None:
-            ttl = config.cache_ttl
-
-        logger.debug("Removing cached files older than %s seconds", ttl)
-
-        cache_dir = config.cache_directory
-
-        if os.path.exists(cache_dir):
-            # Get current time
-            now = time()
-            # Go through all files
-            for file in os.listdir(cache_dir):
-                # Get full path
-                path = os.path.join(cache_dir, file)
-                # Check if file is older than TTL
-                if now - os.path.getmtime(path) > ttl and os.path.isfile(path):
-                    # Delete file
-                    os.remove(path)
 
     def cache(
         self,

@@ -15,7 +15,83 @@ from meteostat.enumerations import TTL, Parameter
 from meteostat.utils.types import extract_property_type, validate_parsed_value
 
 
-class ConfigService:
+class Config:
+    """
+    Configuration Base Class
+    """
+    prefix: str
+
+    @property
+    def _prefix(self) -> str:
+        """
+        The environment variable prefix
+        """
+        return f"{self.prefix}_" if self.prefix else ""
+
+    def _parse_env_value(self, key: str, value: str) -> Any:
+        """
+        Parse an environment variable value and validate against property type
+        """
+        # Extract the expected type for the property
+        expected_type, original_type = extract_property_type(self.__class__, key)
+
+        if expected_type is None:
+            # Fallback to JSON parsing if no type annotation is available
+            try:
+                return json.loads(value)
+            except (json.JSONDecodeError, TypeError, ValueError):
+                logger.error("Failed to parse environment variable '%s'", key)
+                return None
+
+        # Parse the value using JSON
+        try:
+            parsed_value = json.loads(value)
+        except (json.JSONDecodeError, TypeError, ValueError):
+            logger.error("Failed to parse environment variable '%s'", key)
+            return None
+
+        # Validate and potentially convert the parsed value
+        return validate_parsed_value(parsed_value, expected_type, original_type, key)
+
+    def _set_env_value(self, key: str, value: Any) -> None:
+        """
+        Set a configuration using a key-value pair
+        """
+        setattr(self, key, value)
+
+    def __init__(self, prefix: str = "MS") -> None:
+        """
+        Initialize configuration service
+        """
+        self.prefix = prefix
+        self.load_env()
+
+    def get_env_name(self, key: str) -> str:
+        """
+        Get the environment variable name for a given key
+        """
+        if not hasattr(self, key):
+            raise KeyError(f"Configuration has no key '{key}'")
+        
+        key = f"{self._prefix}{key}"
+        return key.upper()
+
+    def load_env(self) -> None:
+        """
+        Update configuration from environment variables with a given prefix.
+        """
+        for key, value in os.environ.items():
+            if not key.startswith(self._prefix):
+                continue
+
+            key = key.replace(self._prefix, "").lower()
+            value = self._parse_env_value(key, value)
+
+            if value is not None:
+                self._set_env_value(key, value)
+
+
+class ConfigService(Config):
     """
     Configuration Service for Meteostat
 
@@ -23,8 +99,6 @@ class ConfigService:
     interpolation, and provider-specific settings. Supports loading configuration
     from environment variables.
     """
-
-    _prefix: str
 
     # Cache settings
     cache_enable: bool = True
@@ -84,75 +158,5 @@ class ConfigService:
         "lat={latitude}&lon={longitude}&altitude={elevation}"
     )
     metno_user_agent: Optional[str] = None
-
-    @property
-    def prefix(self) -> str:
-        """
-        The environment variable prefix
-        """
-        return f"{self._prefix}_" if self._prefix else ""
-
-    def _parse_env_value(self, key: str, value: str) -> Any:
-        """
-        Parse an environment variable value and validate against property type
-        """
-        # Extract the expected type for the property
-        expected_type, original_type = extract_property_type(self.__class__, key)
-
-        if expected_type is None:
-            # Fallback to JSON parsing if no type annotation is available
-            try:
-                return json.loads(value)
-            except (json.JSONDecodeError, TypeError, ValueError):
-                logger.error("Failed to parse environment variable '%s'", key)
-                return None
-
-        # Parse the value using JSON
-        try:
-            parsed_value = json.loads(value)
-        except (json.JSONDecodeError, TypeError, ValueError):
-            logger.error("Failed to parse environment variable '%s'", key)
-            return None
-
-        # Validate and potentially convert the parsed value
-        return validate_parsed_value(parsed_value, expected_type, original_type, key)
-
-    def _set_env_value(self, key: str, value: Any) -> None:
-        """
-        Set a configuration using a key-value pair
-        """
-        setattr(self, key, value)
-
-    def __init__(self, prefix: str = "MS") -> None:
-        """
-        Initialize configuration service
-        """
-        self._prefix = prefix
-        self.load_env()
-
-    def get_env_name(self, key: str) -> str:
-        """
-        Get the environment variable name for a given key
-        """
-        if not hasattr(self, key):
-            raise KeyError(f"Configuration has no key '{key}'")
-        
-        key = f"{self.prefix}{key}"
-        return key.upper()
-
-    def load_env(self) -> None:
-        """
-        Update configuration from environment variables with a given prefix.
-        """
-        for key, value in os.environ.items():
-            if not key.startswith(self.prefix):
-                continue
-
-            key = key.replace(self.prefix, "").lower()
-            value = self._parse_env_value(key, value)
-
-            if value is not None:
-                self._set_env_value(key, value)
-
 
 config = ConfigService("MS")

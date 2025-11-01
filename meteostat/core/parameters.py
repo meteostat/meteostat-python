@@ -62,12 +62,6 @@ class ParameterService:
 
         self._parameters.append(parameter)
 
-    def get_parameters(self, granularity: Granularity) -> List[ParameterSpec]:
-        """
-        Get list of parameters by granularity
-        """
-        return [spec for spec in self.parameters if spec.granularity == granularity]
-
     def get_parameter(
         self, parameter_id: Parameter, granularity: Granularity
     ) -> Optional[ParameterSpec]:
