@@ -29,7 +29,9 @@ def test_single_station_no_station_index():
     station = Station(id="$0001", latitude=50.0, longitude=8.0, elevation=100)
     ts = TimeSeries(
         granularity=Granularity.HOURLY,
-        stations=data_service._stations_to_df([station]),  # Single station, not provided as list
+        stations=data_service._stations_to_df(
+            [station]
+        ),  # Single station, not provided as list
         df=df,
         start=datetime(2025, 1, 1),
         end=datetime(2025, 1, 1, 2),
