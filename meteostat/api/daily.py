@@ -4,15 +4,14 @@ Daily Time Series Data
 Access daily time series data for one or multiple weather stations.
 """
 
-from typing import List, Optional
-from datetime import datetime, date
+from datetime import date, datetime
 
 import pandas as pd
 
-from meteostat.core.data import data_service
-from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.typing import Station, Request
 from meteostat.api.point import Point
+from meteostat.core.data import data_service
+from meteostat.enumerations import Granularity, Parameter, Provider
+from meteostat.typing import Request, Station
 from meteostat.utils.parsers import parse_station, parse_time
 
 DEFAULT_PARAMETERS = [
@@ -31,11 +30,11 @@ DEFAULT_PARAMETERS = [
 
 
 def daily(
-    station: str | Station | Point | List[str | Station | Point] | pd.DataFrame,
-    start: Optional[datetime | date],
-    end: Optional[datetime | date],
-    parameters: Optional[List[Parameter]] = None,
-    providers: Optional[List[Provider]] = None,
+    station: str | Station | Point | list[str | Station | Point] | pd.DataFrame,
+    start: datetime | date | None,
+    end: datetime | date | None,
+    parameters: list[Parameter] | None = None,
+    providers: list[Provider] | None = None,
 ):
     """
     Access daily time series data.

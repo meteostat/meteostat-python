@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import meteostat as ms
 from meteostat.providers.gsa.monthly import fetch
 from meteostat.typing import ProviderRequest
@@ -23,10 +24,6 @@ def test_gsa_monthly():
     assert "prcp" in df, "Precipitation data is missing altogether."
 
     # Check that data contains reasonable number of non-missing entries.
-    assert df["tmin"].notna().sum() >= 3, (
-        "Insufficient minimum temperature data returned."
-    )
-    assert df["tmax"].notna().sum() >= 3, (
-        "Insufficient maximum temperature data returned."
-    )
+    assert df["tmin"].notna().sum() >= 3, "Insufficient minimum temperature data returned."
+    assert df["tmax"].notna().sum() >= 3, "Insufficient maximum temperature data returned."
     assert df["prcp"].notna().sum() >= 0, "Precipitation data check failed."

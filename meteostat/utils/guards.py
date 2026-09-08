@@ -5,6 +5,7 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
+
 from meteostat.api.config import config
 from meteostat.core.logger import logger
 from meteostat.enumerations import Granularity

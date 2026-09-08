@@ -5,9 +5,9 @@ The Schema Service provides methods to clean and format
 DataFrames based on a set of parameters.
 """
 
+from collections.abc import Callable
 from copy import copy
 from inspect import isfunction
-from typing import Callable, List
 
 import pandas as pd
 
@@ -24,9 +24,7 @@ class SchemaService:
     """
 
     @staticmethod
-    def _apply_validator(
-        validator: Validator | Callable, df: pd.DataFrame, col: str
-    ) -> pd.Series:
+    def _apply_validator(validator: Validator | Callable, df: pd.DataFrame, col: str) -> pd.Series:
         """
         Apply a validator
         """
@@ -55,7 +53,7 @@ class SchemaService:
         return test_result
 
     @staticmethod
-    def purge(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
+    def purge(df: pd.DataFrame, parameters: list[Parameter]) -> pd.DataFrame:
         """
         Remove DataFrame columns which are not a known parameter
         """
@@ -63,7 +61,7 @@ class SchemaService:
         return df[columns]
 
     @staticmethod
-    def fill(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
+    def fill(df: pd.DataFrame, parameters: list[Parameter]) -> pd.DataFrame:
         """
         Add missing schema columns to DataFrame
         """
@@ -84,9 +82,7 @@ class SchemaService:
             parameter = parameter_service.get_parameter(col, granularity)
 
             if not parameter:
-                logger.warning(
-                    "Column %s is not a valid column name and won't be formatted", col
-                )
+                logger.warning("Column %s is not a valid column name and won't be formatted", col)
                 continue
 
             if "int" in str(parameter.dtype).lower():
@@ -100,9 +96,7 @@ class SchemaService:
         return temp
 
     @classmethod
-    def clean(
-        cls, df: pd.DataFrame, granularity: Granularity, fill=None
-    ) -> pd.DataFrame:
+    def clean(cls, df: pd.DataFrame, granularity: Granularity, fill=None) -> pd.DataFrame:
         """
         Remove invalid data from a DataFrame
         """
@@ -115,9 +109,7 @@ class SchemaService:
             parameter = parameter_service.get_parameter(col, granularity)
 
             if not parameter:
-                logger.warning(
-                    "Column %s is not a valid column name and won't be cleaned", col
-                )
+                logger.warning("Column %s is not a valid column name and won't be cleaned", col)
                 continue
 
             for validator in parameter.validators:
@@ -154,9 +146,7 @@ class SchemaService:
             parameter = parameter_service.get_parameter(col, granularity)
 
             if not parameter:
-                logger.warning(
-                    "Column %s is not a valid column name and won't be converted", col
-                )
+                logger.warning("Column %s is not a valid column name and won't be converted", col)
                 continue
 
             if parameter.unit in CONVERSION_MAPPINGS:

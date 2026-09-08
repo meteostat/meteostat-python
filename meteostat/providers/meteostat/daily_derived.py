@@ -1,10 +1,8 @@
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 
-from meteostat.enumerations import Parameter, Provider
 from meteostat.api.hourly import hourly
+from meteostat.enumerations import Parameter, Provider
 from meteostat.typing import ProviderRequest
 from meteostat.utils.data import aggregate_sources, reshape_by_source
 
@@ -62,7 +60,7 @@ PARAMETER_AGGS = {
 }
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Fetch hourly weather data from Meteostat's central data
     repository and aggregate to daily granularity
@@ -90,15 +88,9 @@ def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
     df = pd.DataFrame()
     for parameter in req.parameters:
         [hourly_param_name, agg_func] = PARAMETER_AGGS[parameter]
-        df[parameter] = (
-            df_hourly[hourly_param_name]
-            .groupby(pd.Grouper(level="time", freq="1D"))
-            .agg(agg_func)
-        )
+        df[parameter] = df_hourly[hourly_param_name].groupby(pd.Grouper(level="time", freq="1D")).agg(agg_func)
         df[f"{parameter}_source"] = (
-            df_hourly[f"{hourly_param_name}_source"]
-            .groupby(pd.Grouper(level="time", freq="1D"))
-            .agg(aggregate_sources)
+            df_hourly[f"{hourly_param_name}_source"].groupby(pd.Grouper(level="time", freq="1D")).agg(aggregate_sources)
         )
 
     # Adjust DataFrame and add index

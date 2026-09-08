@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 import meteostat as ms
 from meteostat.providers.meteostat.daily import fetch
 from meteostat.typing import ProviderRequest
@@ -10,9 +11,7 @@ def test_data_daily():
     """
     # Calculate date three days ago
     three_days_ago = datetime.now() - timedelta(days=3)
-    three_days_ago = datetime(
-        three_days_ago.year, three_days_ago.month, three_days_ago.day
-    )
+    three_days_ago = datetime(three_days_ago.year, three_days_ago.month, three_days_ago.day)
 
     query = ProviderRequest(
         start=three_days_ago,

@@ -7,24 +7,22 @@ License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
 """
 
 from datetime import datetime
-from typing import Dict, Optional
 
 import pandas as pd
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.core.logger import logger
-from meteostat.typing import ProviderRequest
-from meteostat.core.cache import cache_service
 from meteostat.api.config import config
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
+from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import hours_to_minutes, ms_to_kmh
-
 
 RESOURCE_ID = "klima-v2-1h"
 
 # Mapping from GeoSphere Austria parameter names to Meteostat parameters
 # See: https://dataset.api.hub.geosphere.at/v1/station/historical/klima-v2-1h/metadata
-PARAMETER_MAPPING: Dict[str, Parameter] = {
+PARAMETER_MAPPING: dict[str, Parameter] = {
     "tl": Parameter.TEMP,  # Air temperature (°C)
     "rr": Parameter.PRCP,  # Precipitation (mm)
     "pred": Parameter.PRES,  # Air pressure (hPa)
@@ -41,15 +39,11 @@ METEOSTAT_TO_GSA = {v: k for k, v in PARAMETER_MAPPING.items()}
 
 
 @cache_service.cache(TTL.DAY, "pickle")
-def get_data(
-    station_id: str, parameters: list[str], start: datetime, end: datetime
-) -> Optional[pd.DataFrame]:
+def get_data(station_id: str, parameters: list[str], start: datetime, end: datetime) -> pd.DataFrame | None:
     """
     Fetch data from GeoSphere Austria Data Hub API
     """
-    logger.debug(
-        f"Fetching hourly data for station '{station_id}' from {start} to {end}"
-    )
+    logger.debug(f"Fetching hourly data for station '{station_id}' from {start} to {end}")
 
     # Format dates as ISO 8601
     start_str = start.strftime("%Y-%m-%dT%H:%M")
@@ -71,9 +65,7 @@ def get_data(
     )
 
     if response.status_code != 200:
-        logger.warning(
-            f"Failed to fetch data for station {station_id} (status: {response.status_code})"
-        )
+        logger.warning(f"Failed to fetch data for station {station_id} (status: {response.status_code})")
         return None
 
     try:
@@ -147,7 +139,7 @@ def get_data(
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Fetch hourly data from GeoSphere Austria Data Hub
     """

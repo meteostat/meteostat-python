@@ -9,9 +9,10 @@ The code is licensed under the MIT license.
 """
 
 from collections import Counter
+from collections.abc import Sequence
 from datetime import datetime
 from itertools import chain
-from typing import List, Optional, Sequence, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -21,9 +22,7 @@ from meteostat.enumerations import Frequency
 from meteostat.typing import Station
 
 
-def safe_concat(
-    frames: Sequence[Optional[pd.DataFrame]], axis: int = 0, **kwargs
-) -> Optional[pd.DataFrame]:
+def safe_concat(frames: Sequence[pd.DataFrame | None], axis: int = 0, **kwargs) -> pd.DataFrame | None:
     """
     Filter out None values from a list of DataFrames and concatenate the rest.
 
@@ -36,13 +35,11 @@ def safe_concat(
     return cast(pd.DataFrame, pd.concat(valid, axis=axis, **kwargs))
 
 
-def stations_to_df(stations: List[Station]) -> pd.DataFrame:
+def stations_to_df(stations: list[Station]) -> pd.DataFrame:
     """
     Convert list of stations to DataFrame
     """
-    assert len(stations) > 0 and all(
-        isinstance(station, Station) for station in stations
-    )
+    assert len(stations) > 0 and all(isinstance(station, Station) for station in stations)
 
     return pd.DataFrame.from_records(
         [
@@ -69,9 +66,7 @@ def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
     columns = df.columns
 
     # Add source priority column
-    df["source_prio"] = df.index.get_level_values("source").map(
-        provider_service.get_source_priority
-    )
+    df["source_prio"] = df.index.get_level_values("source").map(provider_service.get_source_priority)
 
     # Shift source information to columns
     if sources:
@@ -94,9 +89,7 @@ def squash_df(df: pd.DataFrame, sources=False) -> pd.DataFrame:
     return df[order_source_columns(df.columns)] if sources else df
 
 
-def fill_df(
-    df: pd.DataFrame, start: datetime, end: datetime, freq: str
-) -> pd.DataFrame:
+def fill_df(df: pd.DataFrame, start: datetime, end: datetime, freq: str) -> pd.DataFrame:
     """
     Fill a DataFrame with a complete date range for each station
     """
@@ -153,17 +146,13 @@ def reshape_by_source(df: pd.DataFrame) -> pd.DataFrame:
     source_melted["variable"] = source_melted["variable"].str.replace("_source", "")
 
     # Merge the melted DataFrames
-    merged_df = pd.merge(
-        value_melted, source_melted, on=["time", "variable"], suffixes=("", "_source")
-    )
+    merged_df = pd.merge(value_melted, source_melted, on=["time", "variable"], suffixes=("", "_source"))
 
     # Drop rows with missing values
     merged_df = merged_df.dropna(subset=["value"])
 
     # Pivot the DataFrame
-    df_pivoted = merged_df.pivot(
-        index=["time", "value_source"], columns="variable", values="value"
-    )
+    df_pivoted = merged_df.pivot(index=["time", "value_source"], columns="variable", values="value")
 
     # Flatten the MultiIndex
     df_pivoted.index = df_pivoted.index.rename(["time", "source"])
@@ -205,7 +194,7 @@ def enforce_freq(df: pd.DataFrame, freq: Frequency) -> pd.DataFrame:
     return df.resample(freq).first()
 
 
-def order_source_columns(columns: pd.Index) -> List[str]:
+def order_source_columns(columns: pd.Index) -> list[str]:
     """
     Order source columns
     """

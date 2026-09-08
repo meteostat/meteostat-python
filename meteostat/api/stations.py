@@ -6,17 +6,16 @@ Provides the Stations class for working with weather station metadata.
 
 import math
 import os
-from typing import List, Optional
-from io import BytesIO
 import sqlite3
+from io import BytesIO
 
 import pandas as pd
-
 from requests import Response
+
+from meteostat.api.config import config
 from meteostat.api.inventory import Inventory
 from meteostat.api.point import Point
 from meteostat.core.cache import cache_service
-from meteostat.api.config import config
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service
 from meteostat.enumerations import Provider
@@ -82,8 +81,7 @@ class Stations:
         cache_service.create_cache_dir()
 
         with open(filepath, "wb") as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
+            file.writelines(response.iter_content(chunk_size=8192))
 
         return filepath
 
@@ -124,7 +122,7 @@ class Stations:
 
         return conn
 
-    def connect(self, in_memory: Optional[bool] = None) -> sqlite3.Connection:
+    def connect(self, in_memory: bool | None = None) -> sqlite3.Connection:
         """
         Connect to the database
         """
@@ -141,8 +139,8 @@ class Stations:
     def query(
         self,
         sql: str,
-        index_col: Optional[str | list] = None,
-        params: Optional[tuple | dict] = None,
+        index_col: str | list | None = None,
+        params: tuple | dict | None = None,
     ) -> pd.DataFrame:
         """
         Execute a SQL query and return the result as a DataFrame
@@ -152,17 +150,17 @@ class Stations:
 
         return df
 
-    def meta(self, station: str) -> Optional[Station]:
+    def meta(self, station: str) -> Station | None:
         """
         Get meta data for a specific weather station
         """
         result = self.query(
             """
-            SELECT 
+            SELECT
                 `stations`.*,
                 `names`.`name` as `name`
-            FROM `stations` 
-            LEFT JOIN `names` ON `stations`.`id` = `names`.`station` 
+            FROM `stations`
+            LEFT JOIN `names` ON `stations`.`id` = `names`.`station`
                 AND `names`.`language` = 'en'
             WHERE `stations`.`id` LIKE ?
             """,
@@ -183,14 +181,10 @@ class Stations:
         return Station(
             id=station,
             **meta,
-            identifiers={
-                identifier["key"]: identifier["value"] for identifier in identifiers
-            },
+            identifiers={identifier["key"]: identifier["value"] for identifier in identifiers},
         )
 
-    def inventory(
-        self, station: str | List[str], providers: Optional[List[Provider]] = None
-    ) -> Inventory:
+    def inventory(self, station: str | list[str], providers: list[Provider] | None = None) -> Inventory:
         """
         Get inventory records for a single weather station
         """
@@ -212,9 +206,7 @@ class Stations:
             # Add the providers to the params
             params += tuple(providers)
 
-        df = self.query(
-            query, index_col=["station", "provider", "parameter"], params=params
-        )
+        df = self.query(query, index_col=["station", "provider", "parameter"], params=params)
 
         return Inventory(df)
 
@@ -236,8 +228,8 @@ class Stations:
                 ROUND(
                     (
                         6371000 * acos(
-                            cos(radians(:lat)) * cos(radians(`latitude`)) * 
-                            cos(radians(`longitude`) - radians(:lon)) + 
+                            cos(radians(:lat)) * cos(radians(`latitude`)) *
+                            cos(radians(`longitude`) - radians(:lon)) +
                             sin(radians(:lat)) * sin(radians(`latitude`))
                         )
                     ),

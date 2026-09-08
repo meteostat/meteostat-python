@@ -4,11 +4,11 @@ Test User-Agent configuration and handling
 The code is licensed under the MIT license.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from meteostat.api.config import config
-from meteostat.providers.noaa import metar
 from meteostat.providers.metno import forecast
+from meteostat.providers.noaa import metar
 
 
 class TestUserAgent:

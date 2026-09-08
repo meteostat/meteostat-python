@@ -4,13 +4,14 @@ Cache Service
 The Cache Service provides utilities for caching data on the local file system.
 """
 
-from functools import wraps
-from hashlib import md5
 import json
 import os
+from collections.abc import Callable
+from functools import wraps
+from hashlib import md5
 from os.path import exists
 from time import time
-from typing import Any, Callable, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -26,7 +27,7 @@ class CacheService:
     _purged = False  # Flag to indicate if cache has been purged automatically
 
     @staticmethod
-    def _write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
+    def _write_pickle(path: str, df: pd.DataFrame | None) -> None:
         """
         Persist a DataFrame in Pickle format
         """
@@ -36,7 +37,7 @@ class CacheService:
             df.to_pickle(path)
 
     @staticmethod
-    def _read_pickle(path) -> Optional[pd.DataFrame]:
+    def _read_pickle(path) -> pd.DataFrame | None:
         """
         Read a pickle file into a DataFrame
         """
@@ -56,7 +57,7 @@ class CacheService:
         """
         Read JSON data into memory
         """
-        with open(path, "r", encoding="utf-8") as file:
+        with open(path, encoding="utf-8") as file:
             raw = file.read()
         return json.loads(raw)
 
@@ -71,7 +72,7 @@ class CacheService:
                     func.__module__,
                     func.__name__,
                     *map(str, args),
-                    *[f"{key}:{str(value)}" for key, value in kwargs.items()],
+                    *[f"{key}:{value!s}" for key, value in kwargs.items()],
                 )
             ).encode("utf-8")
         ).hexdigest()
@@ -101,7 +102,7 @@ class CacheService:
         return time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
 
     @staticmethod
-    def purge(ttl: Optional[int] = None) -> None:
+    def purge(ttl: int | None = None) -> None:
         """
         Remove stale files from disk cache
         """
@@ -124,9 +125,7 @@ class CacheService:
                     # Delete file
                     os.remove(path)
 
-    def persist(
-        self, path: str, data: pd.DataFrame | dict | list, data_type: str
-    ) -> None:
+    def persist(self, path: str, data: pd.DataFrame | dict | list, data_type: str) -> None:
         """
         Persist any given data under a specific path
         """
@@ -146,19 +145,13 @@ class CacheService:
             return self._read_json(path)
         return self._read_pickle(path)
 
-    def from_func(
-        self, func, args, kwargs, ttl: int, data_format: str
-    ) -> pd.DataFrame | dict | list:
+    def from_func(self, func, args, kwargs, ttl: int, data_format: str) -> pd.DataFrame | dict | list:
         """
         Cache a function's return value
         """
         uid = self._func_to_uid(func, args, kwargs)  # Get UID for function call
         path = self.get_cache_path(uid, data_format)  # Get the local cache path
-        result = (
-            self.fetch(path, data_format)
-            if ttl > 0 and exists(path) and not self.is_stale(path, ttl)
-            else False
-        )
+        result = self.fetch(path, data_format) if ttl > 0 and exists(path) and not self.is_stale(path, ttl) else False
 
         cache_status = "is" if isinstance(result, pd.DataFrame) or result else "is not"
         logger.debug(

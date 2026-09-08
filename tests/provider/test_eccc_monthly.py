@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import meteostat as ms
 from meteostat.providers.eccc.monthly import fetch
 from meteostat.typing import ProviderRequest

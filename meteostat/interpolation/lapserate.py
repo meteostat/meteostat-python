@@ -3,8 +3,8 @@ from statistics import mean
 
 import pandas as pd
 
-from meteostat.api.timeseries import TimeSeries
 from meteostat.api.config import config
+from meteostat.api.timeseries import TimeSeries
 from meteostat.enumerations import Parameter
 
 
@@ -60,9 +60,7 @@ def lapse_rate(ts: TimeSeries, parameter: Parameter = Parameter.TEMP) -> float |
     return mean(lapse_rates)
 
 
-def apply_lapse_rate(
-    df: pd.DataFrame, elevation: int, lapse_rate: float
-) -> pd.DataFrame:
+def apply_lapse_rate(df: pd.DataFrame, elevation: int, lapse_rate: float) -> pd.DataFrame:
     """
     Calculate approximate temperature at target elevation
     using a given lapse rate.
@@ -83,8 +81,6 @@ def apply_lapse_rate(
     """
     for col in config.lapse_rate_parameters:
         if col in df.columns:
-            df.loc[df[col].notna(), col] = round(
-                df[col] + ((lapse_rate / 1000) * (df["elevation"] - elevation)), 1
-            )
+            df.loc[df[col].notna(), col] = round(df[col] + ((lapse_rate / 1000) * (df["elevation"] - elevation)), 1)
 
     return df

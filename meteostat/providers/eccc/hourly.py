@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import Optional
 
 import pandas as pd
 import pytz
 
-from meteostat.enumerations import TTL, Parameter
 from meteostat.core.cache import cache_service
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import ProviderRequest
 from meteostat.utils.data import safe_concat
@@ -45,7 +44,7 @@ PROPERTIES = {
 
 
 @cache_service.cache(TTL.DAY, "pickle")
-def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
+def get_df(climate_id: str, year: int, tz: str) -> pd.DataFrame | None:
     # Process start & end date
     # ECCC uses the station's local time zone
     from_timezone = pytz.timezone("UTC")
@@ -55,15 +54,9 @@ def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
     except pytz.exceptions.UnknownTimeZoneError:
         logger.warning(f"Unknown timezone '{tz}' for ECCC station, skipping")
         return None
-    start = (
-        from_timezone.localize(datetime(year, 1, 1, 0, 0, 0))
-        .astimezone(to_timezone)
-        .strftime("%Y-%m-%dT%H:%M:%S")
-    )
+    start = from_timezone.localize(datetime(year, 1, 1, 0, 0, 0)).astimezone(to_timezone).strftime("%Y-%m-%dT%H:%M:%S")
     end = (
-        from_timezone.localize(datetime(year, 12, 31, 23, 59, 59))
-        .astimezone(to_timezone)
-        .strftime("%Y-%m-%dT%H:%M:%S")
+        from_timezone.localize(datetime(year, 12, 31, 23, 59, 59)).astimezone(to_timezone).strftime("%Y-%m-%dT%H:%M:%S")
     )
 
     response = network_service.get(
@@ -96,19 +89,13 @@ def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
 
     # Convert data units
     df[Parameter.WDIR] = df[Parameter.WDIR] * 10  # Wind direction is provided 10's deg
-    df[Parameter.VSBY] = (
-        df[Parameter.VSBY] * 1000
-    )  # Visibility is provided in kilometres
+    df[Parameter.VSBY] = df[Parameter.VSBY] * 1000  # Visibility is provided in kilometres
 
     return df
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
-    if (
-        "national" not in req.station.identifiers
-        or req.start is None
-        or req.end is None
-    ):
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
+    if "national" not in req.station.identifiers or req.start is None or req.end is None:
         return None
 
     meta_data = get_meta_data(req.station.identifiers["national"])

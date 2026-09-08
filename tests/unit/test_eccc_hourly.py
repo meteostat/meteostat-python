@@ -4,13 +4,13 @@ Test ECCC hourly provider
 The code is licensed under the MIT license.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
-from meteostat.providers.eccc.hourly import get_df, fetch
-from meteostat.typing import Station
 from meteostat.enumerations import Parameter
+from meteostat.providers.eccc.hourly import fetch, get_df
+from meteostat.typing import Station
 
 
 class TestGetDfEmptyFeatures:

@@ -1,5 +1,6 @@
 import functools
-from typing import Optional, Callable, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 from urllib.error import HTTPError
 
 import pandas as pd
@@ -29,21 +30,19 @@ def _get_station_year_info(args: tuple) -> str:
     return info
 
 
-def handle_exceptions(func: Callable[..., Optional[T]]) -> Callable[..., Optional[T]]:
+def handle_exceptions(func: Callable[..., T | None]) -> Callable[..., T | None]:
     """
     Decorator to handle exceptions during data fetching
     """
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Optional[T]:
+    def wrapper(*args, **kwargs) -> T | None:
         try:
             return func(*args, **kwargs)
         except HTTPError as error:
             status_code = error.code
             if status_code == 404:
-                logger.info(
-                    f"Data file for {_get_station_year_info(args)} was not found"
-                )
+                logger.info(f"Data file for {_get_station_year_info(args)} was not found")
             else:
                 logger.warning(
                     f"HTTP error while loading data file for {_get_station_year_info(args)} (status: {status_code})",
@@ -59,20 +58,16 @@ def handle_exceptions(func: Callable[..., Optional[T]]) -> Callable[..., Optiona
     return wrapper
 
 
-def filter_model_data(func: Callable[..., Optional[T]]) -> Callable[..., Optional[T]]:
+def filter_model_data(func: Callable[..., T | None]) -> Callable[..., T | None]:
     """
     Decorator to filter out model/forecast data based on configuration
     """
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Optional[T]:
+    def wrapper(*args, **kwargs) -> T | None:
         result = func(*args, **kwargs)
 
-        if (
-            not config.include_model_data
-            and isinstance(result, pd.DataFrame)
-            and result is not None
-        ):
+        if not config.include_model_data and isinstance(result, pd.DataFrame) and result is not None:
             logger.debug("Filtering out model/forecast data")
 
             excluded_providers = [

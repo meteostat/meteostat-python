@@ -9,7 +9,7 @@ from pandas import Series
 from meteostat.core.validator import Validator
 
 
-def minimum(value: int | float) -> Validator:
+def minimum(value: float) -> Validator:
     """
     Numeric minimum
     """
@@ -20,7 +20,7 @@ def minimum(value: int | float) -> Validator:
     return Validator(_func)
 
 
-def maximum(value: int | float) -> Validator:
+def maximum(value: float) -> Validator:
     """
     Numeric maximum
     """

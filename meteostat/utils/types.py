@@ -82,9 +82,7 @@ def extract_property_type(cls: type, property_name: str) -> tuple[Any, Any]:
     return expected_type, original_type
 
 
-def validate_parsed_value(
-    value: Any, expected_type: Any, original_type: Any, property_name: str
-) -> Any:
+def validate_parsed_value(value: Any, expected_type: Any, original_type: Any, property_name: str) -> Any:
     """
     Validate a parsed value against the expected type and handle special cases.
 
@@ -143,8 +141,7 @@ def validate_parsed_value(
 
         # Type mismatch for parameterized generic
         raise ValueError(
-            f"Environment variable '{property_name}' has type {type(value).__name__} "
-            f"but expected {type_name}"
+            f"Environment variable '{property_name}' has type {type(value).__name__} but expected {type_name}"
         )
 
     # For non-generic types, use isinstance directly
@@ -153,12 +150,7 @@ def validate_parsed_value(
             return value
     except TypeError as e:
         # isinstance can fail for some types, convert to ValueError with context
-        raise TypeError(
-            f"Cannot validate type for environment variable '{property_name}': {e}"
-        ) from e
+        raise TypeError(f"Cannot validate type for environment variable '{property_name}': {e}") from e
 
     # Type mismatch
-    raise ValueError(
-        f"Environment variable '{property_name}' has type {type(value).__name__} "
-        f"but expected {type_name}"
-    )
+    raise ValueError(f"Environment variable '{property_name}' has type {type(value).__name__} but expected {type_name}")

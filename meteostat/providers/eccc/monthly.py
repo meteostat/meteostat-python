@@ -1,10 +1,8 @@
-from typing import Optional
-
 import pandas as pd
 
-from meteostat.enumerations import TTL, Parameter
 from meteostat.core.cache import cache_service
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import ProviderRequest
 
@@ -23,7 +21,7 @@ PROPERTIES = {
 @cache_service.cache(TTL.WEEK, "pickle")
 def get_df(
     climate_id: str,
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     response = network_service.get(
         f"{ENDPOINT}/collections/climate-monthly/items",
         params={
@@ -57,7 +55,7 @@ def get_df(
     return df
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "national" not in req.station.identifiers:
         return None
 

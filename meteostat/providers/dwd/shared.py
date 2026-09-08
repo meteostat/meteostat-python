@@ -1,8 +1,6 @@
-from typing import Union
 from ftplib import FTP
 
 from meteostat.api.config import config
-
 
 DWD_FTP_SERVER = config.dwd_ftp_host
 
@@ -16,7 +14,7 @@ def get_ftp_connection() -> FTP:
     return dwd_ftp_connection
 
 
-def get_condicode(code: str) -> Union[int, None]:
+def get_condicode(code: str) -> int | None:
     """
     Map DWD codes to Meteostat condicodes
 

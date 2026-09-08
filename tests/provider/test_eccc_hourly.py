@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import meteostat as ms
 from meteostat.providers.eccc.hourly import fetch
 from meteostat.typing import ProviderRequest
@@ -23,6 +24,4 @@ def test_eccc_hourly():
 
     # Check that data contains reasonable number of non-missing entries.
     assert df["temp"].notna().sum() >= 100, "Insufficient temperature data returned."
-    assert df["rhum"].notna().sum() >= 100, (
-        "Insufficient relative humidity data returned."
-    )
+    assert df["rhum"].notna().sum() >= 100, "Insufficient relative humidity data returned."

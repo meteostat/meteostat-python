@@ -4,13 +4,13 @@ Test ECCC daily provider
 The code is licensed under the MIT license.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
-from meteostat.providers.eccc.daily import get_df, fetch
-from meteostat.typing import Station
 from meteostat.enumerations import Parameter
+from meteostat.providers.eccc.daily import fetch, get_df
+from meteostat.typing import Station
 
 
 class TestGetDfEmptyFeatures:

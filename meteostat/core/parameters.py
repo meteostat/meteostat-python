@@ -5,8 +5,6 @@ The Parameter Service provides methods to manage and access
 supported parameters for data requests.
 """
 
-from typing import List, Optional
-
 from meteostat.core.logger import logger
 from meteostat.enumerations import Granularity, Parameter
 from meteostat.parameters import DEFAULT_PARAMETERS
@@ -18,10 +16,10 @@ class ParameterService:
     Parameter Service
     """
 
-    _parameters: List[ParameterSpec]
+    _parameters: list[ParameterSpec]
 
     @staticmethod
-    def _has_duplicates(parameter_specs: List[ParameterSpec]) -> bool:
+    def _has_duplicates(parameter_specs: list[ParameterSpec]) -> bool:
         """
         Check if parameter list contains duplicates
         """
@@ -40,14 +38,14 @@ class ParameterService:
         key = (parameter.id, parameter.granularity)
         return any((spec.id, spec.granularity) == key for spec in self.parameters)
 
-    def __init__(self, parameters: List[ParameterSpec]) -> None:
+    def __init__(self, parameters: list[ParameterSpec]) -> None:
         if self._has_duplicates(parameters):
             raise ValueError("List of parameters contains duplicates")
 
         self._parameters = parameters
 
     @property
-    def parameters(self) -> List[ParameterSpec]:
+    def parameters(self) -> list[ParameterSpec]:
         """
         Get supported parameters
         """
@@ -62,9 +60,7 @@ class ParameterService:
 
         self._parameters.append(parameter)
 
-    def get_parameter(
-        self, parameter_id: Parameter, granularity: Granularity
-    ) -> Optional[ParameterSpec]:
+    def get_parameter(self, parameter_id: Parameter, granularity: Granularity) -> ParameterSpec | None:
         """
         Get parameter by ID and granularity
         """
@@ -77,9 +73,7 @@ class ParameterService:
             None,
         )
 
-    def filter_parameters(
-        self, granularity: Granularity, parameters: List[Parameter]
-    ) -> List[Parameter]:
+    def filter_parameters(self, granularity: Granularity, parameters: list[Parameter]) -> list[Parameter]:
         """
         Raise exception if a requested parameter is not part of the schema
         """

@@ -36,9 +36,7 @@ def test_hourly_none(mocker, empty_dataframe, mock_stations_database):
     """
     It returns None if provider returns an empty DataFrame
     """
-    mocker.patch(
-        "meteostat.providers.meteostat.hourly.fetch", return_value=empty_dataframe
-    )
+    mocker.patch("meteostat.providers.meteostat.hourly.fetch", return_value=empty_dataframe)
     ts = ms.hourly("10637", datetime(2024, 1, 1, 15), datetime(2024, 1, 1, 17))
     assert ts.fetch() is None
 
@@ -158,9 +156,7 @@ def test_hourly_parameters_property(mock_hourly_fetch, mock_stations_database):
     assert "temp" in params
 
 
-def test_hourly_empty_property(
-    mock_hourly_fetch, empty_dataframe, mocker, mock_stations_database
-):
+def test_hourly_empty_property(mock_hourly_fetch, empty_dataframe, mocker, mock_stations_database):
     """
     It has an empty property that reflects data availability
     """
@@ -169,9 +165,7 @@ def test_hourly_empty_property(
     assert ts.empty is False
 
     # Empty case
-    mocker.patch(
-        "meteostat.providers.meteostat.hourly.fetch", return_value=empty_dataframe
-    )
+    mocker.patch("meteostat.providers.meteostat.hourly.fetch", return_value=empty_dataframe)
     ts_empty = ms.hourly("10637", datetime(2024, 1, 1, 0), datetime(2024, 1, 1, 1))
     assert ts_empty.empty is True
 
@@ -209,24 +203,14 @@ def test_hourly_multiple_providers_no_squash(
         providers=[ms.Provider.DWD_HOURLY, ms.Provider.DWD_POI, ms.Provider.DWD_MOSMIX],
     )
     df = ts.fetch(sources=True, squash=False)
-    df_1 = data_service.filter_time(
-        df, datetime(2025, 12, 1, 0, 0), datetime(2025, 12, 1, 0, 59)
-    )
-    df_2 = data_service.filter_time(
-        df, datetime(2025, 12, 16, 16, 0), datetime(2025, 12, 16, 16, 59)
-    )
-    df_3 = data_service.filter_time(
-        df, datetime(2025, 12, 17, 6, 0), datetime(2025, 12, 17, 6, 59)
-    )
-    df_4 = data_service.filter_time(
-        df, datetime(2025, 12, 18, 6, 0), datetime(2025, 12, 18, 6, 59)
-    )
+    df_1 = data_service.filter_time(df, datetime(2025, 12, 1, 0, 0), datetime(2025, 12, 1, 0, 59))
+    df_2 = data_service.filter_time(df, datetime(2025, 12, 16, 16, 0), datetime(2025, 12, 16, 16, 59))
+    df_3 = data_service.filter_time(df, datetime(2025, 12, 17, 6, 0), datetime(2025, 12, 17, 6, 59))
+    df_4 = data_service.filter_time(df, datetime(2025, 12, 18, 6, 0), datetime(2025, 12, 18, 6, 59))
     assert df is not None
     assert len(df) == 519
     assert len(df_1) == 1
-    assert df_1.index.get_level_values("source").unique().tolist() == [
-        Provider.DWD_HOURLY
-    ]
+    assert df_1.index.get_level_values("source").unique().tolist() == [Provider.DWD_HOURLY]
     assert len(df_2) == 2
     assert df_2.index.get_level_values("source").unique().tolist() == [
         Provider.DWD_MOSMIX,
@@ -238,6 +222,4 @@ def test_hourly_multiple_providers_no_squash(
         Provider.DWD_POI,
     ]
     assert len(df_4) == 1
-    assert df_4.index.get_level_values("source").unique().tolist() == [
-        Provider.DWD_MOSMIX
-    ]
+    assert df_4.index.get_level_values("source").unique().tolist() == [Provider.DWD_MOSMIX]

@@ -44,7 +44,7 @@ class TestConfigService:
         """Test parsing list[str] environment variable"""
 
         class TestConfig(ConfigService):
-            mylist: list[str] = []
+            mylist: list[str] = []  # noqa: RUF012
 
         config = TestConfig(prefix="TEST")
         result = config._parse_env_value("mylist", '["item1", "item2", "item3"]')
@@ -74,7 +74,7 @@ class TestConfigService:
         """Test that invalid JSON is handled gracefully and skipped"""
 
         class TestConfig(ConfigService):
-            mylist: list[str] = ["default"]
+            mylist: list[str] = ["default"]  # noqa: RUF012
 
         config = TestConfig(prefix="TEST")
         result = config._parse_env_value("mylist", "not valid json")
@@ -86,7 +86,7 @@ class TestConfigService:
         """Test that type mismatch is handled gracefully and skipped"""
 
         class TestConfig(ConfigService):
-            mylist: list[str] = ["default"]
+            mylist: list[str] = ["default"]  # noqa: RUF012
 
         config = TestConfig(prefix="TEST")
         # Passing a string instead of a list
@@ -99,7 +99,7 @@ class TestConfigService:
         """Test loading environment variables with valid list[str]"""
 
         class TestConfig(ConfigService):
-            endpoints: list[str] = ["default1", "default2"]
+            endpoints: list[str] = ["default1", "default2"]  # noqa: RUF012
 
         monkeypatch.setenv("TEST_ENDPOINTS", '["endpoint1", "endpoint2"]')
         config = TestConfig(prefix="TEST")
@@ -109,7 +109,7 @@ class TestConfigService:
         """Test loading environment variables with invalid list[str] keeps default"""
 
         class TestConfig(ConfigService):
-            endpoints: list[str] = ["default1", "default2"]
+            endpoints: list[str] = ["default1", "default2"]  # noqa: RUF012
 
         monkeypatch.setenv("TEST_ENDPOINTS", "not a list")
         config = TestConfig(prefix="TEST")
@@ -130,7 +130,7 @@ class TestConfigService:
         """Test loading environment variables with list[str] | None set to null"""
 
         class TestConfig(ConfigService):
-            modes: list[str] | None = ["default"]
+            modes: list[str] | None = ["default"]  # noqa: RUF012
 
         monkeypatch.setenv("TEST_MODES", "null")
         config = TestConfig(prefix="TEST")
@@ -140,7 +140,7 @@ class TestConfigService:
         """Test that initialization continues when environment variable is invalid"""
 
         class TestConfig(ConfigService):
-            mylist: list[str] = ["default"]
+            mylist: list[str] = ["default"]  # noqa: RUF012
             mystring: str = "default_string"
 
         # Set an invalid list value

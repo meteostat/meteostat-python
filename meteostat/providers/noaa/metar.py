@@ -2,20 +2,19 @@
 The code is licensed under the MIT license.
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 from metar import Metar
 
-from meteostat.core.logger import logger
 from meteostat.api.config import config
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
+from meteostat.core.network import network_service
 from meteostat.enumerations import TTL, Frequency, Parameter
 from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import temp_dwpt_to_rhum
-from meteostat.core.cache import cache_service
 from meteostat.utils.data import enforce_freq
-from meteostat.core.network import network_service
-
 
 ENDPOINT = config.aviationweather_endpoint
 CLDC_MAP = {
@@ -54,7 +53,7 @@ COCO_MAP = {
 }
 
 
-def safe_get(obj: Optional[Any]) -> Optional[Any]:
+def safe_get(obj: Any | None) -> Any | None:
     try:
         if obj is not None and hasattr(obj, "value"):
             return obj.value()
@@ -63,7 +62,7 @@ def safe_get(obj: Optional[Any]) -> Optional[Any]:
         return None
 
 
-def get_cldc(report: Metar.Metar) -> Optional[int]:
+def get_cldc(report: Metar.Metar) -> int | None:
     """
     Get cloud cover (octas) from METAR report
     """
@@ -74,14 +73,12 @@ def get_cldc(report: Metar.Metar) -> Optional[int]:
         return None
 
 
-def get_coco(report: Metar.Metar) -> Optional[int]:
+def get_coco(report: Metar.Metar) -> int | None:
     """
     Get weather condition code from METAR report
     """
     try:
-        condition_code = "".join(
-            [item for item in report.weather[0] if item is not None]
-        )
+        condition_code = "".join([item for item in report.weather[0] if item is not None])
         return COCO_MAP.get(condition_code)
     except IndexError:
         return None
@@ -113,7 +110,7 @@ def map_data(record):
 
 
 @cache_service.cache(TTL.HOUR, "pickle")
-def get_df(station: str) -> Optional[pd.DataFrame]:
+def get_df(station: str) -> pd.DataFrame | None:
     """
     Get CSV file from Meteostat and convert to DataFrame
     """
@@ -127,9 +124,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     response.raise_for_status()
 
     # Parse the JSON content into a DataFrame
-    data = [
-        item for item in map(map_data, response.text.splitlines()) if item is not None
-    ]
+    data = [item for item in map(map_data, response.text.splitlines()) if item is not None]
 
     # Return None if no data is available
     if not len(data):
@@ -152,7 +147,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     return enforce_freq(df, Frequency.HOURLY)
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "icao" not in req.station.identifiers:
         return None
 

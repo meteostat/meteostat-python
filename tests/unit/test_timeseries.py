@@ -4,9 +4,11 @@ Test TimeSeries functionality
 The code is licensed under the MIT license.
 """
 
-import pytest
-import pandas as pd
 from datetime import datetime
+
+import pandas as pd
+import pytest
+
 from meteostat.api.timeseries import TimeSeries
 from meteostat.enumerations import Granularity, Parameter
 

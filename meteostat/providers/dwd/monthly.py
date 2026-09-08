@@ -9,18 +9,16 @@ The code is licensed under the MIT license.
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
-from typing import Optional
 from zipfile import ZipFile
 
 import pandas as pd
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.typing import ProviderRequest
 from meteostat.core.cache import cache_service
-from meteostat.utils.data import safe_concat
-from meteostat.utils.conversions import ms_to_kmh
+from meteostat.enumerations import TTL, Parameter
 from meteostat.providers.dwd.shared import get_ftp_connection
-
+from meteostat.typing import ProviderRequest
+from meteostat.utils.conversions import ms_to_kmh
+from meteostat.utils.data import safe_concat
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/monthly/kl/"
 USECOLS = [1, 4, 5, 6, 7, 9, 10, 11, 12, 14]  # CSV cols which should be read
@@ -55,7 +53,7 @@ def find_file(ftp: FTP, mode: str, needle: str):
 
 
 @cache_service.cache(TTL.WEEK, "pickle")
-def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
+def get_df(station: str, mode: str) -> pd.DataFrame | None:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
@@ -93,9 +91,7 @@ def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
     df = df.rename(columns=lambda x: x.strip())
 
     # Parse date column
-    df["MESS_DATUM_BEGINN"] = pd.to_datetime(
-        df["MESS_DATUM_BEGINN"].astype(str), format="%Y%m%d"
-    )
+    df["MESS_DATUM_BEGINN"] = pd.to_datetime(df["MESS_DATUM_BEGINN"].astype(str), format="%Y%m%d")
     df = df.rename(columns={"MESS_DATUM_BEGINN": "time"})
     df = df.rename(columns=NAMES)
 
@@ -114,7 +110,7 @@ def get_df(station: str, mode: str) -> Optional[pd.DataFrame]:
     return df
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "national" not in req.station.identifiers:
         return None
 

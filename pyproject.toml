@@ -47,6 +47,18 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "RUF"]
+ignore = [
+    "E501",    # line too long – not enforced
+    "RUF002",  # ambiguous unicode in docstring – intentional (e.g. °C symbols)
+    "RUF003",  # ambiguous unicode in comment – intentional
+    "RUF005",  # iterable unpacking instead of concatenation – style preference
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

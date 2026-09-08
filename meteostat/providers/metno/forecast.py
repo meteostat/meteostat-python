@@ -1,15 +1,13 @@
-from typing import Optional, Union
+import pandas as pd
 from requests.exceptions import HTTPError
 
-import pandas as pd
-
 from meteostat.api.config import config
-from meteostat.enumerations import TTL, Parameter
+from meteostat.core.cache import cache_service
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import percentage_to_okta
-from meteostat.core.cache import cache_service
 
 CONDICODES = {
     "clearsky": 1,
@@ -56,7 +54,7 @@ CONDICODES = {
 }
 
 
-def get_condicode(code: str) -> Union[int, None]:
+def get_condicode(code: str) -> int | None:
     """
     Map Met.no symbol codes to Meteostat condition codes
 
@@ -98,12 +96,8 @@ def map_data(record):
             transform=percentage_to_okta,
         ),
         Parameter.RHUM: safe_get(record, details_instant + ["relative_humidity"]),
-        Parameter.PRCP: safe_get(
-            record, details_next_1_hour + ["precipitation_amount"]
-        ),
-        Parameter.WSPD: safe_get(
-            record, details_instant + ["wind_speed"], transform=lambda x: x * 3.6
-        ),
+        Parameter.PRCP: safe_get(record, details_next_1_hour + ["precipitation_amount"]),
+        Parameter.WSPD: safe_get(record, details_instant + ["wind_speed"], transform=lambda x: x * 3.6),
         Parameter.WPGT: safe_get(
             record,
             details_instant + ["wind_speed_of_gust"],
@@ -112,11 +106,9 @@ def map_data(record):
         Parameter.WDIR: safe_get(
             record,
             details_instant + ["wind_from_direction"],
-            transform=lambda x: int(round(x)),
+            transform=lambda x: round(x),
         ),
-        Parameter.PRES: safe_get(
-            record, details_instant + ["air_pressure_at_sea_level"]
-        ),
+        Parameter.PRES: safe_get(record, details_instant + ["air_pressure_at_sea_level"]),
         Parameter.COCO: safe_get(
             record,
             ["data", "next_1_hours", "summary", "symbol_code"],
@@ -126,7 +118,7 @@ def map_data(record):
 
 
 @cache_service.cache(TTL.HOUR, "pickle")
-def get_df(latitude: float, longitude: float, elevation: int) -> Optional[pd.DataFrame]:
+def get_df(latitude: float, longitude: float, elevation: int) -> pd.DataFrame | None:
     endpoint = config.metno_forecast_endpoint
     user_agent = config.metno_user_agent
 
@@ -175,15 +167,13 @@ def get_df(latitude: float, longitude: float, elevation: int) -> Optional[pd.Dat
 
     except HTTPError as error:
         status_code = error.response.status_code if error.response else "unknown"
-        logger.warning(
-            f"Couldn't load weather forecast from met.no (status: {status_code})"
-        )
+        logger.warning(f"Couldn't load weather forecast from met.no (status: {status_code})")
 
     except Exception as error:
         logger.error(error, exc_info=True)
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     return get_df(
         req.station.latitude,
         req.station.longitude,

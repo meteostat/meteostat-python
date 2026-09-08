@@ -7,17 +7,16 @@ Aaron Penne (https://github.com/aaronpenne).
 The code is licensed under the MIT license.
 """
 
-from io import StringIO
 from ftplib import FTP
-from typing import Optional
+from io import StringIO
 
-from numpy import nan
 import pandas as pd
+from numpy import nan
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.typing import ProviderRequest
 from meteostat.core.cache import cache_service
 from meteostat.core.logger import logger
+from meteostat.enumerations import TTL, Parameter
+from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import ms_to_kmh, percentage_to_okta
 
 FTP_SERVER = "ftp.ncdc.noaa.gov"
@@ -68,13 +67,7 @@ def create_df(element, dict_element):
     df_element = pd.DataFrame(dict_element)
 
     # Add dates (YYYY-MM-DD) as index on df. Pad days with zeros to two places
-    df_element.index = (
-        df_element["YEAR"]
-        + "-"
-        + df_element["MONTH"]
-        + "-"
-        + df_element["DAY"].str.zfill(2)
-    )
+    df_element.index = df_element["YEAR"] + "-" + df_element["MONTH"] + "-" + df_element["DAY"].str.zfill(2)
     df_element.index.name = "DATE"
 
     # Arrange columns so ID, YEAR, MONTH, DAY are at front. Leaving them in
@@ -193,7 +186,7 @@ def dly_to_df(ftp, station_id):
 
 
 @cache_service.cache(TTL.DAY, "pickle")
-def get_df(station: str) -> Optional[pd.DataFrame]:
+def get_df(station: str) -> pd.DataFrame | None:
     try:
         ftp = connect_to_ftp()
         try:
@@ -209,7 +202,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         # Re-raise to avoid caching a failure result
         raise
     # Filter relevant columns
-    df = df.drop(columns=[col for col in df if col not in COLUMN_NAMES.keys()])
+    df = df.drop(columns=[col for col in df if col not in COLUMN_NAMES])
     # Add missing columns
     for col in list(COLUMN_NAMES.keys())[1:]:
         if col not in df.columns:
@@ -232,10 +225,8 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     return df.set_index("time")
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
-    ghcn_id = (
-        req.station.identifiers["ghcn"] if "ghcn" in req.station.identifiers else None
-    )
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
+    ghcn_id = req.station.identifiers["ghcn"] if "ghcn" in req.station.identifiers else None
     if not ghcn_id:
         return None
     return get_df(ghcn_id)

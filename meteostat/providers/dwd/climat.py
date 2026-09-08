@@ -5,16 +5,15 @@ DWD Global CLIMAT Data
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
-from typing import List, Optional
 
 import pandas as pd
 
-from meteostat.core.logger import logger
 from meteostat.api.config import config
-from meteostat.enumerations import TTL, Parameter
-from meteostat.typing import ProviderRequest
 from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
+from meteostat.enumerations import TTL, Parameter
 from meteostat.providers.dwd.shared import get_ftp_connection
+from meteostat.typing import ProviderRequest
 from meteostat.utils.data import safe_concat
 
 # Constants
@@ -54,17 +53,14 @@ PARAMETER_CONFIGS = {
         "dir": dir_name,
         "stubnames": {
             "jahr": "year",
-            **{
-                month: f"{param}{i + 1}"
-                for i, (month, _) in enumerate(MONTHS_MAP.items())
-            },
+            **{month: f"{param}{i + 1}" for i, (month, _) in enumerate(MONTHS_MAP.items())},
         },
     }
     for dir_name, param in PARAMETERS
 }
 
 
-def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> Optional[str]:
+def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> str | None:
     """
     Find a file in the FTP directory matching a pattern.
     """
@@ -78,7 +74,7 @@ def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> Optional
 
 
 @cache_service.cache(TTL.WEEK, "pickle")
-def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFrame]:
+def get_df(parameter: str, mode: str, station_code: str) -> pd.DataFrame | None:
     """
     Download and parse a CLIMAT dataset from DWD FTP.
     """
@@ -93,9 +89,7 @@ def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFram
         remote_file = find_file(ftp, mode, param_config["dir"], search_term)
 
         if not remote_file:
-            logger.debug(
-                f"No file found for parameter '{parameter}', mode '{mode}', station '{station_code}'"
-            )
+            logger.debug(f"No file found for parameter '{parameter}', mode '{mode}', station '{station_code}'")
             return None
 
         buffer = BytesIO()
@@ -108,24 +102,18 @@ def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFram
     df = df.rename(columns=param_config["stubnames"])
 
     # Convert wide to long format
-    df = pd.wide_to_long(
-        df, stubnames=parameter, i="year", j="month", sep="", suffix="\\d+"
-    ).reset_index()
+    df = pd.wide_to_long(df, stubnames=parameter, i="year", j="month", sep="", suffix="\\d+").reset_index()
 
     if parameter == Parameter.TSUN:
         df[Parameter.TSUN] *= 60  # convert hours to minutes
 
     # Create datetime index
-    df["time"] = pd.to_datetime(
-        df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2) + "-01"
-    )
+    df["time"] = pd.to_datetime(df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2) + "-01")
 
     return df.drop(columns=["year", "month"]).set_index("time")
 
 
-def get_parameter(
-    parameter: str, modes: List[str], station_code: str
-) -> Optional[pd.DataFrame]:
+def get_parameter(parameter: str, modes: list[str], station_code: str) -> pd.DataFrame | None:
     """
     Fetch and merge data for a parameter over multiple modes (e.g., recent, historical).
     """
@@ -138,13 +126,11 @@ def get_parameter(
 
         return pd.concat(datasets).loc[lambda df: ~df.index.duplicated(keep="first")]
     except Exception as e:
-        logger.warning(
-            f"Failed to fetch data for parameter '{parameter}': {e}", exc_info=True
-        )
+        logger.warning(f"Failed to fetch data for parameter '{parameter}': {e}", exc_info=True)
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Entry point to fetch all requested parameters for a station query.
     """

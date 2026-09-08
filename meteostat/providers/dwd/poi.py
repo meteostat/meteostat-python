@@ -1,4 +1,3 @@
-from typing import Optional, Union
 from urllib.error import HTTPError
 
 import pandas as pd
@@ -61,7 +60,7 @@ COCO_MAP = {
 }
 
 
-def get_coco(code: str | int) -> Union[int, None]:
+def get_coco(code: str | int) -> int | None:
     """
     Map DWD POI weather condition codes to Meteostat condicodes
     """
@@ -69,7 +68,7 @@ def get_coco(code: str | int) -> Union[int, None]:
 
 
 @cache_service.cache(TTL.HOUR, "pickle")
-def get_df(station: str) -> Optional[pd.DataFrame]:
+def get_df(station: str) -> pd.DataFrame | None:
     try:
         # Read CSV data from DWD server
         df = pd.read_csv(  # type: ignore
@@ -93,9 +92,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         df[Parameter.CLDC] = df[Parameter.CLDC].apply(percentage_to_okta)
 
         # Set index
-        df["time"] = pd.to_datetime(
-            df["Datum"] + " " + df["Uhrzeit (UTC)"], format="%d.%m.%y %H:%M"
-        )
+        df["time"] = pd.to_datetime(df["Datum"] + " " + df["Uhrzeit (UTC)"], format="%d.%m.%y %H:%M")
         df = df.set_index(["time"])
         df = df.drop(["Datum", "Uhrzeit (UTC)"], axis=1)
 
@@ -103,9 +100,7 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
 
     except HTTPError as error:
         status_code = error.code
-        logger.info(
-            f"Couldn't load DWD POI data for weather station {station} (status: {status_code})"
-        )
+        logger.info(f"Couldn't load DWD POI data for weather station {station} (status: {status_code})")
         return None
 
     except Exception as error:
@@ -113,6 +108,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "wmo" in req.station.identifiers:
         return get_df(req.station.identifiers["wmo"])

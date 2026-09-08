@@ -30,14 +30,8 @@ def test_interpolate(mock_stations_database, mock_hourly_fetch):
     df_interpolated = test_interpolated.fetch(sources=True)
     assert df_interpolated is not None
     assert len(df_interpolated) == 48
-    assert (
-        df_interpolated.iloc[0]["temp"]
-        < df.xs("10637", level="station").iloc[0]["temp"]
-    )
-    assert (
-        df_interpolated.iloc[0]["temp"]
-        > df.xs("10635", level="station").iloc[0]["temp"]
-    )
+    assert df_interpolated.iloc[0]["temp"] < df.xs("10637", level="station").iloc[0]["temp"]
+    assert df_interpolated.iloc[0]["temp"] > df.xs("10635", level="station").iloc[0]["temp"]
     # assert df_interpolated["temp"].mean() < df.xs("10637", level="station")["temp"].mean()
     # assert df_interpolated["temp"].mean() > df.xs("10635", level="station")["temp"].mean()
 
@@ -106,9 +100,7 @@ def test_interpolate_rounding(mock_stations_database, mock_hourly_fetch):
             temp_str = str(float(temp_val))
             if "." in temp_str:
                 decimal_part = temp_str.split(".")[1]
-                assert len(decimal_part) <= 1, (
-                    f"Temperature {temp_val} has more than 1 decimal place"
-                )
+                assert len(decimal_part) <= 1, f"Temperature {temp_val} has more than 1 decimal place"
 
 
 def test_interpolate_categorical(mock_stations_database, mock_hourly_fetch):
@@ -208,9 +200,7 @@ def test_interpolate_sea_level_lapse_rate(mock_stations_database, mock_hourly_fe
 
     # Verify temperature data is available in fixtures
     assert "temp" in df_no_lapse.columns, "Temperature data missing from mock fixtures"
-    assert "temp" in df_with_lapse.columns, (
-        "Temperature data missing from mock fixtures"
-    )
+    assert "temp" in df_with_lapse.columns, "Temperature data missing from mock fixtures"
 
     temps_no_lapse = df_no_lapse["temp"].dropna()
     temps_with_lapse = df_with_lapse["temp"].dropna()
@@ -243,6 +233,5 @@ def test_interpolate_sea_level_lapse_rate(mock_stations_database, mock_hourly_fe
     # while accounting for interpolation effects.
     temp_diff = mean_with_lapse - mean_no_lapse
     assert temp_diff > 0.3, (
-        f"Temperature difference {temp_diff:.2f}°C is too small. "
-        f"Expected at least 0.3°C with lapse-rate correction."
+        f"Temperature difference {temp_diff:.2f}°C is too small. Expected at least 0.3°C with lapse-rate correction."
     )

@@ -4,7 +4,7 @@ Test NetworkService retry and timeout configuration
 The code is licensed under the MIT license.
 """
 
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 import requests

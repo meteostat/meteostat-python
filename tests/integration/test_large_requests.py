@@ -26,15 +26,11 @@ class TestLargeTimeRangeBlocking:
         assert config.block_large_requests is True
 
         # Request spanning 31 years should raise ValueError
-        with pytest.raises(
-            ValueError, match="Daily requests longer than 30 years are blocked"
-        ):
+        with pytest.raises(ValueError, match="Daily requests longer than 30 years are blocked"):
             ts = ms.daily("10637", datetime(1990, 1, 1), datetime(2021, 12, 31))
             ts.fetch()
 
-    def test_large_request_exactly_30_years_allowed(
-        self, mocker, mock_stations_database
-    ):
+    def test_large_request_exactly_30_years_allowed(self, mocker, mock_stations_database):
         """
         Requests spanning exactly 30 years should be allowed
         """
@@ -54,9 +50,7 @@ class TestLargeTimeRangeBlocking:
         Requests spanning just over 30 years should be blocked
         """
         # Request spanning 31 years (1990-2021)
-        with pytest.raises(
-            ValueError, match="Daily requests longer than 30 years are blocked"
-        ):
+        with pytest.raises(ValueError, match="Daily requests longer than 30 years are blocked"):
             ts = ms.daily("10637", datetime(1990, 1, 1), datetime(2021, 1, 1))
             ts.fetch()
 
@@ -98,9 +92,7 @@ class TestLargeTimeRangeBlocking:
             ts = ms.daily("10637", None, datetime(2024, 12, 31))
             ts.fetch()
 
-    def test_request_with_none_end_date_allowed(
-        self, mock_daily_fetch, mock_stations_database
-    ):
+    def test_request_with_none_end_date_allowed(self, mock_daily_fetch, mock_stations_database):
         """
         Requests with None end date should be allowed (uses datetime.now())
         """
@@ -122,9 +114,7 @@ class TestLargeTimeRangeBlocking:
             ts = ms.daily("10637", None, None)
             ts.fetch()
 
-    def test_large_request_allowed_when_config_disabled(
-        self, mocker, mock_stations_database
-    ):
+    def test_large_request_allowed_when_config_disabled(self, mocker, mock_stations_database):
         """
         Large requests should be allowed when config.block_large_requests is False
         """
@@ -150,9 +140,7 @@ class TestLargeTimeRangeBlocking:
         """
         Error message should mention how to disable the check
         """
-        with pytest.raises(
-            ValueError, match="set `config.block_large_requests = False`"
-        ):
+        with pytest.raises(ValueError, match=r"set `config\.block_large_requests = False`"):
             ts = ms.daily("10637", datetime(1990, 1, 1), datetime(2021, 12, 31))
             ts.fetch()
 
@@ -173,9 +161,7 @@ class TestLargeTimeRangeBlocking:
         """
         Test just over boundary: 1970-2001 (31 years, should be blocked)
         """
-        with pytest.raises(
-            ValueError, match="Daily requests longer than 30 years are blocked"
-        ):
+        with pytest.raises(ValueError, match="Daily requests longer than 30 years are blocked"):
             ts = ms.daily("10637", datetime(1970, 1, 1), datetime(2001, 1, 1))
             ts.fetch()
 
@@ -183,15 +169,11 @@ class TestLargeTimeRangeBlocking:
         """
         Hourly requests longer than 3 years should be blocked
         """
-        with pytest.raises(
-            ValueError, match="Hourly requests longer than 3 years are blocked"
-        ):
+        with pytest.raises(ValueError, match="Hourly requests longer than 3 years are blocked"):
             ts = ms.hourly("10637", datetime(2015, 1, 1), datetime(2021, 12, 31))
             ts.fetch()
 
-    def test_hourly_request_3_years_allowed(
-        self, mock_daily_fetch, mock_stations_database
-    ):
+    def test_hourly_request_3_years_allowed(self, mock_daily_fetch, mock_stations_database):
         """
         Hourly requests with exactly 3 years should be allowed
         """
@@ -203,15 +185,11 @@ class TestLargeTimeRangeBlocking:
         """
         Hourly requests over 3 years should be blocked
         """
-        with pytest.raises(
-            ValueError, match="Hourly requests longer than 3 years are blocked"
-        ):
+        with pytest.raises(ValueError, match="Hourly requests longer than 3 years are blocked"):
             ts = ms.hourly("10637", datetime(2018, 1, 1), datetime(2024, 12, 31))
             ts.fetch()
 
-    def test_monthly_request_large_time_range_allowed(
-        self, mock_daily_fetch, mock_stations_database
-    ):
+    def test_monthly_request_large_time_range_allowed(self, mock_daily_fetch, mock_stations_database):
         """
         Monthly requests do not have time range validation (no limit enforced)
         """
@@ -220,9 +198,7 @@ class TestLargeTimeRangeBlocking:
         df = ts.fetch()
         assert df is not None
 
-    def test_normals_request_large_time_range_allowed(
-        self, mock_daily_fetch, mock_stations_database
-    ):
+    def test_normals_request_large_time_range_allowed(self, mock_daily_fetch, mock_stations_database):
         """
         Normals requests do not have time range validation (no limit enforced)
         """
@@ -245,9 +221,7 @@ class TestLargeTimeRangeBlocking:
         ts = ms.daily("10637", datetime(1992, 2, 29), datetime(2022, 2, 28))
         ts.fetch()  # Just verify it doesn't raise
 
-    def test_year_difference_calculation_dec_to_jan(
-        self, mock_daily_fetch, mock_stations_database
-    ):
+    def test_year_difference_calculation_dec_to_jan(self, mock_daily_fetch, mock_stations_database):
         """
         Test year difference calculation across calendar years
         """
@@ -297,9 +271,7 @@ class TestLargeStationCountBlocking:
         station_ids = ms.stations.nearby(ms.Point(50, 8), limit=11)
 
         # Request with 11 stations should raise ValueError
-        with pytest.raises(
-            ValueError, match="Requests with more than 10 stations are blocked"
-        ):
+        with pytest.raises(ValueError, match="Requests with more than 10 stations are blocked"):
             ts = ms.daily(station_ids, datetime(2024, 1, 1), datetime(2024, 12, 31))
             ts.fetch()
 
@@ -309,15 +281,11 @@ class TestLargeStationCountBlocking:
         """
         station_ids = ms.stations.nearby(ms.Point(50, 8), limit=50)
 
-        with pytest.raises(
-            ValueError, match="Requests with more than 10 stations are blocked"
-        ):
+        with pytest.raises(ValueError, match="Requests with more than 10 stations are blocked"):
             ts = ms.daily(station_ids, datetime(2024, 1, 1), datetime(2024, 12, 31))
             ts.fetch()
 
-    def test_large_station_count_allowed_when_config_disabled(
-        self, mocker, mock_stations_database
-    ):
+    def test_large_station_count_allowed_when_config_disabled(self, mocker, mock_stations_database):
         """
         Large station requests should be allowed when config.block_large_requests is False
         """
@@ -348,9 +316,7 @@ class TestLargeStationCountBlocking:
         """
         station_ids = ms.stations.nearby(ms.Point(50, 8), limit=15)
 
-        with pytest.raises(
-            ValueError, match="set `config.block_large_requests = False`"
-        ):
+        with pytest.raises(ValueError, match=r"set `config\.block_large_requests = False`"):
             ts = ms.daily(station_ids, datetime(2024, 1, 1), datetime(2024, 12, 31))
             ts.fetch()
 
@@ -360,9 +326,7 @@ class TestLargeStationCountBlocking:
         """
         station_ids = ms.stations.nearby(ms.Point(50, 8), limit=11)
 
-        with pytest.raises(
-            ValueError, match="Requests with more than 10 stations are blocked"
-        ):
+        with pytest.raises(ValueError, match="Requests with more than 10 stations are blocked"):
             ts = ms.hourly(station_ids, datetime(2024, 1, 1), datetime(2024, 12, 31))
             ts.fetch()
 
@@ -372,8 +336,6 @@ class TestLargeStationCountBlocking:
         """
         station_ids = ms.stations.nearby(ms.Point(50, 8), limit=11)
 
-        with pytest.raises(
-            ValueError, match="Requests with more than 10 stations are blocked"
-        ):
+        with pytest.raises(ValueError, match="Requests with more than 10 stations are blocked"):
             ts = ms.monthly(station_ids, datetime(2024, 1, 1), datetime(2024, 12, 31))
             ts.fetch()

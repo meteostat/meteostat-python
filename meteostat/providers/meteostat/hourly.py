@@ -3,16 +3,14 @@ The code is licensed under the MIT license.
 """
 
 from datetime import datetime
-from typing import Optional
 
 import pandas as pd
 
-from meteostat.providers.meteostat.shared import filter_model_data, handle_exceptions
-from meteostat.typing import ProviderRequest
 from meteostat.api.config import config
 from meteostat.core.cache import cache_service
+from meteostat.providers.meteostat.shared import filter_model_data, handle_exceptions
+from meteostat.typing import ProviderRequest
 from meteostat.utils.data import reshape_by_source
-
 
 ENDPOINT = config.hourly_endpoint
 
@@ -30,7 +28,7 @@ def get_ttl(_station: str, year: int) -> int:
 
 @cache_service.cache(get_ttl, "pickle")
 @handle_exceptions
-def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
+def get_df(station: str, year: int) -> pd.DataFrame | None:
     """
     Get CSV file from Meteostat and convert to DataFrame
     """
@@ -46,7 +44,7 @@ def get_df(station: str, year: int) -> Optional[pd.DataFrame]:
 
 
 @filter_model_data
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Fetch hourly weather data from Meteostat's central data repository
     """
@@ -58,9 +56,5 @@ def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
     # Get list of annual DataFrames
     df_yearly = [get_df(req.station.id, year) for year in years]
     # Concatenate into a single DataFrame
-    df = (
-        pd.concat(df_yearly)
-        if len(df_yearly) and not all(d is None for d in df_yearly)
-        else None
-    )
+    df = pd.concat(df_yearly) if len(df_yearly) and not all(d is None for d in df_yearly) else None
     return df

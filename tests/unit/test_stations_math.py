@@ -70,9 +70,7 @@ def test_haversine_distance_calculation():
     """)
 
     # Insert test data: Frankfurt coordinates
-    cursor.execute(
-        "INSERT INTO test_stations VALUES (?, ?, ?)", ("TEST1", 50.1155, 8.6842)
-    )
+    cursor.execute("INSERT INTO test_stations VALUES (?, ?, ?)", ("TEST1", 50.1155, 8.6842))
     conn.commit()
 
     # Test the distance calculation query (same as used in nearby())
@@ -84,8 +82,8 @@ def test_haversine_distance_calculation():
             ROUND(
                 (
                     6371000 * acos(
-                        cos(radians(:lat)) * cos(radians(latitude)) * 
-                        cos(radians(longitude) - radians(:lon)) + 
+                        cos(radians(:lat)) * cos(radians(latitude)) *
+                        cos(radians(longitude) - radians(:lon)) +
                         sin(radians(:lat)) * sin(radians(latitude))
                     )
                 ),
@@ -140,8 +138,8 @@ class TestAcosDomainClamping:
         sql = """
             SELECT id,
                 6371000 * acos(
-                    cos(radians(:lat)) * cos(radians(latitude)) * 
-                    cos(radians(longitude) - radians(:lon)) + 
+                    cos(radians(:lat)) * cos(radians(latitude)) *
+                    cos(radians(longitude) - radians(:lon)) +
                     sin(radians(:lat)) * sin(radians(latitude))
                 ) AS distance
             FROM stations
@@ -185,8 +183,8 @@ class TestAcosDomainClamping:
         sql = """
             SELECT id,
                 6371000 * acos(
-                    cos(radians(:lat)) * cos(radians(latitude)) * 
-                    cos(radians(longitude) - radians(:lon)) + 
+                    cos(radians(:lat)) * cos(radians(latitude)) *
+                    cos(radians(longitude) - radians(:lon)) +
                     sin(radians(:lat)) * sin(radians(latitude))
                 ) AS distance
             FROM stations
@@ -196,8 +194,6 @@ class TestAcosDomainClamping:
         result = cursor.fetchone()
         assert result is not None
         # Antipodal distance should be ~20000km
-        assert result[1] > 19000000, (
-            f"Antipodal distance should be ~20000km, got {result[1]}"
-        )
+        assert result[1] > 19000000, f"Antipodal distance should be ~20000km, got {result[1]}"
 
         conn.close()

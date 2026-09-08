@@ -1,22 +1,21 @@
+import pickle
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-import pickle
 
-from meteostat.api.hourly import DEFAULT_PARAMETERS as DEFAULT_PARAMETERS_HOURLY
+from meteostat.api.config import config
 from meteostat.api.daily import DEFAULT_PARAMETERS as DEFAULT_PARAMETERS_DAILY
+from meteostat.api.hourly import DEFAULT_PARAMETERS as DEFAULT_PARAMETERS_HOURLY
 from meteostat.api.monthly import DEFAULT_PARAMETERS as DEFAULT_PARAMETERS_MONTHLY
 from meteostat.api.stations import stations
-from meteostat.api.config import config
 from meteostat.core.data import data_service
-from meteostat.providers.meteostat.hourly import fetch as fetch_hourly
-from meteostat.providers.meteostat.daily import fetch as fetch_daily
-from meteostat.providers.meteostat.monthly import fetch as fetch_monthly
 from meteostat.providers.dwd.hourly import fetch as fetch_dwd_hourly
-from meteostat.providers.dwd.poi import fetch as fetch_dwd_poi
 from meteostat.providers.dwd.mosmix import fetch as fetch_dwd_mosmix
+from meteostat.providers.dwd.poi import fetch as fetch_dwd_poi
+from meteostat.providers.meteostat.daily import fetch as fetch_daily
+from meteostat.providers.meteostat.hourly import fetch as fetch_hourly
+from meteostat.providers.meteostat.monthly import fetch as fetch_monthly
 from meteostat.typing import ProviderRequest, Station
-
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

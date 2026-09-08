@@ -5,7 +5,7 @@ Implements IDW interpolation for spatial weather data with support for
 elevation-weighted distance calculations.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
@@ -78,10 +78,7 @@ def inverse_distance_weighting(
             # Get numeric columns to interpolate (exclude location-related columns)
             location_cols = ["latitude", "longitude", "elevation", "distance"]
             numeric_cols = [
-                col
-                for col in group.columns
-                if col not in location_cols
-                and pd.api.types.is_numeric_dtype(group[col])
+                col for col in group.columns if col not in location_cols and pd.api.types.is_numeric_dtype(group[col])
             ]
 
             # Calculate weighted average for each numeric column
@@ -111,9 +108,7 @@ def inverse_distance_weighting(
             interpolated_row["distance"] = 0  # Distance from point to itself
 
             # Create a DataFrame row with the time index
-            result_df = pd.DataFrame(
-                [interpolated_row], index=pd.DatetimeIndex([time_idx])
-            )
+            result_df = pd.DataFrame([interpolated_row], index=pd.DatetimeIndex([time_idx]))
             result_df.index.name = "time"
             interpolated_results.append(result_df)
 

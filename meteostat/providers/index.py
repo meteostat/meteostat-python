@@ -6,8 +6,8 @@ This module contains a list of all available data providers.
 
 from datetime import date, timedelta
 
+from meteostat.enumerations import Grade, Granularity, Parameter, Priority, Provider
 from meteostat.typing import License, ProviderSpec
-from meteostat.enumerations import Grade, Granularity, Parameter, Provider, Priority
 
 PROVIDER_HOURLY = ProviderSpec(
     id=Provider.HOURLY,

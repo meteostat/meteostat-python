@@ -2,16 +2,16 @@
 Meteostat Typing
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Callable, List, Optional
 
 from meteostat.core.validator import Validator
 from meteostat.enumerations import (
     Grade,
-    Priority,
     Granularity,
     Parameter,
+    Priority,
     Provider,
     Unit,
 )
@@ -26,14 +26,14 @@ class Station:
     """
 
     id: str  # The Meteostat station ID (e.g., "10637" or "$0001" for virtual stations)
-    name: Optional[str] = None  # The (usually English) name of the station
-    country: Optional[str] = None  # ISO 3166-1 alpha-2 country code
-    region: Optional[str] = None  # ISO 3166-2 state or region code
+    name: str | None = None  # The (usually English) name of the station
+    country: str | None = None  # ISO 3166-1 alpha-2 country code
+    region: str | None = None  # ISO 3166-2 state or region code
     identifiers: dict[str, str] = field(default_factory=dict)  # Provider identifiers
-    latitude: Optional[float] = None  # The latitude in degrees
-    longitude: Optional[float] = None  # The longitude in degrees
-    elevation: Optional[int] = None  # The elevation in meters
-    timezone: Optional[str] = None  # The IANA timezone name
+    latitude: float | None = None  # The latitude in degrees
+    longitude: float | None = None  # The longitude in degrees
+    elevation: int | None = None  # The elevation in meters
+    timezone: str | None = None  # The IANA timezone name
 
 
 @dataclass
@@ -43,9 +43,9 @@ class License:
     """
 
     commercial: bool
-    attribution: Optional[str] = None
-    name: Optional[str] = None
-    url: Optional[str] = None
+    attribution: str | None = None
+    name: str | None = None
+    url: str | None = None
 
 
 @dataclass
@@ -58,13 +58,13 @@ class ProviderSpec:
     name: str  # A descriptive provider name
     granularity: Granularity  # The provider's time series granularity
     priority: Priority | int  # The priority of the provider
-    grade: Optional[Grade]  # The provider's data quality grade
-    license: Optional[License]  # The provider's license
-    parameters: List[Parameter]  # List of supported meteorological parameters
+    grade: Grade | None  # The provider's data quality grade
+    license: License | None  # The provider's license
+    parameters: list[Parameter]  # List of supported meteorological parameters
     start: date  # The start date of the provider's data
-    end: Optional[datetime] = None  # The end date of the provider's data
-    countries: Optional[list[str]] = None  # List of supported countries
-    module: Optional[str] = None  # Module path to the provider's API
+    end: datetime | None = None  # The end date of the provider's data
+    countries: list[str] | None = None  # List of supported countries
+    module: str | None = None  # Module path to the provider's API
 
 
 @dataclass
@@ -77,10 +77,8 @@ class ParameterSpec:
     name: str  # A descriptive parameter name
     granularity: Granularity  # The parameter's granularity
     dtype: str  # The parameter's data type
-    unit: Optional[Unit] = None  # The parameter's data unit
-    validators: List[Validator | Callable] = field(
-        default_factory=list
-    )  # The parameter's validators
+    unit: Unit | None = None  # The parameter's data unit
+    validators: list[Validator | Callable] = field(default_factory=list)  # The parameter's validators
 
 
 @dataclass
@@ -90,12 +88,12 @@ class Request:
     """
 
     granularity: Granularity  # Query's time series granularity
-    providers: List[Provider]  # Providers to query
-    parameters: List[Parameter]  # Schema of the query's data
-    station: Station | List[Station]  # Station(s) to query
-    start: Optional[datetime] = None  # Start date of the query
-    end: Optional[datetime] = None  # End date of the query
-    timezone: Optional[str] = None  # Time zone of the query's data
+    providers: list[Provider]  # Providers to query
+    parameters: list[Parameter]  # Schema of the query's data
+    station: Station | list[Station]  # Station(s) to query
+    start: datetime | None = None  # Start date of the query
+    end: datetime | None = None  # End date of the query
+    timezone: str | None = None  # Time zone of the query's data
 
 
 @dataclass
@@ -105,6 +103,6 @@ class ProviderRequest:
     """
 
     station: Station  # Station to query
-    parameters: List[Parameter]  # List of meteorological parameters to query
-    start: Optional[datetime]  # Start date of the query
-    end: Optional[datetime]  # End date of the query
+    parameters: list[Parameter]  # List of meteorological parameters to query
+    start: datetime | None  # Start date of the query
+    end: datetime | None  # End date of the query

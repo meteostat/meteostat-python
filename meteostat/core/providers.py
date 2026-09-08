@@ -7,7 +7,7 @@ The Provider Service provides methods to interact with data providers.
 from datetime import datetime
 from importlib import import_module
 from statistics import fmean
-from typing import List, Optional, TypeGuard, cast
+from typing import TypeGuard, cast
 
 import pandas as pd
 
@@ -17,8 +17,8 @@ from meteostat.providers.index import DEFAULT_PROVIDERS
 from meteostat.typing import (
     ProviderRequest,
     ProviderSpec,
-    Station,
     Request,
+    Station,
 )
 
 
@@ -27,13 +27,13 @@ class ProviderService:
     Provider Service
     """
 
-    _providers: List[ProviderSpec]
+    _providers: list[ProviderSpec]
 
-    def __init__(self, providers: List[ProviderSpec]) -> None:
+    def __init__(self, providers: list[ProviderSpec]) -> None:
         self._providers = providers
 
     @property
-    def providers(self) -> List[ProviderSpec]:
+    def providers(self) -> list[ProviderSpec]:
         """
         Get supported providers
         """
@@ -45,7 +45,7 @@ class ProviderService:
         """
         self._providers.append(provider)
 
-    def get_provider(self, provider_id: Provider | str) -> Optional[ProviderSpec]:
+    def get_provider(self, provider_id: Provider | str) -> ProviderSpec | None:
         """
         Get provider by ID
         """
@@ -83,13 +83,11 @@ class ProviderService:
         if len(provider_ids) == 1:
             return self._get_provider_priority(provider_ids[0])
 
-        priorities = [
-            self._get_provider_priority(provider) for provider in provider_ids
-        ]
+        priorities = [self._get_provider_priority(provider) for provider in provider_ids]
 
         return fmean(priorities)
 
-    def filter_providers(self, query: Request, station: Station) -> List[Provider]:
+    def filter_providers(self, query: Request, station: Station) -> list[Provider]:
         """
         Get a filtered list of providers
         """
@@ -127,9 +125,7 @@ class ProviderService:
                 return False
 
             # Filter out providers which stopped providing data before the request's start date
-            if query.end and query.end < datetime.combine(
-                provider.start, datetime.min.time()
-            ):
+            if query.end and query.end < datetime.combine(provider.start, datetime.min.time()):
                 logger.info(
                     "Skipping provider '%s' as it stopped providing data before request start",
                     provider_id,
@@ -152,9 +148,7 @@ class ProviderService:
 
         return list(filter(_filter, query.providers))
 
-    def fetch_data(
-        self, provider_id: Provider, req: Request, station: Station
-    ) -> Optional[pd.DataFrame]:
+    def fetch_data(self, provider_id: Provider, req: Request, station: Station) -> pd.DataFrame | None:
         """
         Fetch data from a given provider
         """
@@ -165,12 +159,7 @@ class ProviderService:
 
         query = ProviderRequest(
             station=station,
-            start=req.start
-            or (
-                datetime.combine(provider.start, datetime.min.time())
-                if provider.start
-                else None
-            ),
+            start=req.start or (datetime.combine(provider.start, datetime.min.time()) if provider.start else None),
             end=req.end or (provider.end or datetime.now()),
             parameters=req.parameters,
         )

@@ -6,7 +6,6 @@ The code is licensed under the MIT license.
 """
 
 import math
-from typing import Optional
 
 import pandas as pd
 
@@ -115,7 +114,7 @@ def temp_dwpt_to_rhum(row: dict):
     )
 
 
-def pres_to_msl(row: dict, altitude: Optional[int] = None, temp: str = Parameter.TEMP):
+def pres_to_msl(row: dict, altitude: int | None = None, temp: str = Parameter.TEMP):
     pres = row.get(Parameter.PRES)
     t = row.get(temp)
 

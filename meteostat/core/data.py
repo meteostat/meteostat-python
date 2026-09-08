@@ -6,7 +6,7 @@ different providers and merging it into a single time series.
 """
 
 from datetime import datetime
-from typing import List, Optional, Union, cast
+from typing import cast
 
 import pandas as pd
 
@@ -16,7 +16,7 @@ from meteostat.core.parameters import parameter_service
 from meteostat.core.providers import provider_service
 from meteostat.core.schema import schema_service
 from meteostat.enumerations import Parameter, Provider
-from meteostat.typing import Station, Request
+from meteostat.typing import Request, Station
 from meteostat.utils.data import safe_concat, stations_to_df
 from meteostat.utils.guards import request_size_guard
 
@@ -40,8 +40,8 @@ class DataService:
     @staticmethod
     def filter_time(
         df: pd.DataFrame,
-        start: Union[datetime, None] = None,
-        end: Union[datetime, None] = None,
+        start: datetime | None = None,
+        end: datetime | None = None,
     ) -> pd.DataFrame:
         """
         Filter time series data based on start and end date
@@ -58,25 +58,18 @@ class DataService:
         try:
             return df.loc[(time >= start) & (time <= end)] if start and end else df
         except TypeError:
-            return (
-                df.loc[(time >= start.date()) & (time <= end.date())]
-                if start and end
-                else df
-            )
+            return df.loc[(time >= start.date()) & (time <= end.date())] if start and end else df
 
     @staticmethod
     def concat_fragments(
-        fragments: List[pd.DataFrame],
-        parameters: List[Parameter],
+        fragments: list[pd.DataFrame],
+        parameters: list[Parameter],
     ) -> pd.DataFrame:
         """
         Concatenate multiple fragments into a single DataFrame
         """
         try:
-            cleaned = [
-                df.dropna(how="all", axis=1) if not df.empty else None
-                for df in fragments
-            ]
+            cleaned = [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
             df = safe_concat(cleaned)
             if df is None:
                 return pd.DataFrame()
@@ -86,9 +79,7 @@ class DataService:
         except ValueError:
             return pd.DataFrame()
 
-    def _fetch_provider_data(
-        self, req: Request, station: Station, provider: Provider
-    ) -> Optional[pd.DataFrame]:
+    def _fetch_provider_data(self, req: Request, station: Station, provider: Provider) -> pd.DataFrame | None:
         """
         Fetch data for a single weather station and provider
         """
@@ -121,7 +112,7 @@ class DataService:
                 exc_info=True,
             )
 
-    def _fetch_station_data(self, req: Request, station: Station) -> List[pd.DataFrame]:
+    def _fetch_station_data(self, req: Request, station: Station) -> list[pd.DataFrame]:
         """
         Fetch data for a single weather station
         """
@@ -151,20 +142,12 @@ class DataService:
         request_size_guard(req)
 
         # Convert stations to list if single Station
-        stations: List[Station] = (
-            cast(List[Station], req.station)
-            if isinstance(req.station, list)
-            else [req.station]
-        )
+        stations: list[Station] = cast(list[Station], req.station) if isinstance(req.station, list) else [req.station]
 
-        logger.debug(
-            "%s time series requested for %s station(s)", req.granularity, len(stations)
-        )
+        logger.debug("%s time series requested for %s station(s)", req.granularity, len(stations))
 
         # Filter parameters
-        req.parameters = parameter_service.filter_parameters(
-            req.granularity, req.parameters
-        )
+        req.parameters = parameter_service.filter_parameters(req.granularity, req.parameters)
 
         fragments = []
 

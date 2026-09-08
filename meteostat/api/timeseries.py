@@ -9,15 +9,14 @@ from datetime import datetime
 from itertools import chain
 from math import floor
 from statistics import mean
-from typing import List, Optional
 
 import pandas as pd
 
 from meteostat.core.parameters import parameter_service
-from meteostat.core.validator import Validator
 from meteostat.core.providers import provider_service
 from meteostat.core.schema import schema_service
-from meteostat.enumerations import Parameter, Granularity, Provider, UnitSystem
+from meteostat.core.validator import Validator
+from meteostat.enumerations import Granularity, Parameter, Provider, UnitSystem
 from meteostat.typing import License
 from meteostat.utils.data import fill_df, localize, squash_df
 
@@ -30,21 +29,21 @@ class TimeSeries:
 
     granularity: Granularity
     stations: pd.DataFrame
-    start: Optional[datetime] = None
-    end: Optional[datetime] = None
-    timezone: Optional[str] = None
+    start: datetime | None = None
+    end: datetime | None = None
+    timezone: str | None = None
 
-    _df: Optional[pd.DataFrame] = None
+    _df: pd.DataFrame | None = None
     _multi_station: bool = False
 
     def __init__(
         self,
         granularity: Granularity,
         stations: pd.DataFrame,
-        df: Optional[pd.DataFrame],
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
-        timezone: Optional[str] = None,
+        df: pd.DataFrame | None,
+        start: datetime | None = None,
+        end: datetime | None = None,
+        timezone: str | None = None,
         multi_station: bool = False,
     ) -> None:
         self.granularity = granularity
@@ -87,20 +86,18 @@ class TimeSeries:
         diff = self.end - self.start
 
         return (
-            diff.days + 1
-            if self.granularity is Granularity.DAILY
-            else floor(diff.total_seconds() / 3600) + 1
+            diff.days + 1 if self.granularity is Granularity.DAILY else floor(diff.total_seconds() / 3600) + 1
         ) * len(self.stations)
 
     @property
-    def parameters(self) -> List[Parameter]:
+    def parameters(self) -> list[Parameter]:
         """
         Get parameters
         """
         return self._df.columns.to_list() if self._df is not None else []
 
     @property
-    def freq(self) -> Optional[str]:
+    def freq(self) -> str | None:
         """
         The time series frequency.
 
@@ -132,21 +129,17 @@ class TimeSeries:
         return True if self._df is None else self._df.empty
 
     @property
-    def providers(self) -> List[Provider]:
+    def providers(self) -> list[Provider]:
         """
         Get included providers
         """
         if self._df is None:
             return []
-        providers: List[str] = (
-            self._df.index.get_level_values("source").unique().to_list()
-        )
-        return list(
-            set(chain.from_iterable([provider.split(" ") for provider in providers]))
-        )
+        providers: list[str] = self._df.index.get_level_values("source").unique().to_list()
+        return list(set(chain.from_iterable([provider.split(" ") for provider in providers])))
 
     @property
-    def licenses(self) -> List[License]:
+    def licenses(self) -> list[License]:
         """
         Get licenses
         """
@@ -156,9 +149,7 @@ class TimeSeries:
             if (provider := provider_service.get_provider(provider_id)) is not None
         ]
 
-        return [
-            provider.license for provider in providers if provider.license is not None
-        ]
+        return [provider.license for provider in providers if provider.license is not None]
 
     @property
     def attribution(self) -> str:
@@ -167,13 +158,7 @@ class TimeSeries:
         """
         attributions = [
             "Meteostat",
-            *set(
-                [
-                    license.attribution
-                    for license in self.licenses
-                    if license.attribution
-                ]
-            ),
+            *set([license.attribution for license in self.licenses if license.attribution]),
         ]
 
         return ", ".join(attributions)
@@ -194,7 +179,7 @@ class TimeSeries:
         clean=True,
         humanize=False,
         units: UnitSystem = UnitSystem.METRIC,
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         Fetch the time series data as a DataFrame.
 
@@ -232,21 +217,14 @@ class TimeSeries:
         if clean:
             df = schema_service.clean(df, self.granularity)
 
-        if (
-            fill
-            and self.start is not None
-            and self.end is not None
-            and self.freq is not None
-        ):
+        if fill and self.start is not None and self.end is not None and self.freq is not None:
             df = fill_df(df, self.start, self.end, self.freq)
 
         if self.timezone:
             df = localize(df, self.timezone)
 
         if location:
-            df = df.join(
-                self.stations[["latitude", "longitude", "elevation"]], on="station"
-            )
+            df = df.join(self.stations[["latitude", "longitude", "elevation"]], on="station")
 
         if humanize:
             df = schema_service.humanize(df)
@@ -260,7 +238,7 @@ class TimeSeries:
 
         return df.sort_index()
 
-    def count(self, parameter: Optional[Parameter | str] = None) -> int:
+    def count(self, parameter: Parameter | str | None = None) -> int:
         """
         Get number of non-NaN values for a specific parameter.
         If no parameter is specified, it returns the count for the entire DataFrame.
@@ -281,13 +259,9 @@ class TimeSeries:
         if parameter is None:
             return self._df.count().max()
 
-        return self._df[
-            parameter if isinstance(parameter, Parameter) else parameter
-        ].count()
+        return self._df[parameter].count()
 
-    def completeness(
-        self, parameter: Optional[Parameter | str] = None
-    ) -> Optional[float]:
+    def completeness(self, parameter: Parameter | str | None = None) -> float | None:
         """
         Get completeness for a specific parameter or the entire DataFrame.
 
