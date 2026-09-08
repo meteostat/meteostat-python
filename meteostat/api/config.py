@@ -6,9 +6,9 @@ stations, interpolation, and provider-specific settings. Configuration can be
 loaded from environment variables with the MS_ prefix.
 """
 
-import os
 import json
-from typing import Any, List, Optional
+import os
+from typing import Any
 
 from meteostat.core.logger import logger
 from meteostat.enumerations import TTL, Parameter
@@ -144,13 +144,13 @@ class Config(ConfigService):
     cache_autoclean: bool = True
 
     # Network settings
-    network_proxies: Optional[dict] = None
+    network_proxies: dict | None = None
     network_timeout: int = 30
     network_max_retries: int = 3
 
     # Station meta data settings
     stations_db_ttl: int = TTL.WEEK
-    stations_db_endpoints: List[str] = [
+    stations_db_endpoints: list[str] = [
         "https://data.meteostat.net/stations.db",
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db",
     ]
@@ -169,9 +169,9 @@ class Config(ConfigService):
 
     # [Provider] DWD settings
     dwd_ftp_host: str = "opendata.dwd.de"
-    dwd_hourly_modes: Optional[List[str]] = None
-    dwd_daily_modes: Optional[List[str]] = None
-    dwd_climat_modes: Optional[List[str]] = None
+    dwd_hourly_modes: list[str] | None = None
+    dwd_daily_modes: list[str] | None = None
+    dwd_climat_modes: list[str] | None = None
     # DWD publishes MOSMIX_L every 6 hours; 12 hours gives a 6-hour buffer for server delays
     dwd_mosmix_staleness_threshold: int = 43200  # 12 hours in seconds
 
@@ -180,14 +180,14 @@ class Config(ConfigService):
         "https://aviationweather.gov/api/data/metar?"
         "ids={station}&format=raw&taf=false&hours=24"
     )
-    aviationweather_user_agent: Optional[str] = None
+    aviationweather_user_agent: str | None = None
 
     # [Provider] Met.no settings
     metno_forecast_endpoint: str = (
         "https://api.met.no/weatherapi/locationforecast/2.0/compact?"
         "lat={latitude}&lon={longitude}&altitude={elevation}"
     )
-    metno_user_agent: Optional[str] = None
+    metno_user_agent: str | None = None
 
     # [Provider] GSA settings
     gsa_api_base_url: str = "https://dataset.api.hub.geosphere.at/v1"

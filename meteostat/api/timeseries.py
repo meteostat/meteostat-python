@@ -9,15 +9,14 @@ from datetime import datetime
 from itertools import chain
 from math import floor
 from statistics import mean
-from typing import List, Optional
 
 import pandas as pd
 
 from meteostat.core.parameters import parameter_service
-from meteostat.core.validator import Validator
 from meteostat.core.providers import provider_service
 from meteostat.core.schema import schema_service
-from meteostat.enumerations import Parameter, Granularity, Provider, UnitSystem
+from meteostat.core.validator import Validator
+from meteostat.enumerations import Granularity, Parameter, Provider, UnitSystem
 from meteostat.typing import License
 from meteostat.utils.data import fill_df, localize, squash_df
 
@@ -30,21 +29,21 @@ class TimeSeries:
 
     granularity: Granularity
     stations: pd.DataFrame
-    start: Optional[datetime] = None
-    end: Optional[datetime] = None
-    timezone: Optional[str] = None
+    start: datetime | None = None
+    end: datetime | None = None
+    timezone: str | None = None
 
-    _df: Optional[pd.DataFrame] = None
+    _df: pd.DataFrame | None = None
     _multi_station: bool = False
 
     def __init__(
         self,
         granularity: Granularity,
         stations: pd.DataFrame,
-        df: Optional[pd.DataFrame],
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
-        timezone: Optional[str] = None,
+        df: pd.DataFrame | None,
+        start: datetime | None = None,
+        end: datetime | None = None,
+        timezone: str | None = None,
         multi_station: bool = False,
     ) -> None:
         self.granularity = granularity
@@ -93,14 +92,14 @@ class TimeSeries:
         ) * len(self.stations)
 
     @property
-    def parameters(self) -> List[Parameter]:
+    def parameters(self) -> list[Parameter]:
         """
         Get parameters
         """
         return self._df.columns.to_list() if self._df is not None else []
 
     @property
-    def freq(self) -> Optional[str]:
+    def freq(self) -> str | None:
         """
         The time series frequency.
 
@@ -132,13 +131,13 @@ class TimeSeries:
         return True if self._df is None else self._df.empty
 
     @property
-    def providers(self) -> List[Provider]:
+    def providers(self) -> list[Provider]:
         """
         Get included providers
         """
         if self._df is None:
             return []
-        providers: List[str] = (
+        providers: list[str] = (
             self._df.index.get_level_values("source").unique().to_list()
         )
         return list(
@@ -146,7 +145,7 @@ class TimeSeries:
         )
 
     @property
-    def licenses(self) -> List[License]:
+    def licenses(self) -> list[License]:
         """
         Get licenses
         """
@@ -194,7 +193,7 @@ class TimeSeries:
         clean=True,
         humanize=False,
         units: UnitSystem = UnitSystem.METRIC,
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         Fetch the time series data as a DataFrame.
 
@@ -260,7 +259,7 @@ class TimeSeries:
 
         return df.sort_index()
 
-    def count(self, parameter: Optional[Parameter | str] = None) -> int:
+    def count(self, parameter: Parameter | str | None = None) -> int:
         """
         Get number of non-NaN values for a specific parameter.
         If no parameter is specified, it returns the count for the entire DataFrame.
@@ -286,8 +285,8 @@ class TimeSeries:
         ].count()
 
     def completeness(
-        self, parameter: Optional[Parameter | str] = None
-    ) -> Optional[float]:
+        self, parameter: Parameter | str | None = None
+    ) -> float | None:
         """
         Get completeness for a specific parameter or the entire DataFrame.
 

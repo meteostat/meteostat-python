@@ -4,14 +4,15 @@ Test IDW (Inverse Distance Weighting) interpolation
 The code is licensed under the MIT license.
 """
 
-import numpy as np
-import pandas as pd
 from datetime import datetime
 from unittest.mock import MagicMock
 
-from meteostat.interpolation.idw import inverse_distance_weighting
+import numpy as np
+import pandas as pd
+
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
+from meteostat.interpolation.idw import inverse_distance_weighting
 
 
 class TestIDW:

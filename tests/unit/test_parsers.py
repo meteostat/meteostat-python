@@ -6,7 +6,7 @@ The code is licensed under the MIT license.
 
 from meteostat import Point
 from meteostat.typing import Station
-from meteostat.utils.parsers import parse_station, _point_to_station
+from meteostat.utils.parsers import _point_to_station, parse_station
 
 
 class TestPointToStation:

@@ -4,11 +4,11 @@ Extended test for parsers module - time parsing functions
 The code is licensed under the MIT license.
 """
 
-from datetime import datetime, date
+from datetime import date, datetime
 
 import pytz
 
-from meteostat.utils.parsers import parse_time, parse_month, parse_year
+from meteostat.utils.parsers import parse_month, parse_time, parse_year
 
 
 class TestParseTime:

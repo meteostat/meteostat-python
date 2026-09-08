@@ -5,8 +5,8 @@ This class is used to validate DataFrame columns based
 on a parameter specification.
 """
 
+from collections.abc import Callable
 from inspect import signature
-from typing import Callable
 
 from pandas import DataFrame, Series
 

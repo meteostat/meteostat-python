@@ -4,13 +4,14 @@ Cache Service
 The Cache Service provides utilities for caching data on the local file system.
 """
 
-from functools import wraps
-from hashlib import md5
 import json
 import os
+from collections.abc import Callable
+from functools import wraps
+from hashlib import md5
 from os.path import exists
 from time import time
-from typing import Any, Callable, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -26,7 +27,7 @@ class CacheService:
     _purged = False  # Flag to indicate if cache has been purged automatically
 
     @staticmethod
-    def _write_pickle(path: str, df: Optional[pd.DataFrame]) -> None:
+    def _write_pickle(path: str, df: pd.DataFrame | None) -> None:
         """
         Persist a DataFrame in Pickle format
         """
@@ -36,7 +37,7 @@ class CacheService:
             df.to_pickle(path)
 
     @staticmethod
-    def _read_pickle(path) -> Optional[pd.DataFrame]:
+    def _read_pickle(path) -> pd.DataFrame | None:
         """
         Read a pickle file into a DataFrame
         """
@@ -71,7 +72,7 @@ class CacheService:
                     func.__module__,
                     func.__name__,
                     *map(str, args),
-                    *[f"{key}:{str(value)}" for key, value in kwargs.items()],
+                    *[f"{key}:{value!s}" for key, value in kwargs.items()],
                 )
             ).encode("utf-8")
         ).hexdigest()
@@ -101,7 +102,7 @@ class CacheService:
         return time() - os.path.getmtime(path) > max([ttl, config.cache_ttl])
 
     @staticmethod
-    def purge(ttl: Optional[int] = None) -> None:
+    def purge(ttl: int | None = None) -> None:
         """
         Remove stale files from disk cache
         """

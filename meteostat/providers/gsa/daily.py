@@ -7,16 +7,15 @@ License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
 """
 
 from datetime import datetime
-from typing import Dict, Optional
 
 import pandas as pd
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.core.logger import logger
-from meteostat.typing import ProviderRequest
-from meteostat.core.cache import cache_service
 from meteostat.api.config import config
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
+from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import (
     hours_to_minutes,
     ms_to_kmh,
@@ -24,12 +23,11 @@ from meteostat.utils.conversions import (
     pres_to_msl,
 )
 
-
 RESOURCE_ID = "klima-v2-1d"
 
 # Mapping from GeoSphere Austria parameter names to Meteostat parameters
 # See: https://dataset.api.hub.geosphere.at/v1/station/historical/klima-v2-1d/metadata
-PARAMETER_MAPPING: Dict[str, Parameter] = {
+PARAMETER_MAPPING: dict[str, Parameter] = {
     "tl_mittel": Parameter.TEMP,  # Mean air temperature (°C) - Lufttemperatur 2m Mittelwert
     "tlmax": Parameter.TMAX,  # Maximum air temperature (°C) - Lufttemperatur 2m Maximalwert
     "tlmin": Parameter.TMIN,  # Minimum air temperature (°C) - Lufttemperatur 2m Minimalwert
@@ -54,7 +52,7 @@ def get_data(
     parameters: list[str],
     start: datetime,
     end: datetime,
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     """
     Fetch data from GeoSphere Austria Data Hub API
     """
@@ -166,7 +164,7 @@ def get_data(
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Fetch daily data from GeoSphere Austria Data Hub
     """

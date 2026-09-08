@@ -4,31 +4,29 @@ Interpolation Module
 Provides spatial interpolation functions for meteorological data.
 """
 
-from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
 
 from meteostat.api.point import Point
 from meteostat.api.timeseries import TimeSeries
-from meteostat.typing import Station
+from meteostat.core.logger import logger
+from meteostat.core.schema import schema_service
 from meteostat.enumerations import Parameter
+from meteostat.interpolation.idw import inverse_distance_weighting
 from meteostat.interpolation.lapserate import apply_lapse_rate
 from meteostat.interpolation.nearest import nearest_neighbor
-from meteostat.interpolation.idw import inverse_distance_weighting
+from meteostat.typing import Station
 from meteostat.utils.data import aggregate_sources, reshape_by_source, stations_to_df
 from meteostat.utils.geo import get_distance
 from meteostat.utils.parsers import parse_station
-from meteostat.core.schema import schema_service
-from meteostat.core.logger import logger
-
 
 # Parameters that are categorical and should not use IDW interpolation
 CATEGORICAL_PARAMETERS = {Parameter.WDIR, Parameter.CLDC, Parameter.COCO}
 
 
 def _create_timeseries(
-    ts: TimeSeries, point: Point, df: Optional[pd.DataFrame] = None
+    ts: TimeSeries, point: Point, df: pd.DataFrame | None = None
 ) -> TimeSeries:
     """
     Create a TimeSeries object from interpolated DataFrame
@@ -116,8 +114,8 @@ def _prepare_data_with_distances(
 def _should_use_nearest_neighbor(
     df: pd.DataFrame,
     point: Point,
-    distance_threshold: Union[int, None],
-    elevation_threshold: Union[int, None],
+    distance_threshold: int | None,
+    elevation_threshold: int | None,
 ) -> bool:
     """
     Determine if nearest neighbor should be used based on thresholds
@@ -146,9 +144,9 @@ def _interpolate_with_nearest_neighbor(
     df: pd.DataFrame,
     ts: TimeSeries,
     point: Point,
-    distance_threshold: Union[int, None],
-    elevation_threshold: Union[int, None],
-) -> Optional[pd.DataFrame]:
+    distance_threshold: int | None,
+    elevation_threshold: int | None,
+) -> pd.DataFrame | None:
     """
     Perform nearest neighbor interpolation with threshold filtering
     """
@@ -172,7 +170,7 @@ def _interpolate_with_idw_and_categorical(
     point: Point,
     categorical_cols: list,
     power: float,
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     """
     Perform IDW interpolation for non-categorical parameters and nearest neighbor for categorical
     """
@@ -211,10 +209,10 @@ def _interpolate_with_idw_and_categorical(
 
 
 def _merge_interpolation_results(
-    df_nearest: Optional[pd.DataFrame],
-    df_idw: Optional[pd.DataFrame],
+    df_nearest: pd.DataFrame | None,
+    df_idw: pd.DataFrame | None,
     use_nearest: bool,
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     """
     Merge nearest neighbor and IDW results with appropriate priority
     """
@@ -272,11 +270,11 @@ def _postprocess_result(
 def interpolate(
     ts: TimeSeries,
     point: Point,
-    distance_threshold: Union[int, None] = 5000,
-    elevation_threshold: Union[int, None] = 50,
+    distance_threshold: int | None = 5000,
+    elevation_threshold: int | None = 50,
     elevation_weight: float = 10,
     power: float = 2.0,
-    lapse_rate: Union[float, None] = 6.5,
+    lapse_rate: float | None = 6.5,
     lapse_rate_threshold: int = 50,
 ) -> TimeSeries:
     """

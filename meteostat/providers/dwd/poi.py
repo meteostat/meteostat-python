@@ -1,4 +1,3 @@
-from typing import Optional, Union
 from urllib.error import HTTPError
 
 import pandas as pd
@@ -61,7 +60,7 @@ COCO_MAP = {
 }
 
 
-def get_coco(code: str | int) -> Union[int, None]:
+def get_coco(code: str | int) -> int | None:
     """
     Map DWD POI weather condition codes to Meteostat condicodes
     """
@@ -69,7 +68,7 @@ def get_coco(code: str | int) -> Union[int, None]:
 
 
 @cache_service.cache(TTL.HOUR, "pickle")
-def get_df(station: str) -> Optional[pd.DataFrame]:
+def get_df(station: str) -> pd.DataFrame | None:
     try:
         # Read CSV data from DWD server
         df = pd.read_csv(  # type: ignore
@@ -113,6 +112,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "wmo" in req.station.identifiers:
         return get_df(req.station.identifiers["wmo"])

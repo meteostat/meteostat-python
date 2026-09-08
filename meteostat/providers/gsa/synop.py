@@ -7,24 +7,22 @@ License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
 """
 
 from datetime import datetime
-from typing import Dict, Optional
 
 import pandas as pd
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.core.logger import logger
-from meteostat.typing import ProviderRequest
-from meteostat.core.cache import cache_service
 from meteostat.api.config import config
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
+from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import ms_to_kmh, pres_to_msl
-
 
 RESOURCE_ID = "synop-v1-1h"
 
 # Mapping from GeoSphere Austria SYNOP parameter names to Meteostat parameters
 # See: https://dataset.api.hub.geosphere.at/v1/station/historical/synop-v1-1h/metadata
-PARAMETER_MAPPING: Dict[str, Parameter] = {
+PARAMETER_MAPPING: dict[str, Parameter] = {
     "T": Parameter.TEMP,  # Air temperature (°C) - Lufttemperatur
     "Pg": Parameter.PRES,  # Air pressure (hPa) - Luftdruck auf Stationshöhe
     "rel": Parameter.RHUM,  # Relative humidity (%) - Relative Feuchte
@@ -46,7 +44,7 @@ def get_data(
     parameters: list[str],
     start: datetime,
     end: datetime,
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     """
     Fetch SYNOP data from GeoSphere Austria Data Hub API
     """
@@ -156,7 +154,7 @@ def get_data(
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Fetch SYNOP hourly data from GeoSphere Austria Data Hub
     """

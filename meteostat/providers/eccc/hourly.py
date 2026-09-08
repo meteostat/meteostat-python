@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import Optional
 
 import pandas as pd
 import pytz
 
-from meteostat.enumerations import TTL, Parameter
 from meteostat.core.cache import cache_service
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
 from meteostat.providers.eccc.shared import ENDPOINT, get_meta_data
 from meteostat.typing import ProviderRequest
 from meteostat.utils.data import safe_concat
@@ -45,7 +44,7 @@ PROPERTIES = {
 
 
 @cache_service.cache(TTL.DAY, "pickle")
-def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
+def get_df(climate_id: str, year: int, tz: str) -> pd.DataFrame | None:
     # Process start & end date
     # ECCC uses the station's local time zone
     from_timezone = pytz.timezone("UTC")
@@ -103,7 +102,7 @@ def get_df(climate_id: str, year: int, tz: str) -> Optional[pd.DataFrame]:
     return df
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if (
         "national" not in req.station.identifiers
         or req.start is None

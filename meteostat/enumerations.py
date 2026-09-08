@@ -2,7 +2,7 @@
 Meteostat Enumerations
 """
 
-from enum import StrEnum, IntEnum
+from enum import IntEnum, StrEnum
 
 
 class Granularity(StrEnum):

@@ -5,16 +5,15 @@ DWD Global CLIMAT Data
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
-from typing import List, Optional
 
 import pandas as pd
 
-from meteostat.core.logger import logger
 from meteostat.api.config import config
-from meteostat.enumerations import TTL, Parameter
-from meteostat.typing import ProviderRequest
 from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
+from meteostat.enumerations import TTL, Parameter
 from meteostat.providers.dwd.shared import get_ftp_connection
+from meteostat.typing import ProviderRequest
 from meteostat.utils.data import safe_concat
 
 # Constants
@@ -64,7 +63,7 @@ PARAMETER_CONFIGS = {
 }
 
 
-def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> Optional[str]:
+def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> str | None:
     """
     Find a file in the FTP directory matching a pattern.
     """
@@ -78,7 +77,7 @@ def find_file(ftp: FTP, mode: str, directory: str, search_term: str) -> Optional
 
 
 @cache_service.cache(TTL.WEEK, "pickle")
-def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFrame]:
+def get_df(parameter: str, mode: str, station_code: str) -> pd.DataFrame | None:
     """
     Download and parse a CLIMAT dataset from DWD FTP.
     """
@@ -124,8 +123,8 @@ def get_df(parameter: str, mode: str, station_code: str) -> Optional[pd.DataFram
 
 
 def get_parameter(
-    parameter: str, modes: List[str], station_code: str
-) -> Optional[pd.DataFrame]:
+    parameter: str, modes: list[str], station_code: str
+) -> pd.DataFrame | None:
     """
     Fetch and merge data for a parameter over multiple modes (e.g., recent, historical).
     """
@@ -144,7 +143,7 @@ def get_parameter(
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Entry point to fetch all requested parameters for a station query.
     """

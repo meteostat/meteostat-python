@@ -1,18 +1,16 @@
-from typing import Optional
-
-from meteostat.enumerations import TTL
-from meteostat.core.cache import cache_service
-from meteostat.core.network import network_service
-from meteostat.core.logger import logger
 
 import requests
 
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
+from meteostat.core.network import network_service
+from meteostat.enumerations import TTL
 
 ENDPOINT = "https://api.weather.gc.ca"
 
 
 @cache_service.cache(TTL.WEEK)
-def get_meta_data(station: str) -> Optional[dict]:
+def get_meta_data(station: str) -> dict | None:
     try:
         response = network_service.get(
             f"{ENDPOINT}/collections/climate-stations/items",

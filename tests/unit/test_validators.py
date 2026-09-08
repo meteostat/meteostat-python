@@ -4,11 +4,11 @@ Test validators module
 The code is licensed under the MIT license.
 """
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from meteostat.utils.validators import minimum, maximum
 from meteostat.core.validator import Validator
+from meteostat.utils.validators import maximum, minimum
 
 
 class TestMinimumValidator:

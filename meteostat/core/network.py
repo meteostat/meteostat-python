@@ -6,13 +6,12 @@ considering the Meteostat configuration.
 """
 
 import time
-from typing import Optional
 
 import requests
 
 from meteostat import __version__
-from meteostat.core.logger import logger
 from meteostat.api.config import config
+from meteostat.core.logger import logger
 
 
 class NetworkService:
@@ -34,8 +33,8 @@ class NetworkService:
         self,
         url: str,
         params=None,
-        headers: Optional[dict] = None,
-        stream: Optional[bool] = None,
+        headers: dict | None = None,
+        stream: bool | None = None,
     ) -> requests.Response:
         """
         Send a GET request using the Meteostat configuration, with retry on failure.
@@ -95,9 +94,9 @@ class NetworkService:
         self,
         mirrors: list[str],
         params=None,
-        headers: Optional[dict] = None,
-        stream: Optional[bool] = None,
-    ) -> Optional[requests.Response]:
+        headers: dict | None = None,
+        stream: bool | None = None,
+    ) -> requests.Response | None:
         """
         Send a GET request to multiple mirrors using the Meteostat configuration
         """

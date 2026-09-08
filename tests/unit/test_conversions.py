@@ -5,22 +5,23 @@ The code is licensed under the MIT license.
 """
 
 import numpy as np
+
 from meteostat.utils.conversions import (
     celsius_to_fahrenheit,
     celsius_to_kelvin,
-    millimeters_to_inches,
     centimeters_to_inches,
-    meters_to_feet,
-    kmh_to_ms,
-    kmh_to_mph,
-    kelvin_to_celsius,
-    ms_to_kmh,
-    temp_dwpt_to_rhum,
-    pres_to_msl,
-    percentage_to_okta,
     jcm2_to_wm2,
-    to_direction,
+    kelvin_to_celsius,
+    kmh_to_mph,
+    kmh_to_ms,
+    meters_to_feet,
+    millimeters_to_inches,
+    ms_to_kmh,
+    percentage_to_okta,
+    pres_to_msl,
+    temp_dwpt_to_rhum,
     to_condition,
+    to_direction,
 )
 
 

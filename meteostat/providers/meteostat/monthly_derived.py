@@ -1,10 +1,9 @@
-from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-from meteostat.enumerations import Parameter, Provider
 from meteostat.api.daily import daily
+from meteostat.enumerations import Parameter, Provider
 from meteostat.typing import ProviderRequest
 from meteostat.utils.data import aggregate_sources, reshape_by_source
 from meteostat.utils.parsers import parse_month
@@ -59,7 +58,7 @@ PARAMETER_AGGS = {
 }
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """
     Fetch daily weather data from Meteostat's central data
     repository and aggregate to monthly granularity

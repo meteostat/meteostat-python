@@ -5,9 +5,9 @@ The Schema Service provides methods to clean and format
 DataFrames based on a set of parameters.
 """
 
+from collections.abc import Callable
 from copy import copy
 from inspect import isfunction
-from typing import Callable, List
 
 import pandas as pd
 
@@ -55,7 +55,7 @@ class SchemaService:
         return test_result
 
     @staticmethod
-    def purge(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
+    def purge(df: pd.DataFrame, parameters: list[Parameter]) -> pd.DataFrame:
         """
         Remove DataFrame columns which are not a known parameter
         """
@@ -63,7 +63,7 @@ class SchemaService:
         return df[columns]
 
     @staticmethod
-    def fill(df: pd.DataFrame, parameters: List[Parameter]) -> pd.DataFrame:
+    def fill(df: pd.DataFrame, parameters: list[Parameter]) -> pd.DataFrame:
         """
         Add missing schema columns to DataFrame
         """

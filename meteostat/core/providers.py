@@ -7,7 +7,7 @@ The Provider Service provides methods to interact with data providers.
 from datetime import datetime
 from importlib import import_module
 from statistics import fmean
-from typing import List, Optional, TypeGuard, cast
+from typing import TypeGuard, cast
 
 import pandas as pd
 
@@ -17,8 +17,8 @@ from meteostat.providers.index import DEFAULT_PROVIDERS
 from meteostat.typing import (
     ProviderRequest,
     ProviderSpec,
-    Station,
     Request,
+    Station,
 )
 
 
@@ -27,13 +27,13 @@ class ProviderService:
     Provider Service
     """
 
-    _providers: List[ProviderSpec]
+    _providers: list[ProviderSpec]
 
-    def __init__(self, providers: List[ProviderSpec]) -> None:
+    def __init__(self, providers: list[ProviderSpec]) -> None:
         self._providers = providers
 
     @property
-    def providers(self) -> List[ProviderSpec]:
+    def providers(self) -> list[ProviderSpec]:
         """
         Get supported providers
         """
@@ -45,7 +45,7 @@ class ProviderService:
         """
         self._providers.append(provider)
 
-    def get_provider(self, provider_id: Provider | str) -> Optional[ProviderSpec]:
+    def get_provider(self, provider_id: Provider | str) -> ProviderSpec | None:
         """
         Get provider by ID
         """
@@ -89,7 +89,7 @@ class ProviderService:
 
         return fmean(priorities)
 
-    def filter_providers(self, query: Request, station: Station) -> List[Provider]:
+    def filter_providers(self, query: Request, station: Station) -> list[Provider]:
         """
         Get a filtered list of providers
         """
@@ -154,7 +154,7 @@ class ProviderService:
 
     def fetch_data(
         self, provider_id: Provider, req: Request, station: Station
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         Fetch data from a given provider
         """

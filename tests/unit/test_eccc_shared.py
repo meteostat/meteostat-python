@@ -4,10 +4,11 @@ Test ECCC shared utilities
 The code is licensed under the MIT license.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import requests
 
 from meteostat.providers.eccc.shared import get_meta_data
-import requests
 
 
 class TestGetMetaData:

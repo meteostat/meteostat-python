@@ -4,27 +4,26 @@ Climate Normals
 Access climate normals data for one or multiple weather stations.
 """
 
-from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 
-from meteostat.enumerations import Parameter, Provider, Granularity
-from meteostat.core.schema import schema_service
 from meteostat.api.monthly import DEFAULT_PARAMETERS, monthly
-from meteostat.api.timeseries import TimeSeries
-from meteostat.typing import Station
 from meteostat.api.point import Point
+from meteostat.api.timeseries import TimeSeries
+from meteostat.core.schema import schema_service
+from meteostat.enumerations import Granularity, Parameter, Provider
+from meteostat.typing import Station
 from meteostat.utils.data import reshape_by_source
 from meteostat.utils.parsers import parse_year
 
 
 def normals(
-    station: str | Station | Point | List[str | Station | Point] | pd.DataFrame,
+    station: str | Station | Point | list[str | Station | Point] | pd.DataFrame,
     start: int = 1961,
     end: int = 1990,
-    parameters: Optional[List[Parameter]] = None,
-    providers: Optional[List[Provider]] = None,
+    parameters: list[Parameter] | None = None,
+    providers: list[Provider] | None = None,
     max_missing: int = 3,
 ):
     """

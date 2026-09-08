@@ -6,23 +6,23 @@ The code is licensed under the MIT license.
 
 from unittest.mock import patch
 
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 
+from meteostat.enumerations import Frequency
+from meteostat.typing import Station
 from meteostat.utils.data import (
-    safe_concat,
-    stations_to_df,
-    squash_df,
-    fill_df,
-    localize,
-    reshape_by_source,
     aggregate_sources,
     enforce_freq,
+    fill_df,
+    localize,
     order_source_columns,
+    reshape_by_source,
+    safe_concat,
+    squash_df,
+    stations_to_df,
 )
-from meteostat.typing import Station
-from meteostat.enumerations import Frequency
 
 
 class TestSafeConcat:

@@ -5,20 +5,19 @@ The code is licensed under the MIT license.
 """
 
 import calendar
-from typing import List
 import datetime
 
 import pandas as pd
 import pytz
 
-from meteostat.api.stations import stations as stations_service
 from meteostat.api.point import Point
+from meteostat.api.stations import stations as stations_service
 from meteostat.typing import Station
 
 
 def parse_station(
-    station: (str | Station | Point | List[str | Station | Point] | pd.DataFrame),
-) -> Station | List[Station]:
+    station: (str | Station | Point | list[str | Station | Point] | pd.DataFrame),
+) -> Station | list[Station]:
     """
     Parse one or multiple station(s) or geo point(s)
 

@@ -5,15 +5,16 @@ Parameters: https://www.dwd.de/DE/leistungen/met_verfahren_mosmix/mosmix_paramet
 """
 
 import re
-from io import BytesIO
-from typing import Optional
 from datetime import datetime
+from io import BytesIO
 from zipfile import ZipFile
-from lxml import etree  # type: ignore
 
 import pandas as pd
+from lxml import etree  # type: ignore
 
+from meteostat.api.config import config
 from meteostat.core.cache import cache_service
+from meteostat.core.network import network_service
 from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import (
@@ -22,8 +23,6 @@ from meteostat.utils.conversions import (
     percentage_to_okta,
     temp_dwpt_to_rhum,
 )
-from meteostat.core.network import network_service
-from meteostat.api.config import config
 
 ENDPOINT = "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/{station}/kml/MOSMIX_L_LATEST_{station}.kmz"
 COCO_MAP = {
@@ -59,7 +58,7 @@ COCO_MAP = {
 }
 
 
-def get_coco(code: str | int) -> Optional[int]:
+def get_coco(code: str | int) -> int | None:
     """
     Map DWD MOSMIX weather condition codes to Meteostat condicodes
     """
@@ -67,7 +66,7 @@ def get_coco(code: str | int) -> Optional[int]:
 
 
 @cache_service.cache(TTL.HOUR, "pickle")
-def get_df(station: str) -> Optional[pd.DataFrame]:
+def get_df(station: str) -> pd.DataFrame | None:
     # Fetch the KMZ file data in memory
     response = network_service.get(ENDPOINT.format(station=station))
     kmz_data = BytesIO(response.content)
@@ -349,6 +348,6 @@ def get_df(station: str) -> Optional[pd.DataFrame]:
     return df
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "mosmix" in req.station.identifiers:
         return get_df(req.station.identifiers["mosmix"])

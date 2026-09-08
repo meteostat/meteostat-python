@@ -3,8 +3,8 @@ from statistics import mean
 
 import pandas as pd
 
-from meteostat.api.timeseries import TimeSeries
 from meteostat.api.config import config
+from meteostat.api.timeseries import TimeSeries
 from meteostat.enumerations import Parameter
 
 

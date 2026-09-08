@@ -6,18 +6,17 @@ Provides functions to concatenate multiple time series objects into one.
 
 from copy import copy
 from datetime import datetime
-from typing import List, Optional
 
 import pandas as pd
 
+from meteostat.api.timeseries import TimeSeries
 from meteostat.core.data import data_service
 from meteostat.core.schema import schema_service
-from meteostat.api.timeseries import TimeSeries
 
 
 def _get_dt(
-    dt_a: Optional[datetime], dt_b: Optional[datetime], start=True
-) -> Optional[datetime]:
+    dt_a: datetime | None, dt_b: datetime | None, start=True
+) -> datetime | None:
     """
     Return the earlier or later (depending on "start" argument) of two datetimes,
     considering None as 'no value'.
@@ -31,7 +30,7 @@ def _get_dt(
     return min(dt_a, dt_b) if start else max(dt_a, dt_b)
 
 
-def merge(objs: List[TimeSeries]) -> TimeSeries:
+def merge(objs: list[TimeSeries]) -> TimeSeries:
     """
     Merge one or multiple Meteostat time series into a common one
 

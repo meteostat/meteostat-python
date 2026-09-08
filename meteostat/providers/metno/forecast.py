@@ -1,15 +1,14 @@
-from typing import Optional, Union
-from requests.exceptions import HTTPError
 
 import pandas as pd
+from requests.exceptions import HTTPError
 
 from meteostat.api.config import config
-from meteostat.enumerations import TTL, Parameter
+from meteostat.core.cache import cache_service
 from meteostat.core.logger import logger
 from meteostat.core.network import network_service
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import percentage_to_okta
-from meteostat.core.cache import cache_service
 
 CONDICODES = {
     "clearsky": 1,
@@ -56,7 +55,7 @@ CONDICODES = {
 }
 
 
-def get_condicode(code: str) -> Union[int, None]:
+def get_condicode(code: str) -> int | None:
     """
     Map Met.no symbol codes to Meteostat condition codes
 
@@ -126,7 +125,7 @@ def map_data(record):
 
 
 @cache_service.cache(TTL.HOUR, "pickle")
-def get_df(latitude: float, longitude: float, elevation: int) -> Optional[pd.DataFrame]:
+def get_df(latitude: float, longitude: float, elevation: int) -> pd.DataFrame | None:
     endpoint = config.metno_forecast_endpoint
     user_agent = config.metno_user_agent
 
@@ -183,7 +182,7 @@ def get_df(latitude: float, longitude: float, elevation: int) -> Optional[pd.Dat
         logger.error(error, exc_info=True)
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     return get_df(
         req.station.latitude,
         req.station.longitude,

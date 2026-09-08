@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import Optional, Union
 from urllib.error import HTTPError
 
-from numpy import isnan
 import pandas as pd
+from numpy import isnan
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.core.logger import logger
 from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
+from meteostat.enumerations import TTL, Parameter
 from meteostat.typing import ProviderRequest
 from meteostat.utils.conversions import ms_to_kmh, temp_dwpt_to_rhum
 from meteostat.utils.data import safe_concat
@@ -38,7 +37,7 @@ COLUMN_NAMES = [
 ]
 
 
-def map_sky_code(code: Union[int, str]) -> Optional[int]:
+def map_sky_code(code: int | str) -> int | None:
     """
     Only accept okta
     """
@@ -57,7 +56,7 @@ def get_ttl(_usaf: str, _wban: str, year: int) -> int:
 
 
 @cache_service.cache(get_ttl, "pickle")
-def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
+def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame | None:
     if not usaf:
         return None
 
@@ -125,7 +124,7 @@ def get_df(usaf: str, wban: str, year: int) -> Optional[pd.DataFrame]:
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     """ """
     if req.start is None or req.end is None:
         return None

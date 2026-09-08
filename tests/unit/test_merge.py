@@ -4,8 +4,8 @@ Test merge functionality
 The code is licensed under the MIT license.
 """
 
-import pytest
 import pandas as pd
+import pytest
 
 from meteostat.api.merge import merge
 from meteostat.api.timeseries import TimeSeries

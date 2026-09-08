@@ -5,7 +5,6 @@ Provides classes for working with weather station data inventories.
 """
 
 from datetime import date, datetime
-from typing import List, Optional
 
 import pandas as pd
 
@@ -17,14 +16,14 @@ class Inventory:
     A weather station's data inventory
     """
 
-    df: Optional[pd.DataFrame] = None
+    df: pd.DataFrame | None = None
 
-    def __init__(self, df: Optional[pd.DataFrame] = None):
+    def __init__(self, df: pd.DataFrame | None = None):
         if df is not None and not df.empty:
             self.df = df
 
     @property
-    def start(self) -> Optional[date]:
+    def start(self) -> date | None:
         """
         Get the earliest start date from the inventory
         """
@@ -35,7 +34,7 @@ class Inventory:
         )
 
     @property
-    def end(self) -> Optional[date]:
+    def end(self) -> date | None:
         """
         Get the latest end date from the inventory
         """
@@ -46,7 +45,7 @@ class Inventory:
         )
 
     @property
-    def parameters(self) -> Optional[List[Parameter]]:
+    def parameters(self) -> list[Parameter] | None:
         """
         Get the list of available parameters from the inventory
         """

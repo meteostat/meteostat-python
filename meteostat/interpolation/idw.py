@@ -5,7 +5,7 @@ Implements IDW interpolation for spatial weather data with support for
 elevation-weighted distance calculations.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd

@@ -4,12 +4,13 @@ Test ECCC monthly provider
 The code is licensed under the MIT license.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from meteostat.providers.eccc.monthly import get_df, fetch
-from meteostat.typing import Station
-from meteostat.enumerations import Parameter
 import pandas as pd
+
+from meteostat.enumerations import Parameter
+from meteostat.providers.eccc.monthly import fetch, get_df
+from meteostat.typing import Station
 
 
 class TestGetDfEmptyFeatures:

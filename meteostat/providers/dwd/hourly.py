@@ -6,36 +6,36 @@ Get hourly data for weather stations in Germany.
 The code is licensed under the MIT license.
 """
 
+from collections.abc import Callable
 from datetime import datetime
 from ftplib import FTP
 from io import BytesIO
-from typing import Callable, Dict, List, NotRequired, Optional, TypedDict
+from typing import NotRequired, TypedDict
 from zipfile import ZipFile
 
 import pandas as pd
 
-from meteostat.enumerations import TTL, Parameter
-from meteostat.core.logger import logger
-from meteostat.typing import ProviderRequest, Station
-from meteostat.core.cache import cache_service
-from meteostat.utils.data import safe_concat
 from meteostat.api.config import config
+from meteostat.core.cache import cache_service
+from meteostat.core.logger import logger
+from meteostat.enumerations import TTL, Parameter
+from meteostat.providers.dwd.shared import get_condicode, get_ftp_connection
+from meteostat.typing import ProviderRequest, Station
 from meteostat.utils.conversions import ms_to_kmh
-from meteostat.providers.dwd.shared import get_condicode
-from meteostat.providers.dwd.shared import get_ftp_connection
+from meteostat.utils.data import safe_concat
 
 
 class ParameterDefinition(TypedDict):
     dir: str
-    usecols: List[int]
-    names: Dict[str, str]
-    convert: NotRequired[Dict[str, Callable]]
+    usecols: list[int]
+    names: dict[str, str]
+    convert: NotRequired[dict[str, Callable]]
     encoding: NotRequired[str]
     historical_only: NotRequired[bool]
 
 
 BASE_DIR = "/climate_environment/CDC/observations_germany/climate/hourly/"
-PARAMETERS: List[ParameterDefinition] = [
+PARAMETERS: list[ParameterDefinition] = [
     {
         "dir": "precipitation",
         "usecols": [1, 3],
@@ -109,7 +109,7 @@ def find_file(ftp: FTP, path: str, needle: str):
 
 
 @cache_service.cache(TTL.DAY, "pickle")
-def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFrame]:
+def get_df(parameter_dir: str, mode: str, station_id: str) -> pd.DataFrame | None:
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
@@ -175,7 +175,7 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> Optional[pd.DataFr
 
 def get_parameter(
     parameter_dir: str, modes: list[str], station: Station
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame | None:
     logger.debug(f"Fetching {parameter_dir} data ({modes}) for station '{station.id}'")
     try:
         data = [
@@ -191,7 +191,7 @@ def get_parameter(
         return None
 
 
-def fetch(req: ProviderRequest) -> Optional[pd.DataFrame]:
+def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     if "national" not in req.station.identifiers:
         return None
 
