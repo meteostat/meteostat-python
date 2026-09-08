@@ -83,9 +83,7 @@ class ProviderService:
         if len(provider_ids) == 1:
             return self._get_provider_priority(provider_ids[0])
 
-        priorities = [
-            self._get_provider_priority(provider) for provider in provider_ids
-        ]
+        priorities = [self._get_provider_priority(provider) for provider in provider_ids]
 
         return fmean(priorities)
 
@@ -127,9 +125,7 @@ class ProviderService:
                 return False
 
             # Filter out providers which stopped providing data before the request's start date
-            if query.end and query.end < datetime.combine(
-                provider.start, datetime.min.time()
-            ):
+            if query.end and query.end < datetime.combine(provider.start, datetime.min.time()):
                 logger.info(
                     "Skipping provider '%s' as it stopped providing data before request start",
                     provider_id,
@@ -152,9 +148,7 @@ class ProviderService:
 
         return list(filter(_filter, query.providers))
 
-    def fetch_data(
-        self, provider_id: Provider, req: Request, station: Station
-    ) -> pd.DataFrame | None:
+    def fetch_data(self, provider_id: Provider, req: Request, station: Station) -> pd.DataFrame | None:
         """
         Fetch data from a given provider
         """
@@ -165,12 +159,7 @@ class ProviderService:
 
         query = ProviderRequest(
             station=station,
-            start=req.start
-            or (
-                datetime.combine(provider.start, datetime.min.time())
-                if provider.start
-                else None
-            ),
+            start=req.start or (datetime.combine(provider.start, datetime.min.time()) if provider.start else None),
             end=req.end or (provider.end or datetime.now()),
             parameters=req.parameters,
         )

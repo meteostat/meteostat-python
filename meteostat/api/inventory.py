@@ -27,22 +27,14 @@ class Inventory:
         """
         Get the earliest start date from the inventory
         """
-        return (
-            datetime.strptime(self.df["start"].min(), "%Y-%m-%d").date()
-            if self.df is not None
-            else None
-        )
+        return datetime.strptime(self.df["start"].min(), "%Y-%m-%d").date() if self.df is not None else None
 
     @property
     def end(self) -> date | None:
         """
         Get the latest end date from the inventory
         """
-        return (
-            datetime.strptime(self.df["end"].max(), "%Y-%m-%d").date()
-            if self.df is not None
-            else None
-        )
+        return datetime.strptime(self.df["end"].max(), "%Y-%m-%d").date() if self.df is not None else None
 
     @property
     def parameters(self) -> list[Parameter] | None:
@@ -52,7 +44,4 @@ class Inventory:
         if self.df is None:
             return []
 
-        return [
-            Parameter[parameter.upper()]
-            for parameter in self.df.index.get_level_values("parameter").unique()
-        ]
+        return [Parameter[parameter.upper()] for parameter in self.df.index.get_level_values("parameter").unique()]

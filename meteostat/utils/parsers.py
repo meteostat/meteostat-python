@@ -139,9 +139,7 @@ def parse_time(
     return parsed
 
 
-def parse_month(
-    value: datetime.date | datetime.datetime | None, is_end: bool = False
-) -> datetime.date | None:
+def parse_month(value: datetime.date | datetime.datetime | None, is_end: bool = False) -> datetime.date | None:
     """
     Convert a given date/time input to the first or last day of the month respectively
     """

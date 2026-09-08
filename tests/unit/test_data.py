@@ -94,14 +94,10 @@ class TestSafeConcat:
 
     def test_safe_concat_with_multiindex(self):
         """Test concatenation with MultiIndex DataFrames"""
-        idx1 = pd.MultiIndex.from_tuples(
-            [("a", 1), ("a", 2)], names=["letter", "number"]
-        )
+        idx1 = pd.MultiIndex.from_tuples([("a", 1), ("a", 2)], names=["letter", "number"])
         df1 = pd.DataFrame({"value": [10, 20]}, index=idx1)
 
-        idx2 = pd.MultiIndex.from_tuples(
-            [("b", 1), ("b", 2)], names=["letter", "number"]
-        )
+        idx2 = pd.MultiIndex.from_tuples([("b", 1), ("b", 2)], names=["letter", "number"])
         df2 = pd.DataFrame({"value": [30, 40]}, index=idx2)
 
         result = safe_concat([df1, df2])
@@ -330,9 +326,7 @@ class TestLocalize:
     def _create_df(tz=None):
         """Create test DataFrame with optional timezone."""
         dates = pd.date_range(start="2024-01-01", periods=3, freq="h", tz=tz)
-        index = pd.MultiIndex.from_arrays(
-            [["STATION"] * 3, dates], names=["station", "time"]
-        )
+        index = pd.MultiIndex.from_arrays([["STATION"] * 3, dates], names=["station", "time"])
         return pd.DataFrame({"temp": [1.0, 2.0, 3.0]}, index=index)
 
     def test_localize_naive_to_local(self):
@@ -424,9 +418,7 @@ class TestLocalize:
     def test_localize_multiple_datetimes_naive(self):
         """localize() should work with multiple different naive datetimes"""
         dates = pd.date_range("2024-01-01", periods=10, freq="D")
-        index = pd.MultiIndex.from_arrays(
-            [["STATION"] * 10, dates], names=["station", "time"]
-        )
+        index = pd.MultiIndex.from_arrays([["STATION"] * 10, dates], names=["station", "time"])
         df = pd.DataFrame({"temp": range(10)}, index=index)
 
         result = localize(df, "Europe/London")
@@ -439,9 +431,7 @@ class TestLocalize:
     def test_localize_midnight_handling_utc_to_berlin(self):
         """Midnight conversions should work correctly"""
         dates = pd.date_range("2024-01-01 00:00:00", periods=3, freq="h", tz="UTC")
-        index = pd.MultiIndex.from_arrays(
-            [["STATION"] * 3, dates], names=["station", "time"]
-        )
+        index = pd.MultiIndex.from_arrays([["STATION"] * 3, dates], names=["station", "time"])
         df = pd.DataFrame({"temp": [1, 2, 3]}, index=index)
 
         result = localize(df, "Europe/Berlin")
@@ -455,9 +445,7 @@ class TestLocalize:
     def test_localize_summer_time_handling(self):
         """DST/Summer time transitions should be handled correctly"""
         dates = pd.date_range("2024-07-01 12:00:00", periods=3, freq="h", tz="UTC")
-        index = pd.MultiIndex.from_arrays(
-            [["STATION"] * 3, dates], names=["station", "time"]
-        )
+        index = pd.MultiIndex.from_arrays([["STATION"] * 3, dates], names=["station", "time"])
         df = pd.DataFrame({"temp": [20, 21, 22]}, index=index)
 
         result = localize(df, "Europe/Berlin")

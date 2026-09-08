@@ -24,6 +24,4 @@ def test_eccc_hourly():
 
     # Check that data contains reasonable number of non-missing entries.
     assert df["temp"].notna().sum() >= 100, "Insufficient temperature data returned."
-    assert df["rhum"].notna().sum() >= 100, (
-        "Insufficient relative humidity data returned."
-    )
+    assert df["rhum"].notna().sum() >= 100, "Insufficient relative humidity data returned."

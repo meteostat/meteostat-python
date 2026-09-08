@@ -78,9 +78,7 @@ def get_coco(report: Metar.Metar) -> int | None:
     Get weather condition code from METAR report
     """
     try:
-        condition_code = "".join(
-            [item for item in report.weather[0] if item is not None]
-        )
+        condition_code = "".join([item for item in report.weather[0] if item is not None])
         return COCO_MAP.get(condition_code)
     except IndexError:
         return None
@@ -126,9 +124,7 @@ def get_df(station: str) -> pd.DataFrame | None:
     response.raise_for_status()
 
     # Parse the JSON content into a DataFrame
-    data = [
-        item for item in map(map_data, response.text.splitlines()) if item is not None
-    ]
+    data = [item for item in map(map_data, response.text.splitlines()) if item is not None]
 
     # Return None if no data is available
     if not len(data):

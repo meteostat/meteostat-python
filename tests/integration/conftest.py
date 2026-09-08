@@ -124,15 +124,11 @@ def str_stations_database_file_path():
 @pytest.fixture
 def mock_daily_fetch(mocker, df_daily):
     """Mock the daily fetch function"""
-    return mocker.patch(
-        "meteostat.providers.meteostat.daily.fetch", return_value=df_daily
-    )
+    return mocker.patch("meteostat.providers.meteostat.daily.fetch", return_value=df_daily)
 
 
 @pytest.fixture
-def mock_hourly_fetch(
-    mocker, df_hourly, df_hourly_second_station, df_hourly_third_station
-):
+def mock_hourly_fetch(mocker, df_hourly, df_hourly_second_station, df_hourly_third_station):
     """Mock the hourly fetch function with station-specific data"""
 
     def side_effect(req: ProviderRequest):
@@ -144,25 +140,19 @@ def mock_hourly_fetch(
         else:
             return df_hourly
 
-    return mocker.patch(
-        "meteostat.providers.meteostat.hourly.fetch", side_effect=side_effect
-    )
+    return mocker.patch("meteostat.providers.meteostat.hourly.fetch", side_effect=side_effect)
 
 
 @pytest.fixture
 def mock_monthly_fetch(mocker, df_monthly):
     """Mock the monthly fetch function"""
-    return mocker.patch(
-        "meteostat.providers.meteostat.monthly.fetch", return_value=df_monthly
-    )
+    return mocker.patch("meteostat.providers.meteostat.monthly.fetch", return_value=df_monthly)
 
 
 @pytest.fixture
 def mock_dwd_hourly_fetch(mocker, df_dwd_hourly):
     """Mock the DWD hourly fetch function"""
-    return mocker.patch(
-        "meteostat.providers.dwd.hourly.fetch", return_value=df_dwd_hourly
-    )
+    return mocker.patch("meteostat.providers.dwd.hourly.fetch", return_value=df_dwd_hourly)
 
 
 @pytest.fixture
@@ -174,9 +164,7 @@ def mock_dwd_poi_fetch(mocker, df_dwd_poi):
 @pytest.fixture
 def mock_dwd_mosmix_fetch(mocker, df_dwd_mosmix):
     """Mock the DWD MOSMIX fetch function"""
-    return mocker.patch(
-        "meteostat.providers.dwd.mosmix.fetch", return_value=df_dwd_mosmix
-    )
+    return mocker.patch("meteostat.providers.dwd.mosmix.fetch", return_value=df_dwd_mosmix)
 
 
 @pytest.fixture
@@ -229,6 +217,4 @@ def patch_provider_start_date(mocker):
 
         return original_get_provider(provider_id)
 
-    mocker.patch.object(
-        provider_service, "get_provider", side_effect=patched_get_provider
-    )
+    mocker.patch.object(provider_service, "get_provider", side_effect=patched_get_provider)

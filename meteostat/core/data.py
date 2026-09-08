@@ -58,11 +58,7 @@ class DataService:
         try:
             return df.loc[(time >= start) & (time <= end)] if start and end else df
         except TypeError:
-            return (
-                df.loc[(time >= start.date()) & (time <= end.date())]
-                if start and end
-                else df
-            )
+            return df.loc[(time >= start.date()) & (time <= end.date())] if start and end else df
 
     @staticmethod
     def concat_fragments(
@@ -73,10 +69,7 @@ class DataService:
         Concatenate multiple fragments into a single DataFrame
         """
         try:
-            cleaned = [
-                df.dropna(how="all", axis=1) if not df.empty else None
-                for df in fragments
-            ]
+            cleaned = [df.dropna(how="all", axis=1) if not df.empty else None for df in fragments]
             df = safe_concat(cleaned)
             if df is None:
                 return pd.DataFrame()
@@ -86,9 +79,7 @@ class DataService:
         except ValueError:
             return pd.DataFrame()
 
-    def _fetch_provider_data(
-        self, req: Request, station: Station, provider: Provider
-    ) -> pd.DataFrame | None:
+    def _fetch_provider_data(self, req: Request, station: Station, provider: Provider) -> pd.DataFrame | None:
         """
         Fetch data for a single weather station and provider
         """
@@ -151,20 +142,12 @@ class DataService:
         request_size_guard(req)
 
         # Convert stations to list if single Station
-        stations: list[Station] = (
-            cast(list[Station], req.station)
-            if isinstance(req.station, list)
-            else [req.station]
-        )
+        stations: list[Station] = cast(list[Station], req.station) if isinstance(req.station, list) else [req.station]
 
-        logger.debug(
-            "%s time series requested for %s station(s)", req.granularity, len(stations)
-        )
+        logger.debug("%s time series requested for %s station(s)", req.granularity, len(stations))
 
         # Filter parameters
-        req.parameters = parameter_service.filter_parameters(
-            req.granularity, req.parameters
-        )
+        req.parameters = parameter_service.filter_parameters(req.granularity, req.parameters)
 
         fragments = []
 

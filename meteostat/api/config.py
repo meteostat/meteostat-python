@@ -49,9 +49,7 @@ class ConfigService:
             expected_type, original_type = extract_property_type(self.__class__, key)
         except ValueError:
             # Property doesn't exist on this config class, skip it
-            logger.debug(
-                "Environment variable '%s' does not match any config property", key
-            )
+            logger.debug("Environment variable '%s' does not match any config property", key)
             return self._SKIP_VALUE
 
         if expected_type is None:
@@ -75,13 +73,9 @@ class ConfigService:
 
         # Validate and potentially convert the parsed value
         try:
-            return validate_parsed_value(
-                parsed_value, expected_type, original_type, key
-            )
+            return validate_parsed_value(parsed_value, expected_type, original_type, key)
         except (ValueError, TypeError) as e:
-            logger.error(
-                "Failed to validate environment variable '%s': %s", key, str(e)
-            )
+            logger.error("Failed to validate environment variable '%s': %s", key, str(e))
             return self._SKIP_VALUE
 
     def _set_env_value(self, key: str, value: Any) -> None:
@@ -137,9 +131,7 @@ class Config(ConfigService):
 
     # Cache settings
     cache_enable: bool = True
-    cache_directory: str = (
-        os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
-    )
+    cache_directory: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "cache"
     cache_ttl: int = TTL.MONTH
     cache_autoclean: bool = True
 
@@ -150,16 +142,14 @@ class Config(ConfigService):
 
     # Station meta data settings
     stations_db_ttl: int = TTL.WEEK
-    stations_db_endpoints: list[str] = [
+    stations_db_endpoints: list[str] = [  # noqa: RUF012
         "https://data.meteostat.net/stations.db",
         "https://raw.githubusercontent.com/meteostat/weather-stations/master/stations.db",
     ]
-    stations_db_file: str = (
-        os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
-    )
+    stations_db_file: str = os.path.expanduser("~") + os.sep + ".meteostat" + os.sep + "stations.db"
 
     # Interpolation settings
-    lapse_rate_parameters = [Parameter.TEMP, Parameter.TMIN, Parameter.TMAX]
+    lapse_rate_parameters = [Parameter.TEMP, Parameter.TMIN, Parameter.TMAX]  # noqa: RUF012
 
     # [Provider] Meteostat settings
     include_model_data: bool = True
@@ -177,15 +167,13 @@ class Config(ConfigService):
 
     # [Provider] NOAA settings
     aviationweather_endpoint: str = (
-        "https://aviationweather.gov/api/data/metar?"
-        "ids={station}&format=raw&taf=false&hours=24"
+        "https://aviationweather.gov/api/data/metar?ids={station}&format=raw&taf=false&hours=24"
     )
     aviationweather_user_agent: str | None = None
 
     # [Provider] Met.no settings
     metno_forecast_endpoint: str = (
-        "https://api.met.no/weatherapi/locationforecast/2.0/compact?"
-        "lat={latitude}&lon={longitude}&altitude={elevation}"
+        "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={latitude}&lon={longitude}&altitude={elevation}"
     )
     metno_user_agent: str | None = None
 

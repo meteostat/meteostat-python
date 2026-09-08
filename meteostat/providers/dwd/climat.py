@@ -53,10 +53,7 @@ PARAMETER_CONFIGS = {
         "dir": dir_name,
         "stubnames": {
             "jahr": "year",
-            **{
-                month: f"{param}{i + 1}"
-                for i, (month, _) in enumerate(MONTHS_MAP.items())
-            },
+            **{month: f"{param}{i + 1}" for i, (month, _) in enumerate(MONTHS_MAP.items())},
         },
     }
     for dir_name, param in PARAMETERS
@@ -92,9 +89,7 @@ def get_df(parameter: str, mode: str, station_code: str) -> pd.DataFrame | None:
         remote_file = find_file(ftp, mode, param_config["dir"], search_term)
 
         if not remote_file:
-            logger.debug(
-                f"No file found for parameter '{parameter}', mode '{mode}', station '{station_code}'"
-            )
+            logger.debug(f"No file found for parameter '{parameter}', mode '{mode}', station '{station_code}'")
             return None
 
         buffer = BytesIO()
@@ -107,24 +102,18 @@ def get_df(parameter: str, mode: str, station_code: str) -> pd.DataFrame | None:
     df = df.rename(columns=param_config["stubnames"])
 
     # Convert wide to long format
-    df = pd.wide_to_long(
-        df, stubnames=parameter, i="year", j="month", sep="", suffix="\\d+"
-    ).reset_index()
+    df = pd.wide_to_long(df, stubnames=parameter, i="year", j="month", sep="", suffix="\\d+").reset_index()
 
     if parameter == Parameter.TSUN:
         df[Parameter.TSUN] *= 60  # convert hours to minutes
 
     # Create datetime index
-    df["time"] = pd.to_datetime(
-        df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2) + "-01"
-    )
+    df["time"] = pd.to_datetime(df["year"].astype(str) + "-" + df["month"].astype(str).str.zfill(2) + "-01")
 
     return df.drop(columns=["year", "month"]).set_index("time")
 
 
-def get_parameter(
-    parameter: str, modes: list[str], station_code: str
-) -> pd.DataFrame | None:
+def get_parameter(parameter: str, modes: list[str], station_code: str) -> pd.DataFrame | None:
     """
     Fetch and merge data for a parameter over multiple modes (e.g., recent, historical).
     """
@@ -137,9 +126,7 @@ def get_parameter(
 
         return pd.concat(datasets).loc[lambda df: ~df.index.duplicated(keep="first")]
     except Exception as e:
-        logger.warning(
-            f"Failed to fetch data for parameter '{parameter}': {e}", exc_info=True
-        )
+        logger.warning(f"Failed to fetch data for parameter '{parameter}': {e}", exc_info=True)
         return None
 
 

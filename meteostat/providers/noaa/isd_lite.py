@@ -114,9 +114,7 @@ def get_df(usaf: str, wban: str, year: int) -> pd.DataFrame | None:
         if error.status == 404:
             logger.info(f"ISD Lite file not found: {filename}")
         else:
-            logger.warning(
-                f"Couldn't load ISD Lite file {filename} (status: {error.status})"
-            )
+            logger.warning(f"Couldn't load ISD Lite file {filename} (status: {error.status})")
         return None
 
     except Exception as error:
@@ -135,16 +133,8 @@ def fetch(req: ProviderRequest) -> pd.DataFrame | None:
             lambda i: get_df(*i),
             (
                 (
-                    (
-                        req.station.identifiers["usaf"]
-                        if "usaf" in req.station.identifiers
-                        else None
-                    ),
-                    (
-                        req.station.identifiers["wban"]
-                        if "wban" in req.station.identifiers
-                        else None
-                    ),
+                    (req.station.identifiers["usaf"] if "usaf" in req.station.identifiers else None),
+                    (req.station.identifiers["wban"] if "wban" in req.station.identifiers else None),
                     year,
                 )
                 for year in years

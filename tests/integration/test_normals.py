@@ -17,9 +17,7 @@ def test_normals_none(mocker, empty_dataframe, mock_stations_database):
     """
     It returns None if provider returns an empty DataFrame
     """
-    mocker.patch(
-        "meteostat.providers.meteostat.monthly.fetch", return_value=empty_dataframe
-    )
+    mocker.patch("meteostat.providers.meteostat.monthly.fetch", return_value=empty_dataframe)
     ts = ms.normals("10637", 2005, 2015)
     assert ts.fetch() is None
 
@@ -141,9 +139,7 @@ def test_normals_column_order(mock_monthly_fetch, mock_stations_database):
     assert list(df.columns) == expected
 
 
-def test_normals_empty_property(
-    mock_monthly_fetch, empty_dataframe, mocker, mock_stations_database
-):
+def test_normals_empty_property(mock_monthly_fetch, empty_dataframe, mocker, mock_stations_database):
     """
     It has an empty property that reflects data availability
     """
@@ -152,8 +148,6 @@ def test_normals_empty_property(
     assert ts.empty is False
 
     # Empty case
-    mocker.patch(
-        "meteostat.providers.meteostat.monthly.fetch", return_value=empty_dataframe
-    )
+    mocker.patch("meteostat.providers.meteostat.monthly.fetch", return_value=empty_dataframe)
     ts_empty = ms.normals("10637", 2005, 2015)
     assert ts_empty.empty is True

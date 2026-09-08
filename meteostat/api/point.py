@@ -5,7 +5,6 @@ A geographical point used for querying nearby weather stations and spatial inter
 """
 
 
-
 class Point:
     """
     A geographical point
@@ -15,9 +14,7 @@ class Point:
     longitude: float
     elevation: int | None
 
-    def __init__(
-        self, latitude: float, longitude: float, elevation: int | None = None
-    ) -> None:
+    def __init__(self, latitude: float, longitude: float, elevation: int | None = None) -> None:
         if latitude < -90 or latitude > 90:
             raise ValueError("Latitude must be between -90 and 90")
 

@@ -14,9 +14,7 @@ from meteostat.core.data import data_service
 from meteostat.core.schema import schema_service
 
 
-def _get_dt(
-    dt_a: datetime | None, dt_b: datetime | None, start=True
-) -> datetime | None:
+def _get_dt(dt_a: datetime | None, dt_b: datetime | None, start=True) -> datetime | None:
     """
     Return the earlier or later (depending on "start" argument) of two datetimes,
     considering None as 'no value'.
@@ -57,13 +55,8 @@ def merge(objs: list[TimeSeries]) -> TimeSeries:
 
     ts = objs[0]
 
-    if not all(
-        obj.granularity == ts.granularity and obj.timezone == ts.timezone
-        for obj in objs[1:]
-    ):
-        raise ValueError(
-            "Can't concatenate time series objects with divergent granularity or time zone"
-        )
+    if not all(obj.granularity == ts.granularity and obj.timezone == ts.timezone for obj in objs[1:]):
+        raise ValueError("Can't concatenate time series objects with divergent granularity or time zone")
 
     stations = copy(ts.stations)
     start = copy(ts.start)
@@ -72,19 +65,13 @@ def merge(objs: list[TimeSeries]) -> TimeSeries:
     multi_station = ts._multi_station
 
     for obj in objs[1:]:
-        stations = (
-            pd.concat([stations, obj.stations])
-            .reset_index()
-            .drop_duplicates(subset=["id"])
-            .set_index("id")
-        )
+        stations = pd.concat([stations, obj.stations]).reset_index().drop_duplicates(subset=["id"]).set_index("id")
         start = _get_dt(start, obj.start)
         end = _get_dt(end, obj.end, False)
         parameters.extend(obj.parameters)
         if (
             obj._multi_station
-            or stations.index.get_level_values("id")[0]
-            != obj.stations.index.get_level_values("id")[0]
+            or stations.index.get_level_values("id")[0] != obj.stations.index.get_level_values("id")[0]
         ):
             multi_station = True
 

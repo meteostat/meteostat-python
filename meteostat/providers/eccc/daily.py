@@ -64,11 +64,7 @@ def get_df(climate_id: str, year: int) -> pd.DataFrame | None:
 
 
 def fetch(req: ProviderRequest) -> pd.DataFrame | None:
-    if (
-        "national" not in req.station.identifiers
-        or req.start is None
-        or req.end is None
-    ):
+    if "national" not in req.station.identifiers or req.start is None or req.end is None:
         return None
 
     meta_data = get_meta_data(req.station.identifiers["national"])

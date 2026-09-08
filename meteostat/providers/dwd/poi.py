@@ -92,9 +92,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         df[Parameter.CLDC] = df[Parameter.CLDC].apply(percentage_to_okta)
 
         # Set index
-        df["time"] = pd.to_datetime(
-            df["Datum"] + " " + df["Uhrzeit (UTC)"], format="%d.%m.%y %H:%M"
-        )
+        df["time"] = pd.to_datetime(df["Datum"] + " " + df["Uhrzeit (UTC)"], format="%d.%m.%y %H:%M")
         df = df.set_index(["time"])
         df = df.drop(["Datum", "Uhrzeit (UTC)"], axis=1)
 
@@ -102,9 +100,7 @@ def get_df(station: str) -> pd.DataFrame | None:
 
     except HTTPError as error:
         status_code = error.code
-        logger.info(
-            f"Couldn't load DWD POI data for weather station {station} (status: {status_code})"
-        )
+        logger.info(f"Couldn't load DWD POI data for weather station {station} (status: {status_code})")
         return None
 
     except Exception as error:

@@ -67,13 +67,7 @@ def create_df(element, dict_element):
     df_element = pd.DataFrame(dict_element)
 
     # Add dates (YYYY-MM-DD) as index on df. Pad days with zeros to two places
-    df_element.index = (
-        df_element["YEAR"]
-        + "-"
-        + df_element["MONTH"]
-        + "-"
-        + df_element["DAY"].str.zfill(2)
-    )
+    df_element.index = df_element["YEAR"] + "-" + df_element["MONTH"] + "-" + df_element["DAY"].str.zfill(2)
     df_element.index.name = "DATE"
 
     # Arrange columns so ID, YEAR, MONTH, DAY are at front. Leaving them in
@@ -232,9 +226,7 @@ def get_df(station: str) -> pd.DataFrame | None:
 
 
 def fetch(req: ProviderRequest) -> pd.DataFrame | None:
-    ghcn_id = (
-        req.station.identifiers["ghcn"] if "ghcn" in req.station.identifiers else None
-    )
+    ghcn_id = req.station.identifiers["ghcn"] if "ghcn" in req.station.identifiers else None
     if not ghcn_id:
         return None
     return get_df(ghcn_id)

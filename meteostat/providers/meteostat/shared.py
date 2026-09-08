@@ -42,9 +42,7 @@ def handle_exceptions(func: Callable[..., T | None]) -> Callable[..., T | None]:
         except HTTPError as error:
             status_code = error.code
             if status_code == 404:
-                logger.info(
-                    f"Data file for {_get_station_year_info(args)} was not found"
-                )
+                logger.info(f"Data file for {_get_station_year_info(args)} was not found")
             else:
                 logger.warning(
                     f"HTTP error while loading data file for {_get_station_year_info(args)} (status: {status_code})",
@@ -69,11 +67,7 @@ def filter_model_data(func: Callable[..., T | None]) -> Callable[..., T | None]:
     def wrapper(*args, **kwargs) -> T | None:
         result = func(*args, **kwargs)
 
-        if (
-            not config.include_model_data
-            and isinstance(result, pd.DataFrame)
-            and result is not None
-        ):
+        if not config.include_model_data and isinstance(result, pd.DataFrame) and result is not None:
             logger.debug("Filtering out model/forecast data")
 
             excluded_providers = [

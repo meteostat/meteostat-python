@@ -54,15 +54,9 @@ def get_df(climate_id: str, year: int, tz: str) -> pd.DataFrame | None:
     except pytz.exceptions.UnknownTimeZoneError:
         logger.warning(f"Unknown timezone '{tz}' for ECCC station, skipping")
         return None
-    start = (
-        from_timezone.localize(datetime(year, 1, 1, 0, 0, 0))
-        .astimezone(to_timezone)
-        .strftime("%Y-%m-%dT%H:%M:%S")
-    )
+    start = from_timezone.localize(datetime(year, 1, 1, 0, 0, 0)).astimezone(to_timezone).strftime("%Y-%m-%dT%H:%M:%S")
     end = (
-        from_timezone.localize(datetime(year, 12, 31, 23, 59, 59))
-        .astimezone(to_timezone)
-        .strftime("%Y-%m-%dT%H:%M:%S")
+        from_timezone.localize(datetime(year, 12, 31, 23, 59, 59)).astimezone(to_timezone).strftime("%Y-%m-%dT%H:%M:%S")
     )
 
     response = network_service.get(
@@ -95,19 +89,13 @@ def get_df(climate_id: str, year: int, tz: str) -> pd.DataFrame | None:
 
     # Convert data units
     df[Parameter.WDIR] = df[Parameter.WDIR] * 10  # Wind direction is provided 10's deg
-    df[Parameter.VSBY] = (
-        df[Parameter.VSBY] * 1000
-    )  # Visibility is provided in kilometres
+    df[Parameter.VSBY] = df[Parameter.VSBY] * 1000  # Visibility is provided in kilometres
 
     return df
 
 
 def fetch(req: ProviderRequest) -> pd.DataFrame | None:
-    if (
-        "national" not in req.station.identifiers
-        or req.start is None
-        or req.end is None
-    ):
+    if "national" not in req.station.identifiers or req.start is None or req.end is None:
         return None
 
     meta_data = get_meta_data(req.station.identifiers["national"])

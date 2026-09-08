@@ -36,9 +36,7 @@ class TestIDW:
                 "elevation": [100, 200],
                 "distance": [1000, 2000],
             },
-            index=pd.MultiIndex.from_tuples(
-                [(time, "A"), (time, "B")], names=["time", "station"]
-            ),
+            index=pd.MultiIndex.from_tuples([(time, "A"), (time, "B")], names=["time", "station"]),
         )
 
         point = Point(50.5, 8.5, 150)
@@ -66,9 +64,7 @@ class TestIDW:
                 "elevation": [100, 200],
                 "distance": [1, 1000000],
             },
-            index=pd.MultiIndex.from_tuples(
-                [(time, "A"), (time, "B")], names=["time", "station"]
-            ),
+            index=pd.MultiIndex.from_tuples([(time, "A"), (time, "B")], names=["time", "station"]),
         )
 
         point = Point(50.0, 8.0, 100)
@@ -96,9 +92,7 @@ class TestIDW:
                 "elevation": [100, 200, 300],
                 "distance": [1e10, 1e10, 1e10],
             },
-            index=pd.MultiIndex.from_tuples(
-                [(time, "A"), (time, "B"), (time, "C")], names=["time", "station"]
-            ),
+            index=pd.MultiIndex.from_tuples([(time, "A"), (time, "B"), (time, "C")], names=["time", "station"]),
         )
 
         point = Point(50.5, 8.5, 150)
@@ -125,9 +119,7 @@ class TestIDW:
                 "elevation": [100, 110, 120],
                 "distance": [10, 20, 30],
             },
-            index=pd.MultiIndex.from_tuples(
-                [(time, "A"), (time, "B"), (time, "C")], names=["time", "station"]
-            ),
+            index=pd.MultiIndex.from_tuples([(time, "A"), (time, "B"), (time, "C")], names=["time", "station"]),
         )
 
         point = Point(50.05, 8.05, 105)
@@ -157,9 +149,7 @@ class TestIDW:
                 "elevation": [100, 200],
                 "distance": [10, 20],
             },
-            index=pd.MultiIndex.from_tuples(
-                [(time, "A"), (time, "B")], names=["time", "station"]
-            ),
+            index=pd.MultiIndex.from_tuples([(time, "A"), (time, "B")], names=["time", "station"]),
         )
 
         point = Point(50.5, 8.5, 150)

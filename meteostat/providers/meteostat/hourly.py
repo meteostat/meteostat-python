@@ -56,9 +56,5 @@ def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     # Get list of annual DataFrames
     df_yearly = [get_df(req.station.id, year) for year in years]
     # Concatenate into a single DataFrame
-    df = (
-        pd.concat(df_yearly)
-        if len(df_yearly) and not all(d is None for d in df_yearly)
-        else None
-    )
+    df = pd.concat(df_yearly) if len(df_yearly) and not all(d is None for d in df_yearly) else None
     return df

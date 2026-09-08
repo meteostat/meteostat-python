@@ -113,9 +113,7 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> pd.DataFrame | Non
     """
     Get a file from DWD FTP server and convert to Polars DataFrame
     """
-    logger.debug(
-        f"Fetching {parameter_dir} data ({mode}) for DWD station '{station_id}'"
-    )
+    logger.debug(f"Fetching {parameter_dir} data ({mode}) for DWD station '{station_id}'")
 
     parameter = next(param for param in PARAMETERS if param["dir"] == parameter_dir)
 
@@ -173,15 +171,10 @@ def get_df(parameter_dir: str, mode: str, station_id: str) -> pd.DataFrame | Non
     return df
 
 
-def get_parameter(
-    parameter_dir: str, modes: list[str], station: Station
-) -> pd.DataFrame | None:
+def get_parameter(parameter_dir: str, modes: list[str], station: Station) -> pd.DataFrame | None:
     logger.debug(f"Fetching {parameter_dir} data ({modes}) for station '{station.id}'")
     try:
-        data = [
-            get_df(parameter_dir, mode, station.identifiers["national"])
-            for mode in modes
-        ]
+        data = [get_df(parameter_dir, mode, station.identifiers["national"]) for mode in modes]
         df = safe_concat(data)
         if df is None:
             return None

@@ -156,11 +156,11 @@ class Stations:
         """
         result = self.query(
             """
-            SELECT 
+            SELECT
                 `stations`.*,
                 `names`.`name` as `name`
-            FROM `stations` 
-            LEFT JOIN `names` ON `stations`.`id` = `names`.`station` 
+            FROM `stations`
+            LEFT JOIN `names` ON `stations`.`id` = `names`.`station`
                 AND `names`.`language` = 'en'
             WHERE `stations`.`id` LIKE ?
             """,
@@ -181,14 +181,10 @@ class Stations:
         return Station(
             id=station,
             **meta,
-            identifiers={
-                identifier["key"]: identifier["value"] for identifier in identifiers
-            },
+            identifiers={identifier["key"]: identifier["value"] for identifier in identifiers},
         )
 
-    def inventory(
-        self, station: str | list[str], providers: list[Provider] | None = None
-    ) -> Inventory:
+    def inventory(self, station: str | list[str], providers: list[Provider] | None = None) -> Inventory:
         """
         Get inventory records for a single weather station
         """
@@ -210,9 +206,7 @@ class Stations:
             # Add the providers to the params
             params += tuple(providers)
 
-        df = self.query(
-            query, index_col=["station", "provider", "parameter"], params=params
-        )
+        df = self.query(query, index_col=["station", "provider", "parameter"], params=params)
 
         return Inventory(df)
 
@@ -234,8 +228,8 @@ class Stations:
                 ROUND(
                     (
                         6371000 * acos(
-                            cos(radians(:lat)) * cos(radians(`latitude`)) * 
-                            cos(radians(`longitude`) - radians(:lon)) + 
+                            cos(radians(:lat)) * cos(radians(`latitude`)) *
+                            cos(radians(`longitude`) - radians(:lon)) +
                             sin(radians(:lat)) * sin(radians(`latitude`))
                         )
                     ),

@@ -78,9 +78,7 @@ class ParameterSpec:
     granularity: Granularity  # The parameter's granularity
     dtype: str  # The parameter's data type
     unit: Unit | None = None  # The parameter's data unit
-    validators: list[Validator | Callable] = field(
-        default_factory=list
-    )  # The parameter's validators
+    validators: list[Validator | Callable] = field(default_factory=list)  # The parameter's validators
 
 
 @dataclass

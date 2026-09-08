@@ -4,7 +4,6 @@ Climate Normals
 Access climate normals data for one or multiple weather stations.
 """
 
-
 import numpy as np
 import pandas as pd
 

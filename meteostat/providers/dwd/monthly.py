@@ -91,9 +91,7 @@ def get_df(station: str, mode: str) -> pd.DataFrame | None:
     df = df.rename(columns=lambda x: x.strip())
 
     # Parse date column
-    df["MESS_DATUM_BEGINN"] = pd.to_datetime(
-        df["MESS_DATUM_BEGINN"].astype(str), format="%Y%m%d"
-    )
+    df["MESS_DATUM_BEGINN"] = pd.to_datetime(df["MESS_DATUM_BEGINN"].astype(str), format="%Y%m%d")
     df = df.rename(columns={"MESS_DATUM_BEGINN": "time"})
     df = df.rename(columns=NAMES)
 

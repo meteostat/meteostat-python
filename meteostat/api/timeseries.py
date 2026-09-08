@@ -86,9 +86,7 @@ class TimeSeries:
         diff = self.end - self.start
 
         return (
-            diff.days + 1
-            if self.granularity is Granularity.DAILY
-            else floor(diff.total_seconds() / 3600) + 1
+            diff.days + 1 if self.granularity is Granularity.DAILY else floor(diff.total_seconds() / 3600) + 1
         ) * len(self.stations)
 
     @property
@@ -137,12 +135,8 @@ class TimeSeries:
         """
         if self._df is None:
             return []
-        providers: list[str] = (
-            self._df.index.get_level_values("source").unique().to_list()
-        )
-        return list(
-            set(chain.from_iterable([provider.split(" ") for provider in providers]))
-        )
+        providers: list[str] = self._df.index.get_level_values("source").unique().to_list()
+        return list(set(chain.from_iterable([provider.split(" ") for provider in providers])))
 
     @property
     def licenses(self) -> list[License]:
@@ -155,9 +149,7 @@ class TimeSeries:
             if (provider := provider_service.get_provider(provider_id)) is not None
         ]
 
-        return [
-            provider.license for provider in providers if provider.license is not None
-        ]
+        return [provider.license for provider in providers if provider.license is not None]
 
     @property
     def attribution(self) -> str:
@@ -166,13 +158,7 @@ class TimeSeries:
         """
         attributions = [
             "Meteostat",
-            *set(
-                [
-                    license.attribution
-                    for license in self.licenses
-                    if license.attribution
-                ]
-            ),
+            *set([license.attribution for license in self.licenses if license.attribution]),
         ]
 
         return ", ".join(attributions)
@@ -231,21 +217,14 @@ class TimeSeries:
         if clean:
             df = schema_service.clean(df, self.granularity)
 
-        if (
-            fill
-            and self.start is not None
-            and self.end is not None
-            and self.freq is not None
-        ):
+        if fill and self.start is not None and self.end is not None and self.freq is not None:
             df = fill_df(df, self.start, self.end, self.freq)
 
         if self.timezone:
             df = localize(df, self.timezone)
 
         if location:
-            df = df.join(
-                self.stations[["latitude", "longitude", "elevation"]], on="station"
-            )
+            df = df.join(self.stations[["latitude", "longitude", "elevation"]], on="station")
 
         if humanize:
             df = schema_service.humanize(df)
@@ -280,13 +259,9 @@ class TimeSeries:
         if parameter is None:
             return self._df.count().max()
 
-        return self._df[
-            parameter if isinstance(parameter, Parameter) else parameter
-        ].count()
+        return self._df[parameter].count()
 
-    def completeness(
-        self, parameter: Parameter | str | None = None
-    ) -> float | None:
+    def completeness(self, parameter: Parameter | str | None = None) -> float | None:
         """
         Get completeness for a specific parameter or the entire DataFrame.
 

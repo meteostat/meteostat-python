@@ -22,10 +22,6 @@ def nearest_neighbor(df: pd.DataFrame, ts: TimeSeries, _point: Point) -> pd.Data
     pd.DataFrame
         DataFrame with nearest neighbor values for each record.
     """
-    df = (
-        df.sort_values("distance")
-        .groupby(pd.Grouper(level="time", freq=ts.freq))
-        .agg("first")
-    )
+    df = df.sort_values("distance").groupby(pd.Grouper(level="time", freq=ts.freq)).agg("first")
 
     return df

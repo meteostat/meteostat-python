@@ -82,22 +82,18 @@ def get_df(station: str) -> pd.DataFrame | None:
     # Skip stale forecasts
     issue_time = datetime.strptime(
         tree.xpath(
-            "//kml:kml/kml:Document/kml:ExtendedData/"
-            + "dwd:ProductDefinition/dwd:IssueTime",
+            "//kml:kml/kml:Document/kml:ExtendedData/" + "dwd:ProductDefinition/dwd:IssueTime",
             namespaces=tree.nsmap,
         )[0].text,
         "%Y-%m-%dT%H:%M:%S.%fZ",
     )
-    if (
-        datetime.now() - issue_time
-    ).total_seconds() > config.dwd_mosmix_staleness_threshold:
+    if (datetime.now() - issue_time).total_seconds() > config.dwd_mosmix_staleness_threshold:
         return None
 
     # Collect all time steps
     timesteps = []
     for step in tree.xpath(
-        "//kml:kml/kml:Document/kml:ExtendedData/dwd:ProductDefinition/"
-        + "dwd:ForecastTimeSteps/dwd:TimeStep",
+        "//kml:kml/kml:Document/kml:ExtendedData/dwd:ProductDefinition/" + "dwd:ForecastTimeSteps/dwd:TimeStep",
         namespaces=tree.nsmap,
     ):
         timesteps.append(step.text)
@@ -118,9 +114,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         Parameter.VSBY: [],
         Parameter.COCO: [],
     }
-    placemark = tree.xpath(
-        "//kml:kml/kml:Document/kml:Placemark", namespaces=tree.nsmap
-    )[0]
+    placemark = tree.xpath("//kml:kml/kml:Document/kml:Placemark", namespaces=tree.nsmap)[0]
 
     # Pressure
     for value in (
@@ -135,11 +129,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .strip()
         .split()
     ):
-        data[Parameter.PRES].append(
-            float(value) / 100
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
-        )
+        data[Parameter.PRES].append(float(value) / 100 if value.lstrip("-").replace(".", "", 1).isdigit() else None)
 
     # Air temperature
     for value in (
@@ -155,9 +145,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .split()
     ):
         data[Parameter.TEMP].append(
-            kelvin_to_celsius(float(value))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            kelvin_to_celsius(float(value)) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Dew point
@@ -174,9 +162,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .split()
     ):
         data[Parameter.DWPT].append(
-            kelvin_to_celsius(float(value))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            kelvin_to_celsius(float(value)) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Wind direction
@@ -192,11 +178,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .strip()
         .split()
     ):
-        data[Parameter.WDIR].append(
-            int(float(value))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
-        )
+        data[Parameter.WDIR].append(int(float(value)) if value.lstrip("-").replace(".", "", 1).isdigit() else None)
 
     # Wind speed
     for value in (
@@ -212,9 +194,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .split()
     ):
         data[Parameter.WSPD].append(
-            ms_to_kmh(float(value))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            ms_to_kmh(float(value)) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Peak wind gust
@@ -231,9 +211,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .split()
     ):
         data[Parameter.WPGT].append(
-            ms_to_kmh(float(value))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            ms_to_kmh(float(value)) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Weather condition
@@ -250,9 +228,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .split()
     ):
         data[Parameter.COCO].append(
-            get_coco(int(float(value)))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            get_coco(int(float(value))) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Precipitation
@@ -268,9 +244,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .strip()
         .split()
     ):
-        data[Parameter.PRCP].append(
-            float(value) if value.lstrip("-").replace(".", "", 1).isdigit() else None
-        )
+        data[Parameter.PRCP].append(float(value) if value.lstrip("-").replace(".", "", 1).isdigit() else None)
 
     # Sunshine Duration
     for value in (
@@ -285,11 +259,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .strip()
         .split()
     ):
-        data[Parameter.TSUN].append(
-            float(value) / 60
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
-        )
+        data[Parameter.TSUN].append(float(value) / 60 if value.lstrip("-").replace(".", "", 1).isdigit() else None)
 
     # Cloud Cover
     for value in (
@@ -305,9 +275,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .split()
     ):
         data[Parameter.CLDC].append(
-            percentage_to_okta(float(value))
-            if value.lstrip("-").replace(".", "", 1).isdigit()
-            else None
+            percentage_to_okta(float(value)) if value.lstrip("-").replace(".", "", 1).isdigit() else None
         )
 
     # Visibility
@@ -323,9 +291,7 @@ def get_df(station: str) -> pd.DataFrame | None:
         .strip()
         .split()
     ):
-        data[Parameter.VSBY].append(
-            float(value) if value.lstrip("-").replace(".", "", 1).isdigit() else None
-        )
+        data[Parameter.VSBY].append(float(value) if value.lstrip("-").replace(".", "", 1).isdigit() else None)
 
     # Convert data dict to DataFrame
     df = pd.DataFrame.from_dict(data)

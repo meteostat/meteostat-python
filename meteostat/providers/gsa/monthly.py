@@ -56,9 +56,7 @@ def get_data(
     """
     Fetch data from GeoSphere Austria Data Hub API
     """
-    logger.debug(
-        f"Fetching monthly data for station '{station_id}' from {start} to {end}"
-    )
+    logger.debug(f"Fetching monthly data for station '{station_id}' from {start} to {end}")
 
     # Format dates as ISO 8601 (full date for monthly data)
     start_str = start.strftime("%Y-%m-%d")
@@ -148,9 +146,7 @@ def get_data(
             df[Parameter.CLDC] = df[Parameter.CLDC].apply(percentage_to_okta)
 
         if Parameter.PRES in df.columns:
-            df[Parameter.PRES] = df.apply(
-                lambda row: pres_to_msl(row, elevation), axis=1
-            )
+            df[Parameter.PRES] = df.apply(lambda row: pres_to_msl(row, elevation), axis=1)
 
         # Round values
         df = df.round(1)

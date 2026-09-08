@@ -17,7 +17,7 @@ class TestMerge:
 
     def test_empty_list_raises_valueerror(self):
         """merge([]) should raise ValueError, not IndexError"""
-        with pytest.raises(ValueError, match="[Cc]annot merge empty"):
+        with pytest.raises(ValueError, match=r"[Cc]annot merge empty"):
             merge([])
 
     def test_single_item_list_works(self):

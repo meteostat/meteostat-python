@@ -39,15 +39,11 @@ METEOSTAT_TO_GSA = {v: k for k, v in PARAMETER_MAPPING.items()}
 
 
 @cache_service.cache(TTL.DAY, "pickle")
-def get_data(
-    station_id: str, parameters: list[str], start: datetime, end: datetime
-) -> pd.DataFrame | None:
+def get_data(station_id: str, parameters: list[str], start: datetime, end: datetime) -> pd.DataFrame | None:
     """
     Fetch data from GeoSphere Austria Data Hub API
     """
-    logger.debug(
-        f"Fetching hourly data for station '{station_id}' from {start} to {end}"
-    )
+    logger.debug(f"Fetching hourly data for station '{station_id}' from {start} to {end}")
 
     # Format dates as ISO 8601
     start_str = start.strftime("%Y-%m-%dT%H:%M")
@@ -69,9 +65,7 @@ def get_data(
     )
 
     if response.status_code != 200:
-        logger.warning(
-            f"Failed to fetch data for station {station_id} (status: {response.status_code})"
-        )
+        logger.warning(f"Failed to fetch data for station {station_id} (status: {response.status_code})")
         return None
 
     try:

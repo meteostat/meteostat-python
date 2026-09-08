@@ -48,9 +48,7 @@ def get_data(
     """
     Fetch SYNOP data from GeoSphere Austria Data Hub API
     """
-    logger.debug(
-        f"Fetching SYNOP hourly data for station '{station_id}' from {start} to {end}"
-    )
+    logger.debug(f"Fetching SYNOP hourly data for station '{station_id}' from {start} to {end}")
 
     # Format dates as ISO 8601
     start_str = start.strftime("%Y-%m-%dT%H:%M")
@@ -72,9 +70,7 @@ def get_data(
     )
 
     if response.status_code != 200:
-        logger.warning(
-            f"Failed to fetch SYNOP data for station {station_id} (status: {response.status_code})"
-        )
+        logger.warning(f"Failed to fetch SYNOP data for station {station_id} (status: {response.status_code})")
         return None
 
     try:
@@ -140,9 +136,7 @@ def get_data(
             df[Parameter.PRCP] = df[Parameter.PRCP].replace(-1, 0)
 
         if Parameter.PRES in df.columns:
-            df[Parameter.PRES] = df.apply(
-                lambda row: pres_to_msl(row, elevation), axis=1
-            )
+            df[Parameter.PRES] = df.apply(lambda row: pres_to_msl(row, elevation), axis=1)
 
         # Round values
         df = df.round(1)

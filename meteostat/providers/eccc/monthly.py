@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 from meteostat.core.cache import cache_service

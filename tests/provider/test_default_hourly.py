@@ -46,15 +46,11 @@ def test_data_hourly():
     start_date_df = df.iloc[start_date_mask]
     source_index = start_date_df.index.get_level_values("source")
     has_non_mosmix_source = any(s != ms.Provider.DWD_MOSMIX for s in source_index)
-    assert has_non_mosmix_source, (
-        f"No non-model source found for the start date ({start_date.date()})"
-    )
+    assert has_non_mosmix_source, f"No non-model source found for the start date ({start_date.date()})"
 
     # Check that all data on the end date has DWD_MOSMIX as its source
     end_date_mask = [t.date() == end_date.date() for t in time_index]
     end_date_df = df.iloc[end_date_mask]
     end_date_sources = end_date_df.index.get_level_values("source")
     all_mosmix_source = all(s == ms.Provider.DWD_MOSMIX for s in end_date_sources)
-    assert all_mosmix_source, (
-        f"Not all data on the end date ({end_date.date()}) has model data as its source"
-    )
+    assert all_mosmix_source, f"Not all data on the end date ({end_date.date()}) has model data as its source"

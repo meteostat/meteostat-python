@@ -19,8 +19,8 @@ class SampleClass:
     age: int = 0
     optional_value: str | None = None
     score: float = 0.0
-    tags: list[str] = []
-    settings: dict[str, str] = {}
+    tags: list[str] = []  # noqa: RUF012
+    settings: dict[str, str] = {}  # noqa: RUF012
     optional_tags: list[str] | None = None
 
 
@@ -47,9 +47,7 @@ class TestExtractPropertyType:
 
     def test_extract_property_type_optional(self):
         """Test extracting Optional type annotation"""
-        expected_type, original_type = extract_property_type(
-            SampleClass, "optional_value"
-        )
+        expected_type, original_type = extract_property_type(SampleClass, "optional_value")
         # For str | None, expected_type should be str
         assert expected_type is str
         # original_type should be a union type (str | None creates types.UnionType)
@@ -76,23 +74,21 @@ class TestExtractPropertyType:
 
     def test_extract_property_type_list(self):
         """Test extracting List type annotation"""
-        expected_type, original_type = extract_property_type(SampleClass, "tags")
+        expected_type, _ = extract_property_type(SampleClass, "tags")
         # For list[str], expected_type should be list[str]
         assert hasattr(expected_type, "__origin__")
         assert expected_type.__origin__ is list
 
     def test_extract_property_type_dict(self):
         """Test extracting Dict type annotation"""
-        expected_type, original_type = extract_property_type(SampleClass, "settings")
+        expected_type, _ = extract_property_type(SampleClass, "settings")
         # For dict[str, str], expected_type should be dict[str, str]
         assert hasattr(expected_type, "__origin__")
         assert expected_type.__origin__ is dict
 
     def test_extract_property_type_optional_list(self):
         """Test extracting list[str] | None type annotation"""
-        expected_type, original_type = extract_property_type(
-            SampleClass, "optional_tags"
-        )
+        expected_type, original_type = extract_property_type(SampleClass, "optional_tags")
         # For list[str] | None, expected_type should be list[str]
         assert hasattr(expected_type, "__origin__")
         assert expected_type.__origin__ is list
@@ -158,9 +154,7 @@ class TestValidateParsedValue:
         original_type = str | None
         value = None
         expected_type = str
-        result = validate_parsed_value(
-            value, expected_type, original_type, "optional_field"
-        )
+        result = validate_parsed_value(value, expected_type, original_type, "optional_field")
         assert result is None
 
     def test_validate_parsed_value_type_mismatch(self):
@@ -178,9 +172,7 @@ class TestValidateParsedValue:
         original_type = str | None
         value = "valid string"
         expected_type = str
-        result = validate_parsed_value(
-            value, expected_type, original_type, "optional_field"
-        )
+        result = validate_parsed_value(value, expected_type, original_type, "optional_field")
         assert result == value
 
     def test_validate_parsed_value_list_type(self):
@@ -220,9 +212,7 @@ class TestValidateParsedValue:
         value = ["item1", "item2"]
         expected_type = list[str]
         original_type = list[str] | None
-        result = validate_parsed_value(
-            value, expected_type, original_type, "optional_tags"
-        )
+        result = validate_parsed_value(value, expected_type, original_type, "optional_tags")
         assert result == value
 
     def test_validate_parsed_value_optional_list_with_none(self):
@@ -230,9 +220,7 @@ class TestValidateParsedValue:
         value = None
         expected_type = list[str]
         original_type = list[str] | None
-        result = validate_parsed_value(
-            value, expected_type, original_type, "optional_tags"
-        )
+        result = validate_parsed_value(value, expected_type, original_type, "optional_tags")
         assert result is None
 
     def test_validate_parsed_value_list_type_mismatch(self):

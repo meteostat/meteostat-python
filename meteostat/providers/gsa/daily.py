@@ -56,9 +56,7 @@ def get_data(
     """
     Fetch data from GeoSphere Austria Data Hub API
     """
-    logger.debug(
-        f"Fetching daily data for station '{station_id}' from {start} to {end}"
-    )
+    logger.debug(f"Fetching daily data for station '{station_id}' from {start} to {end}")
 
     # Format dates as ISO 8601 (date only for daily data)
     start_str = start.strftime("%Y-%m-%d")
@@ -80,9 +78,7 @@ def get_data(
     )
 
     if response.status_code != 200:
-        logger.warning(
-            f"Failed to fetch daily data for station {station_id} (status: {response.status_code})"
-        )
+        logger.warning(f"Failed to fetch daily data for station {station_id} (status: {response.status_code})")
         return None
 
     try:
@@ -150,9 +146,7 @@ def get_data(
             df[Parameter.CLDC] = df[Parameter.CLDC].apply(percentage_to_okta)
 
         if Parameter.PRES in df.columns:
-            df[Parameter.PRES] = df.apply(
-                lambda row: pres_to_msl(row, elevation), axis=1
-            )
+            df[Parameter.PRES] = df.apply(lambda row: pres_to_msl(row, elevation), axis=1)
 
         # Round values
         df = df.round(1)

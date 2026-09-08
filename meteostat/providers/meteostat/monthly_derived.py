@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 
@@ -85,15 +84,9 @@ def fetch(req: ProviderRequest) -> pd.DataFrame | None:
     df = pd.DataFrame()
     for parameter in req.parameters:
         [daily_param_name, agg_func] = PARAMETER_AGGS[parameter]
-        df[parameter] = (
-            df_daily[daily_param_name]
-            .groupby(pd.Grouper(level="time", freq="MS"))
-            .agg(agg_func)
-        )
+        df[parameter] = df_daily[daily_param_name].groupby(pd.Grouper(level="time", freq="MS")).agg(agg_func)
         df[f"{parameter}_source"] = (
-            df_daily[f"{daily_param_name}_source"]
-            .groupby(pd.Grouper(level="time", freq="MS"))
-            .agg(aggregate_sources)
+            df_daily[f"{daily_param_name}_source"].groupby(pd.Grouper(level="time", freq="MS")).agg(aggregate_sources)
         )
 
     # Adjust DataFrame and add index

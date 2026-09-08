@@ -1,4 +1,3 @@
-
 import requests
 
 from meteostat.core.cache import cache_service
@@ -42,8 +41,6 @@ def get_meta_data(station: str) -> dict | None:
         except (IndexError, KeyError):
             logger.info(f"ECCC climate identifier for station {station} not found")
     else:
-        logger.warning(
-            f"ECCC climate identifier for station {station} not found (status: {response.status_code})"
-        )
+        logger.warning(f"ECCC climate identifier for station {station} not found (status: {response.status_code})")
 
     return None

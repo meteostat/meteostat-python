@@ -5,7 +5,6 @@ The Parameter Service provides methods to manage and access
 supported parameters for data requests.
 """
 
-
 from meteostat.core.logger import logger
 from meteostat.enumerations import Granularity, Parameter
 from meteostat.parameters import DEFAULT_PARAMETERS
@@ -61,9 +60,7 @@ class ParameterService:
 
         self._parameters.append(parameter)
 
-    def get_parameter(
-        self, parameter_id: Parameter, granularity: Granularity
-    ) -> ParameterSpec | None:
+    def get_parameter(self, parameter_id: Parameter, granularity: Granularity) -> ParameterSpec | None:
         """
         Get parameter by ID and granularity
         """
@@ -76,9 +73,7 @@ class ParameterService:
             None,
         )
 
-    def filter_parameters(
-        self, granularity: Granularity, parameters: list[Parameter]
-    ) -> list[Parameter]:
+    def filter_parameters(self, granularity: Granularity, parameters: list[Parameter]) -> list[Parameter]:
         """
         Raise exception if a requested parameter is not part of the schema
         """
